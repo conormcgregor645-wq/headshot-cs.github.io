@@ -980,6 +980,24 @@ nav a.on{box-shadow:inset 3px 0 0 var(--accent)}
 .pts.big{animation:ptsPop .6s var(--ease)}
 @keyframes ptsPop{from{transform:scale(.85);opacity:.5}}
 ::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:var(--line);border-radius:999px;border:2px solid var(--ink)}::-webkit-scrollbar-track{background:transparent}
+/* главный экран: один сервер по центру */
+#v-play{min-height:calc(100vh - 140px);justify-content:center}
+.home-hero{display:flex;flex-direction:column;align-items:center;text-align:center;gap:22px;padding-block:10px 20px;position:relative}
+.home-hero::before{content:"";position:absolute;left:50%;top:55%;width:min(700px,90vw);aspect-ratio:1;transform:translate(-50%,-50%);background:radial-gradient(circle,rgba(255,42,75,.16),transparent 60%);pointer-events:none;z-index:0}
+.home-hero>*{position:relative;z-index:1}
+.home-head h1{font-size:clamp(30px,4vw,44px)}
+.home-head p{margin-inline:auto}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--live);background:rgba(61,220,151,.1);border:1px solid rgba(61,220,151,.25);border-radius:999px;padding:5px 12px;margin-bottom:12px}
+.eyebrow .dot{width:8px;height:8px;border-radius:50%;background:var(--live);box-shadow:0 0 0 0 rgba(61,220,151,.5);animation:livep 2s infinite}
+.home-hero .modes-grid{display:flex;justify-content:center;width:100%}
+.home-hero .mode-card{width:min(340px,100%);padding:24px 22px;border-width:2px;box-shadow:0 30px 80px rgba(0,0,0,.6),0 0 0 1px rgba(255,42,75,.2)}
+.home-hero .mode-card:hover{transform:translateY(-8px) scale(1.02);box-shadow:0 36px 90px rgba(0,0,0,.65),0 0 60px rgba(255,42,75,.3)}
+.home-hero .mode-card{text-align:left}
+.home-hero .mc-head b{font-size:42px}
+.home-hero .mc-head>span{font-size:22px}
+.home-hero .mc-foot{font-size:13px}
+.home-hero .mc-foot .go{opacity:1;transform:none;padding:10px 16px;font-size:14px}
+#v-play .site-stats{border-top:0;padding-top:0}
 /* меню профиля */
 #steamSlot{position:relative}
 .me-chip{cursor:pointer;font:inherit;color:var(--fg);border-radius:999px!important;padding:5px 14px 5px 5px!important;transition:border-color .2s,transform .2s var(--ease)}
@@ -1056,22 +1074,19 @@ html.no-anim *,html.no-anim *::before,html.no-anim *::after{animation:none!impor
 
     <!-- PLAY -->
     <div class="view" id="v-play">
-      <div class="page-head"><h1>Выбери режим</h1><p>Нажми на режим, чтобы увидеть все его сервера.</p></div>
+      <div class="home-hero">
+      <div class="page-head home-head"><span class="eyebrow"><i class="dot"></i> Сервер онлайн</span><h1>Заходи играть</h1><p>Нажми на карточку, чтобы выбрать сервер и подключиться.</p></div>
       <div class="modes-grid">
         <a class="mode-card" href="#public">
           <div class="mc-head"><b>PUBLIC</b><span><i class="dot"></i><span id="pubOnline">0</span></span></div>
           <span class="mc-foot"><span id="pubCount">0 серверов</span><span class="go">Сервера →</span></span>
         </a>
       </div>
-      <div id="homeProg"></div>
+      </div>
       <section class="site-stats">
         <div class="ss"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2 21c0-4 3-7 7-7s7 3 7 7"/><path d="M16 4a3.5 3.5 0 0 1 0 7M18 14c2.4.7 4 3.2 4 7"/></svg><div><small>Всего игроков</small><b id="ssPlayers">0</b></div></div>
         <div class="ss"><svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><div><small>Выдано блокировок</small><b id="ssBans">0</b></div></div>
         <div class="ss"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="10" r="3"/><path d="M6.5 18.5c1.3-2 3.2-3 5.5-3s4.2 1 5.5 3"/></svg><div><small>Онлайн на сайте</small><b id="ssSite">0</b></div></div>
-      </section>
-      <section>
-        <div class="hdr"><h2>Новости</h2><a class="more" href="#news">Все новости →</a></div>
-        <div class="home-news" id="homeNews"></div>
       </section>
     </div>
 
@@ -1170,20 +1185,13 @@ html.no-anim *,html.no-anim *::before,html.no-anim *::after{animation:none!impor
       </section>
     </div>
 
-    <!-- NEWS -->
-    <div class="view" id="v-news" hidden>
-      <div class="page-head"><h1>Новости</h1><p>Обновления сервера, ивенты и технические работы.</p></div>
-      <div class="seg" id="newsFilter" role="group" aria-label="Тип новостей"></div>
-      <div class="news-list" id="newsList"></div>
-    </div>
-
     <!-- ADMIN -->
     <div class="view" id="v-admin" hidden>
       <div class="page-head"><h1>Админ-панель</h1><p>Управление сервером без программиста: баны, VIP, новости и правила.</p></div>
       <div class="note warn">Демо-версия. На настоящем сайте сюда попадут только администраторы: роль проверяется после входа через Steam. Изменения сейчас сразу видны на сайте, но пропадут после перезагрузки страницы.</div>
       <div class="adm-tiles" id="admTiles"></div>
       <div class="seg" id="admTabs" role="group" aria-label="Раздел">
-        <button data-t="appeals">Апелляции</button><button data-t="bans" aria-pressed="true">Баны</button><button data-t="vip">VIP</button><button data-t="news">Новости</button><button data-t="rules">Правила</button>
+        <button data-t="appeals">Апелляции</button><button data-t="bans" aria-pressed="true">Баны</button><button data-t="vip">VIP</button><button data-t="rules">Правила</button>
       </div>
 
       <section class="adm-pane" data-pane="appeals" hidden style="grid-template-columns:minmax(0,1fr)">
@@ -1218,18 +1226,6 @@ html.no-anim *,html.no-anim *::before,html.no-anim *::after{animation:none!impor
         <div class="box"><div class="hdr"><h2>Действующие VIP</h2></div><div class="adm-list" id="aVips"></div></div>
       </section>
 
-      <section class="adm-pane" data-pane="news" hidden>
-        <form class="box adm-form" id="fNews">
-          <h3>Опубликовать новость</h3>
-          <div class="fgrid">
-            <label class="fld wide">Заголовок<input id="nTitle" required maxlength="80" placeholder="Например, Новая карта de_ancient"></label>
-            <label class="fld">Тип<select id="nTag"><option>Обновление</option><option>Ивент</option><option>Техработы</option></select></label>
-            <label class="fld wide">Текст<textarea id="nText" required rows="4" maxlength="1200" placeholder="Что изменилось и что это значит для игроков"></textarea></label>
-          </div>
-          <div class="frow"><span class="fmsg" id="nMsg"></span><button class="steam" type="submit">Опубликовать</button></div>
-        </form>
-        <div class="box"><div class="hdr"><h2>Опубликованные</h2></div><div class="adm-list" id="aNews"></div></div>
-      </section>
 
       <section class="adm-pane" data-pane="rules" hidden>
         <form class="box adm-form" id="fRule">
@@ -1350,7 +1346,6 @@ html.no-anim *,html.no-anim *::before,html.no-anim *::after{animation:none!impor
         </section>
         <section class="box set-sec">
           <h2>Уведомления</h2>
-          <div class="set-row"><div><b>Новости и обновления</b><small>Счётчик новых новостей в меню</small></div><label class="switch"><input type="checkbox" data-set="newsNotify"><span></span></label></div>
           <div class="set-row"><div><b>Окончание статуса</b><small>Напомнить за 3 дня</small></div><label class="switch"><input type="checkbox" data-set="vipNotify"><span></span></label></div>
           <div class="set-row"><div><b>Итоги месяца</b><small>Сообщить о месте и призе</small></div><label class="switch"><input type="checkbox" data-set="monthNotify"><span></span></label></div>
         </section>
@@ -1784,24 +1779,6 @@ function drawTasks(){const vip=logged&&ME.vip&&ME.vip.tier!=="VIP";
 function tickTasks(){const now=new Date(),msk=new Date(now.getTime()+3*3600e3);const left=86400e3-(msk.getUTCHours()*3600e3+msk.getUTCMinutes()*60e3+msk.getUTCSeconds()*1e3);$("tReset").textContent=[Math.floor(left/3600e3),Math.floor(left%3600e3/60e3),Math.floor(left%60e3/1e3)].map(x=>String(x).padStart(2,"0")).join(":")}
 tickTasks();setInterval(tickTasks,1000);
 
-// ---------- новости ----------
-const NTC={"Обновление":"var(--r-mg)","Ивент":"var(--accent-2)","Техработы":"var(--muted)"};
-const NEWS=[
- {d:daysAgo(2),tag:"Обновление",img:"var(--photo)",title:"148 достижений и новая страница профиля",text:"Мы добавили 122 новых достижения в девяти категориях: от первых шагов до клатча один против пяти. У каждого своя награда в очках рейтинга.\n\nВ личном профиле теперь видно, сколько осталось до каждого достижения."},
- {d:daysAgo(5),tag:"Обновление",title:"Кланы: свои аватары и обложки",text:"Создавай клан с собственной аватаркой и обложкой. Топ-3 клана месяца получают PREMIUM для всех участников."},
- {d:daysAgo(8),tag:"Техработы",title:"Перезапуск серверов 2 ноября в 06:00",text:"Обновляем железо на всех серверах Public. Работы займут около 30 минут, статистика и VIP сохранятся."},
- {d:daysAgo(12),tag:"Обновление",title:"Задания недели",text:"Помимо ежедневных заданий появились недельные: четыре задачи с наградой до 600 очков. Сбрасываются каждый понедельник в 00:00 по Москве."},
- {d:daysAgo(20),tag:"Ивент",title:"Турнир 2x2 в эту субботу",text:"Регистрация пар в Discord до пятницы. Призовой фонд: LEGEND на месяц для победителей и PREMIUM для финалистов."}
-];
-let newsF="Все";
-$("newsFilter").innerHTML=["Все","Обновление","Ивент","Техработы"].map(t=>`<button data-t="${t}" aria-pressed="${t===newsF}">${({"Все":"Все","Обновление":"Обновления","Ивент":"Ивенты","Техработы":"Техработы"})[t]}</button>`).join("");
-$("newsFilter").onclick=e=>{const b=e.target.closest("button");if(!b)return;newsF=b.dataset.t;document.querySelectorAll("#newsFilter button").forEach(x=>x.setAttribute("aria-pressed",x===b));drawNews()};
-function newsBody(n){const [first,...rest]=n.text.split("\n\n");return`<p>${esc(first)}</p>${rest.length?`<details><summary>Читать полностью</summary><p>${esc(rest.join("\n\n"))}</p></details>`:""}`}
-function drawNews(){const list=NEWS.filter(n=>newsF==="Все"||n.tag===newsF);
-  $("newsList").innerHTML=list.map((n,i)=>{const meta=`<div class="meta"><span class="ntag" style="--tc:${NTC[n.tag]}">${n.tag}</span>${dstr(n.d)}</div>`;
-    return i===0&&newsF==="Все"?`<article class="nw feat"><div class="pic" style="background-image:${n.img||"var(--photo)"}"></div><div class="inner">${meta}<h3>${esc(n.title)}</h3>${newsBody(n)}</div></article>`:`<article class="nw">${meta}<h3>${esc(n.title)}</h3>${newsBody(n)}</article>`}).join("")||`<div class="note">Новостей этого типа пока нет</div>`;
-  $("homeNews").innerHTML=NEWS.slice(0,3).map(n=>`<a class="hn" href="#news"><div class="meta"><span class="ntag" style="--tc:${NTC[n.tag]}">${n.tag}</span>${dstr(n.d)}</div><b>${esc(n.title)}</b><span>${esc(n.text.split("\n")[0].slice(0,110))}${n.text.length>110?"…":""}</span></a>`).join("")}
-
 // ---------- вход (демо) и мой профиль ----------
 const meBase=[...players].sort((a,b)=>b.pts-a.pts)[9];
 const ME={...meBase,id:777,n:"Demo_Player",c:"#ff2a4b",hrs:142,balance:500,vip:{tier:"PREMIUM",until:daysFwd(18),from:daysAgo(12)}};
@@ -1844,16 +1821,14 @@ function drawAdmin(){const act=bans.filter(b=>b.active);
   $("admTiles").innerHTML=`<div><small>Онлайн сейчас</small><b>${fmt(totalOnline)}</b></div><div><small>Активные баны</small><b>${act.length}</b></div><div><small>Действующие VIP</small><b>${VIPS.length}</b></div><div><small>Новые апелляции</small><b>${typeof APPEALS!=="undefined"?APPEALS.filter(a=>a.st==="new").length:0}</b></div>`;if(typeof APPEALS!=="undefined")drawAppeals();
   $("aBans").innerHTML=act.map(b=>`<div class="ai"><div><b>${esc(b.n)} · ${b.reason}</b><small>${b.sid} · ${b.perm?"навсегда":"до "+new Date(b.d.getTime()+b.days*864e5).toLocaleDateString("ru-RU")}</small></div><button data-unban="${bans.indexOf(b)}">Разбанить</button></div>`).join("")||'<div class="note">Активных банов нет</div>';
   $("aVips").innerHTML=VIPS.map((v,i)=>`<div class="ai"><div><b>${esc(v[0])} · ${v[2]}</b><small>${v[1]} · до ${v[3].toLocaleDateString("ru-RU")}</small></div><button data-unvip="${i}">Снять</button></div>`).join("")||'<div class="note">Никого</div>';
-  $("aNews").innerHTML=NEWS.map((n,i)=>`<div class="ai"><div><b>${esc(n.title)}</b><small>${n.tag} · ${n.d.toLocaleDateString("ru-RU")}</small></div><button data-unnews="${i}">Удалить</button></div>`).join("");
   $("rSec").innerHTML=RULES.map(([h],i)=>`<option value="${i}">${h}</option>`).join("");
   $("aRules").innerHTML=RULES.map(([h,list],si)=>`<div class="ai"><span class="grp">${h}</span></div>`+list.map(([n,t,p],ri)=>`<div class="ai"><div><b>${n} ${esc(t)}</b><small>${esc(p)}</small></div><button data-unrule="${si}:${ri}">Удалить</button></div>`).join("")).join("")}
 function renum(){RULES.forEach((s,si)=>s[1].forEach((r,ri)=>r[0]=`${si+1}.${ri+1}`))}
-function refreshAll(){drawBans();drawAdmin();drawNews();drawRules()}
+function refreshAll(){drawBans();drawAdmin();drawRules()}
 document.querySelectorAll("#admTabs button").forEach(b=>b.onclick=()=>{document.querySelectorAll("#admTabs button").forEach(x=>x.setAttribute("aria-pressed",x===b));document.querySelectorAll(".adm-pane").forEach(p=>p.hidden=p.dataset.pane!==b.dataset.t)});
 $("v-admin").addEventListener("click",e=>{const t=e.target.closest("button");if(!t)return;
   if(t.dataset.unban){const b=bans[+t.dataset.unban];b.active=false;b.lifted=true;toast(`${b.n} разбанен`)}
   else if(t.dataset.unvip){const v=VIPS.splice(+t.dataset.unvip,1)[0];toast(`VIP снят с ${v[0]}`)}
-  else if(t.dataset.unnews){const n=NEWS.splice(+t.dataset.unnews,1)[0];toast("Новость удалена")}
   else if(t.dataset.unrule){const [si,ri]=t.dataset.unrule.split(":").map(Number);RULES[si][1].splice(ri,1);renum();toast("Правило удалено")}
   else return;refreshAll()});
 const formMsg=(id,t,ok)=>{$(id).textContent=t;$(id).className="fmsg"+(ok?" ok":"")};
@@ -1864,10 +1839,9 @@ $("fBan").onsubmit=e=>{e.preventDefault();const days=+$("bTerm").value,n=$("bNic
 $("fVip").onsubmit=e=>{e.preventDefault();const n=$("vNick").value.trim(),sid=$("vSid").value.trim().toUpperCase(),tier=$("vTier").value,days=+$("vDays").value;
   const ex=VIPS.find(v=>v[1]===sid);if(ex){ex[2]=tier;ex[3]=new Date(Math.max(ex[3],today)+days*864e5);formMsg("vMsg",`Срок ${n} продлён на ${days} дн.`,1)}else{VIPS.unshift([n,sid,tier,daysFwd(days)]);formMsg("vMsg",`${n} получил ${tier} на ${days} дн.`,1)}
   e.target.reset();$("vDays").value="30";drawAdmin()};
-$("fNews").onsubmit=e=>{e.preventDefault();NEWS.unshift({d:new Date(today),tag:$("nTag").value,title:$("nTitle").value.trim(),text:$("nText").value.trim()});e.target.reset();formMsg("nMsg","Опубликовано. Новость уже на главной и в разделе «Новости».",1);refreshAll()};
 $("fRule").onsubmit=e=>{e.preventDefault();const si=+$("rSec").value;RULES[si][1].push(["",$("rText").value.trim(),$("rPun").value.trim()]);renum();e.target.reset();formMsg("rMsg","Правило добавлено на страницу «Правила».",1);refreshAll()};
 
-drawNews();drawAdmin();
+drawAdmin();
 
 // ---------- скинченджер ----------
 // силуэты (viewBox 0 0 120 44)
@@ -1980,11 +1954,7 @@ document.querySelectorAll(".socials button").forEach(b=>b.onclick=()=>{const u=S
 })();
 
 // ---------- прогресс на главной ----------
-function drawHomeProgress(){const el=$("homeProg");
-  if(!logged){el.innerHTML=`<div class="box hp-cta"><div><b>Следи за своим прогрессом</b><span>Войди через Steam, чтобы видеть свои очки, место в рейтинге и задания дня прямо на главной.</span></div><button class="steam" data-login><span>Войти через Steam</span></button></div>`;return}
-  const p=ME,nx=Math.min(17,p.r+1),into=p.pts-p.r*STEP,pc=p.r===17?100:Math.round(into/STEP*100);
-  el.innerHTML=`<div class="hp"><section class="box rankbox"><div class="hdr" style="margin:0"><h2>Твои очки за месяц</h2><a class="more" href="#stats">Рейтинг →</a></div>${meGoal()}</section>
-  <section class="box mini-t"><div class="hdr" style="margin:0"><h2>Задания дня</h2><a class="more" href="#tasks">Все задания →</a></div>${DAILY.slice(0,3).map(([,t,d,c,m,rw])=>`<div class="mt ${c>=m?"done":""}"><b>${t} <span style="font-family:var(--f-body);font-weight:500">· ${d}</span></b><span>${c>=m?"✓ +"+rw:`${c}/${m} · +${rw}`}</span><div class="bar"><span style="width:${c/m*100}%"></span></div></div>`).join("")}</section></div>`}
+function drawHomeProgress(){}
 
 // ---------- апелляции ----------
 var APPEALS=[{sid:"STEAM_1:1:43900668",n:"Kemper",reason:"Обход бана",contact:"kemper#2211",text:"Это мой первый аккаунт, второй взял брат. Мы играем с одного компьютера.",d:daysAgo(1),st:"new"}];
@@ -2118,7 +2088,7 @@ document.documentElement.style.setProperty("--god",`url(${TIERIMG.GOD})`);
 
 drawStats();
 // ---------- навигация ----------
-const VIEWS=["play","public","me","tasks","shop","skins","stats","clans","ach","news","settings","bans","rules","admin","offer","privacy","404"];
+const VIEWS=["play","public","me","tasks","shop","skins","stats","clans","ach","settings","bans","rules","admin","offer","privacy","404"];
 const MORE=["clans","bans","rules"];
 let curView="play";
 function viewFrom(h){return !h?"play":VIEWS.includes(h)&&h!=="404"?h:"404"}
@@ -2129,7 +2099,6 @@ function route(forced){try{closeProfile()}catch(e){}["modal","srvModal","cmdModa
   {const el=$("v-"+v);el.classList.remove("enter");void el.offsetWidth;el.classList.add("enter");setTimeout(()=>el.classList.remove("enter"),900);let k=0;el.querySelectorAll(".t6,.srv,.a3,.tc,.ccard,.wcard,.hn,.nw,.mode-card,.pm").forEach(c=>{c.style.setProperty("--i",Math.min(k++,14))})}
   document.querySelectorAll("#mainnav a,.adm-link").forEach(a=>a.classList.toggle("on",a.dataset.v===(v==="public"?"play":v)));
   try{closeUm()}catch(e){}
-  if(v==="news"){try{newsSeen=NEWS.length;localStorage.setItem("newsSeen",newsSeen)}catch(e){}try{drawChip()}catch(e){}}
   if(v==="settings")try{drawSettings()}catch(e){}
   document.querySelector(".rail").classList.remove("open");$("burger").setAttribute("aria-expanded","false");
   document.title=v==="404"?"Страница не найдена — Tasher":"Tasher CS2";
@@ -2145,13 +2114,13 @@ try{Object.assign(SET,JSON.parse(localStorage.getItem("settings")||"{}"))}catch(
 const saveSet=()=>{try{localStorage.setItem("settings",JSON.stringify(SET))}catch(e){}};
 function applySet(){document.documentElement.classList.toggle("no-anim",!SET.anim);document.body.style.backgroundImage=SET.bg?"":"none"}
 let newsSeen=0;try{newsSeen=+localStorage.getItem("newsSeen")||0}catch(e){}
-function newsUnread(){return SET.newsNotify?Math.max(0,NEWS.length-newsSeen):0}
+function newsUnread(){return 0}
 function drawChip(){const n=newsUnread(),t=DAILY.filter(x=>x[3]<x[4]).length;
   const chev='<svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>';
   const chip=logged?`<button class="me-chip" id="meBtn" aria-haspopup="menu" aria-expanded="false"><i class="av" style="background:${ME.c}">${ME.n[0]}</i><span class="nm">${ME.n}<small>${ME.vip.tier} · <span class="bal">${fmt(ME.balance)} ₽</span></small></span>${chev}</button>`
     :`<button class="me-chip guest" id="meBtn" aria-haspopup="menu" aria-expanded="false"><i class="av">?</i><span class="nm">Гость<small>Войди через Steam</small></span>${chev}</button>`;
   const items=(logged?`<div class="bal-row"><span>Баланс</span><b>${fmt(ME.balance)} ₽</b></div><a href="#me">${ico("u")}Мой профиль</a>`:`<button class="login" data-login>${ico("steam")}Войти через Steam</button><div class="sep"></div>`)
-    +`<a href="#tasks">${ico("task")}Задания${logged&&t?`<span class="cnt">${t}</span>`:""}</a><a href="#ach">${ico("ach")}Достижения</a><a href="#news">${ico("news")}Новости${n?`<span class="cnt">${n}</span>`:""}</a><a href="#settings">${ico("set")}Настройки</a>`
+    +`<a href="#tasks">${ico("task")}Задания${logged&&t?`<span class="cnt">${t}</span>`:""}</a><a href="#ach">${ico("ach")}Достижения</a><a href="#settings">${ico("set")}Настройки</a>`
     +(logged?`<div class="sep"></div><button class="out" id="umOut">${ico("out")}Выйти</button>`:"");
   $("steamSlot").innerHTML=chip+`<div class="umenu" id="umenu" role="menu" hidden>${items}</div>`;
   $("meBtn").onclick=e=>{e.stopPropagation();const m=$("umenu"),o=m.hidden;m.hidden=!o;$("meBtn").setAttribute("aria-expanded",o)};
@@ -2170,7 +2139,7 @@ applySet();
 // волна при нажатии
 document.addEventListener("pointerdown",e=>{const b=e.target.closest(".steam,.tm-buy .primary,.ghost,.sheet .row button,.t6 .more2,.icon-btn");if(!b)return;const r=b.getBoundingClientRect(),d=Math.max(r.width,r.height),sp=document.createElement("span");sp.className="ripple";sp.style.cssText=`width:${d}px;height:${d}px;left:${e.clientX-r.left-d/2}px;top:${e.clientY-r.top-d/2}px`;b.appendChild(sp);setTimeout(()=>sp.remove(),650)});
 // стартовая отрисовка: только после того, как весь код загружен
-[drawMe,drawHomeProgress,drawTiers,drawStats].forEach(f=>{try{f()}catch(e){console.error(e)}});
+[drawMe,drawTiers,drawStats].forEach(f=>{try{f()}catch(e){console.error(e)}});
 addEventListener("hashchange",()=>{let h="";try{h=location.hash.slice(1)}catch(e){}if(viewFrom(h)!==curView)route()});route();
 </script>
 
