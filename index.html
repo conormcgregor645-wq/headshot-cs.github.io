@@ -993,23 +993,12 @@ nav .tag{background:var(--panel-2);color:var(--muted);border:1px solid var(--lin
     <!-- SHOP -->
     <div class="view" id="v-shop" hidden>
       <div class="page-head"><h1>Магазин</h1><p>Поддержи сервер и получи преимущества: больше здоровья, броня, гранаты и деньги каждый раунд. В пистолетных раундах бонусы отключены, чтобы начало каждой половины было честным для всех. Права наказывать игроков не даёт ни один статус.</p></div>
-      <div class="shop-tabs seg" id="shopTabs" role="tablist" aria-label="Раздел магазина">
-        <button role="tab" data-t="tiers" aria-selected="true">Статусы</button><button role="tab" data-t="models" aria-selected="false">Модели агентов</button><button role="tab" data-t="extras" aria-selected="false">Улучшения</button>
-      </div>
 
       <section class="shop-pane" data-pane="tiers">
         <div class="ladder6" id="tiers6"></div>
         <p class="note">Все боевые бонусы и бонусы к деньгам работают со второго раунда каждой половины. В пистолетных раундах у всех одинаковые условия.</p>
       </section>
 
-      <section class="shop-pane" data-pane="models" hidden>
-        <div class="mdl-head"><div class="seg" id="mdlSide" role="group" aria-label="Сторона"><button data-s="all" aria-pressed="true">Все</button><button data-s="t">Террористы</button><button data-s="ct">Спецназ</button></div><span class="note mdl-note">Модели с LEGEND и выше уже входят в статус. Хитбоксы у всех моделей стандартные, поэтому модели меняют только внешний вид.</span></div>
-        <div class="mdl-grid" id="mdlGrid"></div>
-      </section>
-
-      <section class="shop-pane" data-pane="extras" hidden>
-        <div class="ext-grid" id="extGrid"></div>
-      </section>
 
     </div>
 
@@ -1757,7 +1746,7 @@ const SIL={
  gloves:'M30 38V20c0-3 2-5 5-5h3V7c0-2 3-2 3 0v8h3V5c0-2 3-2 3 0v10h3V6c0-2 3-2 3 0v10h3V9c0-2 3-2 3 0v13c4-2 7-1 9 1l-8 7-4 8zM70 38V22h8l12-10c2-2 5 0 3 2l-9 9h18c3 0 3 3 0 3H90v12z',
  agent:'M60 4a7 7 0 1 1 0 14 7 7 0 0 1 0-14zM46 22h28l6 16H40z'
 };
-const CAT=[["knife","Ножи"],["pistol","Пистолеты"],["smg","ПП"],["rifle","Винтовки"],["sniper","Снайперские"],["heavy","Тяжёлое"],["gloves","Перчатки"],["agent","Агенты"]];
+const CAT=[["knife","Ножи"],["pistol","Пистолеты"],["smg","ПП"],["rifle","Винтовки"],["sniper","Снайперские"],["heavy","Тяжёлое"],["gloves","Перчатки"]];
 // раскраски: [название, цвет1, цвет2, цвет3, узор, редкость 0..4]
 const RC=["var(--r-silver)","var(--r-mg)","var(--r-eagle)","#f472b6","var(--r-global)"];
 const RN=["Ширпотреб","Армейское","Запрещённое","Засекреченное","Тайное"];
@@ -1779,8 +1768,7 @@ const W=[
  ...["AK-47","M4A4","M4A1-S","Galil AR","FAMAS","AUG","SG 553"].map(n=>["rifle",n]),
  ...["AWP","SSG 08","SCAR-20","G3SG1"].map(n=>["sniper",n]),
  ...["Nova","XM1014","MAG-7","Sawed-Off","M249","Negev"].map(n=>["heavy",n]),
- ...["Спортивные перчатки","Водительские перчатки","Обмотки рук","Мотоциклетные перчатки","Перчатки специалиста","Перчатки «Гидра»","Перчатки «Сломанный клык»"].map(n=>["gloves",n,GF]),
- ["agent","Агент за T",AG.t],["agent","Агент за CT",AG.ct]
+ ...["Спортивные перчатки","Водительские перчатки","Обмотки рук","Мотоциклетные перчатки","Перчатки специалиста","Перчатки «Гидра»","Перчатки «Сломанный клык»"].map(n=>["gloves",n,GF])
 ].map(([c,n,list])=>({c,n,skins:list||[...(SPEC[n]||[]),...GEN.filter(g=>!(SPEC[n]||[]).some(s=>s[0]===g[0]))]}));
 const wearName=f=>f<.07?"Прямо с завода":f<.15?"Немного поношенное":f<.38?"После полевых испытаний":f<.45?"Поношенное":"Закалённое в боях";
 const DEF={n:"Стандартный"};
@@ -1817,7 +1805,7 @@ let skw=null,skd=null;
 function openSkin(i){skw=W[i];const s=SKST.sets[skw.n];skd=s?{...s}:{name:null,wear:.01,seed:Math.floor(Math.random()*1000),tag:"",st:false};
   $("skmT").textContent=skw.n;$("skmSub").textContent=`${skw.skins.length} раскрасок · ${CAT.find(c=>c[0]===skw.c)[1]}`;$("skmQ").value="";
   $("skmWear").value=skd.wear;$("skmSeed").value=skd.seed;$("skmTag").value=skd.tag;$("skmST").checked=skd.st;
-  const isAgent=skw.c==="agent";["skmWear","skmSeed","skmTag","skmST"].forEach(id=>$(id).closest("label").hidden=isAgent);document.querySelector(".wear-scale").hidden=isAgent;
+  const isAgent=false;["skmWear","skmSeed","skmTag","skmST"].forEach(id=>$(id).closest("label").hidden=isAgent);document.querySelector(".wear-scale").hidden=isAgent;
   drawSkm();$("skModal").hidden=false;$("skmQ").focus()}
 function drawSkm(){const q=$("skmQ").value.trim().toLowerCase();const sk=skw.skins.find(x=>x[0]===skd.name);
   $("skmPrev").innerHTML=art(skw,sk,skd.wear);
@@ -1895,10 +1883,10 @@ const CREST={
 const T6=[
  {k:"VIP",n:"VIP",c:"#b8c0cc",p:99,f:["105 HP и броня","+$300 каждый раунд","Флешка при возрождении","Тег [VIP], резервный слот"]},
  {k:"PREMIUM",n:"PREMIUM",c:"#5aa9ff",p:199,f:["110 HP, броня и шлем","+$500 каждый раунд","Флешка и дым","Набор сапёра за CT","x1.5 очков за задания"]},
- {k:"ELITE",n:"ELITE",c:"#3ddc97",p:349,hot:1,f:["115 HP, броня и шлем","+$800 каждый раунд","Полный набор гранат","Аптечка !medic раз в раунд","2 модели агентов"]},
- {k:"LEGEND",n:"LEGEND",c:"#a78bfa",p:549,f:["120 HP, броня и шлем","+$1 000 каждый раунд","Zeus x27 бесплатно","Меню оружия !guns с 3-го раунда","5 моделей агентов"]},
- {k:"TITAN",n:"TITAN",c:"#ffb547",p:899,f:["125 HP, броня и шлем","+$1 500 каждый раунд","Регенерация HP вне боя","+$100 за каждое убийство","Все обычные модели"]},
- {k:"GOD",n:"БОГ СЕРВЕРА",c:"#ff2a4b",p:1499,god:1,f:["130 HP, броня и шлем","+$2 000 каждый раунд","Без урона от падения","Двойная аптечка","Эксклюзивные модели и модель на заказ"]}
+ {k:"ELITE",n:"ELITE",c:"#3ddc97",p:349,hot:1,f:["115 HP, броня и шлем","+$800 каждый раунд","Полный набор гранат","Аптечка !medic раз в раунд","Приветствие при входе"]},
+ {k:"LEGEND",n:"LEGEND",c:"#a78bfa",p:549,f:["120 HP, броня и шлем","+$1 000 каждый раунд","Zeus x27 бесплатно","Меню оружия !guns с 3-го раунда","Эффект и звук при MVP"]},
+ {k:"TITAN",n:"TITAN",c:"#ffb547",p:899,f:["125 HP, броня и шлем","+$1 500 каждый раунд","Регенерация HP вне боя","+$100 за каждое убийство","x2 очков за задания"]},
+ {k:"GOD",n:"БОГ СЕРВЕРА",c:"#ff2a4b",p:1499,god:1,f:["130 HP, броня и шлем","+$2 000 каждый раунд","Без урона от падения","Двойная аптечка","Свой трек MVP и Зал славы"]}
 ];
 const PER=[[30,"30 дней",0],[90,"90 дней",.1],[180,"180 дней",.2]];
 let per=0;
@@ -1925,10 +1913,6 @@ const CMP=[["Бой (кроме пистолетных раундов)"],
  ["Приветствие при входе на сервер",[0,0,1,1,1,"со звуком"]],
  ["Трейл гранат",[0,1,1,1,1,1]],
  ["Эффект и звук при MVP",[0,0,0,1,1,"свой трек"]],
- ["Модели агентов"],
- ["Обычные модели",[0,0,"2 на выбор","5 на выбор","все","все"]],
- ["Эксклюзивные модели",[0,0,0,0,0,1]],
- ["Модель, сделанная под тебя",[0,0,0,0,0,"1 в полгода"]],
  ["Удобство"],
  ["Резервный слот",[1,1,1,1,1,1]],
  ["Очки за задания",["x1","x1.5","x1.5","x1.5","x2","x2"]],
@@ -1958,49 +1942,11 @@ $("tiers6").addEventListener("keydown",e=>{if((e.key==="Enter"||e.key===" ")&&e.
 function buyTier(gift){per=tmPer;$("tierModal").hidden=true;const b=document.createElement("button");b.dataset.buy="tier:"+tmI;b.hidden=true;document.body.appendChild(b);b.click();b.remove();if(gift&&!$("buyModal").hidden)document.querySelector('#buyFor [data-f="gift"]').click()}
 $("tmBuy").onclick=()=>buyTier(false);$("tmGift").onclick=()=>buyTier(true);
 
-// модели агентов: оригинальные персонажи проекта
-const MSIL={
- soldier:'M60 8a10 10 0 1 1 0 20 10 10 0 0 1 0-20zM44 32h32l8 30-6 2-4-14v44h-8V70h-4v24h-8V50l-4 14-6-2z',
- heavy:'M60 6a11 11 0 1 1 0 22 11 11 0 0 1 0-22zM38 32h44l8 32-8 3-4-15v42H74V72h-8v22H54V52l-4 15-8-3z',
- hood:'M60 4c10 0 16 8 16 18 0 6-2 10-6 12h8l8 30-6 2-4-14v42h-8V70h-4v24h-8V52l-4 14-6-2 8-30h8c-4-2-6-6-6-12 0-10 6-18 16-18z',
- slim:'M60 10a9 9 0 1 1 0 18 9 9 0 0 1 0-18zM47 32h26l6 30-5 2-4-14v44h-7V70h-6v24h-7V50l-4 14-5-2z'
-};
-const MODELS=[
- ["Призрак пустыни","t","hood","#d9a35a","Песчаный плащ, капюшон и маска-респиратор.",1],
- ["Палач","t","heavy","#ff2a4b","Массивный боец в чёрной броне с красными швами.",2],
- ["Кочевник","t","slim","#b9a77a","Лёгкая экипировка, повязка на лице, патронташ через плечо.",0],
- ["Чумной доктор","t","hood","#3ddc97","Средневековая маска с клювом и кожаный плащ.",2],
- ["Скелет-наёмник","t","soldier","#e5e7eb","Экипировка поверх костюма с принтом скелета.",1],
- ["Неоновый самурай","t","slim","#ff4fd8","Кибер-доспех с неоновыми линиями и шлем-кабуто.",3],
- ["Кибер-спецназ","ct","soldier","#2fd6ff","Шлем с визором и подсвеченная синим броня.",1],
- ["Ледяной страж","ct","heavy","#7dd3fc","Белая зимняя броня с инеем на шлеме.",2],
- ["Штурмовик","ct","soldier","#5aa9ff","Классический оперативник в тёмно-синей экипировке.",0],
- ["Снайпер-призрак","ct","hood","#94a3b8","Маскхалат и тактические очки.",1],
- ["Золотой агент","ct","slim","#ffd36b","Костюм с золотыми вставками и тёмные очки.",3],
- ["Командир","ct","heavy","#a78bfa","Тяжёлая броня с нашивками и плащом командира.",3]
-];
-const MR=[["Обычная","var(--r-silver)",149,499],["Редкая","var(--r-mg)",199,699],["Эпическая","var(--r-eagle)",249,899],["Эксклюзив","var(--r-global)",0,0]];
-let mSide="all";
-function drawModels(){$("mdlGrid").innerHTML=MODELS.map((m,i)=>[m,i]).filter(([m])=>mSide==="all"||m[1]===mSide).map(([m,i])=>{const r=MR[m[5]],ex=m[5]===3;
-  return`<article class="mdl" style="--mc:${m[3]};--rc:${r[1]}"><div class="stage"><span class="side">${m[1]==="t"?"T":"CT"}</span>${ex?'<span class="ex">БОГ СЕРВЕРА</span>':""}<svg viewBox="32 2 56 94" aria-hidden="true"><defs><linearGradient id="mg${i}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${m[3]}"/><stop offset="1" stop-color="#1a1014"/></linearGradient></defs><path d="${MSIL[m[2]]}" fill="url(#mg${i})"/></svg></div>
-  <div class="bd"><b>${m[0]}</b><span class="rar">${r[0]}</span><p>${m[4]}</p>${ex?`<span class="incl">Только в статусе <b>БОГ СЕРВЕРА</b></span><button class="steam" data-buy="tier:5" style="justify-content:center">Перейти к статусу</button>`:`<div class="opts"><button data-buy="model:${i}:30">${r[2]} ₽<small>30 дней</small></button><button data-buy="model:${i}:0">${r[3]} ₽<small>навсегда</small></button></div><span class="incl">Входит в <b>${m[5]===0?"ELITE":m[5]===1?"LEGEND":"TITAN"}</b> и выше</span>`}</div></article>`}).join("")}
-document.querySelectorAll("#mdlSide button").forEach(b=>b.onclick=()=>{mSide=b.dataset.s;document.querySelectorAll("#mdlSide button").forEach(x=>x.setAttribute("aria-pressed",x===b));drawModels()});
-
-const EXT=[["tag","Свой тег в чате","Любой текст до 12 символов в квадратных скобках перед ником. На 30 дней.",79],["color","Цвет ника","Выбери любой цвет ника в чате. На 30 дней.",49],["sound","Звук при входе","Короткий звук, когда ты заходишь на сервер. На 30 дней.",99],["frame","Рамка профиля","Анимированная рамка аватара на сайте. Навсегда.",149],["unban","Снятие мута","Досрочно снимает мут в чате. Не работает для банов за читы.",59],["gift","Подарочный VIP","VIP на 7 дней для друга по его SteamID.",49]];
-const EIC={tag:'<path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="7.5" r="1.5"/>',color:'<circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 0 0 18c1.5 0 2-1 2-2s-1-2 0-3 3 0 4-1c2-1 3-3 3-5A9 9 0 0 0 12 3z"/>',sound:'<path d="M4 9v6h4l5 4V5L8 9zM17 8a5 5 0 0 1 0 8M19.5 5.5a9 9 0 0 1 0 13"/>',frame:'<rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="12" cy="10" r="3"/><path d="M6 19c1.5-3 4-4 6-4s4.5 1 6 4"/>',unban:'<path d="M5 9v6h4l5 4V5L9 9z"/><path d="M17 9l4 6M21 9l-4 6"/>',gift:'<rect x="3" y="9" width="18" height="12" rx="2"/><path d="M12 9v12M3 13h18M12 9c-2-4-6-4-6-1s6 1 6 1zM12 9c2-4 6-4 6-1s-6 1-6 1z"/>'};
-$("extGrid").innerHTML=EXT.map(([k,t,d,p],i)=>`<article class="ext"><span class="ic"><svg viewBox="0 0 24 24">${EIC[k]}</svg></span><h3>${t}</h3><p>${d}</p><div class="ft"><b>${p} ₽</b><button data-buy="ext:${i}">Купить</button></div></article>`).join("");
-
-document.querySelectorAll("#shopTabs button").forEach(b=>b.onclick=()=>{document.querySelectorAll("#shopTabs button").forEach(x=>x.setAttribute("aria-selected",x===b));document.querySelectorAll(".shop-pane").forEach(p=>p.hidden=p.dataset.pane!==b.dataset.t)});
-function shopTab(t){document.querySelector(`#shopTabs [data-t="${t}"]`).click()}
-
 // оформление
 let order=null;
 document.addEventListener("click",e=>{const b=e.target.closest("[data-buy]");if(!b)return;const [kind,a,c]=b.dataset.buy.split(":");
-  if(kind==="tier"&&b.closest(".mdl")){openTier(+a);return}
   if(!logged){toast("Сначала войди через Steam");return}
   if(kind==="tier"){const t=T6[+a];order={t:`Статус ${t.n}`,s:`на ${PER[per][1]}`,p:priceOf(t.p)}}
-  else if(kind==="model"){const m=MODELS[+a],r=MR[m[5]];order={t:`Модель «${m[0]}»`,s:c==="0"?"навсегда":"на 30 дней",p:c==="0"?r[3]:r[2]}}
-  else{const x=EXT[+a];order={t:x[1],s:x[2].split(". ").pop(),p:x[3]}}
   $("buySum").innerHTML=`<div><b>${order.t}</b><small>${order.s}</small></div><strong>${fmt(order.p)} ₽</strong>`;
   $("buyForm").reset();$("buyMsg").textContent="";$("giftFld").hidden=true;$("giftSid").required=false;document.querySelectorAll("#buyFor button").forEach(x=>x.setAttribute("aria-pressed",x.dataset.f==="me"));
   $("buyPay").textContent=`Оплатить ${fmt(order.p)} ₽`;buyHow="card";document.querySelectorAll("#buyHow button").forEach(x=>x.setAttribute("aria-pressed",x.dataset.h==="card"));$("buyBalBtn").textContent=`С баланса (${fmt(ME.balance)} ₽)`;$("buyBalBtn").disabled=ME.balance<order.p;$("buyMail").closest("label").hidden=false;$("buyMail").required=true;$("buyModal").hidden=false;$("buyMail").focus()});
@@ -2010,7 +1956,7 @@ document.querySelectorAll("#buyHow button").forEach(b=>b.onclick=()=>{if(b.disab
 $("buyClose").onclick=()=>$("buyModal").hidden=true;
 $("buyModal").onclick=e=>{if(e.target.id==="buyModal")$("buyModal").hidden=true};
 $("buyForm").onsubmit=e=>{e.preventDefault();$("buyModal").hidden=true;if(buyHow==="bal"){ME.balance-=order.p;PURCHASES.unshift([new Date(today),order.t+" ("+order.s+")",order.p]);drawMe();toast(`Оплачено с баланса: ${order.t}. Осталось ${fmt(ME.balance)} ₽`)}else toast(`Демо: здесь откроется оплата ${fmt(order.p)} ₽. Платёжная система ещё не подключена`)};
-drawTiers();drawModels();
+drawTiers();
 
 // ---------- очки и рейтинг месяца ----------
 const PTIERS=[[0,"#9aa3ad"],[1000,"#3ddc97"],[3000,"#5aa9ff"],[6000,"#a78bfa"],[10000,"#ffc94a"],[20000,"top"]];
