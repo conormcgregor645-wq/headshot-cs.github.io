@@ -772,6 +772,43 @@ footer nav{flex-direction:row;gap:16px;flex-wrap:wrap}
 .t6.god .t6-art h3{background:none!important;color:#ffd36b!important;-webkit-background-clip:border-box!important}
 .t6 .badge{z-index:2}
 .t6 .pr{margin-top:-4px}
+/* tier details modal */
+.t6{cursor:pointer;transition:transform .15s,border-color .15s}
+.t6:hover{transform:translateY(-3px)}
+.t6:focus-visible{outline:2px solid var(--tc);outline-offset:2px}
+.t6 .more2{margin-top:auto;border:1px solid var(--line);background:var(--panel-2);border-radius:10px;padding:10px;font-weight:800;text-align:center}
+.t6:hover .more2{border-color:var(--tc)}
+.t6.god .more2{background:var(--accent);border-color:var(--accent);color:#fff}
+.t6 .from{font-size:12px;color:var(--muted)}
+.ladder6{align-items:stretch}
+.tm{width:min(440px,100%);max-height:calc(100vh - 32px);overflow:hidden;gap:14px}
+.tm-head{display:flex;justify-content:space-between;align-items:center}
+.tm-head h4{font-size:26px!important;color:var(--tc);text-transform:uppercase}
+.tm .x{border:1px solid var(--line);background:var(--panel-2);border-radius:8px;width:32px;height:32px;padding:0;font-weight:700}
+.tm-per{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:var(--ink);border:1px solid var(--line);border-radius:12px;padding:4px}
+.tm-per button{border:0;background:none;border-radius:9px;padding:10px 6px;font-weight:800;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:1px}
+.tm-per button small{font-size:10px;font-weight:700;color:var(--live)}
+.tm-per button[aria-pressed="true"]{background:var(--panel-2);color:var(--fg)}
+.tm-list{overflow-y:auto;max-height:46vh;display:flex;flex-direction:column;gap:6px;padding-right:6px}
+.tm-list h5{margin:8px 0 2px;font-size:13px;color:var(--muted);font-weight:700}
+.tm-list h5:first-child{margin-top:0}
+.tm-list ul{list-style:none;margin:0;padding:0 0 0 12px;border-left:2px solid var(--line);display:flex;flex-direction:column;gap:5px}
+.tm-list li{font-size:14px}
+.tm-list li::before{content:"+ ";color:var(--tc);font-weight:800}
+.tm-list li b{color:var(--tc);font-weight:700}
+.tm-price{display:flex;justify-content:space-between;align-items:baseline;gap:10px;border-top:1px solid var(--line);padding-top:12px}
+.tm-price>span{font-weight:700;color:var(--muted)}
+.tm-price b{font-family:var(--f-mono);font-size:26px}
+.tm-price s{font-family:var(--f-mono);font-size:13px;color:var(--muted);margin-left:8px}
+.tm-price small{font-size:13px;color:var(--muted);margin-left:6px}
+.tm-buy{display:flex;gap:8px}
+.tm-buy .primary{flex:1;background:var(--accent);color:#fff;border:0;border-radius:12px;padding:13px;font-weight:800;font-size:15px}
+.tm-buy .primary:hover{background:#e8203f}
+.tm-gift{width:50px;border:1px solid var(--line);background:var(--panel-2);border-radius:12px;display:grid;place-items:center;padding:0}
+.tm-gift svg{width:20px;height:20px;fill:none;stroke:var(--fg);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.tm-gift:hover{border-color:var(--accent)}
+.tm-tos{text-align:center;font-size:12px!important}
+.tm-tos a{color:var(--accent)}
 @media (max-width:1300px){.ladder6{grid-template-columns:repeat(3,minmax(0,1fr))}.t6{min-height:0}}
 @media (max-width:640px){.ladder6{grid-template-columns:repeat(2,minmax(0,1fr))}.t6{padding:14px 12px}}
 /* points & monthly rating */
@@ -961,14 +998,12 @@ nav .tag{background:var(--panel-2);color:var(--muted);border:1px solid var(--lin
       </div>
 
       <section class="shop-pane" data-pane="tiers">
-        <div class="period" id="period" role="group" aria-label="Срок"></div>
         <div class="ladder6" id="tiers6"></div>
         <p class="note">Все боевые бонусы и бонусы к деньгам работают со второго раунда каждой половины. В пистолетных раундах у всех одинаковые условия.</p>
-        <div class="box cmp-wrap"><div class="hdr"><h2>Сравнение статусов</h2></div><div class="tablewrap" style="border:0;background:none"><table class="cmp" id="cmpTbl"></table></div></div>
       </section>
 
       <section class="shop-pane" data-pane="models" hidden>
-        <div class="mdl-head"><div class="seg" id="mdlSide" role="group" aria-label="Сторона"><button data-s="all" aria-pressed="true">Все</button><button data-s="t">Террористы</button><button data-s="ct">Спецназ</button></div><span class="note mdl-note">Модели с ELITE и выше уже входят в статус. Хитбоксы у всех моделей стандартные, поэтому модели меняют только внешний вид.</span></div>
+        <div class="mdl-head"><div class="seg" id="mdlSide" role="group" aria-label="Сторона"><button data-s="all" aria-pressed="true">Все</button><button data-s="t">Террористы</button><button data-s="ct">Спецназ</button></div><span class="note mdl-note">Модели с LEGEND и выше уже входят в статус. Хитбоксы у всех моделей стандартные, поэтому модели меняют только внешний вид.</span></div>
         <div class="mdl-grid" id="mdlGrid"></div>
       </section>
 
@@ -976,18 +1011,6 @@ nav .tag{background:var(--panel-2);color:var(--muted);border:1px solid var(--lin
         <div class="ext-grid" id="extGrid"></div>
       </section>
 
-      <p class="tos">Нажимая «Купить», ты принимаешь <a href="#offer">условия оферты</a> и <a href="#privacy">политику конфиденциальности</a>.</p>
-      <section>
-        <div class="hdr"><h2>Вопросы</h2></div>
-        <div class="faq">
-          <details><summary>Как статус появится на сервере?</summary><p>После оплаты он выдаётся автоматически на твой Steam-аккаунт в течение пары минут. Достаточно переподключиться к серверу.</p></details>
-          <details><summary>Почему бонусы не работают в первом раунде?</summary><p>Первый раунд каждой половины пистолетный: у всех $800 и одинаковые условия. С бонусами он перестал бы быть честным. Начиная со второго раунда все бонусы статуса включаются.</p></details>
-          <details><summary>Что будет, если купить статус выше текущего?</summary><p>Новый статус включится сразу, а оставшиеся дни старого пересчитаются в дни нового по цене.</p></details>
-          <details><summary>Модели агентов видят все игроки?</summary><p>Да. Сервер сам загрузит модели при подключении, ничего скачивать вручную не нужно. Хитбоксы у моделей стандартные, поэтому в бою они не дают ни плюсов, ни минусов.</p></details>
-          <details><summary>Можно подарить статус другу?</summary><p>Да, при покупке выбери «В подарок» и укажи SteamID друга. А с TITAN и БОГ СЕРВЕРА можно каждый месяц бесплатно дарить VIP на 7 дней.</p></details>
-          <details><summary>Что будет, если меня забанят?</summary><p>Срок статуса продолжает идти. Деньги за бан не возвращаются, поэтому играй по правилам.</p></details>
-        </div>
-      </section>
     </div>
 
     <!-- STATS -->
@@ -1093,7 +1116,7 @@ nav .tag{background:var(--panel-2);color:var(--muted);border:1px solid var(--lin
           <div class="fgrid">
             <label class="fld">Ник<input id="vNick" required maxlength="32" placeholder="Игрок"></label>
             <label class="fld">SteamID<input id="vSid" required placeholder="STEAM_1:0:12345678" pattern="STEAM_[0-5]:[01]:\d{1,10}"></label>
-            <label class="fld">Тариф<select id="vTier"><option>VIP</option><option>PREMIUM</option><option>LEGEND</option><option>ELITE</option><option>TITAN</option><option>БОГ СЕРВЕРА</option></select></label>
+            <label class="fld">Тариф<select id="vTier"><option>VIP</option><option>PREMIUM</option><option>ELITE</option><option>LEGEND</option><option>TITAN</option><option>БОГ СЕРВЕРА</option></select></label>
             <label class="fld">Срок<select id="vDays"><option value="7">7 дней</option><option value="30" selected>30 дней</option><option value="90">90 дней</option></select></label>
           </div>
           <div class="frow"><span class="fmsg" id="vMsg"></span><button class="steam" type="submit">Выдать</button></div>
@@ -1322,6 +1345,17 @@ nav .tag{background:var(--panel-2);color:var(--muted);border:1px solid var(--lin
     <p class="fmsg" id="buyMsg"></p>
     <div class="row"><button type="button" id="buyClose">Отмена</button><button class="primary" type="submit" id="buyPay">Оплатить</button></div>
   </form>
+</div>
+
+<div class="modal" id="tierModal" hidden>
+  <div class="sheet tm" role="dialog" aria-modal="true" aria-labelledby="tmT">
+    <div class="tm-head"><h4 id="tmT">VIP</h4><button class="x" id="tmClose" aria-label="Закрыть">✕</button></div>
+    <div class="tm-per" id="tmPer" role="group" aria-label="Срок"></div>
+    <div class="tm-list" id="tmList"></div>
+    <div class="tm-price"><span>Стоимость:</span><div><b id="tmPrice"></b><s id="tmOld"></s><small id="tmFor"></small></div></div>
+    <div class="tm-buy"><button class="primary" id="tmBuy">Купить</button><button class="tm-gift" id="tmGift" aria-label="Купить в подарок" title="Купить в подарок"><svg viewBox="0 0 24 24"><rect x="3" y="9" width="18" height="12" rx="2"/><path d="M12 9v12M3 13h18M12 9c-2-4-6-4-6-1s6 1 6 1zM12 9c2-4 6-4 6-1s-6 1-6 1z"/></svg></button></div>
+    <p class="tm-tos">Нажимая «Купить», ты соглашаешься с <a href="#offer">договором оферты</a>.</p>
+  </div>
 </div>
 
 <div class="scrim" id="scrim" hidden></div>
@@ -1798,7 +1832,7 @@ $("skmTag").oninput=e=>{skd.tag=e.target.value.slice(0,20);drawSkm()};
 $("skmST").onchange=e=>{skd.st=e.target.checked;drawSkm()};
 const closeSkm=()=>$("skModal").hidden=true;
 $("skmClose").onclick=closeSkm;$("skModal").onclick=e=>{if(e.target.id==="skModal")closeSkm()};
-document.addEventListener("keydown",e=>{if(e.key==="Escape")closeSkm()});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeSkm();$("tierModal").hidden=true}});
 $("skmDefault").onclick=()=>{if(!needLogin())return;delete SKST.sets[skw.n];syncActive();closeSkm();drawSkGrid();drawCols();toast(`${skw.n}: стандартный вид`)};
 $("skmApply").onclick=()=>{if(!needLogin())return;if(!skd.name){toast("Выбери раскраску из списка");return}SKST.sets[skw.n]={...skd};syncActive();closeSkm();drawSkGrid();drawCols();toast(`${skw.n} | ${skd.name}: применится на сервере после возрождения`)};
 $("skGrid").onclick=e=>{const b=e.target.closest(".wcard");if(b)openSkin(+b.dataset.w)};
@@ -1861,8 +1895,8 @@ const CREST={
 const T6=[
  {k:"VIP",n:"VIP",c:"#b8c0cc",p:99,f:["105 HP и броня","+$300 каждый раунд","Флешка при возрождении","Тег [VIP], резервный слот"]},
  {k:"PREMIUM",n:"PREMIUM",c:"#5aa9ff",p:199,f:["110 HP, броня и шлем","+$500 каждый раунд","Флешка и дым","Набор сапёра за CT","x1.5 очков за задания"]},
- {k:"LEGEND",n:"LEGEND",c:"#a78bfa",p:349,hot:1,f:["115 HP, броня и шлем","+$800 каждый раунд","Полный набор гранат","Аптечка !medic раз в раунд","2 модели агентов"]},
- {k:"ELITE",n:"ELITE",c:"#3ddc97",p:549,f:["120 HP, броня и шлем","+$1 000 каждый раунд","Zeus x27 бесплатно","Меню оружия !guns с 3-го раунда","5 моделей агентов"]},
+ {k:"ELITE",n:"ELITE",c:"#3ddc97",p:349,hot:1,f:["115 HP, броня и шлем","+$800 каждый раунд","Полный набор гранат","Аптечка !medic раз в раунд","2 модели агентов"]},
+ {k:"LEGEND",n:"LEGEND",c:"#a78bfa",p:549,f:["120 HP, броня и шлем","+$1 000 каждый раунд","Zeus x27 бесплатно","Меню оружия !guns с 3-го раунда","5 моделей агентов"]},
  {k:"TITAN",n:"TITAN",c:"#ffb547",p:899,f:["125 HP, броня и шлем","+$1 500 каждый раунд","Регенерация HP вне боя","+$100 за каждое убийство","Все обычные модели"]},
  {k:"GOD",n:"БОГ СЕРВЕРА",c:"#ff2a4b",p:1499,god:1,f:["130 HP, броня и шлем","+$2 000 каждый раунд","Без урона от падения","Двойная аптечка","Эксклюзивные модели и модель на заказ"]}
 ];
@@ -1907,10 +1941,22 @@ const CMP=[["Бой (кроме пистолетных раундов)"],
  ["Имя в «Зале славы»",[0,0,0,0,0,1]],
  ["Приоритет в поддержке",[0,0,0,1,1,1]]];
 function drawTiers(){const mine=logged&&ME.vip?ME.vip.tier:null;
-  $("period").innerHTML=PER.map((p,i)=>`<button data-p="${i}" aria-pressed="${i===per}">${p[1]}${p[2]?`<small>−${p[2]*100}%</small>`:""}</button>`).join("");
-  $("tiers6").innerHTML=T6.map((t,i)=>`<article class="t6 ${t.god?"god":""} ${mine===t.k?"mine":""}" style="--tc:${t.c};--lv:${i}">${t.hot?'<span class="badge">ХИТ</span>':""}<div class="t6-art" style="background-image:url(${TIERIMG[t.k]})"><span class="lvl">УРОВЕНЬ ${i+1}${mine===t.k?' · <span class="mine-l">ТВОЙ</span>':""}</span><h3>${t.n}</h3></div><div class="pr"><b>${fmt(priceOf(t.p))} ₽</b>${per?`<s>${fmt(fullOf(t.p))} ₽</s>`:""}<span>за ${PER[per][1]}</span></div><ul>${t.f.map(x=>`<li>${x}</li>`).join("")}</ul><button class="buy" data-buy="tier:${i}">${mine===t.k?"Продлить":"Купить"}</button></article>`).join("");
-  $("cmpTbl").innerHTML=`<thead><tr><th></th>${T6.map(t=>`<th style="--tc:${t.c}">${t.n}</th>`).join("")}</tr></thead><tbody>${CMP.map(r=>r.length===1?`<tr class="grp"><td colspan="7">${r[0]}</td></tr>`:`<tr><td>${r[0]}</td>${r[1].map(v=>`<td>${v===1?'<span class="y">✓</span>':v===0?'<span class="n">—</span>':v}</td>`).join("")}</tr>`).join("")}</tbody>`}
-$("period").onclick=e=>{const b=e.target.closest("button");if(!b)return;per=+b.dataset.p;drawTiers()};
+  $("tiers6").innerHTML=T6.map((t,i)=>`<article class="t6 ${t.god?"god":""} ${mine===t.k?"mine":""}" style="--tc:${t.c};--lv:${i}" data-tier="${i}" tabindex="0" role="button" aria-label="${t.n}: подробнее">${t.hot?'<span class="badge">ХИТ</span>':""}<div class="t6-art" style="background-image:url(${TIERIMG[t.k]})"><span class="lvl">УРОВЕНЬ ${i+1}${mine===t.k?' · <span class="mine-l">ТВОЙ</span>':""}</span><h3>${t.n}</h3></div><div class="pr"><span class="from">от</span><b>${fmt(priceOf(t.p,0))} ₽</b><span>за 30 дней</span></div><span class="more2">${mine===t.k?"Продлить":"Подробнее"}</span></article>`).join("")}
+// окно привилегии
+let tmI=0,tmPer=0;
+function tierPerks(i){const out=[];let cur=null;CMP.forEach(r=>{if(r.length===1){cur={h:r[0].replace(/ \(.*\)/,""),l:[]};out.push(cur);return}const v=r[1][i];if(v===0||["обычный","x1","$800"].includes(v))return;cur.l.push(v===1?r[0]:`${r[0]}: <b>${v}</b>`)});return out.filter(g=>g.l.length)}
+function drawTm(){const t=T6[tmI];$("tierModal").style.setProperty("--tc",t.c);$("tmT").textContent=t.n;
+  $("tmPer").innerHTML=PER.map((p,k)=>`<button data-p="${k}" aria-pressed="${k===tmPer}">${p[1]}${p[2]?`<small>−${p[2]*100}%</small>`:""}</button>`).join("");
+  const g=tierPerks(tmI);$("tmList").innerHTML=`<h5>Возможности привилегии ${t.n}:</h5>`+g.map((x,k)=>`${k?`<h5>${x.h}:</h5>`:""}<ul>${x.l.map(l=>`<li>${l}</li>`).join("")}</ul>`).join("")+`<h5>Важно:</h5><ul><li>Боевые бонусы работают со 2-го раунда каждой половины</li></ul>`;
+  $("tmPrice").textContent=fmt(priceOf(t.p,tmPer))+" ₽";$("tmOld").textContent=tmPer?fmt(fullOf(t.p,tmPer))+" ₽":"";$("tmFor").textContent="/ "+PER[tmPer][1]}
+function openTier(i){tmI=i;tmPer=0;drawTm();$("tierModal").hidden=false;$("tmList").scrollTop=0;$("tmBuy").focus()}
+$("tmPer").onclick=e=>{const b=e.target.closest("button");if(!b)return;tmPer=+b.dataset.p;drawTm()};
+$("tmClose").onclick=()=>$("tierModal").hidden=true;
+$("tierModal").onclick=e=>{if(e.target.id==="tierModal")$("tierModal").hidden=true};
+$("tiers6").addEventListener("click",e=>{const c=e.target.closest("[data-tier]");if(c)openTier(+c.dataset.tier)});
+$("tiers6").addEventListener("keydown",e=>{if((e.key==="Enter"||e.key===" ")&&e.target.matches("[data-tier]")){e.preventDefault();openTier(+e.target.dataset.tier)}});
+function buyTier(gift){per=tmPer;$("tierModal").hidden=true;const b=document.createElement("button");b.dataset.buy="tier:"+tmI;b.hidden=true;document.body.appendChild(b);b.click();b.remove();if(gift&&!$("buyModal").hidden)document.querySelector('#buyFor [data-f="gift"]').click()}
+$("tmBuy").onclick=()=>buyTier(false);$("tmGift").onclick=()=>buyTier(true);
 
 // модели агентов: оригинальные персонажи проекта
 const MSIL={
@@ -1937,7 +1983,7 @@ const MR=[["Обычная","var(--r-silver)",149,499],["Редкая","var(--r-
 let mSide="all";
 function drawModels(){$("mdlGrid").innerHTML=MODELS.map((m,i)=>[m,i]).filter(([m])=>mSide==="all"||m[1]===mSide).map(([m,i])=>{const r=MR[m[5]],ex=m[5]===3;
   return`<article class="mdl" style="--mc:${m[3]};--rc:${r[1]}"><div class="stage"><span class="side">${m[1]==="t"?"T":"CT"}</span>${ex?'<span class="ex">БОГ СЕРВЕРА</span>':""}<svg viewBox="32 2 56 94" aria-hidden="true"><defs><linearGradient id="mg${i}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${m[3]}"/><stop offset="1" stop-color="#1a1014"/></linearGradient></defs><path d="${MSIL[m[2]]}" fill="url(#mg${i})"/></svg></div>
-  <div class="bd"><b>${m[0]}</b><span class="rar">${r[0]}</span><p>${m[4]}</p>${ex?`<span class="incl">Только в статусе <b>БОГ СЕРВЕРА</b></span><button class="steam" data-buy="tier:5" style="justify-content:center">Перейти к статусу</button>`:`<div class="opts"><button data-buy="model:${i}:30">${r[2]} ₽<small>30 дней</small></button><button data-buy="model:${i}:0">${r[3]} ₽<small>навсегда</small></button></div><span class="incl">Входит в <b>${m[5]===0?"LEGEND":m[5]===1?"ELITE":"TITAN"}</b> и выше</span>`}</div></article>`}).join("")}
+  <div class="bd"><b>${m[0]}</b><span class="rar">${r[0]}</span><p>${m[4]}</p>${ex?`<span class="incl">Только в статусе <b>БОГ СЕРВЕРА</b></span><button class="steam" data-buy="tier:5" style="justify-content:center">Перейти к статусу</button>`:`<div class="opts"><button data-buy="model:${i}:30">${r[2]} ₽<small>30 дней</small></button><button data-buy="model:${i}:0">${r[3]} ₽<small>навсегда</small></button></div><span class="incl">Входит в <b>${m[5]===0?"ELITE":m[5]===1?"LEGEND":"TITAN"}</b> и выше</span>`}</div></article>`}).join("")}
 document.querySelectorAll("#mdlSide button").forEach(b=>b.onclick=()=>{mSide=b.dataset.s;document.querySelectorAll("#mdlSide button").forEach(x=>x.setAttribute("aria-pressed",x===b));drawModels()});
 
 const EXT=[["tag","Свой тег в чате","Любой текст до 12 символов в квадратных скобках перед ником. На 30 дней.",79],["color","Цвет ника","Выбери любой цвет ника в чате. На 30 дней.",49],["sound","Звук при входе","Короткий звук, когда ты заходишь на сервер. На 30 дней.",99],["frame","Рамка профиля","Анимированная рамка аватара на сайте. Навсегда.",149],["unban","Снятие мута","Досрочно снимает мут в чате. Не работает для банов за читы.",59],["gift","Подарочный VIP","VIP на 7 дней для друга по его SteamID.",49]];
@@ -1950,7 +1996,7 @@ function shopTab(t){document.querySelector(`#shopTabs [data-t="${t}"]`).click()}
 // оформление
 let order=null;
 document.addEventListener("click",e=>{const b=e.target.closest("[data-buy]");if(!b)return;const [kind,a,c]=b.dataset.buy.split(":");
-  if(kind==="tier"&&b.closest(".mdl")){shopTab("tiers");document.querySelectorAll(".t6")[+a].scrollIntoView({behavior:"smooth",block:"center"});return}
+  if(kind==="tier"&&b.closest(".mdl")){openTier(+a);return}
   if(!logged){toast("Сначала войди через Steam");return}
   if(kind==="tier"){const t=T6[+a];order={t:`Статус ${t.n}`,s:`на ${PER[per][1]}`,p:priceOf(t.p)}}
   else if(kind==="model"){const m=MODELS[+a],r=MR[m[5]];order={t:`Модель «${m[0]}»`,s:c==="0"?"навсегда":"на 30 дней",p:c==="0"?r[3]:r[2]}}
@@ -1995,7 +2041,7 @@ const VIEWS=["play","public","me","tasks","shop","skins","stats","clans","ach","
 const MORE=["clans","ach","news","bans","rules"];
 let curView="play";
 function viewFrom(h){return !h?"play":VIEWS.includes(h)&&h!=="404"?h:"404"}
-function route(forced){try{closeProfile()}catch(e){}["modal","srvModal","cmdModal","clanModal","skModal","apModal","buyModal"].forEach(id=>{const m=$(id);if(m)m.hidden=true});
+function route(forced){try{closeProfile()}catch(e){}["modal","srvModal","cmdModal","clanModal","skModal","apModal","buyModal","tierModal"].forEach(id=>{const m=$(id);if(m)m.hidden=true});
   let h="";if(typeof forced==="string")h=forced;else{try{h=location.hash.slice(1)}catch(e){h=curView}}
   const v=viewFrom(h);curView=v;
   VIEWS.forEach(x=>$("v-"+x).hidden=x!==v);
