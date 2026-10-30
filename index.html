@@ -998,6 +998,31 @@ nav a.on{box-shadow:inset 3px 0 0 var(--accent)}
 .home-hero .mc-foot{font-size:13px}
 .home-hero .mc-foot .go{opacity:1;transform:none;padding:10px 16px;font-size:14px}
 #v-play .site-stats{border-top:0;padding-top:0}
+/* счётчик рейтинга и медали */
+.rt-timer{position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;padding:26px 20px;border-radius:24px;background:radial-gradient(120% 140% at 50% 0%,rgba(255,42,75,.14),transparent 60%),var(--panel);isolation:isolate;max-width:640px;width:100%;margin-inline:auto}
+.rt-timer::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1.5px;background:conic-gradient(from var(--ang,0deg),#ff2a4b,#ffd36b,#ff6a3d,#ff2a4b);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;z-index:-1;animation:spinB 6s linear infinite}
+@property --ang{syntax:"<angle>";inherits:false;initial-value:0deg}
+@keyframes spinB{to{--ang:360deg}}
+.rt-timer small{font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.rt-timer .tparts{display:flex;gap:10px;align-items:flex-start}
+.rt-timer .tp{display:flex;flex-direction:column;align-items:center;min-width:74px;background:var(--ink);border:1px solid var(--line);border-radius:14px;padding:10px 8px}
+.rt-timer .tp b{font-family:var(--f-mono);font-size:34px;line-height:1.1;font-variant-numeric:tabular-nums}
+.rt-timer .tp span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.rt-timer .colon{font-family:var(--f-mono);font-size:30px;color:var(--accent);padding-top:10px}
+.rt-timer #mName{font-size:12px;color:var(--muted)}
+.przc.leg{background:rgba(167,139,250,.16);color:#c4b5fd}
+.medals{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end}
+.medal{position:relative;display:inline-flex;cursor:default;transition:transform .2s var(--ease)}
+.medal:hover,.medal:focus-visible{transform:translateY(-3px) scale(1.08);outline:none}
+.medal svg{filter:drop-shadow(0 4px 6px rgba(0,0,0,.5))}
+.medal .mx{position:absolute;right:-6px;bottom:-2px;font-family:var(--f-mono);font-size:10px;font-weight:800;background:var(--fg);color:var(--ink);border-radius:999px;padding:1px 5px}
+.medal::after{content:attr(data-tip);position:absolute;left:0;bottom:calc(100% + 8px);transform:translateY(4px);white-space:nowrap;background:var(--fg);color:var(--ink);font-size:12px;font-weight:800;border-radius:8px;padding:5px 9px;opacity:0;pointer-events:none;transition:opacity .15s,transform .15s var(--ease);z-index:5}
+.medal:hover::after,.medal:focus-visible::after{opacity:1;transform:none}
+.md-empty{font-size:12px;color:var(--muted)}
+.me-medals{display:flex;flex-direction:column;gap:12px}
+.drawer .medals,.me-medals .medals{padding-top:34px;margin-top:-26px}
+@media (max-width:600px){.rt-timer .tp{min-width:58px}.rt-timer .tp b{font-size:26px}.rt-timer .colon{font-size:22px}}
+.drawer>*{flex-shrink:0}
 /* меню профиля */
 #steamSlot{position:relative}
 .me-chip{cursor:pointer;font:inherit;color:var(--fg);border-radius:999px!important;padding:5px 14px 5px 5px!important;transition:border-color .2s,transform .2s var(--ease)}
@@ -1124,17 +1149,16 @@ html.no-anim *,html.no-anim *::before,html.no-anim *::after{animation:none!impor
 
     <!-- STATS -->
     <div class="view" id="v-stats" hidden>
-      <div class="page-head"><h1>Рейтинг месяца</h1><p>Очки начисляются за игру: убийство +2, хедшот +1, помощь +1, победа в раунде +3, MVP +5, установка или разминирование бомбы +3. Потолка нет. 1 числа каждого месяца рейтинг начинается с нуля.</p></div>
-      <section class="prize">
-        <div class="prize-timer"><small>До подведения итогов</small><b id="mEnd">--</b><span id="mName"></span></div>
-        <div class="prize-card god"><span class="pl">1–3 место</span><b>БОГ СЕРВЕРА</b><span>на 30 дней бесплатно</span></div>
-        <div class="prize-card"><span class="pl">4–10 место</span><b>500 ₽</b><span>на баланс сайта</span></div>
+      <section class="rt-timer" aria-label="До подведения итогов месяца">
+        <small>До подведения итогов</small>
+        <div class="tparts"><div class="tp"><b id="tD">0</b><span>дней</span></div><span class="colon">:</span><div class="tp"><b id="tH">00</b><span>часов</span></div><span class="colon">:</span><div class="tp"><b id="tM">00</b><span>минут</span></div><span class="colon">:</span><div class="tp"><b id="tS">00</b><span>секунд</span></div></div>
+        <span id="mName"></span><b id="mEnd" hidden></b>
       </section>
       <section class="podium-m" id="podM" aria-label="Топ-3"></section>
       <div class="pts-legend" id="ptsLegend" aria-label="Цвета очков"></div>
       <input type="search" id="q-stats" placeholder="Найти себя или друга в рейтинге">
       <div class="tablewrap"><table class="tbl" id="t-stats"><thead><tr><th>#</th><th>Игрок</th><th class="r">Очки за месяц</th><th class="r">Убийства</th><th class="r">K/D</th><th class="r">HS %</th><th>Приз</th></tr></thead><tbody></tbody></table></div>
-      <p class="note">Призы выдаются в первый день месяца после проверки победителей на читы. Баланс нельзя вывести: им можно оплатить любые покупки в магазине.</p>
+      <p class="note">Призы выдаются в первый день месяца после проверки победителей на читы. Медаль за место остаётся в профиле навсегда, повторные места складываются: x2, x3 и так далее.</p>
     </div>
 
     <!-- CLANS -->
@@ -1283,7 +1307,7 @@ html.no-anim *,html.no-anim *::before,html.no-anim *::after{animation:none!impor
         <p>5.1. Пользователь обязуется соблюдать правила серверов, размещённые на странице «Правила».</p>
         <p>5.2. Исполнитель вправе проводить технические работы на серверах. Если работы длятся больше 24 часов подряд, срок Привилегии продлевается на время работ.</p>
         <h2>6. Ежемесячные призы</h2>
-        <p>6.1. По итогам каждого календарного месяца игроки, занявшие 1–3 места в рейтинге, получают Привилегию «БОГ СЕРВЕРА» на 30 дней, игроки на 4–10 местах получают 500 ₽ на баланс Сайта.</p>
+        <p>6.1. По итогам каждого календарного месяца игроки, занявшие 1–3 места в рейтинге, получают Привилегию «БОГ СЕРВЕРА» на 30 дней, игроки на 4–10 местах получают Привилегию «LEGEND» на 30 дней. Все игроки из первой десятки получают памятную медаль в профиль.</p>
         <p>6.2. Перед выдачей призов победители проверяются на нарушение правил. Нарушители исключаются из рейтинга, приз переходит следующему игроку.</p>
         <p>6.3. Баланс Сайта можно использовать только для оплаты услуг на Сайте. Вывод и обмен на деньги невозможен.</p>
         <h2>7. Реквизиты Исполнителя</h2>
@@ -1548,9 +1572,10 @@ const who=p=>`<span class="who"><i class="av" style="background:${p.c}">${p.n[0]
 function openProfile(n){const p=P(n);if(!p)return;const nx=Math.min(17,p.r+1);const into=p.pts-p.r*STEP;const pc=p.r===17?100:Math.round(into/STEP*100);
   $("drawer").innerHTML=`<button class="x" id="dx">Закрыть ✕</button>
   <div class="p-head"><i class="av" style="background:${p.c}">${p.n[0].toUpperCase()}</i><div><h3>${clanOf(p)?`<span class="ptag">[${clanOf(p).t}]</span>`:""}${p.n}</h3><small>STEAM_1:${p.id%2}:${(4810233+p.id*7919)}</small></div></div>
-  <div class="mrank"><div class="row3">${ptsChip(p,1)}<small>место <b>#${placeOf(p)}</b> в рейтинге месяца</small></div>${placeOf(p)<=10?`<span class="przc ${placeOf(p)<=3?"god":"cash"}" style="align-self:flex-start">${placeOf(p)<=3?"Сейчас в зоне приза БОГ СЕРВЕРА":"Сейчас в зоне приза 500 ₽"}</span>`:""}</div><div hidden><div class="bar"><span style="width:${pc}%"></span></div></div>
+  <div class="mrank"><div class="row3">${ptsChip(p,1)}<small>место <b>#${placeOf(p)}</b> в рейтинге месяца</small></div>${placeOf(p)<=10?`<span class="przc ${placeOf(p)<=3?"god":"cash"}" style="align-self:flex-start">${placeOf(p)<=3?"Сейчас в зоне приза БОГ СЕРВЕРА":"Сейчас в зоне приза LEGEND"}</span>`:""}</div><div hidden><div class="bar"><span style="width:${pc}%"></span></div></div>
   <div class="grid3"><div><small>Очки за всё время</small><b>${fmt(p.pts)}</b></div><div><small>K/D</small><b>${p.kd.toFixed(2)}</b></div><div><small>HS %</small><b>${p.hs}%</b></div><div><small>Убийства</small><b>${fmt(p.kills)}</b></div><div><small>Смерти</small><b>${fmt(p.deaths)}</b></div><div><small>MVP</small><b>${p.mvp}</b></div></div>
   <div><h4>Любимое оружие</h4>${p.w.map(([w,v])=>`<div class="wp"><span>${w}</span><div class="bar"><span style="width:${v}%"></span></div><span>${v}%</span></div>`).join("")}</div>
+  <div><h4>Медали рейтинга</h4><div class="medals">${medalsHTML(p,30)}</div></div>
   <div><h4>Достижения · ${achOf(p).length} из ${ACHS.length}</h4><div class="ach-icons">${achOf(p).map(a=>achIco(a)).join("")}</div></div>${clanOf(p)?`<div><h4>Клан</h4><button class="mrow" data-clan="${clans.indexOf(clanOf(p))}" style="width:100%"><span class="who">${emblem(clanOf(p).c,clanOf(p).t).replace('class="emb"','class="emb" style="width:24px;height:27px"')}<span>${clanOf(p).n}</span></span><span></span><span class="pt">#${clans.indexOf(clanOf(p))+1}</span></button></div>`:""}
   <p style="margin:0;font-size:12px;color:var(--muted)">На сервере ${p.hrs} ч. Данные примерные.</p>`;
   $("drawer").hidden=false;$("scrim").hidden=false;$("dx").onclick=closeProfile;$("dx").focus()}
@@ -1784,12 +1809,12 @@ const meBase=[...players].sort((a,b)=>b.pts-a.pts)[9];
 const ME={...meBase,id:777,n:"Demo_Player",c:"#ff2a4b",hrs:142,balance:500,vip:{tier:"PREMIUM",until:daysFwd(18),from:daysAgo(12)}};
 guests.push(ME);
 let logged=false;try{logged=localStorage.getItem("demoLogin")==="1"}catch(e){}
-const PURCHASES=[[new Date(2026,9,1),"Приз: 7 место в рейтинге за сентябрь",-500],[daysAgo(12),"PREMIUM на 30 дней",199],[daysAgo(43),"VIP на 30 дней",99],[daysAgo(74),"VIP на 30 дней",99]];
+const PURCHASES=[[new Date(2026,9,1),"Приз: 7 место в рейтинге за сентябрь · LEGEND на 30 дней",0],[daysAgo(12),"PREMIUM на 30 дней",199],[daysAgo(43),"VIP на 30 дней",99],[daysAgo(74),"VIP на 30 дней",99]];
 const targetOf=a=>{const m=a[2].replace(/(\d)\s(\d)/g,"$1$2").match(/\d+/);return m?+m[0]:1};
 function achProgress(){const own=new Set(achOf(ME));const rnd=rng(77);
   return ACHS.map(a=>{const t=targetOf(a);if(own.has(a))return{a,cur:t,t,done:1};const cur=a[1]==="Легенда сервера"?own.size:Math.floor(t*rnd()*0.97);return{a,cur,t:a[1]==="Легенда сервера"?ACHS.length-1:t,done:0}})}
 function meGoal(){const p=ME,v=monthPts(p),pl=placeOf(p),all=board();const goal=pl>10?all[9]:pl>3?all[2]:null;const nt=nextTier(v);
-  return`<div class="mrank" style="margin-top:10px;max-width:460px"><div class="row3">${ptsChip(p,1)}<small>место <b>#${pl}</b> в рейтинге месяца</small></div>${goal?`<small>До ${pl>10?"10 места (приз 500 ₽)":"3 места (приз БОГ СЕРВЕРА)"}: <b>${fmt(monthPts(goal)-v+1)}</b> очков</small><div class="bar"><span style="width:${Math.min(100,v/monthPts(goal)*100)}%"></span></div>`:`<span class="przc god" style="align-self:flex-start">Ты в топ-3: приз БОГ СЕРВЕРА</span>`}${nt?`<small>Следующий цвет очков с ${fmt(nt[0])}</small>`:""}</div>`}
+  return`<div class="mrank" style="margin-top:10px;max-width:460px"><div class="row3">${ptsChip(p,1)}<small>место <b>#${pl}</b> в рейтинге месяца</small></div>${goal?`<small>До ${pl>10?"10 места (приз LEGEND)":"3 места (приз БОГ СЕРВЕРА)"}: <b>${fmt(monthPts(goal)-v+1)}</b> очков</small><div class="bar"><span style="width:${Math.min(100,v/monthPts(goal)*100)}%"></span></div>`:`<span class="przc god" style="align-self:flex-start">Ты в топ-3: приз БОГ СЕРВЕРА</span>`}${nt?`<small>Следующий цвет очков с ${fmt(nt[0])}</small>`:""}</div>`}
 function drawMe(){$("meGate").hidden=logged;$("meBody").hidden=!logged;
   drawChip();
   drawTasks();if(!logged)return;
@@ -1801,6 +1826,7 @@ function drawMe(){$("meGate").hidden=logged;$("meBody").hidden=!logged;
     ${meGoal()}</div>
     <div class="acts"><a class="ghost" href="#tasks">Задания</a><button class="logout" id="logout">Выйти</button></div></section>
   <div class="me-grid"><div><small>Очки за месяц</small><b>${fmt(monthPts(p))}</b></div><div><small>Место в месяце</small><b>#${placeOf(p)}</b></div><div><small>K/D</small><b>${p.kd.toFixed(2)}</b></div><div><small>HS %</small><b>${p.hs}%</b></div><div><small>Убийства</small><b>${fmt(p.kills)}</b></div><div><small>MVP</small><b>${p.mvp}</b></div></div>
+  <section class="box me-medals"><div class="hdr" style="margin:0"><h2>Медали рейтинга</h2><span>за места в топ-10 месяца, наведи на медаль</span></div><div class="medals">${medalsHTML(p,40)}</div></section>
   <div class="me-two">
     <section class="box"><div class="hdr"><h2>Почти получено</h2><a class="more" href="#ach">Все достижения →</a></div><div class="prog-list">${near.map(({a,cur,t})=>`<div class="prog"><span class="th" style="${achSrc(a)?`background-image:url(${achSrc(a)})`:""}"></span><div><b>${a[1]}</b><span>${a[2]}</span><div class="bar"><span style="width:${cur/t*100}%"></span></div></div><span class="num">${fmt(cur)} / ${fmt(t)}</span></div>`).join("")}</div></section>
     <div style="display:flex;flex-direction:column;gap:14px">
@@ -1808,7 +1834,7 @@ function drawMe(){$("meGate").hidden=logged;$("meBody").hidden=!logged;
       <section class="box"><div class="hdr"><h2>Получено · ${got.length} из ${ACHS.length}</h2></div><div class="ach-mini">${got.slice(0,24).map(x=>achIco(x.a)).join("")}${got.length>24?`<span class="mi" style="background:var(--panel-2);font-size:11px;font-weight:800">+${got.length-24}</span>`:""}</div></section>
     </div>
   </div>
-  <section class="box"><div class="hdr"><h2>Покупки</h2></div><div class="tablewrap" style="border:0;background:none"><table class="tbl" style="min-width:480px"><thead><tr><th>Дата</th><th>Товар</th><th class="r">Сумма</th><th>Статус</th></tr></thead><tbody>${PURCHASES.map(([d,t,s])=>`<tr><td class="mono">${d.toLocaleDateString("ru-RU")}</td><td>${t}</td><td class="r">${s<0?"+"+(-s):s} ₽</td><td><span class="st off" style="color:var(--live)">${s<0?"Зачислено на баланс":"Оплачено"}</span></td></tr>`).join("")}</tbody></table></div></section>
+  <section class="box"><div class="hdr"><h2>Покупки</h2></div><div class="tablewrap" style="border:0;background:none"><table class="tbl" style="min-width:480px"><thead><tr><th>Дата</th><th>Товар</th><th class="r">Сумма</th><th>Статус</th></tr></thead><tbody>${PURCHASES.map(([d,t,s])=>`<tr><td class="mono">${d.toLocaleDateString("ru-RU")}</td><td>${t}</td><td class="r">${s?s+" ₽":"приз"}</td><td><span class="st off" style="color:var(--live)">${s?"Оплачено":"Выдано"}</span></td></tr>`).join("")}</tbody></table></div></section>
   <p class="note">Это пример профиля. После подключения входа через Steam здесь будут твои настоящие данные с сервера.</p>`;
   $("logout").onclick=()=>setLogin(false)}
 function setLogin(v){logged=v;try{localStorage.setItem("demoLogin",v?"1":"0")}catch(e){}drawMe();if(typeof drawSkins==="function")drawSkins();if(typeof drawHomeProgress==="function")drawHomeProgress();if(typeof drawTiers==="function")drawTiers();if(typeof drawStats==="function")drawStats();if(v){if(curView!=="skins")go("me");toast("Вход выполнен (демо)")}else toast("Ты вышел из аккаунта")}
@@ -2063,6 +2089,18 @@ $("buyModal").onclick=e=>{if(e.target.id==="buyModal")$("buyModal").hidden=true}
 $("buyForm").onsubmit=e=>{e.preventDefault();$("buyModal").hidden=true;if(buyHow==="bal"){ME.balance-=order.p;PURCHASES.unshift([new Date(today),order.t+" ("+order.s+")",order.p]);drawMe();toast(`Оплачено с баланса: ${order.t}. Осталось ${fmt(ME.balance)} ₽`)}else toast(`Демо: здесь откроется оплата ${fmt(order.p)} ₽. Платёжная система ещё не подключена`)};
 drawTiers();
 
+// ---------- медали за топ-10 месяца ----------
+const MEDAL_MONTHS=["май","июнь","июль","август","сентябрь"];
+const MEDALS=new Map();
+(function(){const all=[...players,...guests];MEDAL_MONTHS.forEach((mo,k)=>{const r=rng(900+k*31);all.map(p=>[p,p.pts*(0.3+r()*1.6)]).sort((a,b)=>b[1]-a[1]).slice(0,10).forEach(([p],i)=>{if(p===ME)return;if(!MEDALS.has(p))MEDALS.set(p,[]);MEDALS.get(p).push({place:i+1,month:mo})})});
+  MEDALS.set(ME,[{place:7,month:"сентябрь"},{place:7,month:"июль"},{place:9,month:"май"}])})();
+const MCOL=p=>p===1?["#ffe08a","#d4a017","#7a5a00"]:p===2?["#f1f4f8","#aab4c0","#5b6470"]:p===3?["#f3c9a5","#c27a43","#6b3a17"]:["#ff9aa8","#ff2a4b","#7a0b1d"];
+function medalSvg(place,size){const [a,b,c]=MCOL(place);const id="md"+place+"_"+Math.random().toString(36).slice(2,7);
+  return`<svg viewBox="0 0 40 48" width="${size}" height="${size*1.2}" aria-hidden="true"><path d="M12 0h7l-3 16h-7zM21 0h7l3 16h-7z" fill="${place<=3?"#ff2a4b":"#3a2a30"}"/><path d="M14 0h3l-2 16h-2zM23 0h3l2 16h-2z" fill="rgba(255,255,255,.25)"/><defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${a}"/><stop offset=".55" stop-color="${b}"/><stop offset="1" stop-color="${c}"/></linearGradient></defs><circle cx="20" cy="31" r="15" fill="url(#${id})"/><circle cx="20" cy="31" r="11.5" fill="none" stroke="rgba(255,255,255,.45)" stroke-width="1.2"/><text x="20" y="${place<10?36:35.5}" text-anchor="middle" font-family="Russo One,Arial Black,sans-serif" font-size="${place<10?14:11}" fill="${c}">${place}</text></svg>`}
+function medalsOf(p){const list=MEDALS.get(p)||[];const by={};list.forEach(m=>{(by[m.place]=by[m.place]||[]).push(m.month)});return Object.keys(by).map(Number).sort((a,b)=>a-b).map(pl=>({place:pl,n:by[pl].length,months:by[pl]}))}
+function medalsHTML(p,size=34){const g=medalsOf(p);if(!g.length)return`<span class="md-empty">Пока нет медалей. Займи место в топ-10 месяца.</span>`;
+  return g.map(m=>`<span class="medal" tabindex="0" data-tip="${m.n>1?`x${m.n} · `:""}занял ${m.place} место${m.n>1?"":" · "+m.months[0]}">${medalSvg(m.place,size)}${m.n>1?`<b class="mx">x${m.n}</b>`:""}</span>`).join("")}
+
 // ---------- очки и рейтинг месяца ----------
 const PTIERS=[[0,"#9aa3ad"],[1000,"#3ddc97"],[3000,"#5aa9ff"],[6000,"#a78bfa"],[10000,"#ffc94a"],[20000,"top"]];
 const ptier=v=>{let t=PTIERS[0];for(const x of PTIERS)if(v>=x[0])t=x;return t};
@@ -2076,12 +2114,12 @@ function drawStats(){const all=board(),q=$("q-stats").value.trim().toLowerCase()
   const pod=all.slice(0,3),col=["#ffd36b","#c9d3df","#d98a5f"];
   $("podM").innerHTML=[1,0,2].map(k=>{const p=pod[k];return`<button class="pm p${k+1}" data-p="${p.n}" style="--mc:${col[k]}"><span class="place">${k+1}</span><i class="av" style="background:${p.c}">${p.n[0].toUpperCase()}</i><b>${p.n}</b>${ptsChip(p,1)}<span class="gift">БОГ СЕРВЕРА на месяц</span></button>`}).join("");
   const rows=all.map((p,i)=>({p,i})).filter(({p})=>!q||p.n.toLowerCase().includes(q));
-  document.querySelector("#t-stats tbody").innerHTML=rows.length?rows.map(({p,i})=>`<tr class="click ${i<3?"zone-top top3":i<10?"zone-cash":""} ${i===9||i===2?"zone-line":""} ${logged&&p===ME?"me-row":""}" data-p="${p.n}" tabindex="0"><td class="pos">${i+1}</td><td>${who(p)}</td><td class="r">${ptsChip(p)}</td><td class="r">${fmt(p.kills)}</td><td class="r">${p.kd.toFixed(2)}</td><td class="r">${p.hs}%</td><td>${i<3?'<span class="przc god">БОГ СЕРВЕРА</span>':i<10?'<span class="przc cash">+500 ₽</span>':""}</td></tr>`).join(""):`<tr><td colspan="7" class="empty">Игрок «${esc(q)}» не найден</td></tr>`}
+  document.querySelector("#t-stats tbody").innerHTML=rows.length?rows.map(({p,i})=>`<tr class="click ${i<3?"zone-top top3":i<10?"zone-cash":""} ${i===9||i===2?"zone-line":""} ${logged&&p===ME?"me-row":""}" data-p="${p.n}" tabindex="0"><td class="pos">${i+1}</td><td>${who(p)}</td><td class="r">${ptsChip(p)}</td><td class="r">${fmt(p.kills)}</td><td class="r">${p.kd.toFixed(2)}</td><td class="r">${p.hs}%</td><td>${i<3?'<span class="przc god">БОГ СЕРВЕРА</span>':i<10?'<span class="przc leg">LEGEND</span>':""}</td></tr>`).join(""):`<tr><td colspan="7" class="empty">Игрок «${esc(q)}» не найден</td></tr>`}
 $("q-stats").oninput=drawStats;
 const MONTHS=["январь","февраль","март","апрель","май","июнь","июль","август","сентябрь","октябрь","ноябрь","декабрь"];
 function tickMonth(){const now=new Date(),msk=new Date(now.getTime()+3*3600e3);const end=Date.UTC(msk.getUTCFullYear(),msk.getUTCMonth()+1,1);const left=end-msk.getTime();
   const d=Math.floor(left/864e5),h=Math.floor(left%864e5/36e5),m=Math.floor(left%36e5/6e4),s=Math.floor(left%6e4/1e3);
-  $("mEnd").textContent=`${d} д ${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;$("mName").textContent=`Итоги за ${MONTHS[msk.getUTCMonth()]} подведём 1 числа в 00:00 МСК`}
+  $("tD").textContent=d;$("tH").textContent=String(h).padStart(2,"0");$("tM").textContent=String(m).padStart(2,"0");$("tS").textContent=String(s).padStart(2,"0");$("mName").textContent=`Итоги за ${MONTHS[msk.getUTCMonth()]} подведём 1 числа в 00:00 МСК · 1–3 место: БОГ СЕРВЕРА · 4–10 место: LEGEND · всем из топ-10: медаль в профиль`}
 tickMonth();setInterval(tickMonth,1000);
 {const b=board().filter(p=>p!==ME);ME.m=monthPts(b[9])-137}
 document.documentElement.style.setProperty("--god",`url(${TIERIMG.GOD})`);
