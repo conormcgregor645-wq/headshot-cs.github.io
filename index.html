@@ -1709,7 +1709,7 @@ $("fVip").onsubmit=e=>{e.preventDefault();const n=$("vNick").value.trim(),sid=$(
 $("fNews").onsubmit=e=>{e.preventDefault();NEWS.unshift({d:new Date(today),tag:$("nTag").value,title:$("nTitle").value.trim(),text:$("nText").value.trim()});e.target.reset();formMsg("nMsg","Опубликовано. Новость уже на главной и в разделе «Новости».",1);refreshAll()};
 $("fRule").onsubmit=e=>{e.preventDefault();const si=+$("rSec").value;RULES[si][1].push(["",$("rText").value.trim(),$("rPun").value.trim()]);renum();e.target.reset();formMsg("rMsg","Правило добавлено на страницу «Правила».",1);refreshAll()};
 
-drawNews();drawMe();drawAdmin();
+drawNews();drawAdmin();
 
 // ---------- скинченджер ----------
 // силуэты (viewBox 0 0 120 44)
@@ -1828,7 +1828,6 @@ function drawHomeProgress(){const el=$("homeProg");
   const p=ME,nx=Math.min(17,p.r+1),into=p.pts-p.r*STEP,pc=p.r===17?100:Math.round(into/STEP*100);
   el.innerHTML=`<div class="hp"><section class="box rankbox"><div class="hdr" style="margin:0"><h2>Твои очки за месяц</h2><a class="more" href="#stats">Рейтинг →</a></div>${meGoal()}</section>
   <section class="box mini-t"><div class="hdr" style="margin:0"><h2>Задания дня</h2><a class="more" href="#tasks">Все задания →</a></div>${DAILY.slice(0,3).map(([,t,d,c,m,rw])=>`<div class="mt ${c>=m?"done":""}"><b>${t} <span style="font-family:var(--f-body);font-weight:500">· ${d}</span></b><span>${c>=m?"✓ +"+rw:`${c}/${m} · +${rw}`}</span><div class="bar"><span style="width:${c/m*100}%"></span></div></div>`).join("")}</section></div>`}
-drawHomeProgress();
 
 // ---------- апелляции ----------
 var APPEALS=[{sid:"STEAM_1:1:43900668",n:"Kemper",reason:"Обход бана",contact:"kemper#2211",text:"Это мой первый аккаунт, второй взял брат. Мы играем с одного компьютера.",d:daysAgo(1),st:"new"}];
@@ -2008,6 +2007,8 @@ function route(forced){try{closeProfile()}catch(e){}["modal","srvModal","cmdModa
 // переход по странице: работает и там, где ссылки с # не меняют адрес
 function go(v){route(v);try{if(location.hash!=="#"+v)history.replaceState(null,"","#"+v)}catch(e){}}
 document.addEventListener("click",e=>{const a=e.target.closest('a[href^="#"]');if(!a||e.defaultPrevented)return;const v=a.getAttribute("href").slice(1);if(!v)return;e.preventDefault();go(v)});
+// стартовая отрисовка: только после того, как весь код загружен
+[drawMe,drawHomeProgress,drawTiers,drawStats].forEach(f=>{try{f()}catch(e){console.error(e)}});
 addEventListener("hashchange",()=>{let h="";try{h=location.hash.slice(1)}catch(e){}if(viewFrom(h)!==curView)route()});route();
 </script>
 
