@@ -980,6 +980,42 @@ nav a.on{box-shadow:inset 3px 0 0 var(--accent)}
 .pts.big{animation:ptsPop .6s var(--ease)}
 @keyframes ptsPop{from{transform:scale(.85);opacity:.5}}
 ::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:var(--line);border-radius:999px;border:2px solid var(--ink)}::-webkit-scrollbar-track{background:transparent}
+/* меню профиля */
+#steamSlot{position:relative}
+.me-chip{cursor:pointer;font:inherit;color:var(--fg);border-radius:999px!important;padding:5px 14px 5px 5px!important;transition:border-color .2s,transform .2s var(--ease)}
+.me-chip .av{border-radius:50%!important}
+.me-chip .chev{width:14px;height:14px;fill:none;stroke:var(--muted);stroke-width:2.2;transition:transform .25s var(--ease);margin-left:2px}
+.me-chip[aria-expanded="true"] .chev{transform:rotate(180deg)}
+.me-chip.guest .av{background:var(--panel-2);color:var(--muted)}
+.me-chip.guest small{color:var(--muted)}
+.umenu{position:absolute;right:0;top:calc(100% + 8px);width:240px;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:6px;z-index:40;box-shadow:0 18px 40px rgba(0,0,0,.55);display:flex;flex-direction:column;gap:2px;transform-origin:top right;animation:umIn .22s var(--ease)}
+@keyframes umIn{from{opacity:.2;transform:translateY(-6px) scale(.96)}}
+.umenu a,.umenu button{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;border:0;background:none;font:inherit;font-weight:700;color:var(--fg);text-align:left;width:100%;transition:background .2s,transform .2s var(--ease)}
+.umenu a:hover,.umenu button:hover{background:var(--panel-2);transform:translateX(3px)}
+.umenu svg{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;color:var(--muted)}
+.umenu .sep{height:1px;background:var(--line);margin:4px 6px}
+.umenu .bal-row{display:flex;justify-content:space-between;align-items:center;padding:8px 12px 10px;font-size:12px;color:var(--muted)}
+.umenu .bal-row b{font-family:var(--f-mono);color:var(--live);font-size:15px}
+.umenu .out,.umenu .out svg{color:var(--accent)}
+.umenu .login{background:var(--accent);color:#fff;justify-content:center}
+.umenu .login:hover{background:#e8203f}
+.umenu .login svg{color:#fff}
+.umenu .cnt{margin-left:auto;font-size:10px;font-weight:800;background:var(--accent);color:#fff;border-radius:999px;padding:1px 7px}
+/* настройки */
+.set-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start}
+.set-sec{display:flex;flex-direction:column;gap:4px}
+.set-sec h2{margin:0 0 8px;font-family:var(--f-display);font-weight:400;font-size:18px;text-transform:uppercase}
+.set-row{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:10px 0;border-bottom:1px solid var(--line)}
+.set-row:last-child{border-bottom:0}
+.set-row b{display:block;font-size:14px}
+.set-row small{font-size:12px;color:var(--muted)}
+.set-row .switch{padding:0}
+.set-row input[type=email]{background:var(--ink);border:1px solid var(--line);color:var(--fg);font:inherit;padding:8px 14px;width:220px;max-width:100%}
+.steam-acc{display:flex;align-items:center;gap:12px}
+.steam-acc .av{width:44px;height:44px;border-radius:50%;font-size:18px}
+.hp-cta .steam span,.login-gate .steam span,.umenu .steam span{display:inline!important}
+html.no-anim *,html.no-anim *::before,html.no-anim *::after{animation:none!important;transition:none!important}
+@media (max-width:820px){.set-grid{grid-template-columns:minmax(0,1fr)}.umenu{position:fixed;right:max(16px,env(safe-area-inset-right,0px));top:auto;margin-top:8px}.me-chip span.nm{display:none}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.ticker{overflow-x:auto}}
 </style>
 </head>
@@ -997,8 +1033,6 @@ nav a.on{box-shadow:inset 3px 0 0 var(--accent)}
     </div>
     <nav aria-label="Основное меню" id="mainnav">
       <a href="#play" data-v="play"><svg viewBox="0 0 24 24"><polygon points="6 4 20 12 6 20 6 4"/></svg>Играть</a>
-      <a href="#me" data-v="me"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>Мой профиль</a>
-      <a href="#tasks" data-v="tasks"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 9l2 2 4-4M8 15h8"/></svg>Задания</a>
       <a href="#shop" data-v="shop"><svg viewBox="0 0 24 24"><path d="M12 3l3 6 6 .9-4.5 4.3 1 6.3L12 17.6 6.5 20.5l1-6.3L3 9.9 9 9z"/></svg>Магазин<span class="tag">NEW</span></a>
       <a href="#stats" data-v="stats"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Рейтинг</a>
       <a href="#skins" data-v="skins"><svg viewBox="0 0 24 24"><path d="M4 20l9-9M13 11l7-8-1 7-6 1z"/><path d="M15 15l4 4"/></svg>Скины<span class="tag">FREE</span></a>
@@ -1006,8 +1040,6 @@ nav a.on{box-shadow:inset 3px 0 0 var(--accent)}
         <summary><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>Ещё<svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></summary>
         <div class="sub">
         <a href="#clans" data-v="clans"><svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></svg>Кланы</a>
-        <a href="#ach" data-v="ach"><svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="6"/><path d="M8.5 14L7 22l5-3 5 3-1.5-8"/></svg>Достижения</a>
-        <a href="#news" data-v="news"><svg viewBox="0 0 24 24"><path d="M4 5h13v14a2 2 0 0 0 2 2H6a2 2 0 0 1-2-2z"/><path d="M17 9h3v10a2 2 0 0 1-2 2M8 9h5M8 13h5M8 17h3"/></svg>Новости</a>
         <a href="#bans" data-v="bans"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></svg>Баны</a>
         <a href="#rules" data-v="rules"><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M9 11h7M9 15h7"/></svg>Правила</a>
         </div>
@@ -1302,6 +1334,36 @@ nav a.on{box-shadow:inset 3px 0 0 var(--accent)}
         <h1>Такой страницы нет</h1>
         <p>Возможно, ссылка устарела или в адресе опечатка.</p>
         <a class="steam" href="#play">На главную</a>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="view" id="v-settings" hidden>
+      <div class="page-head"><h1>Настройки</h1><p>Настройки сохраняются за твоим аккаунтом. Сейчас, в демо, они хранятся в этом браузере.</p></div>
+      <div class="note" id="setGate">Войди через Steam, чтобы настройки привязались к аккаунту. <button class="ghost" data-login style="display:inline-flex;margin-left:8px;padding:6px 14px">Войти</button></div>
+      <div class="set-grid">
+        <section class="box set-sec">
+          <h2>Аккаунт</h2>
+          <div class="set-row"><div class="steam-acc"><i class="av" id="setAv">?</i><div><b id="setNick">Гость</b><small id="setSid">Steam не привязан</small></div></div></div>
+          <div class="set-row"><div><b>Почта для чеков</b><small>Сюда придут чеки об оплате</small></div><input type="email" id="setMail" placeholder="you@mail.ru" autocomplete="email"></div>
+        </section>
+        <section class="box set-sec">
+          <h2>Приватность</h2>
+          <div class="set-row"><div><b>Открытый профиль</b><small>Другие видят твою статистику</small></div><label class="switch"><input type="checkbox" data-set="publicProfile"><span></span></label></div>
+          <div class="set-row"><div><b>Показывать в рейтинге</b><small>Скрытые игроки не получают призы месяца</small></div><label class="switch"><input type="checkbox" data-set="showRating"><span></span></label></div>
+          <div class="set-row"><div><b>Тег клана перед ником</b><small>На сайте и на сервере</small></div><label class="switch"><input type="checkbox" data-set="clanTag"><span></span></label></div>
+        </section>
+        <section class="box set-sec">
+          <h2>Уведомления</h2>
+          <div class="set-row"><div><b>Новости и обновления</b><small>Счётчик новых новостей в меню</small></div><label class="switch"><input type="checkbox" data-set="newsNotify"><span></span></label></div>
+          <div class="set-row"><div><b>Окончание статуса</b><small>Напомнить за 3 дня</small></div><label class="switch"><input type="checkbox" data-set="vipNotify"><span></span></label></div>
+          <div class="set-row"><div><b>Итоги месяца</b><small>Сообщить о месте и призе</small></div><label class="switch"><input type="checkbox" data-set="monthNotify"><span></span></label></div>
+        </section>
+        <section class="box set-sec">
+          <h2>Интерфейс</h2>
+          <div class="set-row"><div><b>Анимации</b><small>Плавные переходы и эффекты</small></div><label class="switch"><input type="checkbox" data-set="anim"><span></span></label></div>
+          <div class="set-row"><div><b>Фоновая картинка</b><small>Арт карты вверху страницы</small></div><label class="switch"><input type="checkbox" data-set="bg"><span></span></label></div>
+        </section>
       </div>
     </div>
 
@@ -1757,7 +1819,7 @@ function achProgress(){const own=new Set(achOf(ME));const rnd=rng(77);
 function meGoal(){const p=ME,v=monthPts(p),pl=placeOf(p),all=board();const goal=pl>10?all[9]:pl>3?all[2]:null;const nt=nextTier(v);
   return`<div class="mrank" style="margin-top:10px;max-width:460px"><div class="row3">${ptsChip(p,1)}<small>место <b>#${pl}</b> в рейтинге месяца</small></div>${goal?`<small>До ${pl>10?"10 места (приз 500 ₽)":"3 места (приз БОГ СЕРВЕРА)"}: <b>${fmt(monthPts(goal)-v+1)}</b> очков</small><div class="bar"><span style="width:${Math.min(100,v/monthPts(goal)*100)}%"></span></div>`:`<span class="przc god" style="align-self:flex-start">Ты в топ-3: приз БОГ СЕРВЕРА</span>`}${nt?`<small>Следующий цвет очков с ${fmt(nt[0])}</small>`:""}</div>`}
 function drawMe(){$("meGate").hidden=logged;$("meBody").hidden=!logged;
-  $("steamSlot").innerHTML=logged?`<a class="me-chip" href="#me"><i class="av" style="background:${ME.c}">${ME.n[0]}</i><span>${ME.n}<small>${ME.vip.tier} · <span class="bal">${fmt(ME.balance)} ₽</span></small></span></a>`:`<button class="steam" data-login><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="16" cy="8" r="4"/><circle cx="8" cy="16" r="3"/><path d="M10.5 14.2 13 11"/></svg><span>Войти через Steam</span></button>`;
+  drawChip();
   drawTasks();if(!logged)return;
   const p=ME,nx=Math.min(17,p.r+1),into=p.pts-p.r*STEP,pc=p.r===17?100:Math.round(into/STEP*100),cl=clanOf(p)||myClan;
   const pr=achProgress(),got=pr.filter(x=>x.done),near=pr.filter(x=>!x.done&&x.cur>0).sort((x,y)=>y.cur/y.t-x.cur/x.t).slice(0,6);
@@ -2061,8 +2123,8 @@ document.documentElement.style.setProperty("--god",`url(${TIERIMG.GOD})`);
 
 drawStats();
 // ---------- навигация ----------
-const VIEWS=["play","public","me","tasks","shop","skins","stats","clans","ach","news","bans","rules","admin","offer","privacy","404"];
-const MORE=["clans","ach","news","bans","rules"];
+const VIEWS=["play","public","me","tasks","shop","skins","stats","clans","ach","news","settings","bans","rules","admin","offer","privacy","404"];
+const MORE=["clans","bans","rules"];
 let curView="play";
 function viewFrom(h){return !h?"play":VIEWS.includes(h)&&h!=="404"?h:"404"}
 function route(forced){try{closeProfile()}catch(e){}["modal","srvModal","cmdModal","clanModal","skModal","apModal","buyModal","tierModal"].forEach(id=>{const m=$(id);if(m)m.hidden=true});
@@ -2072,12 +2134,45 @@ function route(forced){try{closeProfile()}catch(e){}["modal","srvModal","cmdModa
   {const el=$("v-"+v);el.classList.remove("enter");void el.offsetWidth;el.classList.add("enter");setTimeout(()=>el.classList.remove("enter"),900);let k=0;el.querySelectorAll(".t6,.srv,.a3,.tc,.ccard,.wcard,.hn,.nw,.mode-card,.pm").forEach(c=>{c.style.setProperty("--i",Math.min(k++,14))})}
   document.querySelectorAll("#mainnav a,.adm-link").forEach(a=>a.classList.toggle("on",a.dataset.v===(v==="public"?"play":v)));
   if(MORE.includes(v))$("navMore").open=true;
+  try{closeUm()}catch(e){}
+  if(v==="news"){try{newsSeen=NEWS.length;localStorage.setItem("newsSeen",newsSeen)}catch(e){}try{drawChip()}catch(e){}}
+  if(v==="settings")try{drawSettings()}catch(e){}
   document.querySelector(".rail").classList.remove("open");$("burger").setAttribute("aria-expanded","false");
   document.title=v==="404"?"Страница не найдена — Tasher":"Tasher CS2";
   window.scrollTo(0,0)}
 // переход по странице: работает и там, где ссылки с # не меняют адрес
 function go(v){route(v);try{if(location.hash!=="#"+v)history.replaceState(null,"","#"+v)}catch(e){}}
 document.addEventListener("click",e=>{const a=e.target.closest('a[href^="#"]');if(!a||e.defaultPrevented)return;const v=a.getAttribute("href").slice(1);if(!v)return;e.preventDefault();go(v)});
+// ---------- меню профиля и настройки ----------
+const UI={u:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/>',set:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M2 12h3M19 12h3M4.9 19.1L7 17M17 7l2.1-2.1"/>',task:'<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 9l2 2 4-4M8 15h8"/>',ach:'<circle cx="12" cy="9" r="6"/><path d="M8.5 14L7 22l5-3 5 3-1.5-8"/>',news:'<path d="M4 5h13v14a2 2 0 0 0 2 2H6a2 2 0 0 1-2-2z"/><path d="M17 9h3v10a2 2 0 0 1-2 2M8 9h5M8 13h5M8 17h3"/>',shop:'<path d="M12 3l3 6 6 .9-4.5 4.3 1 6.3L12 17.6 6.5 20.5l1-6.3L3 9.9 9 9z"/>',out:'<path d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10"/>',steam:'<circle cx="16" cy="8" r="4"/><circle cx="8" cy="16" r="3"/><path d="M10.5 14.2 13 11"/>'};
+const ico=k=>`<svg viewBox="0 0 24 24">${UI[k]}</svg>`;
+let SET={publicProfile:true,showRating:true,clanTag:true,newsNotify:true,vipNotify:true,monthNotify:true,anim:true,bg:true,mail:""};
+try{Object.assign(SET,JSON.parse(localStorage.getItem("settings")||"{}"))}catch(e){}
+const saveSet=()=>{try{localStorage.setItem("settings",JSON.stringify(SET))}catch(e){}};
+function applySet(){document.documentElement.classList.toggle("no-anim",!SET.anim);document.body.style.backgroundImage=SET.bg?"":"none"}
+let newsSeen=0;try{newsSeen=+localStorage.getItem("newsSeen")||0}catch(e){}
+function newsUnread(){return SET.newsNotify?Math.max(0,NEWS.length-newsSeen):0}
+function drawChip(){const n=newsUnread(),t=DAILY.filter(x=>x[3]<x[4]).length;
+  const chev='<svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>';
+  const chip=logged?`<button class="me-chip" id="meBtn" aria-haspopup="menu" aria-expanded="false"><i class="av" style="background:${ME.c}">${ME.n[0]}</i><span class="nm">${ME.n}<small>${ME.vip.tier} · <span class="bal">${fmt(ME.balance)} ₽</span></small></span>${chev}</button>`
+    :`<button class="me-chip guest" id="meBtn" aria-haspopup="menu" aria-expanded="false"><i class="av">?</i><span class="nm">Гость<small>Войди через Steam</small></span>${chev}</button>`;
+  const items=(logged?`<div class="bal-row"><span>Баланс</span><b>${fmt(ME.balance)} ₽</b></div><a href="#me">${ico("u")}Мой профиль</a>`:`<button class="login" data-login>${ico("steam")}Войти через Steam</button><div class="sep"></div>`)
+    +`<a href="#tasks">${ico("task")}Задания${logged&&t?`<span class="cnt">${t}</span>`:""}</a><a href="#ach">${ico("ach")}Достижения</a><a href="#news">${ico("news")}Новости${n?`<span class="cnt">${n}</span>`:""}</a><a href="#settings">${ico("set")}Настройки</a>`
+    +(logged?`<div class="sep"></div><a href="#shop">${ico("shop")}Магазин</a><div class="sep"></div><button class="out" id="umOut">${ico("out")}Выйти</button>`:"");
+  $("steamSlot").innerHTML=chip+`<div class="umenu" id="umenu" role="menu" hidden>${items}</div>`;
+  $("meBtn").onclick=e=>{e.stopPropagation();const m=$("umenu"),o=m.hidden;m.hidden=!o;$("meBtn").setAttribute("aria-expanded",o)};
+  const out=$("umOut");if(out)out.onclick=()=>setLogin(false)}
+function closeUm(){const m=$("umenu");if(m&&!m.hidden){m.hidden=true;$("meBtn").setAttribute("aria-expanded","false")}}
+document.addEventListener("click",e=>{if(!e.target.closest("#umenu")||e.target.closest("a,button"))if(!e.target.closest("#meBtn"))closeUm()});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeUm()});
+function drawSettings(){$("setGate").hidden=logged;
+  $("setAv").textContent=logged?ME.n[0]:"?";$("setAv").style.background=logged?ME.c:"var(--panel-2)";
+  $("setNick").textContent=logged?ME.n:"Гость";$("setSid").textContent=logged?"Steam привязан · STEAM_1:1:48102377":"Steam не привязан";
+  document.querySelectorAll("[data-set]").forEach(i=>{i.checked=!!SET[i.dataset.set]});$("setMail").value=SET.mail||""}
+document.querySelectorAll("[data-set]").forEach(i=>i.onchange=()=>{SET[i.dataset.set]=i.checked;saveSet();applySet();drawChip();toast("Сохранено")});
+$("setMail").onchange=e=>{if(e.target.value&&!e.target.checkValidity()){toast("Проверь адрес почты");return}SET.mail=e.target.value.trim();saveSet();toast("Почта сохранена")};
+applySet();
+
 // волна при нажатии
 document.addEventListener("pointerdown",e=>{const b=e.target.closest(".steam,.tm-buy .primary,.ghost,.sheet .row button,.t6 .more2,.icon-btn");if(!b)return;const r=b.getBoundingClientRect(),d=Math.max(r.width,r.height),sp=document.createElement("span");sp.className="ripple";sp.style.cssText=`width:${d}px;height:${d}px;left:${e.clientX-r.left-d/2}px;top:${e.clientY-r.top-d/2}px`;b.appendChild(sp);setTimeout(()=>sp.remove(),650)});
 // стартовая отрисовка: только после того, как весь код загружен
