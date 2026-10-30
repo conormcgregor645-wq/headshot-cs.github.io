@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Хедшот CS2</title>
-<meta name="description" content="Хедшот — сервера CS2 Public: ежемесячный рейтинг с призами, 148 достижений, кланы, задания дня и бесплатные скины.">
-<meta property="og:title" content="Хедшот — сервера CS2">
+<title>Tasher CS2</title>
+<meta name="description" content="Tasher — сервера CS2 Public: ежемесячный рейтинг с призами, 148 достижений, кланы, задания дня и бесплатные скины.">
+<meta property="og:title" content="Tasher — сервера CS2">
 <meta property="og:description" content="Public 5x5 с рейтингом, кланами, достижениями и бесплатными скинами. Заходи играть.">
 <meta property="og:type" content="website">
 <meta name="theme-color" content="#0d090b">
@@ -913,7 +913,7 @@ nav .tag{background:var(--panel-2);color:var(--muted);border:1px solid var(--lin
     <div class="rail-top">
       <a class="logo" href="#play">
       <svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><rect x="1" y="1" width="32" height="32" rx="9" style="fill:var(--accent)"/><circle cx="17" cy="17" r="8" fill="none" stroke="#fff" stroke-width="2.5"/><path d="M17 5v7M17 22v7M5 17h7M22 17h7" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg>
-      <div><b>ХЕДШОТ</b><small>CS2 · PUBLIC</small></div>
+      <div><b>TASHER</b><small>CS2 · PUBLIC</small></div>
     </a>
       <button class="burger" id="burger" aria-label="Меню" aria-expanded="false"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
     </div>
@@ -1164,8 +1164,8 @@ nav .tag{background:var(--panel-2);color:var(--muted);border:1px solid var(--lin
         <p class="lmeta">Редакция от 30 октября 2026 г. Шаблон: перед запуском заполни реквизиты и покажи юристу.</p>
         <h2>1. Общие положения</h2>
         <p>1.1. Индивидуальный предприниматель [ФИО полностью], ОГРНИП [номер], ИНН [номер] (далее — Исполнитель), предлагает любому дееспособному лицу (далее — Пользователь) заключить договор на условиях настоящей оферты.</p>
-        <p>1.2. Акцептом оферты считается оплата любой услуги на сайте [домен] (далее — Сайт). С момента оплаты договор считается заключённым.</p>
-        <p>1.3. Сайт и игровые серверы «Хедшот» не связаны с Valve Corporation. Counter-Strike 2 является товарным знаком Valve Corporation.</p>
+        <p>1.2. Акцептом оферты считается оплата любой услуги на сайте tashercs.ru (далее — Сайт). С момента оплаты договор считается заключённым.</p>
+        <p>1.3. Сайт и игровые серверы «Tasher» не связаны с Valve Corporation. Counter-Strike 2 является товарным знаком Valve Corporation.</p>
         <h2>2. Предмет договора</h2>
         <p>2.1. Исполнитель предоставляет Пользователю доступ к дополнительным игровым возможностям на серверах проекта (далее — Привилегия): VIP, PREMIUM, LEGEND. Состав каждой Привилегии указан на странице «VIP».</p>
         <p>2.2. Привилегии могут включать игровые бонусы (дополнительное здоровье, снаряжение, игровую валюту) в объёме, указанном на странице «Магазин». Исполнитель вправе изменять баланс бонусов, уведомив Пользователей в разделе «Новости».</p>
@@ -1246,7 +1246,7 @@ nav .tag{background:var(--panel-2);color:var(--muted);border:1px solid var(--lin
     </div>
 
     <footer>
-      <span>© 2026 Хедшот. Проект не связан с Valve Corporation.</span>
+      <span>© 2026 Tasher · tashercs.ru. Проект не связан с Valve Corporation.</span>
       <nav><a href="#rules">Правила</a><a href="#offer">Договор оферты</a><a href="#privacy">Конфиденциальность</a></nav>
     </footer>
   </main>
@@ -1994,7 +1994,7 @@ function route(forced){try{closeProfile()}catch(e){}["modal","srvModal","cmdModa
   document.querySelectorAll("#mainnav a,.adm-link").forEach(a=>a.classList.toggle("on",a.dataset.v===(v==="public"?"play":v)));
   if(MORE.includes(v))$("navMore").open=true;
   document.querySelector(".rail").classList.remove("open");$("burger").setAttribute("aria-expanded","false");
-  document.title=v==="404"?"Страница не найдена — Хедшот":"Хедшот CS2";
+  document.title=v==="404"?"Страница не найдена — Tasher":"Tasher CS2";
   window.scrollTo(0,0)}
 // переход по странице: работает и там, где ссылки с # не меняют адрес
 function go(v){route(v);try{if(location.hash!=="#"+v)history.replaceState(null,"","#"+v)}catch(e){}}
