@@ -1059,6 +1059,8 @@ nav a.on{box-shadow:inset 3px 0 0 var(--accent)}
 .site-stats{border-top:0}
 footer{border-top:1px solid color-mix(in srgb,var(--line) 60%,transparent)}
 /* меню профиля */
+.me-chip,.me-chip:hover{border:0!important;background:transparent!important;box-shadow:none!important}
+.me-chip:hover .nm{color:var(--accent)}
 #steamSlot{position:relative}
 .me-chip{cursor:pointer;font:inherit;color:var(--fg);border-radius:999px!important;padding:5px 14px 5px 5px!important;transition:border-color .2s,transform .2s var(--ease)}
 .me-chip .av{border-radius:50%!important}
@@ -1128,7 +1130,6 @@ html.no-anim *,html.no-anim *::before,html.no-anim *::after{animation:none!impor
     <header class="top">
       <div class="now"><div class="pulse" aria-hidden="true"></div><span>Сейчас играют</span><b id="online">0</b></div>
       <div class="spacer"></div>
-      <div class="psearch" role="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input id="pq" type="search" placeholder="Найти игрока" autocomplete="off" aria-label="Найти игрока"><div class="psug" id="psug" role="listbox" hidden></div></div>
       <div id="steamSlot"></div>
     </header>
 
@@ -2036,18 +2037,6 @@ drawSkins();
 $("burger").onclick=()=>{const r=document.querySelector(".rail");const o=r.classList.toggle("open");$("burger").setAttribute("aria-expanded",o)};
 const SOCIAL={DS:"",VK:"",TG:""}; // сюда вставишь ссылки, когда создашь группы
 document.querySelectorAll(".socials button").forEach(b=>b.onclick=()=>{const u=SOCIAL[b.dataset.s];if(u)window.open(u,"_blank");else toast(`Ссылка на ${b.dataset.n} появится, когда создашь группу`)});
-
-// ---------- поиск игрока в шапке ----------
-(function(){const inp=$("pq"),box=$("psug");let act=-1,res=[];
-  function draw(){const q=inp.value.trim().toLowerCase();if(!q){box.hidden=true;return}
-    res=[...players,...guests].filter(p=>p.n.toLowerCase().includes(q)).sort((a,b)=>b.pts-a.pts).slice(0,6);act=-1;
-    box.innerHTML=res.length?res.map((p,i)=>`<button data-i="${i}" role="option">${who(p)}${ptsChip(p)}</button>`).join(""):`<div class="emp">Игрок «${esc(q)}» не найден</div>`;box.hidden=false}
-  function pick(i){const p=res[i];if(!p)return;box.hidden=true;inp.value="";openProfile(p.n)}
-  inp.oninput=draw;inp.onfocus=draw;
-  inp.onkeydown=e=>{if(box.hidden)return;if(e.key==="ArrowDown"||e.key==="ArrowUp"){e.preventDefault();act=(act+(e.key==="ArrowDown"?1:-1)+res.length)%res.length;[...box.querySelectorAll("button")].forEach((b,i)=>b.classList.toggle("act",i===act))}else if(e.key==="Enter"){e.preventDefault();pick(act<0?0:act)}else if(e.key==="Escape")box.hidden=true};
-  box.addEventListener("mousedown",e=>{const b=e.target.closest("button");if(b){e.preventDefault();pick(+b.dataset.i)}},true);
-  inp.onblur=()=>setTimeout(()=>box.hidden=true,120);
-})();
 
 // ---------- прогресс на главной ----------
 function drawHomeProgress(){}
