@@ -1058,6 +1058,23 @@ nav a.on{box-shadow:inset 3px 0 0 var(--accent)}
 .note:not(.warn):not(.sk-gate){border:0;background:none;padding:0 2px;font-size:12px}
 .site-stats{border-top:0}
 footer{border-top:1px solid color-mix(in srgb,var(--line) 60%,transparent)}
+/* боковая панель: фон, эмблема */
+.rail{position:sticky;overflow:hidden;isolation:isolate;background:linear-gradient(180deg,#140f11 0%,#0f0b0d 100%)}
+.rail::before{content:"";position:absolute;inset:auto 0 0 0;height:62%;background:var(--card) center 20%/cover no-repeat;opacity:.38;z-index:-1;-webkit-mask-image:linear-gradient(0deg,#000 0%,rgba(0,0,0,.6) 45%,transparent 100%);mask-image:linear-gradient(0deg,#000 0%,rgba(0,0,0,.6) 45%,transparent 100%);filter:saturate(1.1)}
+.rail::after{content:"";position:absolute;inset:0;background:radial-gradient(120% 40% at 0% 0%,rgba(255,42,75,.14),transparent 70%);z-index:-1;pointer-events:none}
+.logo{gap:12px;padding:2px 6px 6px}
+.emb3d{display:grid;place-items:center;filter:drop-shadow(0 6px 12px rgba(255,42,75,.35));transition:transform .5s var(--ease)}
+.logo:hover .emb3d{transform:rotateY(180deg) scale(1.05)}
+.logo:hover svg{transform:none}
+.logo b{font-family:var(--f-display);font-size:24px;letter-spacing:.06em;background:linear-gradient(180deg,#fff 0%,#ffd0d6 55%,#ff6b7f 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 6px rgba(255,42,75,.3))}
+.logo small{color:#c9a8b0;letter-spacing:.2em}
+.rail nav{margin-top:6px}
+.rail nav a{position:relative}
+.rail nav a.on{background:linear-gradient(90deg,rgba(255,42,75,.22),rgba(255,42,75,.04) 70%,transparent);box-shadow:inset 3px 0 0 var(--accent),0 0 24px rgba(255,42,75,.08)}
+.rail nav a.on svg{filter:drop-shadow(0 0 6px rgba(255,42,75,.7))}
+.rail-foot .adm-link{background:rgba(14,12,13,.7);backdrop-filter:blur(6px);border-style:solid}
+.socials button{background:rgba(31,27,29,.85)!important;backdrop-filter:blur(6px)}
+@media (max-width:820px){.rail::before{display:none}.emb3d svg{width:38px;height:38px}.logo b{font-size:20px}}
 /* меню профиля */
 .me-chip,.me-chip:hover{border:0!important;background:transparent!important;box-shadow:none!important}
 .me-chip:hover .nm{color:var(--accent)}
@@ -1106,7 +1123,23 @@ html.no-anim *,html.no-anim *::before,html.no-anim *::after{animation:none!impor
   <aside class="rail">
     <div class="rail-top">
       <a class="logo" href="#play">
-      <svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><rect x="1" y="1" width="32" height="32" rx="9" style="fill:var(--accent)"/><circle cx="17" cy="17" r="8" fill="none" stroke="#fff" stroke-width="2.5"/><path d="M17 5v7M17 22v7M5 17h7M22 17h7" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg>
+<span class="emb3d" aria-hidden="true"><svg viewBox="0 0 64 64" width="46" height="46">
+        <defs>
+          <linearGradient id="eMetal" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff6b7f"/><stop offset=".45" stop-color="#ff2a4b"/><stop offset="1" stop-color="#7a0b1d"/></linearGradient>
+          <linearGradient id="eEdge" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffd9a0"/><stop offset=".5" stop-color="#b8792a"/><stop offset="1" stop-color="#ffe7b8"/></linearGradient>
+          <linearGradient id="eCore" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a1218"/><stop offset="1" stop-color="#0d0608"/></linearGradient>
+          <linearGradient id="eShine" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/></linearGradient>
+          <radialGradient id="eDot" cx=".4" cy=".35" r=".7"><stop offset="0" stop-color="#fff"/><stop offset=".4" stop-color="#ff6b7f"/><stop offset="1" stop-color="#ff2a4b"/></radialGradient>
+        </defs>
+        <path d="M32 5 56 13v18c0 15-10 24-24 29C18 55 8 46 8 31V13z" fill="#000" opacity=".45" transform="translate(0 3)"/>
+        <path d="M32 3 56 11v18c0 15-10 24-24 29C18 53 8 44 8 29V11z" fill="url(#eEdge)"/>
+        <path d="M32 7 52 14v15c0 12.5-8.3 20-20 24.5C20.3 49 12 41.5 12 29V14z" fill="url(#eMetal)"/>
+        <path d="M32 12 47 17.5v11.5c0 9.5-6.2 15.4-15 19C23.2 44.4 17 38.5 17 29V17.5z" fill="url(#eCore)"/>
+        <circle cx="32" cy="30" r="9" fill="none" stroke="url(#eEdge)" stroke-width="2.2"/>
+        <path d="M32 16v8M32 36v8M18 30h8M38 30h8" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/>
+        <circle cx="32" cy="30" r="2.6" fill="url(#eDot)"/>
+        <path d="M32 7 52 14v6C44 17 38 16 32 16s-12 1-20 4v-6z" fill="url(#eShine)"/>
+      </svg></span>
       <div><b>TASHER</b><small>CS2 · PUBLIC</small></div>
     </a>
       <button class="burger" id="burger" aria-label="Меню" aria-expanded="false"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
