@@ -1036,14 +1036,9 @@ html.no-anim *,html.no-anim *::before,html.no-anim *::after{animation:none!impor
       <a href="#shop" data-v="shop"><svg viewBox="0 0 24 24"><path d="M12 3l3 6 6 .9-4.5 4.3 1 6.3L12 17.6 6.5 20.5l1-6.3L3 9.9 9 9z"/></svg>Магазин<span class="tag">NEW</span></a>
       <a href="#stats" data-v="stats"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Рейтинг</a>
       <a href="#skins" data-v="skins"><svg viewBox="0 0 24 24"><path d="M4 20l9-9M13 11l7-8-1 7-6 1z"/><path d="M15 15l4 4"/></svg>Скины<span class="tag">FREE</span></a>
-      <details class="nav-more" id="navMore">
-        <summary><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>Ещё<svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></summary>
-        <div class="sub">
         <a href="#clans" data-v="clans"><svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></svg>Кланы</a>
         <a href="#bans" data-v="bans"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></svg>Баны</a>
         <a href="#rules" data-v="rules"><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M9 11h7M9 15h7"/></svg>Правила</a>
-        </div>
-      </details>
     </nav>
     <div class="rail-foot">
       <a class="adm-link" href="#admin" data-v="admin"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-2.9 1.2V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-2.9-1.2l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1A1.7 1.7 0 0 0 3 14.1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.2-2.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1A1.7 1.7 0 0 0 10 3.1V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 2.9 1.2l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0 1.2 2.9H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Админ-панель</a>
@@ -2133,7 +2128,6 @@ function route(forced){try{closeProfile()}catch(e){}["modal","srvModal","cmdModa
   VIEWS.forEach(x=>$("v-"+x).hidden=x!==v);
   {const el=$("v-"+v);el.classList.remove("enter");void el.offsetWidth;el.classList.add("enter");setTimeout(()=>el.classList.remove("enter"),900);let k=0;el.querySelectorAll(".t6,.srv,.a3,.tc,.ccard,.wcard,.hn,.nw,.mode-card,.pm").forEach(c=>{c.style.setProperty("--i",Math.min(k++,14))})}
   document.querySelectorAll("#mainnav a,.adm-link").forEach(a=>a.classList.toggle("on",a.dataset.v===(v==="public"?"play":v)));
-  if(MORE.includes(v))$("navMore").open=true;
   try{closeUm()}catch(e){}
   if(v==="news"){try{newsSeen=NEWS.length;localStorage.setItem("newsSeen",newsSeen)}catch(e){}try{drawChip()}catch(e){}}
   if(v==="settings")try{drawSettings()}catch(e){}
@@ -2158,7 +2152,7 @@ function drawChip(){const n=newsUnread(),t=DAILY.filter(x=>x[3]<x[4]).length;
     :`<button class="me-chip guest" id="meBtn" aria-haspopup="menu" aria-expanded="false"><i class="av">?</i><span class="nm">Гость<small>Войди через Steam</small></span>${chev}</button>`;
   const items=(logged?`<div class="bal-row"><span>Баланс</span><b>${fmt(ME.balance)} ₽</b></div><a href="#me">${ico("u")}Мой профиль</a>`:`<button class="login" data-login>${ico("steam")}Войти через Steam</button><div class="sep"></div>`)
     +`<a href="#tasks">${ico("task")}Задания${logged&&t?`<span class="cnt">${t}</span>`:""}</a><a href="#ach">${ico("ach")}Достижения</a><a href="#news">${ico("news")}Новости${n?`<span class="cnt">${n}</span>`:""}</a><a href="#settings">${ico("set")}Настройки</a>`
-    +(logged?`<div class="sep"></div><a href="#shop">${ico("shop")}Магазин</a><div class="sep"></div><button class="out" id="umOut">${ico("out")}Выйти</button>`:"");
+    +(logged?`<div class="sep"></div><button class="out" id="umOut">${ico("out")}Выйти</button>`:"");
   $("steamSlot").innerHTML=chip+`<div class="umenu" id="umenu" role="menu" hidden>${items}</div>`;
   $("meBtn").onclick=e=>{e.stopPropagation();const m=$("umenu"),o=m.hidden;m.hidden=!o;$("meBtn").setAttribute("aria-expanded",o)};
   const out=$("umOut");if(out)out.onclick=()=>setLogin(false)}
