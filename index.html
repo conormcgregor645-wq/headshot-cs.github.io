@@ -1060,9 +1060,9 @@ nav a.on{box-shadow:inset 3px 0 0 var(--accent)}
 footer{border-top:1px solid color-mix(in srgb,var(--line) 60%,transparent)}
 /* боковая панель: фон, эмблема */
 .rail{position:sticky;overflow:hidden;isolation:isolate;background:linear-gradient(180deg,#140f11 0%,#0f0b0d 100%)}
-.rail::before{content:"";position:absolute;inset:0;background:var(--railimg) center bottom/cover no-repeat;opacity:.9;z-index:-1;-webkit-mask-image:linear-gradient(0deg,#000 0%,#000 40%,transparent 75%);mask-image:linear-gradient(0deg,#000 0%,#000 40%,transparent 75%)}
+.rail::before{content:"";position:absolute;inset:-12px;background:var(--railimg) center bottom/cover no-repeat;opacity:.6;filter:blur(3px) saturate(.85) brightness(.8);z-index:-1;-webkit-mask-image:linear-gradient(0deg,#000 0%,#000 40%,transparent 75%);mask-image:linear-gradient(0deg,#000 0%,#000 40%,transparent 75%)}
 .rail::after{content:"";position:absolute;inset:0;background:radial-gradient(120% 40% at 0% 0%,rgba(255,42,75,.14),transparent 70%);z-index:-1;pointer-events:none}
-.logo{gap:12px;padding:2px 6px 6px}
+.logo{gap:12px;padding:6px 10px 8px}
 .emb3d{display:grid;place-items:center;filter:drop-shadow(0 4px 10px rgba(255,42,75,.45));transition:transform .5s var(--ease)}
 .emb3d img{display:block;width:48px;height:48px}
 .logo:hover .emb3d{transform:translateY(-2px) rotate(-6deg) scale(1.08)}
@@ -1124,7 +1124,7 @@ html.no-anim *,html.no-anim *::before,html.no-anim *::after{animation:none!impor
   <aside class="rail">
     <div class="rail-top">
       <a class="logo" href="#play">
-<span class="emb3d" aria-hidden="true"><img src="img/crown.png" alt="" width="48" height="48"></span>
+
       <div><b>TASHER</b><small>CS2 · PUBLIC</small></div>
     </a>
       <button class="burger" id="burger" aria-label="Меню" aria-expanded="false"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
