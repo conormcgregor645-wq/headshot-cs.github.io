@@ -464,7 +464,7 @@ footer nav{flex-direction:row;gap:16px;flex-wrap:wrap}
 .me-grid b{font-family:var(--f-mono);font-size:19px}
 .me-two{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:14px}
 .prog-list{display:flex;flex-direction:column;gap:10px}
-.prog{display:grid;grid-template-columns:72px minmax(0,1fr) auto;gap:12px;align-items:center}
+.prog{display:grid;grid-template-columns:72px minmax(0,1fr) 76px;gap:12px;align-items:center}
 .prog .th{width:72px;aspect-ratio:360/148;border-radius:8px;background:var(--panel-2) center/cover;border:1px solid var(--line)}
 .prog b{display:block;font-size:13px}
 .prog span{font-size:12px;color:var(--muted)}
@@ -814,7 +814,7 @@ footer nav{flex-direction:row;gap:16px;flex-wrap:wrap}
 /* points & monthly rating */
 .pts{display:inline-flex;align-items:center;gap:5px;font-family:var(--f-mono);font-weight:700;font-size:13px;color:var(--pc);white-space:nowrap}
 .pts::before{content:"";width:8px;height:8px;transform:rotate(45deg);border-radius:2px;background:var(--pc);box-shadow:0 0 8px var(--pc)}
-.pts.big{font-size:26px;gap:8px}.pts.big::before{width:12px;height:12px}
+.pts.big{font-size:26px;gap:8px;font-family:var(--f-body);font-weight:800;font-variant-numeric:tabular-nums}.pts.big::before{width:12px;height:12px}
 .pts.top{background:linear-gradient(90deg,#ff2a4b,#ffd36b,#ff2a4b);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:ptsg 3s linear infinite}
 .pts.top::before{background:#ffd36b;box-shadow:0 0 10px #ff2a4b}
 @keyframes ptsg{to{background-position:200% 0}}
@@ -1047,8 +1047,10 @@ nav a.on{box-shadow:inset 3px 0 0 var(--accent)}
 @media (max-width:820px){.pbanner::before{opacity:1;height:200px;bottom:auto;-webkit-mask-image:linear-gradient(0deg,transparent 0%,#000 45%,#000 90%,transparent 100%);mask-image:linear-gradient(0deg,transparent 0%,#000 45%,#000 90%,transparent 100%)}.pbanner .pb-text{padding-top:170px}.pbanner .pb-text{padding-left:0;padding-right:0}}
 /* убираем лишние рамки за блоками */
 .mode-hero{border:0;background:transparent;border-radius:0;padding-inline:0;overflow:visible;isolation:isolate}
-.mode-hero::before{content:"";position:absolute;inset:0;background:var(--img) center 35%/cover;z-index:-1;opacity:.45;-webkit-mask-image:radial-gradient(70% 90% at 50% 40%,#000 30%,transparent 80%);mask-image:radial-gradient(70% 90% at 50% 40%,#000 30%,transparent 80%)}
-.mode-hero .back{margin-left:4px}
+.mode-hero::before{content:"";position:absolute;inset:0;background:var(--img) center 22%/cover;z-index:-1;opacity:.45;-webkit-mask-image:radial-gradient(70% 90% at 50% 40%,#000 30%,transparent 80%);mask-image:radial-gradient(70% 90% at 50% 40%,#000 30%,transparent 80%)}
+.mode-hero .back{margin-left:4px;display:inline-flex;align-items:center;gap:4px;padding:6px 12px 6px 8px;border-radius:999px;background:rgba(255,255,255,.06);transition:background .2s}.mode-hero .back:hover{background:rgba(255,255,255,.12)}.mode-hero .back svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.me-hero .row3{justify-content:flex-start;gap:16px}
+.prog>:last-child{text-align:right}
 .filters{border:0;background:transparent;padding:0}
 .me-hero{border:0;border-radius:0;background:transparent;padding-inline:0;isolation:isolate;overflow:visible}
 .me-hero::before{content:"";position:absolute;inset:0;background:var(--photo) center 30%/cover;z-index:-1;opacity:.35;-webkit-mask-image:linear-gradient(90deg,transparent 0%,#000 55%,#000 80%,transparent 100%),linear-gradient(0deg,transparent,#000 30%,#000 75%,transparent);-webkit-mask-composite:source-in;mask-image:linear-gradient(90deg,transparent 0%,#000 55%,#000 80%,transparent 100%),linear-gradient(0deg,transparent,#000 30%,#000 75%,transparent);mask-composite:intersect}
@@ -1076,8 +1078,8 @@ footer{border-top:1px solid color-mix(in srgb,var(--line) 60%,transparent)}
 .rail-foot .adm-link{background:rgba(14,12,13,.7);backdrop-filter:blur(6px);border-style:solid}
 .socials button{background:rgba(31,27,29,.85)!important;backdrop-filter:blur(6px)}
 @media (max-width:820px){.rail::before{display:none}.emb3d img{width:40px;height:40px}.logo b{font-size:20px}}
-.kb{width:18px;height:18px;margin-left:-4px;flex:none;filter:drop-shadow(0 0 4px rgba(255,42,75,.6));vertical-align:middle}
-.pm .kb{width:22px;height:22px}
+.kb{margin-left:8px;flex:none;font:700 9px/1 var(--f-mono);letter-spacing:.08em;color:var(--accent);border:1px solid rgba(255,42,75,.45);border-radius:4px;padding:3px 5px;vertical-align:middle}
+.pm 
 /* меню профиля */
 .me-chip,.me-chip:hover{border:0!important;background:transparent!important;box-shadow:none!important}
 .me-chip:hover .nm{color:var(--accent)}
@@ -1117,6 +1119,14 @@ footer{border-top:1px solid color-mix(in srgb,var(--line) 60%,transparent)}
 html.no-anim *,html.no-anim *::before,html.no-anim *::after{animation:none!important;transition:none!important}
 @media (max-width:820px){.set-grid{grid-template-columns:minmax(0,1fr)}.umenu{position:fixed;right:max(16px,env(safe-area-inset-right,0px));top:auto;margin-top:8px}.me-chip span.nm{display:none}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.ticker{overflow-x:auto}}
+
+@media (max-width:640px){
+.ach-sum{display:grid;grid-template-columns:1fr 1fr}
+.tools{flex-wrap:wrap}.tools input[type=search]{flex:1 1 100%;width:100%;max-width:none}
+.set-row:has(input[type=email]){flex-direction:column;align-items:stretch}
+.set-row input[type=email]{width:100%}
+.me-hero::before{display:none!important}.mode-hero::before{background-position:center 0!important;background-size:auto 150%!important;opacity:.3!important}
+}
 </style>
 </head>
 <body>
@@ -1133,9 +1143,9 @@ html.no-anim *,html.no-anim *::before,html.no-anim *::after{animation:none!impor
     </div>
     <nav aria-label="Основное меню" id="mainnav">
       <a href="#play" data-v="play"><svg viewBox="0 0 24 24"><polygon points="6 4 20 12 6 20 6 4"/></svg>Играть</a>
-      <a href="#shop" data-v="shop"><svg viewBox="0 0 24 24"><path d="M12 3l3 6 6 .9-4.5 4.3 1 6.3L12 17.6 6.5 20.5l1-6.3L3 9.9 9 9z"/></svg>Магазин<span class="tag">NEW</span></a>
+      <a href="#shop" data-v="shop"><svg viewBox="0 0 24 24"><path d="M12 3l3 6 6 .9-4.5 4.3 1 6.3L12 17.6 6.5 20.5l1-6.3L3 9.9 9 9z"/></svg>Магазин</a>
       <a href="#stats" data-v="stats"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Рейтинг</a>
-      <a href="#skins" data-v="skins"><svg viewBox="0 0 24 24"><path d="M4 20l9-9M13 11l7-8-1 7-6 1z"/><path d="M15 15l4 4"/></svg>Скины<span class="tag">FREE</span></a>
+      <a href="#skins" data-v="skins"><svg viewBox="0 0 24 24"><path d="M4 20l9-9M13 11l7-8-1 7-6 1z"/><path d="M15 15l4 4"/></svg>Скины</a>
         <a href="#clans" data-v="clans"><svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></svg>Кланы</a>
         <a href="#bans" data-v="bans"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></svg>Баны</a>
         <a href="#rules" data-v="rules"><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M9 11h7M9 15h7"/></svg>Правила</a>
@@ -1160,7 +1170,7 @@ html.no-anim *,html.no-anim *::before,html.no-anim *::after{animation:none!impor
       <div class="modes-grid">
         <a class="mode-card" href="#public">
           <div class="mc-head"><b>PUBLIC</b><span><i class="dot"></i><span id="pubOnline">0</span></span></div>
-          <span class="mc-foot"><span id="pubCount">0 серверов</span><span class="go">Сервера →</span></span>
+          <span class="mc-foot"><span id="pubCount">0 серверов</span><span class="go">Открыть</span></span>
         </a>
       </div>
       </div>
@@ -1174,9 +1184,9 @@ html.no-anim *,html.no-anim *::before,html.no-anim *::after{animation:none!impor
     <!-- PUBLIC -->
     <div class="view" id="v-public" hidden>
       <section class="mode-hero" style="--img:var(--photo)">
-        <a class="back" href="#play">← Все режимы</a>
+        <a class="back" href="#play"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg>Все режимы</a>
         <h1>PUBLIC</h1>
-        <p>Классика 5 на 5: террористы закладывают бомбу, спецназ защищает точки и обезвреживает заряд. Рейтинг, очки и задания работают на всех серверах режима.</p>
+        <p>Классический режим: террористы закладывают бомбу, спецназ защищает точки и обезвреживает заряд. Рейтинг, очки и задания работают на всех серверах режима.</p>
         <div class="actions">
           <button class="ghost" id="cmdsBtn"><svg viewBox="0 0 24 24"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5"/></svg>Команды режима</button>
           <button class="steam" id="quickBtn"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="7 4 20 12 7 20"/></svg>Быстрая игра</button>
@@ -1285,11 +1295,11 @@ html.no-anim *,html.no-anim *::before,html.no-anim *::after{animation:none!impor
 
     <!-- ADMIN -->
     <div class="view" id="v-admin" hidden>
-      <div class="page-head"><h1>Админ-панель</h1><p>Управление сервером без программиста: баны, VIP, новости и правила.</p></div>
+      <div class="page-head"><h1>Админ-панель</h1><p>Управление сервером без программиста: баны, статусы, апелляции и правила.</p></div>
       <div class="note warn">Демо-версия. На настоящем сайте сюда попадут только администраторы: роль проверяется после входа через Steam. Изменения сейчас сразу видны на сайте, но пропадут после перезагрузки страницы.</div>
       <div class="adm-tiles" id="admTiles"></div>
       <div class="seg" id="admTabs" role="group" aria-label="Раздел">
-        <button data-t="appeals">Апелляции</button><button data-t="bans" aria-pressed="true">Баны</button><button data-t="vip">VIP</button><button data-t="rules">Правила</button>
+        <button data-t="appeals">Апелляции</button><button data-t="bans" aria-pressed="true">Баны</button><button data-t="vip">Статусы</button><button data-t="rules">Правила</button>
       </div>
 
       <section class="adm-pane" data-pane="appeals" hidden style="grid-template-columns:minmax(0,1fr)">
@@ -1312,7 +1322,7 @@ html.no-anim *,html.no-anim *::before,html.no-anim *::after{animation:none!impor
 
       <section class="adm-pane" data-pane="vip" hidden>
         <form class="box adm-form" id="fVip">
-          <h3>Выдать VIP</h3>
+          <h3>Выдать статус</h3>
           <div class="fgrid">
             <label class="fld">Ник<input id="vNick" required maxlength="32" placeholder="Игрок"></label>
             <label class="fld">SteamID<input id="vSid" required placeholder="STEAM_1:0:12345678" pattern="STEAM_[0-5]:[01]:\d{1,10}"></label>
@@ -1321,7 +1331,7 @@ html.no-anim *,html.no-anim *::before,html.no-anim *::after{animation:none!impor
           </div>
           <div class="frow"><span class="fmsg" id="vMsg"></span><button class="steam" type="submit">Выдать</button></div>
         </form>
-        <div class="box"><div class="hdr"><h2>Действующие VIP</h2></div><div class="adm-list" id="aVips"></div></div>
+        <div class="box"><div class="hdr"><h2>Действующие статусы</h2></div><div class="adm-list" id="aVips"></div></div>
       </section>
 
 
@@ -1371,8 +1381,8 @@ html.no-anim *,html.no-anim *::before,html.no-anim *::after{animation:none!impor
         <p>1.2. Акцептом оферты считается оплата любой услуги на сайте tashercs.ru (далее — Сайт). С момента оплаты договор считается заключённым.</p>
         <p>1.3. Сайт и игровые серверы «Tasher» не связаны с Valve Corporation. Counter-Strike 2 является товарным знаком Valve Corporation.</p>
         <h2>2. Предмет договора</h2>
-        <p>2.1. Исполнитель предоставляет Пользователю доступ к дополнительным игровым возможностям на серверах проекта (далее — Привилегия): VIP, PREMIUM, LEGEND. Состав каждой Привилегии указан на странице «VIP».</p>
-        <p>2.2. Привилегии могут включать игровые бонусы (дополнительное здоровье, снаряжение, игровую валюту) в объёме, указанном на странице «Магазин». Исполнитель вправе изменять баланс бонусов, уведомив Пользователей в разделе «Новости».</p>
+        <p>2.1. Исполнитель предоставляет Пользователю доступ к дополнительным игровым возможностям на серверах проекта (далее — Привилегия): VIP, PREMIUM, ELITE, LEGEND, TITAN, KING. Состав каждой Привилегии указан на странице «Магазин».</p>
+        <p>2.2. Привилегии могут включать игровые бонусы (дополнительное здоровье, снаряжение, игровую валюту) в объёме, указанном на странице «Магазин». Исполнитель вправе изменять баланс бонусов, уведомив Пользователей на Сайте.</p>
         <p>2.3. Привилегия привязывается к Steam-аккаунту Пользователя, с которого выполнен вход на Сайт.</p>
         <h2>3. Стоимость и порядок оплаты</h2>
         <p>3.1. Стоимость Привилегий указана на Сайте в рублях. НДС не облагается в связи с применением упрощённой системы налогообложения [уточнить].</p>
@@ -1607,7 +1617,7 @@ html.no-anim *,html.no-anim *::before,html.no-anim *::after{animation:none!impor
 <script>
 const IP="127.0.0.1:27015";
 const $=id=>document.getElementById(id);
-const fmt=n=>n.toLocaleString("ru-RU");
+const fmt=n=>n.toLocaleString("ru-RU").replace(/\s/g,"\u202f");
 function rng(seed){return()=>{seed=(seed*16807)%2147483647;return(seed-1)/2147483646}}
 const R=rng(11);
 
@@ -1657,13 +1667,14 @@ const players=NICKS.map((n,i)=>{const kills=Math.round(300+R()*5600);const death
   return{id:i,n,kills,deaths,kd:+(kills/deaths).toFixed(2),hs,hrs,pts,mvp:Math.round(kills/18),c:AVC[i%6],r:rankIdx(pts),w:share}});
 const P=n=>players.find(p=>p.n===n)||(typeof guests!=="undefined"&&guests.find(p=>p.n===n));
 const isKing=p=>typeof MEDALS!=="undefined"&&(MEDALS.get(p)||[]).some(m=>m.place<=3&&m.month==="сентябрь");
-const kingBadge=p=>isKing(p)?`<img class="kb" src="img/crown.png" alt="KING" title="Статус KING">`:"";
+const plural=(n,a,b,c)=>{n=Math.abs(n)%100;const m=n%10;return n>10&&n<20?c:m===1?a:m>=2&&m<=4?b:c};
+const kingBadge=p=>isKing(p)?`<span class="kb">KING</span>`:"";
 const who=p=>`<span class="who"><i class="av" style="background:${p.c}">${p.n[0].toUpperCase()}</i>${p.n}${kingBadge(p)}</span>`;
 
 // ---------- профиль ----------
 function openProfile(n){const p=P(n);if(!p)return;const nx=Math.min(17,p.r+1);const into=p.pts-p.r*STEP;const pc=p.r===17?100:Math.round(into/STEP*100);
   $("drawer").innerHTML=`<button class="x" id="dx">Закрыть ✕</button>
-  <div class="p-head"><i class="av" style="background:${p.c}">${p.n[0].toUpperCase()}</i><div><h3>${clanOf(p)?`<span class="ptag">[${clanOf(p).t}]</span>`:""}${p.n} ${kingBadge(p)}</h3><small>STEAM_1:${p.id%2}:${(4810233+p.id*7919)}</small></div></div>
+  <div class="p-head"><i class="av" style="background:${p.c}">${p.n[0].toUpperCase()}</i><div><h3>${clanOf(p)?`<span class="ptag">[${clanOf(p).t}]</span>`:""}${p.n}${kingBadge(p)}</h3><small>STEAM_1:${p.id%2}:${(4810233+p.id*7919)}</small></div></div>
   <div class="mrank"><div class="row3">${ptsChip(p,1)}<small>место <b>#${placeOf(p)}</b> в рейтинге месяца</small></div>${placeOf(p)<=10?`<span class="przc ${placeOf(p)<=3?"god":"cash"}" style="align-self:flex-start">${placeOf(p)<=3?"Сейчас в зоне приза KING":"Сейчас в зоне приза LEGEND"}</span>`:""}</div><div hidden><div class="bar"><span style="width:${pc}%"></span></div></div>
   <div class="grid3"><div><small>Очки за всё время</small><b>${fmt(p.pts)}</b></div><div><small>K/D</small><b>${p.kd.toFixed(2)}</b></div><div><small>HS %</small><b>${p.hs}%</b></div><div><small>Убийства</small><b>${fmt(p.kills)}</b></div><div><small>Смерти</small><b>${fmt(p.deaths)}</b></div><div><small>MVP</small><b>${p.mvp}</b></div></div>
   <div><h4>Любимое оружие</h4>${p.w.map(([w,v])=>`<div class="wp"><span>${w}</span><div class="bar"><span style="width:${v}%"></span></div><span>${v}%</span></div>`).join("")}</div>
@@ -1685,7 +1696,7 @@ const bans=BADN.map((n,i)=>{const [reason,days]=REASONS[Math.floor(R()*REASONS.l
 let banF="all";
 function drawBans(){const q=$("q-bans").value.trim().toLowerCase();
   const rows=bans.filter(b=>(banF==="all"||(banF==="active")===b.active)&&(b.n.toLowerCase().includes(q)||b.sid.toLowerCase().includes(q)));
-  document.querySelector("#t-bans tbody").innerHTML=rows.length?rows.map(b=>`<tr><td><span class="who"><i class="av" style="background:${b.c}">${b.n[0]}</i>${b.n}</span></td><td class="mono">${b.sid}</td><td>${b.reason}</td><td>${b.perm?"Навсегда":b.days+" дн."}</td><td>${b.admin}</td><td class="mono">${b.d.toLocaleDateString("ru-RU")}</td><td><span class="st ${b.lifted?"off":b.perm?"perm":b.active?"on":"off"}">${b.lifted?"Снят":b.perm?"Навсегда":b.active?"Активен":"Истёк"}</span></td><td>${b.active?`<button class="appeal" data-appeal="${b.sid}">Обжаловать</button>`:""}</td></tr>`).join(""):`<tr><td colspan="8" class="empty">Ничего не найдено</td></tr>`}
+  document.querySelector("#t-bans tbody").innerHTML=rows.length?rows.map(b=>`<tr><td><span class="who"><i class="av" style="background:${b.c}">${b.n[0]}</i>${b.n}</span></td><td class="mono">${b.sid}</td><td>${b.reason}</td><td>${b.perm?"Навсегда":b.days+" "+plural(b.days,"день","дня","дней")}</td><td>${b.admin}</td><td class="mono">${b.d.toLocaleDateString("ru-RU")}</td><td><span class="st ${b.lifted?"off":b.perm?"perm":b.active?"on":"off"}">${b.lifted?"Снят":b.perm?"Навсегда":b.active?"Активен":"Истёк"}</span></td><td>${b.active?`<button class="appeal" data-appeal="${b.sid}">Обжаловать</button>`:""}</td></tr>`).join(""):`<tr><td colspan="8" class="empty">Ничего не найдено</td></tr>`}
 $("q-bans").oninput=drawBans;
 document.querySelectorAll("#f-bans button").forEach(b=>b.onclick=()=>{banF=b.dataset.k;document.querySelectorAll("#f-bans button").forEach(x=>x.setAttribute("aria-pressed",x===b));drawBans()});
 drawBans();
@@ -1695,7 +1706,7 @@ drawBans();
 const RULES=[
   ["Общение",[["1.1","Оскорбления игроков и их родных","Мут 1–3 дня"],["1.2","Мат и крики в голосовом чате","Мут 1 день"],["1.3","Реклама других проектов и ссылок","Бан 7 дней"],["1.4","Политика и разжигание розни","Бан 3 дня"]]],
   ["Игровой процесс",[["2.1","Читы, макросы и любые сторонние программы","Бан навсегда"],["2.2","Использование багов карты","Бан 1–3 дня"],["2.3","Тимкилл и намеренный урон по своим","Кик → бан 1 день"],["2.4","Помеха игре: AFK на точке, блокировка проходов","Кик → бан 1 день"],["2.5","Обход наказания с другого аккаунта","Бан навсегда"]]],
-  ["Администрация",[["3.1","Решение администратора окончательное на месте, спорить в чате нельзя","Мут"],["3.2","Обжаловать наказание можно в Discord в течение 7 дней","—"],["3.3","Выдавать себя за администратора запрещено","Бан 7 дней"]]]
+  ["Администрация",[["3.1","Решение администратора окончательное на месте, спорить в чате нельзя","Мут"],["3.2","Обжаловать наказание можно в течение 7 дней через форму в разделе «Банлист»","—"],["3.3","Выдавать себя за администратора запрещено","Бан 7 дней"]]]
 ];
 function drawRules(){$("rules").innerHTML=RULES.map(([h,list])=>`<section class="box rule-sec"><h3>${h}</h3><ol>${list.map(([n,t,p])=>`<li><code>${n}</code><span>${t}</span><em>${p}</em></li>`).join("")}</ol></section>`).join("");}
 drawRules();
@@ -1748,11 +1759,11 @@ $("smClose").onclick=()=>$("srvModal").hidden=true;
 $("srvModal").onclick=e=>{if(e.target.id==="srvModal")$("srvModal").hidden=true};
 function connect(i){const s=SERVERS[i];$("mt").textContent=s.name;cmd.textContent="connect "+s.ip;modal.hidden=false;$("copy").focus()}
 document.addEventListener("click",e=>{const c=e.target.closest("[data-connect]");if(c){e.stopPropagation();connect(+c.dataset.connect);return}
-  const cp=e.target.closest("[data-copy]");if(cp){e.stopPropagation();const s=SERVERS[+cp.dataset.copy];navigator.clipboard?.writeText("connect "+s.ip).then(()=>{cp.innerHTML="✓";setTimeout(()=>cp.innerHTML=ICON_COPY,1500)}).catch(()=>connect(+cp.dataset.copy));return}
+  const cp=e.target.closest("[data-copy]");if(cp){e.stopPropagation();const s=SERVERS[+cp.dataset.copy];navigator.clipboard?.writeText("connect "+s.ip).then(()=>{cp.innerHTML="OK";setTimeout(()=>cp.innerHTML=ICON_COPY,1500)}).catch(()=>connect(+cp.dataset.copy));return}
   const sv=e.target.closest(".srv[data-s]");if(sv)openServer(+sv.dataset.s)},true);
 document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.matches(".srv[data-s]"))openServer(+e.target.dataset.s);if(e.key==="Escape"&&$("drawer").hidden){$("srvModal").hidden=true;$("cmdModal").hidden=true}});
 $("quickBtn").onclick=()=>{const best=SERVERS.filter(s=>s.cur<s.max-1).sort((a,b)=>b.cur-a.cur)[0];if(best)connect(SERVERS.indexOf(best))};
-const CMDS=[["!rank","твой ранг и очки"],["!top","топ-10 сервера"],["!rs","обнулить счёт за карту"],["!tasks","задания дня и прогресс"],["!rtv","голосовать за смену карты"],["!nominate","предложить карту"],["!ws","скины оружия, бесплатно (или раздел «Скины» на сайте)"],["!knife","выбор ножа, бесплатно"],["!vip","меню статуса"],["!medic","аптечка +40 HP (LEGEND и выше)"],["!guns","меню оружия (ELITE и выше)"],["!calladmin","позвать администратора"],["!report","пожаловаться на игрока"]];
+const CMDS=[["!rank","твои очки и место в рейтинге"],["!top","топ-10 сервера"],["!rs","обнулить счёт за карту"],["!tasks","задания дня и прогресс"],["!rtv","голосовать за смену карты"],["!nominate","предложить карту"],["!ws","скины оружия, бесплатно (или раздел «Скины» на сайте)"],["!knife","выбор ножа, бесплатно"],["!vip","меню статуса"],["!medic","аптечка +40 HP (LEGEND и выше)"],["!guns","меню оружия (ELITE и выше)"],["!calladmin","позвать администратора"],["!report","пожаловаться на игрока"]];
 $("cmdList").innerHTML=CMDS.map(([c,d])=>`<div><code>${c}</code><span>${d}</span></div>`).join("");
 $("cmdsBtn").onclick=()=>{$("cmdModal").hidden=false;$("cmClose").focus()};
 $("cmClose").onclick=()=>$("cmdModal").hidden=true;
@@ -1815,7 +1826,7 @@ function drawAch(){const list=ACHS.filter(a=>(achF==="Все"||a[0]===achF)&&(!a
   $("achMore").hidden=list.length<=achShown;$("achMore").textContent=`Показать ещё (${list.length-achShown})`}
 drawAch();
 const rarest=[...ACHS].sort((a,b)=>a[3]-b[3])[0];
-$("achSum").innerHTML=`<div><b>${ACHS.length}</b>достижений</div><div><b>${ACAT.length-1}</b>категорий</div><div><b>${fmt(ACHS.reduce((s,a)=>s+rarity(a[3])[3],0))}</b>очков за все</div><div><b>${rarest[1]}</b>самое редкое · ${String(rarest[3]).replace(".",",")}%</div>`;
+$("achSum").innerHTML=`<div><b>${ACHS.length}</b>достижений</div><div><b>${ACAT.length-1}</b>категорий</div><div><b>${fmt(ACHS.reduce((s,a)=>s+rarity(a[3])[3],0))}</b>очков за все достижения</div><div><b>${rarest[1]}</b>самое редкое · ${String(rarest[3]).replace(".",",")}%</div>`;
 const achOf=p=>ACHS.filter((a,i)=>a[1]!=="Легенда сервера"&&(a[3]>45||((p.pts/37+i*13)%100)<a[3]*1.6+p.hrs/15));
 
 // ---------- кланы ----------
@@ -1833,7 +1844,7 @@ const score=c=>period==="month"?c.month:c.pts;
 const ICO_USERS='<svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2 21c0-4 3-7 7-7s7 3 7 7M16 4a3.5 3.5 0 0 1 0 7M18 14c2.4.7 4 3.2 4 7"/></svg>',ICO_CROWN='<svg viewBox="0 0 24 24"><path d="M3 8l4 4 5-7 5 7 4-4-2 11H5z"/></svg>';
 function ranked(){return[...clans].sort((a,b)=>score(b)-score(a))}
 function drawClans(){const list=ranked();const q=$("clanQ").value.trim().toLowerCase();
-  $("clanPodium").innerHTML=[1,0,2].map(k=>{const c=list[k];if(!c)return"<div></div>";const i=clans.indexOf(c);return`<button class="pod p${k+1}" data-clan="${i}" style="--pc:${PLACE[k][0]};--pg:${PLACE[k][1]}"><span class="num">#${k+1}</span><span class="ava" style="${avaStyle(c)}">${avaHTML(c)}</span><span class="pl">#${k+1}</span><b>${c.n}</b><small>${fmt(score(c))} очков</small></button>`}).join("");
+  $("clanPodium").innerHTML=[1,0,2].map(k=>{const c=list[k];if(!c)return"<div></div>";const i=clans.indexOf(c);return`<button class="pod p${k+1}" data-clan="${i}" style="--pc:${PLACE[k][0]};--pg:${PLACE[k][1]}"><span class="num">#${k+1}</span><span class="ava" style="${avaStyle(c)}">${avaHTML(c)}</span><span class="pl">#${k+1}</span><b>${c.n}</b><small>${fmt(score(c))} ${plural(score(c),"очко","очка","очков")}</small></button>`}).join("");
   const mine=myClan?"":`<div class="ccard cnew"><svg class="big" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M12 9v6M9 12h6"/></svg><b>У тебя нет клана</b><p>Создай свой или вступи в любой из списка.</p><button class="steam" id="newClanBtn">+ Создать клан</button></div>`;
   const cards=list.map((c,k)=>[c,k]).filter(([c])=>!q||c.n.toLowerCase().includes(q)||c.t.toLowerCase().includes(q)).map(([c,k])=>clanCard(c,k)).join("");
   $("clanGrid").innerHTML=mine+(cards||`<div class="note">Клан «${q}» не найден</div>`);
@@ -1888,12 +1899,12 @@ const daysFwd=n=>{const d=new Date(today);d.setDate(d.getDate()+n);return d};
 const TI={hs:'<circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/>',win:'<path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4M12 14v4M8 21h8"/>',knife:'<path d="M4 20l9-9M13 11l7-8-1 7-6 1z"/>',bomb:'<rect x="4" y="8" width="16" height="10" rx="2"/><path d="M8 12h3M14 11v3M17 11v3"/>',flash:'<circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/>',star:'<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>',awp:'<circle cx="12" cy="12" r="8"/><path d="M12 4v5M12 15v5M4 12h5M15 12h5"/>',pistol:'<path d="M3 8h17v4H11l-1 3H6l1-3H3z"/><path d="M10 15l-1 5H6l1-5"/>',users:'<circle cx="9" cy="8" r="3.5"/><path d="M2 21c0-4 3-7 7-7s7 3 7 7M16 4a3.5 3.5 0 0 1 0 7M18 14c2.4.7 4 3.2 4 7"/>',lock:'<rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/>'};
 const DAILY=[["hs","Глаз-алмаз","Сделай 15 убийств в голову",15,15,150],["win","Командный игрок","Выиграй 10 раундов",6,10,100],["knife","Ножевой бой","Убей 2 противников ножом",0,2,250],["pistol","Ковбой","Сделай 5 убийств из пистолетов",3,5,100],["awp","Дополнительное задание","Сделай 5 убийств из AWP",1,5,200,"PREMIUM"]];
 const WEEKLY=[["users","Марафон","Сыграй 200 раундов",132,200,500],["bomb","Сапёр недели","Установи или обезвредь бомбу 15 раз",15,15,400],["flash","Ослепитель","Ослепи флешками 40 противников",22,40,350],["star","Звезда недели","Стань MVP раунда 20 раз",8,20,600]];
-function taskCard([ic,t,d,c,m,rw,vip],locked){const done=c>=m;return`<article class="tc ${done?"done":""} ${locked?"locked":""}">${vip?`<span class="badge2">${vip}</span>`:""}<div class="top2"><span class="ic"><svg viewBox="0 0 24 24">${TI[locked?"lock":ic]}</svg></span><div><h3>${t}</h3><p>${d}</p></div></div><div class="bar"><span style="width:${locked?0:c/m*100}%"></span></div><div class="ft"><span>${locked?"нужен "+vip:`${c} / ${m}`}</span><b>${done?"Выполнено ✓":"+"+rw+" очков"}</b></div></article>`}
+function taskCard([ic,t,d,c,m,rw,vip],locked){const done=c>=m;return`<article class="tc ${done?"done":""} ${locked?"locked":""}">${vip?`<span class="badge2">${vip}</span>`:""}<div class="top2"><span class="ic"><svg viewBox="0 0 24 24">${TI[locked?"lock":ic]}</svg></span><div><h3>${t}</h3><p>${d}</p></div></div><div class="bar"><span style="width:${locked?0:c/m*100}%"></span></div><div class="ft"><span>${locked?"нужен "+vip:`${c} / ${m}`}</span><b>${done?"Выполнено":"+"+rw+" очков"}</b></div></article>`}
 function drawTasks(){const vip=logged&&ME.vip&&ME.vip.tier!=="VIP";
   $("tDaily").innerHTML=DAILY.map(t=>taskCard(t,t[6]&&!vip)).join("");
   $("tWeekly").innerHTML=WEEKLY.map(t=>taskCard(t)).join("");
   const RW=[50,75,100,150,200,250,500],cur=4;
-  $("streak").innerHTML=RW.map((r,i)=>`<div class="sd ${i<cur-1?"done":""} ${i===cur-1?"today":""} ${i===6?"big":""}"><small>День ${i+1}</small><i>${i<cur-1?"✓":i===cur-1?"●":i+1}</i><b>+${r}</b></div>`).join("")}
+  $("streak").innerHTML=RW.map((r,i)=>`<div class="sd ${i<cur-1?"done":""} ${i===cur-1?"today":""} ${i===6?"big":""}"><small>День ${i+1}</small><i>${i+1}</i><b>+${r}</b></div>`).join("")}
 function tickTasks(){const now=new Date(),msk=new Date(now.getTime()+3*3600e3);const left=86400e3-(msk.getUTCHours()*3600e3+msk.getUTCMinutes()*60e3+msk.getUTCSeconds()*1e3);$("tReset").textContent=[Math.floor(left/3600e3),Math.floor(left%3600e3/60e3),Math.floor(left%60e3/1e3)].map(x=>String(x).padStart(2,"0")).join(":")}
 tickTasks();setInterval(tickTasks,1000);
 
@@ -1907,7 +1918,7 @@ const targetOf=a=>{const m=a[2].replace(/(\d)\s(\d)/g,"$1$2").match(/\d+/);retur
 function achProgress(){const own=new Set(achOf(ME));const rnd=rng(77);
   return ACHS.map(a=>{const t=targetOf(a);if(own.has(a))return{a,cur:t,t,done:1};const cur=a[1]==="Легенда сервера"?own.size:Math.floor(t*rnd()*0.97);return{a,cur,t:a[1]==="Легенда сервера"?ACHS.length-1:t,done:0}})}
 function meGoal(){const p=ME,v=monthPts(p),pl=placeOf(p),all=board();const goal=pl>10?all[9]:pl>3?all[2]:null;const nt=nextTier(v);
-  return`<div class="mrank" style="margin-top:10px;max-width:460px"><div class="row3">${ptsChip(p,1)}<small>место <b>#${pl}</b> в рейтинге месяца</small></div>${goal?`<small>До ${pl>10?"10 места (приз LEGEND)":"3 места (приз KING)"}: <b>${fmt(monthPts(goal)-v+1)}</b> очков</small><div class="bar"><span style="width:${Math.min(100,v/monthPts(goal)*100)}%"></span></div>`:`<span class="przc god" style="align-self:flex-start">Ты в топ-3: приз KING</span>`}${nt?`<small>Следующий цвет очков с ${fmt(nt[0])}</small>`:""}</div>`}
+  return`<div class="mrank" style="margin-top:10px;max-width:460px"><div class="row3">${ptsChip(p,1)}<small>место <b>#${pl}</b> в рейтинге месяца</small></div>${goal?`<small>До ${pl>10?"10 места (приз LEGEND)":"3 места (приз KING)"}: <b>${fmt(monthPts(goal)-v+1)}</b> очков</small><div class="bar"><span style="width:${Math.min(100,v/monthPts(goal)*100)}%"></span></div>`:`<span class="przc god" style="align-self:flex-start">Ты в топ-3: приз KING</span>`}</div>`}
 function drawMe(){$("meGate").hidden=logged;$("meBody").hidden=!logged;
   drawChip();
   drawTasks();if(!logged)return;
@@ -1921,9 +1932,9 @@ function drawMe(){$("meGate").hidden=logged;$("meBody").hidden=!logged;
   <div class="me-grid"><div><small>Очки за месяц</small><b>${fmt(monthPts(p))}</b></div><div><small>Место в месяце</small><b>#${placeOf(p)}</b></div><div><small>K/D</small><b>${p.kd.toFixed(2)}</b></div><div><small>HS %</small><b>${p.hs}%</b></div><div><small>Убийства</small><b>${fmt(p.kills)}</b></div><div><small>MVP</small><b>${p.mvp}</b></div></div>
   <section class="box me-medals"><div class="hdr" style="margin:0"><h2>Медали рейтинга</h2><span>за места в топ-10 месяца, наведи на медаль</span></div><div class="medals">${medalsHTML(p,40)}</div></section>
   <div class="me-two">
-    <section class="box"><div class="hdr"><h2>Почти получено</h2><a class="more" href="#ach">Все достижения →</a></div><div class="prog-list">${near.map(({a,cur,t})=>`<div class="prog"><span class="th" style="${achSrc(a)?`background-image:url(${achSrc(a)})`:""}"></span><div><b>${a[1]}</b><span>${a[2]}</span><div class="bar"><span style="width:${cur/t*100}%"></span></div></div><span class="num">${fmt(cur)} / ${fmt(t)}</span></div>`).join("")}</div></section>
+    <section class="box"><div class="hdr"><h2>Почти получено</h2><a class="more" href="#ach">Все достижения</a></div><div class="prog-list">${near.map(({a,cur,t})=>`<div class="prog"><span class="th" style="${achSrc(a)?`background-image:url(${achSrc(a)})`:""}"></span><div><b>${a[1]}</b><span>${a[2]}</span><div class="bar"><span style="width:${cur/t*100}%"></span></div></div><span class="num">${fmt(cur)} / ${fmt(t)}</span></div>`).join("")}</div></section>
     <div style="display:flex;flex-direction:column;gap:14px">
-      <section class="box vip-card"><div class="hdr" style="margin:0"><h2>Статус</h2></div><div class="row2"><b>${p.vip.tier}</b><span>до ${dstr(p.vip.until)}</span></div><div class="bar"><span style="width:${vd/vt*100}%"></span></div><span style="font-size:12px;color:var(--muted)">осталось ${vd} дн. из ${vt}</span><a class="steam" href="#shop" style="justify-content:center">Продлить</a><div class="row2" style="margin-top:4px"><span>Баланс</span><b style="font-family:var(--f-mono);font-size:18px;color:var(--live)">${fmt(ME.balance)} ₽</b></div></section>
+      <section class="box vip-card"><div class="hdr" style="margin:0"><h2>Статус</h2></div><div class="row2"><b>${p.vip.tier}</b><span>до ${dstr(p.vip.until)}</span></div><div class="bar"><span style="width:${vd/vt*100}%"></span></div><span style="font-size:12px;color:var(--muted)">осталось ${vd} ${plural(vd,"день","дня","дней")} из ${vt}</span><a class="steam" href="#shop" style="justify-content:center">Продлить</a><div class="row2" style="margin-top:4px"><span>Баланс</span><b style="font-family:var(--f-mono);font-size:18px;color:var(--live)">${fmt(ME.balance)} ₽</b></div></section>
       <section class="box"><div class="hdr"><h2>Получено · ${got.length} из ${ACHS.length}</h2></div><div class="ach-mini">${got.slice(0,24).map(x=>achIco(x.a)).join("")}${got.length>24?`<span class="mi" style="background:var(--panel-2);font-size:11px;font-weight:800">+${got.length-24}</span>`:""}</div></section>
     </div>
   </div>
@@ -1937,7 +1948,7 @@ document.addEventListener("click",e=>{if(e.target.closest("[data-login]"))setLog
 REASONS.forEach(([r])=>$("bReason").insertAdjacentHTML("beforeend",`<option>${r}</option>`));
 const VIPS=[["Kotleta","STEAM_1:0:58213411","LEGEND",daysFwd(24)],["Vortex","STEAM_1:1:30944120","PREMIUM",daysFwd(9)],["Lenka","STEAM_1:0:77120456","VIP",daysFwd(3)],["Bober","STEAM_1:1:12099877","PREMIUM",daysFwd(17)],[ME.n,"STEAM_1:1:48102377",ME.vip.tier,ME.vip.until]];
 function drawAdmin(){const act=bans.filter(b=>b.active);
-  $("admTiles").innerHTML=`<div><small>Онлайн сейчас</small><b>${fmt(totalOnline)}</b></div><div><small>Активные баны</small><b>${act.length}</b></div><div><small>Действующие VIP</small><b>${VIPS.length}</b></div><div><small>Новые апелляции</small><b>${typeof APPEALS!=="undefined"?APPEALS.filter(a=>a.st==="new").length:0}</b></div>`;if(typeof APPEALS!=="undefined")drawAppeals();
+  $("admTiles").innerHTML=`<div><small>Онлайн сейчас</small><b>${fmt(totalOnline)}</b></div><div><small>Активные баны</small><b>${act.length}</b></div><div><small>Действующие статусы</small><b>${VIPS.length}</b></div><div><small>Новые апелляции</small><b>${typeof APPEALS!=="undefined"?APPEALS.filter(a=>a.st==="new").length:0}</b></div>`;if(typeof APPEALS!=="undefined")drawAppeals();
   $("aBans").innerHTML=act.map(b=>`<div class="ai"><div><b>${esc(b.n)} · ${b.reason}</b><small>${b.sid} · ${b.perm?"навсегда":"до "+new Date(b.d.getTime()+b.days*864e5).toLocaleDateString("ru-RU")}</small></div><button data-unban="${bans.indexOf(b)}">Разбанить</button></div>`).join("")||'<div class="note">Активных банов нет</div>';
   $("aVips").innerHTML=VIPS.map((v,i)=>`<div class="ai"><div><b>${esc(v[0])} · ${v[2]}</b><small>${v[1]} · до ${v[3].toLocaleDateString("ru-RU")}</small></div><button data-unvip="${i}">Снять</button></div>`).join("")||'<div class="note">Никого</div>';
   $("rSec").innerHTML=RULES.map(([h],i)=>`<option value="${i}">${h}</option>`).join("");
@@ -2015,7 +2026,7 @@ function drawSkGrid(){const list=W.filter(w=>(skQ?w.n.toLowerCase().includes(skQ
   $("skGrid").innerHTML=list.map(w=>{const s=skinOf(w);return`<button class="wcard ${s?"set":""}" data-w="${W.indexOf(w)}" style="${s?`--sc:${s.skin[2]};--sc2:${s.skin[2]}`:""}">${s&&s.st?'<span class="st-badge">ST</span>':""}<span class="pic">${art(w,s&&s.skin,s?s.wear:0)}</span><b>${w.n}</b><small>${s?s.name+(s.tag?` · «${esc(s.tag)}»`:""):"Стандартный"}</small></button>`}).join("")||'<div class="note">Ничего не найдено</div>'}
 function drawCols(){const max=3;$("skColCount").textContent=`${SKST.cols.length} / ${max}`;
   $("skCols").innerHTML=SKST.cols.map((c,i)=>{const keys=Object.keys(c.sets);const ics=keys.slice(0,4).map(k=>{const w=W.find(x=>x.n===k);return w?art(w,skinOf(w,c.sets).skin,0):""}).join("");const on=i===SKST.active;
-    return`<div class="col ${on?"on":""}"><div class="ics">${ics||'<small>пусто</small>'}</div><b>${esc(c.name)}</b><small>${keys.length} ${keys.length%10===1&&keys.length!==11?"скин":keys.length%10>=2&&keys.length%10<=4&&(keys.length<12||keys.length>14)?"скина":"скинов"}</small><div class="cb">${on?'<button class="wear-on" disabled>● Надета</button>':`<button class="use" data-coluse="${i}">Надеть</button>`}<button data-colren="${i}" title="Переименовать" aria-label="Переименовать">✎</button>${SKST.cols.length>1?`<button data-coldel="${i}" title="Удалить" aria-label="Удалить">✕</button>`:""}</div></div>`}).join("")+(SKST.cols.length<max?`<button class="col add" id="colAdd"><i>+</i><b>Сохранить как новую</b><small>Скопирует текущий набор в новую коллекцию</small></button>`:"");
+    return`<div class="col ${on?"on":""}"><div class="ics">${ics||'<small>Пока без скинов</small>'}</div><b>${esc(c.name)}</b><small>${keys.length} ${keys.length%10===1&&keys.length!==11?"скин":keys.length%10>=2&&keys.length%10<=4&&(keys.length<12||keys.length>14)?"скина":"скинов"}</small><div class="cb">${on?'<button class="wear-on" disabled>Надета</button>':`<button class="use" data-coluse="${i}">Надеть</button>`}<button data-colren="${i}" title="Переименовать" aria-label="Переименовать"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg></button>${SKST.cols.length>1?`<button data-coldel="${i}" title="Удалить" aria-label="Удалить">✕</button>`:""}</div></div>`}).join("")+(SKST.cols.length<max?`<button class="col add" id="colAdd"><i>+</i><b>Сохранить как новую</b><small>Скопирует текущий набор в новую коллекцию</small></button>`:"");
   const ad=$("colAdd");if(ad)ad.onclick=()=>{if(!needLogin())return;SKST.cols.push({name:"Коллекция "+(SKST.cols.length+1),sets:JSON.parse(JSON.stringify(SKST.sets))});SKST.active=SKST.cols.length-1;skSave();drawCols();toast("Набор сохранён в новую коллекцию")}}
 function needLogin(){if(logged)return true;toast("Сначала войди через Steam");return false}
 function syncActive(){SKST.cols[SKST.active].sets=JSON.parse(JSON.stringify(SKST.sets));skSave()}
@@ -2107,7 +2118,7 @@ const fullOf=(base,i=per)=>Math.round(base*PER[i][0]/30/10)*10-1;
 // строки сравнения: [название, значения по 6 статусам]
 const CMP=[["Бой (кроме пистолетных раундов)"],
  ["Здоровье при возрождении",["105","110","115","120","125","130"]],
- ["Броня",["броня","броня + шлем","броня + шлем","броня + шлем","броня + шлем","броня + шлем"]],
+ ["Броня при возрождении",["кевлар","кевлар + шлем","кевлар + шлем","кевлар + шлем","кевлар + шлем","кевлар + шлем"]],
  ["Гранаты при возрождении",["флешка","флешка, дым","все 4","все 4","все 4","все 4 + 2-я флешка"]],
  ["Набор сапёра за CT",[0,1,1,1,1,1]],
  ["Аптечка !medic (+40 HP раз в раунд)",[0,0,1,1,1,"2 раза"]],
@@ -2120,10 +2131,9 @@ const CMP=[["Бой (кроме пистолетных раундов)"],
  ["Экономика"],
  ["Бонус в начале раунда",["+$300","+$500","+$800","+$1 000","+$1 500","+$2 000"]],
  ["Бонус за убийство",[0,0,0,"+$50","+$100","+$150"]],
- ["Деньги в первом раунде половины",["$800","$800","$800","$800","$800","$800"]],
  ["Чат и внешний вид"],
  ["Тег в чате и табе",["[VIP]","[PREMIUM]","свой","свой","свой","свой + анимация"]],
- ["Цвет ника в чате",["1","3","10","любой","любой","градиент"]],
+ ["Цвет ника в чате",["1 на выбор","3 на выбор","10 на выбор","любой","любой","градиент"]],
  ["Приветствие при входе на сервер",[0,0,1,1,1,"со звуком"]],
  ["Трейл гранат",[0,1,1,1,1,1]],
  ["Свой цвет дымовой гранаты",[0,0,0,0,0,1]],
@@ -2137,7 +2147,7 @@ const CMP=[["Бой (кроме пистолетных раундов)"],
  ["Роль в Discord",[0,1,1,1,1,1]],
  ["Рамка профиля на сайте",[0,0,"статичная","анимированная","анимированная","уникальная"]],
  ["Подарить VIP на 7 дней другу",[0,0,0,0,"1 раз в месяц","3 раза в месяц"]],
- ["Значок-корона рядом с ником в рейтинге и на сайте",[0,0,0,0,0,1]],
+ ["Отметка KING рядом с ником в рейтинге и на сайте",[0,0,0,0,0,1]],
  ["Имя в «Зале славы»",[0,0,0,0,0,1]],
  ["Приоритет в поддержке",[0,0,0,1,1,1]]];
 function drawTiers(){const mine=logged&&ME.vip?ME.vip.tier:null;
@@ -2197,14 +2207,14 @@ const nextTier=v=>PTIERS.find(x=>x[0]>v);
 $("ptsLegend").innerHTML=`<b style="color:var(--fg);font-size:12px;margin-right:4px">Цвет очков:</b>`+PTIERS.map((t,i)=>{const nx=PTIERS[i+1];return`<span>${t[1]==="top"?'<i style="background:linear-gradient(135deg,#ffd36b,#ff2a4b)"></i>':`<i style="--pc:${t[1]}"></i>`}${fmt(t[0])}${nx?"–"+fmt(nx[0]-1):"+"}</span>`}).join("");
 function drawStats(){const all=board(),q=$("q-stats").value.trim().toLowerCase();
   const pod=all.slice(0,3),col=["#ffd36b","#c9d3df","#d98a5f"];
-  $("podM").innerHTML=[1,0,2].map(k=>{const p=pod[k];return`<button class="pm p${k+1}" data-p="${p.n}" style="--mc:${col[k]}"><span class="place">${k+1}</span><i class="av" style="background:${p.c}">${p.n[0].toUpperCase()}</i><b>${p.n} ${kingBadge(p)}</b>${ptsChip(p,1)}<span class="gift">KING на месяц</span></button>`}).join("");
+  $("podM").innerHTML=[1,0,2].map(k=>{const p=pod[k];return`<button class="pm p${k+1}" data-p="${p.n}" style="--mc:${col[k]}"><span class="place">${k+1}</span><i class="av" style="background:${p.c}">${p.n[0].toUpperCase()}</i><b>${p.n}${kingBadge(p)}</b>${ptsChip(p,1)}<span class="gift">KING на месяц</span></button>`}).join("");
   const rows=all.map((p,i)=>({p,i})).filter(({p})=>!q||p.n.toLowerCase().includes(q));
   document.querySelector("#t-stats tbody").innerHTML=rows.length?rows.map(({p,i})=>`<tr class="click ${i<3?"zone-top top3":i<10?"zone-cash":""} ${i===9||i===2?"zone-line":""} ${logged&&p===ME?"me-row":""}" data-p="${p.n}" tabindex="0"><td class="pos">${i+1}</td><td>${who(p)}</td><td class="r">${ptsChip(p)}</td><td class="r">${fmt(p.kills)}</td><td class="r">${p.kd.toFixed(2)}</td><td class="r">${p.hs}%</td><td>${i<3?'<span class="przc god">KING</span>':i<10?'<span class="przc leg">LEGEND</span>':""}</td></tr>`).join(""):`<tr><td colspan="7" class="empty">Игрок «${esc(q)}» не найден</td></tr>`}
 $("q-stats").oninput=drawStats;
 const MONTHS=["январь","февраль","март","апрель","май","июнь","июль","август","сентябрь","октябрь","ноябрь","декабрь"];
 function tickMonth(){const now=new Date(),msk=new Date(now.getTime()+3*3600e3);const end=Date.UTC(msk.getUTCFullYear(),msk.getUTCMonth()+1,1);const left=end-msk.getTime();
   const d=Math.floor(left/864e5),h=Math.floor(left%864e5/36e5),m=Math.floor(left%36e5/6e4),s=Math.floor(left%6e4/1e3);
-  $("tD").textContent=d;$("tH").textContent=String(h).padStart(2,"0");$("tM").textContent=String(m).padStart(2,"0");$("tS").textContent=String(s).padStart(2,"0");$("mName").textContent=`Итоги за ${MONTHS[msk.getUTCMonth()]} подведём 1 числа в 00:00 МСК · 1–3 место: KING · 4–10 место: LEGEND · всем из топ-10: медаль в профиль`}
+  $("tD").textContent=d;$("tH").textContent=String(h).padStart(2,"0");$("tM").textContent=String(m).padStart(2,"0");$("tS").textContent=String(s).padStart(2,"0");$("mName").textContent=`Итоги подведём 1-го числа в 00:00 МСК. Места 1–3 получают KING, места 4–10 — LEGEND, весь топ-10 — медаль в профиль.`}
 tickMonth();setInterval(tickMonth,1000);
 {const b=board().filter(p=>p!==ME);ME.m=monthPts(b[9])-137}
 document.documentElement.style.setProperty("--god",`url(${TIERIMG.GOD})`);
