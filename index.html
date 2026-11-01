@@ -1507,6 +1507,8 @@ nav a.on svg{filter:drop-shadow(0 0 6px rgba(245,165,36,.8))}
 .rt-pts.big{height:40px;padding:0 16px 0 15px;border-radius:11px}.rt-pts.big>span{font-size:20px}
 .rt .rt-pts{min-width:92px;justify-content:center}
 .rt-row.top{box-shadow:none}
+
+.mc-head>span{color:var(--live)}.mc-head>span .dot{background:var(--live);box-shadow:0 0 10px var(--live)}
 </style>
 </head>
 <body>
@@ -1620,7 +1622,7 @@ nav a.on svg{filter:drop-shadow(0 0 6px rgba(245,165,36,.8))}
           <div class="rt-timer">
             <small>До подведения итогов</small>
             <div class="tparts"><div class="tp"><b id="tD">0</b><span>дней</span></div><span class="colon">:</span><div class="tp"><b id="tH">00</b><span>часов</span></div><span class="colon">:</span><div class="tp"><b id="tM">00</b><span>минут</span></div><span class="colon">:</span><div class="tp"><b id="tS">00</b><span>секунд</span></div></div>
-            <span id="mName"></span><b id="mEnd" hidden></b>
+            <span id="mName" hidden></span><b id="mEnd" hidden></b>
           </div>
         </div>
       </section>
@@ -2590,8 +2592,8 @@ const T6=[
  {k:"PREMIUM",n:"PREMIUM",c:"#5aa9ff",p:199,f:["110 HP, броня и шлем","+$500 каждый раунд","Флешка и дым","Набор сапёра за CT","x1.5 ТК за игру"]},
  {k:"ELITE",n:"ELITE",c:"#3ddc97",p:349,hot:1,f:["115 HP, броня и шлем","+$800 каждый раунд","Полный набор гранат","Аптечка !medic раз в раунд","Приветствие при входе"]},
  {k:"LEGEND",n:"LEGEND",c:"#a78bfa",p:549,f:["120 HP, броня и шлем","+$1 000 каждый раунд","Zeus x27 бесплатно","Меню оружия !guns с 3-го раунда","Эффект и звук при MVP"]},
- {k:"TITAN",n:"TITAN",c:"#ffb547",p:899,f:["125 HP, броня и шлем","+$1 500 каждый раунд","Регенерация HP вне боя","+$100 за каждое убийство","x2 ТК за игру"]},
- {k:"GOD",n:"KING",c:"#f5a524",p:1499,god:1,f:["130 HP, броня и шлем","+$2 000 каждый раунд","Возрождение раз за раунд","+10 HP за хедшот","Свой цвет дыма","Отметка KING рядом с ником"]}
+ {k:"TITAN",n:"TITAN",c:"#ff6b2c",p:899,f:["125 HP, броня и шлем","+$1 500 каждый раунд","Регенерация HP вне боя","+$100 за каждое убийство","x2 ТК за игру"]},
+ {k:"GOD",n:"KING",c:"#ffcf40",p:1499,god:1,f:["130 HP, броня и шлем","+$2 000 каждый раунд","Возрождение раз за раунд","+10 HP за хедшот","Свой цвет дыма","Отметка KING рядом с ником"]}
 ];
 const PER=[[30,"30 дней",0],[90,"90 дней",.1],[180,"180 дней",.2]];
 let per=0;
