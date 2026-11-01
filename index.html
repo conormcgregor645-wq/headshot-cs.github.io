@@ -1409,6 +1409,18 @@ button.pf-role{cursor:pointer}button.pf-role:hover{border-color:color-mix(in srg
 .cl-cta .steam{width:100%;justify-content:center}
 .wf-stage{margin:14px auto 4px}
 }
+
+/* ===== цвета рейтинга как в Premier ===== */
+.rt .rt-pts{min-width:104px}
+.rt-pts{background:linear-gradient(90deg,color-mix(in srgb,var(--pc,#ffcc00) 48%,#0e0c0d),color-mix(in srgb,var(--pc,#ffcc00) 26%,#0e0c0d))}
+.rt-pts::before,.rt-pts::after{background:var(--pc,#ffcc00)}
+.rt-pts span{color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.6)}
+/* ===== фон профиля ===== */
+.pf-head{position:relative;padding:26px 24px;border-radius:18px;overflow:hidden;background:linear-gradient(90deg,rgba(14,12,13,.93) 20%,rgba(14,12,13,.6) 65%,rgba(14,12,13,.82)),var(--pfbg,none) center 50%/cover,var(--panel)}
+.pf-head .pf-av{box-shadow:0 0 0 4px rgba(14,12,13,.85),0 0 0 5px rgba(255,255,255,.12)}
+.pf-head .pf-badges{background:rgba(14,12,13,.6);backdrop-filter:blur(6px)}
+.pf-head .pf-role{background:rgba(14,12,13,.6)}
+@media (max-width:640px){.pf-head{padding:18px 16px}}
 </style>
 </head>
 <body>
@@ -2124,7 +2136,7 @@ function drawClans(){const list=ranked();const q=$("clanQ").value.trim().toLower
   $("clanPodium").innerHTML=[1,0,2].map(k=>{const c=list[k];if(!c)return"<div></div>";const i=clans.indexOf(c);return`<button class="pod p${k+1}" data-clan="${i}" style="--pc:${PLACE[k][0]};--pg:${PLACE[k][1]}"><span class="num">#${k+1}</span><span class="ava" style="${avaStyle(c)}">${avaHTML(c)}</span><span class="pl">#${k+1}</span><b>${c.n}</b><small>${fmt(score(c))} ${plural(score(c),"очко","очка","очков")}</small><span class="pod-meta"><span>${c.members.length}/30 игроков</span><span>У/С ${c.kd.toFixed(2)}</span></span><span class="pd-prize">${CPRZ[k][0]}</span></button>`}).join("");
   $("clanMine").innerHTML=myClan?"":`<div class="cl-cta"><div><b>У тебя нет клана</b><span>Создай свой за 300 000 ТК или подай заявку в любой клан из рейтинга.</span></div><button class="steam" id="newClanBtn">Создать клан</button></div>`;
   const rows=list.map((c,k)=>[c,k]).filter(([c])=>!q||c.n.toLowerCase().includes(q)||c.t.toLowerCase().includes(q));
-  $("clanGrid").innerHTML=rtHead(["Место","Клан","Рейтинг","Игроков","Убийств","Средний У/С","Побед","Приз"])+(rows.length?rows.map(([c,k])=>`<div class="rt-row ${k<3?"top t"+(k+1):""} ${c===myClan?"me":""}" data-clan="${clans.indexOf(c)}" tabindex="0" role="button"><span class="rt-pl">${k+1}</span><span class="rt-who"><span class="cl-av" style="${avaStyle(c)}">${avaHTML(c)}</span><span class="nm">${esc(c.n)}</span><span class="ctag">${esc(c.t)}</span></span><span><span class="rt-pts"><span>${fmt(score(c))}</span></span></span>${rc("users",c.members.length+"/30")}${rc("kill",fmt(clanKills(c)))}${rc("kd",c.members.length?c.kd.toFixed(2):"—")}${rc("win",c.wins)}<span>${k<3?`<span class="przc ${k===0?"god":k===1?"leg":"tk"}">${CPRZ[k][1]}</span>`:""}</span></div>`).join(""):`<div class="rt-empty">Клан «${esc(q)}» не найден</div>`);
+  $("clanGrid").innerHTML=rtHead(["Место","Клан","Рейтинг","Игроков","Убийств","Средний У/С","Побед","Приз"])+(rows.length?rows.map(([c,k])=>`<div class="rt-row ${k<3?"top t"+(k+1):""} ${c===myClan?"me":""}" data-clan="${clans.indexOf(c)}" tabindex="0" role="button"><span class="rt-pl">${k+1}</span><span class="rt-who"><span class="cl-av" style="${avaStyle(c)}">${avaHTML(c)}</span><span class="nm">${esc(c.n)}</span><span class="ctag">${esc(c.t)}</span></span><span>${rtPts(score(c))}</span>${rc("users",c.members.length+"/30")}${rc("kill",fmt(clanKills(c)))}${rc("kd",c.members.length?c.kd.toFixed(2):"—")}${rc("win",c.wins)}<span>${k<3?`<span class="przc ${k===0?"god":k===1?"leg":"tk"}">${CPRZ[k][1]}</span>`:""}</span></div>`).join(""):`<div class="rt-empty">Клан «${esc(q)}» не найден</div>`);
   const nb=$("newClanBtn");if(nb)nb.onclick=tryNewClan}
 function clanCard(c,k,preview){const pc=k<3?PLACE[k][0]:c.c;return`<div class="ccard" ${preview?"":`data-clan="${clans.indexOf(c)}" tabindex="0" role="button"`} style="--pc:${pc}"><span class="cov ${c.cover?"":"gen"}" style="${c.cover?`background-image:url(${c.cover})`:`--cc:${c.c}`}"></span><span class="ava" style="${avaStyle(c)}">${avaHTML(c)}</span><span class="pl">#${k+1}</span><span class="cn"><span>${c.n}</span><span class="tagchip">${c.t}</span></span><span class="crow">Игроков<b>${ICO_USERS}${c.members.length}/30</b></span><span class="crow">Рейтинг<b>${ICO_CROWN}${fmt(score(c))}</b></span></div>`}
 document.querySelectorAll("#clanPeriod button").forEach(b=>b.onclick=()=>{period=b.dataset.p;document.querySelectorAll("#clanPeriod button").forEach(x=>x.setAttribute("aria-pressed",x===b));drawClans()});
@@ -2221,8 +2233,8 @@ function pfBadges(p){const g=medalsOf(p),a=achOf(p);const md=g.map(m=>`<span cla
 function pfHTML(p,own){const st=statusOf(p),cl=clanOf(p)||(own?myClan:null),on=isOn(p),pc=ptier(monthPts(p))[1];
   const tabs=own?[["info","Информация","info"],["skins","Скинченджер","gun"],["serv","Услуги","star"],["pay","Пополнения","wallet"],["set","Настройки","gear"]]:[["info","Информация","info"],["skins","Скинченджер","gun"],["serv","Услуги","star"]];
   const cur=own?pfTab:pfTabO;
-  return`<section class="pf-head"><div class="pf-av" style="--ac:${p.c}">${esc(p.n[0].toUpperCase())}</div>
-  <div class="pf-id"><div class="pf-nm"><h1>${esc(p.n)}</h1><span class="pf-lvl" style="--pc:${pc==="top"?"#ffd36b":pc}" title="Очки рейтинга за месяц">${fmt(monthPts(p))}</span></div>
+  return`<section class="pf-head" style="${MAPIMG.Dust2?`--pfbg:url(${MAPIMG.Dust2})`:""}"><div class="pf-av" style="--ac:${p.c}">${esc(p.n[0].toUpperCase())}</div>
+  <div class="pf-id"><div class="pf-nm"><h1>${esc(p.n)}</h1><span title="Очки рейтинга за месяц">${rtPts(monthPts(p))}</span></div>
   ${st||cl?`<div class="pf-tags">${st?`<span class="pf-role" style="--tc:${TCOL(st.t)}"><i></i>${st.t}</span>`:""}${cl?`<button class="pf-role" data-clan="${clans.indexOf(cl)}"><i style="background:${cl.c}"></i>[${esc(cl.t)}] ${esc(cl.n)}</button>`:""}</div>`:""}
   <span class="pf-on ${on?"on":""}">${on?"В сети":"Был в сети "+dts(lastIn(p),1)}</span></div>
   ${pfBadges(p)}</section>
@@ -2579,7 +2591,8 @@ function medalsHTML(p,size=34){const g=medalsOf(p);if(!g.length)return`<span cla
   return g.map(m=>`<span class="medal" tabindex="0" data-tip="${m.n>1?`x${m.n} · `:""}занял ${m.place} место${m.n>1?"":" · "+m.months[0]}">${medalSvg(m.place,size)}${m.n>1?`<b class="mx">x${m.n}</b>`:""}</span>`).join("")}
 
 // ---------- очки и рейтинг месяца ----------
-const PTIERS=[[0,"#9aa3ad"],[1000,"#3ddc97"],[3000,"#5aa9ff"],[6000,"#a78bfa"],[10000,"#ffc94a"],[20000,"top"]];
+const PTIERS=[[0,"#b0b8c4"],[5000,"#7cc4ff"],[10000,"#4b69ff"],[15000,"#8f4fff"],[20000,"#d02ae6"],[25000,"#eb3b4b"],[30000,"#ffcc00"]];
+const rtPts=(v,big)=>`<span class="rt-pts ${big?"big":""}" style="--pc:${ptier(v)[1]}"><span>${fmt(v)}</span></span>`;
 const ptier=v=>{let t=PTIERS[0];for(const x of PTIERS)if(v>=x[0])t=x;return t};
 const monthPts=p=>{if(p.m==null){const r=rng(p.id*97+13);r();r();r();const x=r();p.m=Math.round(p.pts*(0.12+x*x*x*3.6))}return p.m};
 const ptsChip=(p,big)=>{const v=typeof p==="number"?p:monthPts(p);const t=ptier(v);return t[1]==="top"?`<span class="pts top ${big?"big":""}">${fmt(v)}</span>`:`<span class="pts ${big?"big":""}" style="--pc:${t[1]}">${fmt(v)}</span>`};
@@ -2593,9 +2606,9 @@ const clanTag=p=>{const c=clanOf(p);return c?`<span class="ctag" data-tip="Кл�
 function rtHead(cols){return`<div class="rt-row rt-h">${cols.map(c=>`<span>${c}</span>`).join("")}</div>`}
 function drawStats(){const all=board(),q=$("q-stats").value.trim().toLowerCase();
   const pod=all.slice(0,3),col=["#ffd36b","#d5dde8","#e0915f"];
-  $("podM").innerHTML=[1,0,2].map(k=>{const p=pod[k],cl=clanOf(p);return`<button class="pd p${k+1}" data-p="${p.n}" style="--mc:${col[k]}"><span class="pd-num">${k+1}</span><span class="pd-av" style="--ac:${p.c}">${p.n[0].toUpperCase()}<i>${k+1}</i></span><b class="pd-nm">${esc(p.n)}${kingBadge(p)}</b><small class="pd-cl">${cl?`[${esc(cl.t)}] ${esc(cl.n)}`:"без клана"}</small><span class="rt-pts big"><span>${fmt(monthPts(p))}</span></span><span class="pd-prize">Приз: KING на 30 дней</span></button>`}).join("");
+  $("podM").innerHTML=[1,0,2].map(k=>{const p=pod[k],cl=clanOf(p);return`<button class="pd p${k+1}" data-p="${p.n}" style="--mc:${col[k]}"><span class="pd-num">${k+1}</span><span class="pd-av" style="--ac:${p.c}">${p.n[0].toUpperCase()}<i>${k+1}</i></span><b class="pd-nm">${esc(p.n)}${kingBadge(p)}</b><small class="pd-cl">${cl?`[${esc(cl.t)}] ${esc(cl.n)}`:"без клана"}</small>${rtPts(monthPts(p),1)}<span class="pd-prize">Приз: KING на 30 дней</span></button>`}).join("");
   const rows=all.map((p,i)=>({p,i})).filter(({p})=>!q||p.n.toLowerCase().includes(q));
-  $("rtList").innerHTML=rtHead(["Место","Игрок","Рейтинг","Убийств","Смертей","Помощи","Хедшотов","K/D","Точность","Приз"])+(rows.length?rows.map(({p,i})=>`<div class="rt-row ${i<3?"top t"+(i+1):""} ${logged&&p===ME?"me":""}" data-p="${p.n}" tabindex="0" role="button"><span class="rt-pl">${i+1}</span><span class="rt-who"><i class="av" style="background:${p.c}">${p.n[0].toUpperCase()}</i><span class="nm">${esc(p.n)}</span>${kingBadge(p)}${clanTag(p)}</span><span><span class="rt-pts"><span>${fmt(monthPts(p))}</span></span></span>${rc("kill",fmt(p.kills))}${rc("skull",fmt(p.deaths))}${rc("as",fmt(stAs(p)))}${rc("hs",fmt(stHs(p)))}${rc("kd",p.kd.toFixed(2))}${rc("acc",stAcc(p)+"%")}<span>${i<3?'<span class="przc god">KING</span>':i<10?'<span class="przc leg">LEGEND</span>':""}</span></div>`).join(""):`<div class="rt-empty">Игрок «${esc(q)}» не найден</div>`)}
+  $("rtList").innerHTML=rtHead(["Место","Игрок","Рейтинг","Убийств","Смертей","Помощи","Хедшотов","K/D","Точность","Приз"])+(rows.length?rows.map(({p,i})=>`<div class="rt-row ${i<3?"top t"+(i+1):""} ${logged&&p===ME?"me":""}" data-p="${p.n}" tabindex="0" role="button"><span class="rt-pl">${i+1}</span><span class="rt-who"><i class="av" style="background:${p.c}">${p.n[0].toUpperCase()}</i><span class="nm">${esc(p.n)}</span>${kingBadge(p)}${clanTag(p)}</span><span>${rtPts(monthPts(p))}</span>${rc("kill",fmt(p.kills))}${rc("skull",fmt(p.deaths))}${rc("as",fmt(stAs(p)))}${rc("hs",fmt(stHs(p)))}${rc("kd",p.kd.toFixed(2))}${rc("acc",stAcc(p)+"%")}<span>${i<3?'<span class="przc god">KING</span>':i<10?'<span class="przc leg">LEGEND</span>':""}</span></div>`).join(""):`<div class="rt-empty">Игрок «${esc(q)}» не найден</div>`)}
 document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.matches(".rt-row[data-p]"))openProfile(e.target.dataset.p)});
 $("q-stats").oninput=drawStats;
 const MONTHS=["январь","февраль","март","апрель","май","июнь","июль","август","сентябрь","октябрь","ноябрь","декабрь"];
