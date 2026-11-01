@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Tasher CS2</title>
-<meta name="description" content="Tasher — сервера CS2 Public: ежемесячный рейтинг с призами, 148 достижений, кланы, задания дня и бесплатные скины.">
+<meta name="description" content="Tasher — сервера CS2 Public: ежемесячный рейтинг с призами, 148 достижений, кланы, своя валюта ТК и бесплатные скины.">
 <meta property="og:title" content="Tasher — сервера CS2">
 <meta property="og:description" content="Public 5x5 с рейтингом, кланами, достижениями и бесплатными скинами. Заходи играть.">
 <meta property="og:type" content="website">
@@ -1127,6 +1127,132 @@ html.no-anim *,html.no-anim *::before,html.no-anim *::after{animation:none!impor
 .set-row input[type=email]{width:100%}
 .me-hero::before{display:none!important}.mode-hero::before{background-position:center 0!important;background-size:auto 150%!important;opacity:.3!important}
 }
+
+/* ===== профиль ===== */
+@keyframes fadeup{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+#meBody,#plBody{display:flex;flex-direction:column;gap:14px}
+.pf-back{align-self:flex-start;display:inline-flex;align-items:center;gap:4px;padding:7px 14px 7px 9px;border-radius:999px;background:var(--panel);border:1px solid var(--line);color:var(--muted);font:inherit;font-size:13px;font-weight:700;cursor:pointer;transition:color .2s,border-color .2s}
+.pf-back:hover{color:var(--fg);border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+.pf-back svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.pf-head{display:flex;align-items:center;gap:22px;padding:6px 2px 4px}
+.pf-av{flex:none;width:112px;height:112px;border-radius:50%;display:grid;place-items:center;font-family:var(--f-display);font-size:44px;color:#fff;background:radial-gradient(circle at 35% 30%,color-mix(in srgb,var(--ac) 85%,#fff),var(--ac) 55%,color-mix(in srgb,var(--ac) 55%,#000));box-shadow:0 0 0 4px var(--ink),0 0 0 5px var(--line)}
+.pf-id{display:flex;flex-direction:column;gap:8px;min-width:0;flex:1}
+.pf-nm{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.pf-nm h1{margin:0;font-family:var(--f-display);font-weight:400;font-size:34px;line-height:1.05;letter-spacing:.01em;overflow-wrap:anywhere}
+.pf-lvl{display:inline-flex;align-items:center;height:28px;padding:0 14px 0 16px;font-weight:800;font-size:14px;font-variant-numeric:tabular-nums;color:var(--pc);background:linear-gradient(90deg,color-mix(in srgb,var(--pc) 22%,transparent),color-mix(in srgb,var(--pc) 8%,transparent));clip-path:polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%);position:relative}
+.pf-lvl::before{content:"";position:absolute;left:4px;top:0;bottom:0;width:3px;background:var(--pc);transform:skewX(-16deg)}
+.pf-tags{display:flex;gap:8px;flex-wrap:wrap}
+.pf-role{display:inline-flex;align-items:center;gap:7px;padding:4px 10px;border-radius:8px;background:var(--panel);border:1px solid var(--line);font:inherit;font-size:12px;font-weight:700;color:var(--fg);cursor:default}
+button.pf-role{cursor:pointer}button.pf-role:hover{border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+.pf-role i{width:7px;height:7px;border-radius:50%;background:var(--tc,var(--muted))}
+.pf-on{font-size:13px;color:var(--muted);font-weight:600}
+.pf-on.on{color:var(--live)}
+.pf-badges{margin-left:auto;align-self:flex-end;display:flex;gap:6px;padding:6px;border-radius:14px;background:var(--panel);border:1px solid var(--line)}
+.pf-b{width:44px;height:44px;border-radius:10px;display:grid;place-items:center;background:var(--panel-2);overflow:hidden}
+.pf-b .mi{width:44px;height:44px;border:0;border-radius:10px}
+.pf-b svg{max-width:30px;max-height:36px}
+.pf-b.ach{width:auto;padding:0 12px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0;text-decoration:none;color:var(--fg)}.pf-b.ach b{font-size:16px;line-height:1.1}.pf-b.ach small{font-size:10px;color:var(--muted)}
+.pf-b.more{font-size:12px;font-weight:800;color:var(--muted);text-decoration:none}
+.pf-b.more:hover{color:var(--fg)}
+.pf-stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+.pf-stats>div{background:var(--panel);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.pf-stats small{font-size:13px;font-weight:700;color:var(--muted)}
+.pf-stats b{display:flex;align-items:center;gap:8px;font-size:22px;font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pf-stats b svg,.tkc svg{width:20px;height:20px;flex:none;fill:none;stroke:var(--accent);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.pf-tabs{display:flex;gap:4px;padding:5px;background:var(--panel);border-radius:14px;overflow-x:auto;scrollbar-width:none}
+.pf-tabs::-webkit-scrollbar{display:none}
+.pf-tabs button{flex:1 0 auto;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 16px;border:0;border-radius:10px;background:transparent;color:var(--muted);font:inherit;font-size:14px;font-weight:700;cursor:pointer;transition:background .2s,color .2s;white-space:nowrap}
+.pf-tabs button:hover{color:var(--fg)}
+.pf-tabs button[aria-selected="true"]{background:var(--panel-2);color:var(--fg)}
+.pf-tabs svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.pf-panel{background:var(--panel);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:10px;min-height:120px;animation:fadeup .3s var(--ease)}
+.pf-panel h2{margin:0 0 4px;font-family:var(--f-display);font-weight:400;font-size:20px;letter-spacing:.02em;text-transform:uppercase}
+.pf-panel .pf-h2{margin-top:14px}
+.pf-hr{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.pf-hr .ghost{padding:8px 16px;font-size:13px}
+.pf-rows{display:flex;flex-direction:column;gap:6px}
+.pf-rows>div{display:flex;justify-content:space-between;align-items:center;gap:14px;background:var(--panel-2);border-radius:10px;padding:14px 16px;font-size:14px}
+.pf-rows span{font-weight:700;color:var(--fg)}
+.pf-rows b{font-weight:600;text-align:right}
+.pf-hist span{display:flex;flex-direction:column;gap:2px;font-weight:600}
+.pf-hist small{font-size:12px;color:var(--muted);font-weight:500}
+.pf-hist b{font-variant-numeric:tabular-nums;white-space:nowrap}
+.pf-hist b.gift{color:var(--live)}
+.pf-note{margin:4px 2px 0;font-size:13px;color:var(--muted)}
+.pf-empty{padding:26px 16px;text-align:center;color:var(--muted);background:var(--panel-2);border-radius:10px;font-size:14px}
+.pf-cta{align-self:flex-start}
+.pf-skins{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px}
+.pf-sk{position:relative;background:var(--panel-2);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:4px;min-width:0;border-bottom:2px solid var(--sc)}
+.pf-sk .pic{height:70px;display:grid;place-items:center}
+.pf-sk .pic svg{width:100%;height:100%;filter:drop-shadow(0 5px 8px rgba(0,0,0,.45))}
+.pf-sk b{font-size:14px;display:flex;align-items:center;gap:6px}
+.pf-sk small{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pf-sk .stt{font-size:9px;font-weight:800;color:#ff9a3d;border:1px solid #ff9a3d;border-radius:4px;padding:0 4px}
+.pf-stkn{font-size:11px;color:var(--muted)}
+.pf-srv{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr) auto;gap:18px;align-items:center;background:var(--panel-2);border-radius:12px;padding:16px 18px;border-left:3px solid var(--tc)}
+.pf-srv b{display:block;font-family:var(--f-display);font-weight:400;font-size:22px;color:var(--tc)}
+.pf-srv small{font-size:12px;color:var(--muted)}
+.pf-srv-r{display:flex;flex-direction:column;gap:6px;font-size:13px}
+.pf-srv .bar span{background:var(--tc)}
+.pf-bal{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pf-bal>div{background:var(--panel-2);border-radius:12px;padding:16px 18px;display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.pf-bal small{font-size:13px;font-weight:700;color:var(--muted)}
+.pf-bal b{font-size:28px;font-weight:800;font-variant-numeric:tabular-nums;display:flex;align-items:center;gap:8px}
+.pf-bal span{font-size:12px;color:var(--muted)}
+.pf-bal .steam{margin-top:4px;padding:9px 20px}
+.tkc{color:#ffd36b}
+#setSlot .set-grid{margin:0}
+#setSlot .set-sec{background:var(--panel-2);border:0}
+/* ===== клан: цена ===== */
+.nc-price{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.nc-price>div{background:var(--panel-2);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:2px}
+.nc-price span{font-size:12px;color:var(--muted)}
+.nc-price b{font-size:16px;color:#ffd36b;font-variant-numeric:tabular-nums}
+/* ===== наклейки ===== */
+.wcard{cursor:pointer}
+.wcard .stk-btn{position:absolute;left:50%;top:44px;transform:translate(-50%,6px);display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(14,12,13,.85);backdrop-filter:blur(6px);color:var(--fg);font:inherit;font-size:12px;font-weight:700;cursor:pointer;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s,background .2s}
+.wcard .stk-btn svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linejoin:round}
+.wcard:hover .stk-btn,.wcard:focus-within .stk-btn{opacity:1;pointer-events:auto;transform:translate(-50%,0)}
+.wcard .stk-btn:hover{background:var(--accent);border-color:var(--accent)}
+@media (hover:none){.wcard .stk-btn{opacity:1;pointer-events:auto;transform:none;left:auto;right:8px;top:8px;padding:5px 9px;font-size:11px}}
+.stk-sheet{width:min(860px,100%);max-height:min(92vh,900px);display:flex;flex-direction:column;gap:12px;overflow-y:auto}
+.stk-sheet>*{flex-shrink:0}
+.stk-stage{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;background:radial-gradient(80% 90% at 50% 40%,color-mix(in srgb,var(--accent) 10%,var(--panel-2)),var(--panel-2));border-radius:14px;padding:12px}
+.stk-slots{display:flex;flex-direction:column;gap:8px}
+.stk-slots button{width:52px;height:52px;border-radius:12px;border:1px solid var(--line);background:var(--panel);display:grid;place-items:center;cursor:pointer;color:var(--muted);font:inherit;font-weight:800;transition:border-color .2s}
+.stk-slots button svg{width:38px;height:38px}
+.stk-slots button[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.stk-prev{display:grid;place-items:center;min-height:200px}
+.stk-prev svg{width:100%;max-width:620px;height:auto;filter:drop-shadow(0 10px 18px rgba(0,0,0,.55))}
+.stk-info{display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:var(--panel-2);border-radius:12px;padding:10px 14px;min-height:58px}
+.si-l{display:flex;align-items:center;gap:10px;flex:1;min-width:180px}
+.si-l svg{width:38px;height:38px;flex:none}
+.si-l b{display:block;font-size:14px}
+.si-l small{font-size:12px;color:var(--muted)}
+.si-w{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
+.si-w span{min-width:34px;color:var(--fg);font-variant-numeric:tabular-nums}
+.si-w input{width:130px;accent-color:var(--accent)}
+#stkDel{border:1px solid var(--line);background:var(--panel);color:var(--fg);border-radius:9px;padding:7px 14px;font:inherit;font-size:13px;font-weight:700;cursor:pointer}
+#stkDel:hover{border-color:var(--accent);color:var(--accent)}
+.stk-tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.stk-tools input{flex:1 1 220px;background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:11px 14px;color:var(--fg);font:inherit}
+.stk-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;max-height:330px;overflow-y:auto;padding-right:2px}
+.stk-o{display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:12px;border-radius:12px;border:1px solid transparent;background:linear-gradient(180deg,color-mix(in srgb,var(--rc) 12%,var(--panel-2)),var(--panel-2));color:var(--fg);font:inherit;text-align:left;cursor:pointer;transition:border-color .2s,transform .15s}
+.stk-o:hover{border-color:color-mix(in srgb,var(--rc) 60%,transparent);transform:translateY(-2px)}
+.stk-o svg{width:56px;height:56px;align-self:center;margin-bottom:4px}
+.stk-o b{font-size:13px}
+.stk-o small{font-size:11px;font-weight:700;color:var(--rc)}
+@media (max-width:900px){.pf-stats{grid-template-columns:repeat(3,minmax(0,1fr))}.pf-srv{grid-template-columns:1fr}.pf-srv .steam{justify-self:start}}
+@media (max-width:640px){
+.pf-head{display:grid;grid-template-columns:auto minmax(0,1fr);gap:14px}.pf-badges{grid-column:1/-1;justify-self:start}.pf-tags{gap:6px}.pf-av{width:76px;height:76px;font-size:30px}.pf-nm h1{font-size:26px}
+.pf-badges{margin-left:0;align-self:auto}.pf-b,.pf-b .mi{width:38px;height:38px}
+.pf-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.pf-stats>div:last-child{grid-column:1/-1}.pf-stats b{font-size:19px}
+.pf-tabs button{flex:0 0 auto;padding:10px 12px}
+.pf-panel{padding:14px}.pf-rows>div{padding:12px 14px;font-size:13px}
+.pf-bal{grid-template-columns:1fr}.pf-skins{grid-template-columns:1fr 1fr}
+.stk-stage{grid-template-columns:1fr}.stk-slots{flex-direction:row;justify-content:center;order:2}.stk-slots button{width:46px;height:46px}.stk-prev{min-height:120px}
+.stk-list{grid-template-columns:repeat(2,minmax(0,1fr));max-height:300px}
+}
 </style>
 </head>
 <body>
@@ -1186,7 +1312,7 @@ html.no-anim *,html.no-anim *::before,html.no-anim *::after{animation:none!impor
       <section class="mode-hero" style="--img:var(--photo)">
         <a class="back" href="#play"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg>Все режимы</a>
         <h1>PUBLIC</h1>
-        <p>Классический режим: террористы закладывают бомбу, спецназ защищает точки и обезвреживает заряд. Рейтинг, очки и задания работают на всех серверах режима.</p>
+        <p>Классический режим: террористы закладывают бомбу, спецназ защищает точки и обезвреживает заряд. Рейтинг, очки и ТК работают на всех серверах режима.</p>
         <div class="actions">
           <button class="ghost" id="cmdsBtn"><svg viewBox="0 0 24 24"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5"/></svg>Команды режима</button>
           <button class="steam" id="quickBtn"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="7 4 20 12 7 20"/></svg>Быстрая игра</button>
@@ -1243,8 +1369,8 @@ html.no-anim *,html.no-anim *::before,html.no-anim *::after{animation:none!impor
       <section class="pbanner" style="--bimg:var(--bnr-clans);--bpos:right 15%">
         <div class="pb-text">
           <h1>Кланы</h1>
-          <p>Собери команду до 10 человек, получи свой тег на сервере и борись за первое место в клановом рейтинге месяца.</p>
-          <div><button class="steam" id="clanBnrNew" type="button"><span>+ Создать клан</span></button></div>
+          <p>Собери команду до 30 человек, получи свой тег на сервере и борись за первое место в клановом рейтинге месяца. Создание клана стоит 300 000 ТК.</p>
+          <div><button class="steam" id="clanBnrNew" type="button"><span>Создать клан</span></button></div>
         </div>
       </section>
       <section class="podium3" id="clanPodium" aria-label="Топ-3 клана"></section>
@@ -1276,35 +1402,19 @@ html.no-anim *,html.no-anim *::before,html.no-anim *::after{animation:none!impor
       <div id="meBody" hidden></div>
     </div>
 
-    <!-- TASKS -->
-    <div class="view" id="v-tasks" hidden>
-      <div class="page-head"><h1>Задания</h1><p>Выполняй задания на сервере и получай очки рейтинга. Прогресс обновляется после каждого раунда, в игре его можно посмотреть командой <code class="kbd">!tasks</code>.</p></div>
-      <section class="box">
-        <div class="hdr"><h2>Серия входов</h2><span>заходи каждый день, чтобы не сбросить серию</span></div>
-        <div class="streak" id="streak"></div>
-      </section>
-      <section>
-        <div class="hdr"><h2>Задания дня</h2><span>обновятся через <b class="reset" id="tReset">--:--:--</b></span></div>
-        <div class="tgrid" id="tDaily"></div>
-      </section>
-      <section>
-        <div class="hdr"><h2>Задания недели</h2><span>обновятся в понедельник в 00:00 МСК</span></div>
-        <div class="tgrid" id="tWeekly"></div>
-      </section>
-    </div>
+    <!-- PLAYER -->
+    <div class="view" id="v-player" hidden><div id="plBody"></div></div>
+
 
     <!-- ADMIN -->
     <div class="view" id="v-admin" hidden>
-      <div class="page-head"><h1>Админ-панель</h1><p>Управление сервером без программиста: баны, статусы, апелляции и правила.</p></div>
+      <div class="page-head"><h1>Админ-панель</h1><p>Управление сервером без программиста: баны, статусы и правила.</p></div>
       <div class="note warn">Демо-версия. На настоящем сайте сюда попадут только администраторы: роль проверяется после входа через Steam. Изменения сейчас сразу видны на сайте, но пропадут после перезагрузки страницы.</div>
       <div class="adm-tiles" id="admTiles"></div>
       <div class="seg" id="admTabs" role="group" aria-label="Раздел">
-        <button data-t="appeals">Апелляции</button><button data-t="bans" aria-pressed="true">Баны</button><button data-t="vip">Статусы</button><button data-t="rules">Правила</button>
+        <button data-t="bans" aria-pressed="true">Баны</button><button data-t="vip">Статусы</button><button data-t="rules">Правила</button>
       </div>
 
-      <section class="adm-pane" data-pane="appeals" hidden style="grid-template-columns:minmax(0,1fr)">
-        <div class="box"><div class="hdr"><h2>Апелляции игроков</h2></div><div class="adm-list" id="aAppeals"></div></div>
-      </section>
 
       <section class="adm-pane" data-pane="bans">
         <form class="box adm-form" id="fBan">
@@ -1421,7 +1531,7 @@ html.no-anim *,html.no-anim *::before,html.no-anim *::after{animation:none!impor
         </ul>
         <p>Данные банковских карт Оператор не получает и не хранит: оплату обрабатывает платёжный сервис.</p>
         <h2>3. Зачем</h2>
-        <p>Для входа на Сайт, ведения рейтинга и статистики, выдачи оплаченных Привилегий, рассмотрения апелляций и блокировки нарушителей.</p>
+        <p>Для входа на Сайт, ведения рейтинга и статистики, выдачи оплаченных Привилегий и блокировки нарушителей.</p>
         <h2>4. Как долго хранятся</h2>
         <p>Пока аккаунт используется, и 3 года после последнего входа. Сведения о блокировках хранятся бессрочно, чтобы предотвращать обход банов [уточнить у юриста].</p>
         <h2>5. Права Пользователя</h2>
@@ -1442,9 +1552,7 @@ html.no-anim *,html.no-anim *::before,html.no-anim *::after{animation:none!impor
     </div>
 
     <!-- SETTINGS -->
-    <div class="view" id="v-settings" hidden>
-      <div class="page-head"><h1>Настройки</h1><p>Настройки сохраняются за твоим аккаунтом. Сейчас, в демо, они хранятся в этом браузере.</p></div>
-      <div class="note" id="setGate">Войди через Steam, чтобы настройки привязались к аккаунту. <button class="ghost" data-login style="display:inline-flex;margin-left:8px;padding:6px 14px">Войти</button></div>
+    <div id="setHome" hidden>
       <div class="set-grid">
         <section class="box set-sec">
           <h2>Аккаунт</h2>
@@ -1475,8 +1583,7 @@ html.no-anim *,html.no-anim *::before,html.no-anim *::after{animation:none!impor
       <section class="pbanner" style="--bimg:var(--bnr-bans);--bpos:right 12%">
         <div class="pb-text">
           <h1>Банлист</h1>
-          <p>Все наказания на сервере. Если считаешь бан ошибочным, подай апелляцию: администратор ответит в течение 48 часов.</p>
-          <div><button class="steam" id="apOpen">Подать апелляцию</button></div>
+          <p>Все наказания на сервере: кто, за что и на какой срок. Список обновляется автоматически.</p>
         </div>
       </section>
       <div class="tools">
@@ -1485,7 +1592,7 @@ html.no-anim *,html.no-anim *::before,html.no-anim *::after{animation:none!impor
           <button data-k="all" aria-pressed="true">Все</button><button data-k="active">Активные</button><button data-k="expired">Истёкшие</button>
         </div>
       </div>
-      <div class="tablewrap"><table class="tbl" id="t-bans"><thead><tr><th>Игрок</th><th>SteamID</th><th>Причина</th><th>Срок</th><th>Админ</th><th>Дата</th><th>Статус</th><th></th></tr></thead><tbody></tbody></table></div>
+      <div class="tablewrap"><table class="tbl" id="t-bans"><thead><tr><th>Игрок</th><th>SteamID</th><th>Причина</th><th>Срок</th><th>Админ</th><th>Дата</th><th>Статус</th></tr></thead><tbody></tbody></table></div>
     </div>
 
     <!-- RULES -->
@@ -1535,8 +1642,9 @@ html.no-anim *,html.no-anim *::before,html.no-anim *::after{animation:none!impor
     <label class="fld">Название<input id="ncNameIn" maxlength="24" placeholder="Например, Волки Севера" required></label>
     <label class="fld">Тег (2–5 символов)<input id="ncTagIn" maxlength="5" placeholder="WOLF" required pattern="[A-Za-zА-Яа-яЁё0-9]{2,5}"></label>
     <div class="fld">Цвет рамки<div class="nc-colors" id="ncColors"></div></div>
+    <div class="nc-price"><div><span>Стоимость</span><b>300 000 ТК</b></div><div><span>У тебя</span><b id="ncHave">0 ТК</b></div></div>
     <p id="ncMsg"></p>
-    <div class="row"><button type="button" id="ncClose">Отмена</button><button type="submit" class="primary">Создать клан</button></div>
+    <div class="row"><button type="button" id="ncClose">Отмена</button><button type="submit" class="primary" id="ncSubmit">Создать за 300 000 ТК</button></div>
   </form>
 </div>
 
@@ -1564,16 +1672,16 @@ html.no-anim *,html.no-anim *::before,html.no-anim *::after{animation:none!impor
   </div>
 </div>
 
-<div class="modal" id="apModal" hidden>
-  <form class="sheet" id="apForm" role="dialog" aria-modal="true" aria-labelledby="apT">
-    <h4 id="apT">Апелляция бана</h4>
-    <p>Опиши, почему бан ошибочный. Администратор ответит в течение 48 часов, ответ придёт в раздел «Мой профиль».</p>
-    <label class="fld">SteamID<input id="apSid" required placeholder="STEAM_1:0:12345678" pattern="STEAM_[0-5]:[01]:\d{1,10}"></label>
-    <label class="fld">Как с тобой связаться<input id="apContact" required maxlength="60" placeholder="Ник в Discord или почта"></label>
-    <label class="fld">Что произошло<textarea id="apText" required minlength="30" maxlength="1500" rows="5" placeholder="Например: играл с другом с одного IP, читов не использовал. Демка раунда: ссылка"></textarea></label>
-    <p class="fmsg" id="apMsg"></p>
-    <div class="row"><button type="button" id="apClose">Отмена</button><button class="primary" type="submit">Отправить</button></div>
-  </form>
+
+<div class="modal" id="stkModal" hidden>
+  <div class="sheet stk-sheet" role="dialog" aria-modal="true" aria-labelledby="stkT">
+    <div class="skm-top"><div><h4 id="stkT">AK-47</h4><small id="stkSub"></small></div><button class="x" id="stkClose" aria-label="Закрыть">✕</button></div>
+    <div class="stk-stage"><div class="stk-slots" id="stkSlots"></div><div class="stk-prev" id="stkPrev"></div></div>
+    <div class="stk-info" id="stkInfo"></div>
+    <div class="stk-tools"><input type="search" id="stkQ" placeholder="Поиск по названию"><div class="seg" id="stkVar" role="group" aria-label="Тип наклейки"></div></div>
+    <div class="stk-list" id="stkList"></div>
+    <div class="row"><button type="button" id="stkClear">Снять все</button><button type="button" class="primary" id="stkSave">Сохранить</button></div>
+  </div>
 </div>
 
 <div class="modal" id="buyModal" hidden>
@@ -1672,16 +1780,7 @@ const kingBadge=p=>isKing(p)?`<span class="kb">KING</span>`:"";
 const who=p=>`<span class="who"><i class="av" style="background:${p.c}">${p.n[0].toUpperCase()}</i>${p.n}${kingBadge(p)}</span>`;
 
 // ---------- профиль ----------
-function openProfile(n){const p=P(n);if(!p)return;const nx=Math.min(17,p.r+1);const into=p.pts-p.r*STEP;const pc=p.r===17?100:Math.round(into/STEP*100);
-  $("drawer").innerHTML=`<button class="x" id="dx">Закрыть ✕</button>
-  <div class="p-head"><i class="av" style="background:${p.c}">${p.n[0].toUpperCase()}</i><div><h3>${clanOf(p)?`<span class="ptag">[${clanOf(p).t}]</span>`:""}${p.n}${kingBadge(p)}</h3><small>STEAM_1:${p.id%2}:${(4810233+p.id*7919)}</small></div></div>
-  <div class="mrank"><div class="row3">${ptsChip(p,1)}<small>место <b>#${placeOf(p)}</b> в рейтинге месяца</small></div>${placeOf(p)<=10?`<span class="przc ${placeOf(p)<=3?"god":"cash"}" style="align-self:flex-start">${placeOf(p)<=3?"Сейчас в зоне приза KING":"Сейчас в зоне приза LEGEND"}</span>`:""}</div><div hidden><div class="bar"><span style="width:${pc}%"></span></div></div>
-  <div class="grid3"><div><small>Очки за всё время</small><b>${fmt(p.pts)}</b></div><div><small>K/D</small><b>${p.kd.toFixed(2)}</b></div><div><small>HS %</small><b>${p.hs}%</b></div><div><small>Убийства</small><b>${fmt(p.kills)}</b></div><div><small>Смерти</small><b>${fmt(p.deaths)}</b></div><div><small>MVP</small><b>${p.mvp}</b></div></div>
-  <div><h4>Любимое оружие</h4>${p.w.map(([w,v])=>`<div class="wp"><span>${w}</span><div class="bar"><span style="width:${v}%"></span></div><span>${v}%</span></div>`).join("")}</div>
-  <div><h4>Медали рейтинга</h4><div class="medals">${medalsHTML(p,30)}</div></div>
-  <div><h4>Достижения · ${achOf(p).length} из ${ACHS.length}</h4><div class="ach-icons">${achOf(p).map(a=>achIco(a)).join("")}</div></div>${clanOf(p)?`<div><h4>Клан</h4><button class="mrow" data-clan="${clans.indexOf(clanOf(p))}" style="width:100%"><span class="who">${emblem(clanOf(p).c,clanOf(p).t).replace('class="emb"','class="emb" style="width:24px;height:27px"')}<span>${clanOf(p).n}</span></span><span></span><span class="pt">#${clans.indexOf(clanOf(p))+1}</span></button></div>`:""}
-  <p style="margin:0;font-size:12px;color:var(--muted)">На сервере ${p.hrs} ч. Данные примерные.</p>`;
-  $("drawer").hidden=false;$("scrim").hidden=false;$("dx").onclick=closeProfile;$("dx").focus()}
+function openProfile(n){const p=P(n);if(!p)return;if(logged&&p===ME){pfTab="info";go("me");return}PFN=p.n;pfTabO="info";if(curView!=="player")pfBack=curView;go("player")}
 function closeProfile(){$("drawer").hidden=true;$("scrim").hidden=true}
 $("scrim").onclick=closeProfile;
 document.addEventListener("click",e=>{const t=e.target.closest("[data-p]");if(t)openProfile(t.dataset.p)});
@@ -1696,7 +1795,7 @@ const bans=BADN.map((n,i)=>{const [reason,days]=REASONS[Math.floor(R()*REASONS.l
 let banF="all";
 function drawBans(){const q=$("q-bans").value.trim().toLowerCase();
   const rows=bans.filter(b=>(banF==="all"||(banF==="active")===b.active)&&(b.n.toLowerCase().includes(q)||b.sid.toLowerCase().includes(q)));
-  document.querySelector("#t-bans tbody").innerHTML=rows.length?rows.map(b=>`<tr><td><span class="who"><i class="av" style="background:${b.c}">${b.n[0]}</i>${b.n}</span></td><td class="mono">${b.sid}</td><td>${b.reason}</td><td>${b.perm?"Навсегда":b.days+" "+plural(b.days,"день","дня","дней")}</td><td>${b.admin}</td><td class="mono">${b.d.toLocaleDateString("ru-RU")}</td><td><span class="st ${b.lifted?"off":b.perm?"perm":b.active?"on":"off"}">${b.lifted?"Снят":b.perm?"Навсегда":b.active?"Активен":"Истёк"}</span></td><td>${b.active?`<button class="appeal" data-appeal="${b.sid}">Обжаловать</button>`:""}</td></tr>`).join(""):`<tr><td colspan="8" class="empty">Ничего не найдено</td></tr>`}
+  document.querySelector("#t-bans tbody").innerHTML=rows.length?rows.map(b=>`<tr><td><span class="who"><i class="av" style="background:${b.c}">${b.n[0]}</i>${b.n}</span></td><td class="mono">${b.sid}</td><td>${b.reason}</td><td>${b.perm?"Навсегда":b.days+" "+plural(b.days,"день","дня","дней")}</td><td>${b.admin}</td><td class="mono">${b.d.toLocaleDateString("ru-RU")}</td><td><span class="st ${b.lifted?"off":b.perm?"perm":b.active?"on":"off"}">${b.lifted?"Снят":b.perm?"Навсегда":b.active?"Активен":"Истёк"}</span></td></tr>`).join(""):`<tr><td colspan="7" class="empty">Ничего не найдено</td></tr>`}
 $("q-bans").oninput=drawBans;
 document.querySelectorAll("#f-bans button").forEach(b=>b.onclick=()=>{banF=b.dataset.k;document.querySelectorAll("#f-bans button").forEach(x=>x.setAttribute("aria-pressed",x===b));drawBans()});
 drawBans();
@@ -1706,7 +1805,7 @@ drawBans();
 const RULES=[
   ["Общение",[["1.1","Оскорбления игроков и их родных","Мут 1–3 дня"],["1.2","Мат и крики в голосовом чате","Мут 1 день"],["1.3","Реклама других проектов и ссылок","Бан 7 дней"],["1.4","Политика и разжигание розни","Бан 3 дня"]]],
   ["Игровой процесс",[["2.1","Читы, макросы и любые сторонние программы","Бан навсегда"],["2.2","Использование багов карты","Бан 1–3 дня"],["2.3","Тимкилл и намеренный урон по своим","Кик → бан 1 день"],["2.4","Помеха игре: AFK на точке, блокировка проходов","Кик → бан 1 день"],["2.5","Обход наказания с другого аккаунта","Бан навсегда"]]],
-  ["Администрация",[["3.1","Решение администратора окончательное на месте, спорить в чате нельзя","Мут"],["3.2","Обжаловать наказание можно в течение 7 дней через форму в разделе «Банлист»","—"],["3.3","Выдавать себя за администратора запрещено","Бан 7 дней"]]]
+  ["Администрация",[["3.1","Решение администратора окончательное на месте, спорить в чате нельзя","Мут"],["3.2","Выдавать себя за администратора запрещено","Бан 7 дней"]]]
 ];
 function drawRules(){$("rules").innerHTML=RULES.map(([h,list])=>`<section class="box rule-sec"><h3>${h}</h3><ol>${list.map(([n,t,p])=>`<li><code>${n}</code><span>${t}</span><em>${p}</em></li>`).join("")}</ol></section>`).join("");}
 drawRules();
@@ -1763,7 +1862,7 @@ document.addEventListener("click",e=>{const c=e.target.closest("[data-connect]")
   const sv=e.target.closest(".srv[data-s]");if(sv)openServer(+sv.dataset.s)},true);
 document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.matches(".srv[data-s]"))openServer(+e.target.dataset.s);if(e.key==="Escape"&&$("drawer").hidden){$("srvModal").hidden=true;$("cmdModal").hidden=true}});
 $("quickBtn").onclick=()=>{const best=SERVERS.filter(s=>s.cur<s.max-1).sort((a,b)=>b.cur-a.cur)[0];if(best)connect(SERVERS.indexOf(best))};
-const CMDS=[["!rank","твои очки и место в рейтинге"],["!top","топ-10 сервера"],["!rs","обнулить счёт за карту"],["!tasks","задания дня и прогресс"],["!rtv","голосовать за смену карты"],["!nominate","предложить карту"],["!ws","скины оружия, бесплатно (или раздел «Скины» на сайте)"],["!knife","выбор ножа, бесплатно"],["!vip","меню статуса"],["!medic","аптечка +40 HP (LEGEND и выше)"],["!guns","меню оружия (ELITE и выше)"],["!calladmin","позвать администратора"],["!report","пожаловаться на игрока"]];
+const CMDS=[["!rank","твои очки и место в рейтинге"],["!top","топ-10 сервера"],["!rs","обнулить счёт за карту"],["!rtv","голосовать за смену карты"],["!nominate","предложить карту"],["!ws","скины оружия, бесплатно (или раздел «Скины» на сайте)"],["!knife","выбор ножа, бесплатно"],["!vip","меню статуса"],["!medic","аптечка +40 HP (LEGEND и выше)"],["!guns","меню оружия (ELITE и выше)"],["!calladmin","позвать администратора"],["!report","пожаловаться на игрока"]];
 $("cmdList").innerHTML=CMDS.map(([c,d])=>`<div><code>${c}</code><span>${d}</span></div>`).join("");
 $("cmdsBtn").onclick=()=>{$("cmdModal").hidden=false;$("cmClose").focus()};
 $("cmClose").onclick=()=>$("cmdModal").hidden=true;
@@ -1804,7 +1903,7 @@ const ACH_ART=[
  ["Особое","Легенда сервера","Получи все остальные достижения",0.4,["m",15]]
 ];
 // без картинок: n = место под картинку из ChatGPT (номер = порядок в листах промптов)
-const ACH_NEW=[["Стрельба", "Новобранец", "Сделай 100 убийств", 85, ["n", 0, "target"]], ["Стрельба", "Боец", "Сделай 1 000 убийств", 52, ["n", 1, "target"]], ["Стрельба", "Опытный стрелок", "Сделай 5 000 убийств", 20, ["n", 2, "target"]], ["Стрельба", "Машина войны", "Сделай 10 000 убийств", 9, ["n", 3, "skull"]], ["Стрельба", "Живая легенда", "Сделай 50 000 убийств", 1, ["n", 4, "skull"]], ["Стрельба", "Меткий глаз", "Сделай 100 убийств в голову", 74, ["n", 5, "crosshair"]], ["Стрельба", "Снайперский инстинкт", "Сделай 500 убийств в голову", 38, ["n", 6, "crosshair"]], ["Стрельба", "Мастер хедшотов", "Сделай 5 000 убийств в голову", 5, ["n", 7, "skull"]], ["Стрельба", "Безупречный", "Сделай 10 000 убийств в голову", 2, ["n", 8, "crown"]], ["Стрельба", "Открывающий", "Открой раунд первым убийством 500 раз", 11, ["n", 9, "target"]], ["Стрельба", "Двойной удар", "Убей двух противников за одну секунду", 40, ["n", 10, "bolt"]], ["Стрельба", "Тройное убийство", "Сделай 3 убийства за один раунд", 48, ["n", 11, "bolt"]], ["Стрельба", "Квадро", "Сделай 4 убийства за один раунд", 19, ["n", 12, "bolt"]], ["Стрельба", "Эйс-машина", "Сделай 5 убийств за один раунд 25 раз", 2, ["n", 13, "crown"]], ["Стрельба", "Пробивной", "Сделай 10 убийств прострелом через стену или ящик", 41, ["n", 14, "wall"]], ["Стрельба", "Рентген", "Сделай 500 убийств прострелом через стену или ящик", 3, ["n", 15, "wall"]], ["Стрельба", "Туман войны", "Сделай 10 убийств через дымовую завесу", 33, ["n", 16, "cloud"]], ["Стрельба", "Призрак в дыму", "Сделай 300 убийств через дымовую завесу", 2, ["n", 17, "cloud"]], ["Стрельба", "Акробат", "Убей противника в прыжке", 46, ["n", 18, "jump"]], ["Стрельба", "Летающий стрелок", "Сделай 100 убийств в прыжке", 4, ["n", 19, "jump"]], ["Стрельба", "Дальнобой", "Убей противника с расстояния больше 40 метров", 28, ["n", 20, "ruler"]], ["Стрельба", "Через всю карту", "Сделай 50 убийств с расстояния больше 40 метров", 6, ["n", 21, "ruler"]], ["Стрельба", "Возмездие", "Убей 50 раз того, кто убил тебя в прошлом раунде", 15, ["n", 22, "skull"]], ["Стрельба", "На последнем издыхании", "Убей противника, имея 5 HP или меньше", 12, ["n", 23, "heart"]], ["Стрельба", "Последний патрон", "Убей противника последней пулей в магазине", 22, ["n", 24, "bullet"]], ["Стрельба", "Коллатерал", "Убей двух противников одной пулей", 5, ["n", 25, "scope"]], ["Стрельба", "Чистильщик", "Сделай последнее убийство раунда 200 раз", 18, ["n", 26, "target"]], ["Стрельба", "Без единой царапины", "Сделай 3 убийства за раунд, не получив урона", 9, ["n", 27, "shield"]], ["Стрельба", "Охотник на снайперов", "Убей 100 противников, у которых в руках AWP", 16, ["n", 28, "scope"]], ["Стрельба", "Ноускоп-легенда", "Убей 200 противников из AWP или SSG 08, не открывая прицел", 1, ["n", 29, "scope"]], ["Стрельба", "Слепой снайпер", "Убей 100 противников, пока ты ослеплён флешкой", 1, ["n", 30, "eyeoff"]], ["Оружие", "Калаш", "Сделай 100 убийств из AK-47", 70, ["n", 31, "gun"]], ["Оружие", "Мастер калаша", "Сделай 1 000 убийств из AK-47", 30, ["n", 32, "gun"]], ["Оружие", "Легенда АК", "Сделай 5 000 убийств из AK-47", 7, ["n", 33, "gun"]], ["Оружие", "Эмка", "Сделай 100 убийств из M4A4", 60, ["n", 34, "gun"]], ["Оружие", "Глушитель", "Сделай 100 убийств из M4A1-S", 58, ["n", 35, "gun"]], ["Оружие", "Снайпер-ветеран", "Сделай 1 000 убийств из AWP", 10, ["n", 36, "scope"]], ["Оружие", "Глаз бога", "Сделай 3 000 убийств из AWP", 3, ["n", 37, "scope"]], ["Оружие", "Скаут", "Сделай 50 убийств из SSG 08", 25, ["n", 38, "scope"]], ["Оружие", "Дигл", "Сделай 100 убийств из Desert Eagle", 52, ["n", 39, "pistol"]], ["Оружие", "Король дигла", "Сделай 1 000 убийств из Desert Eagle", 12, ["n", 40, "pistol"]], ["Оружие", "Дигл в голову", "Сделай 100 убийств в голову из Desert Eagle", 9, ["n", 41, "pistol"]], ["Оружие", "Юсп", "Сделай 100 убийств из USP-S", 60, ["n", 42, "pistol"]], ["Оружие", "Мастер USP-S", "Сделай 1 000 убийств из USP-S", 14, ["n", 43, "pistol"]], ["Оружие", "Глок", "Сделай 100 убийств из Glock-18", 55, ["n", 44, "pistol"]], ["Оружие", "Тройка", "Сделай 100 убийств из Five-SeveN, Tec-9 или CZ75-Auto", 26, ["n", 45, "pistol"]], ["Оружие", "Ковбой", "Сделай 50 убийств из R8 Revolver", 6, ["n", 46, "pistol"]], ["Оружие", "Винтовочник", "Сделай 1 000 убийств из Galil AR, FAMAS, AUG или SG 553", 12, ["n", 47, "gun"]], ["Оружие", "Пистолет-пулемётчик", "Сделай 500 убийств из любых пистолетов-пулемётов", 23, ["n", 48, "gun"]], ["Оружие", "Дробовик", "Сделай 250 убийств из дробовиков", 11, ["n", 49, "gun"]], ["Оружие", "Пулемётчик", "Сделай 100 убийств из Negev или M249", 4, ["n", 50, "gun"]], ["Оружие", "Электрик", "Убей противника из Zeus x27", 30, ["n", 51, "bolt"]], ["Оружие", "Финка", "Убей противника ножом", 55, ["n", 52, "knife"]], ["Оружие", "Резник", "Сделай 100 убийств ножом", 2, ["n", 53, "knife"]], ["Оружие", "Подрывник", "Сделай 10 убийств осколочной гранатой", 35, ["n", 54, "grenade"]], ["Оружие", "Поджигатель", "Сделай 50 убийств коктейлем Молотова или зажигательной гранатой", 10, ["n", 55, "fire"]], ["Оружие", "Обманщик", "Убей противника ложной гранатой", 0.8, ["n", 56, "grenade"]], ["Оружие", "Арсенал", "Сделай хотя бы одно убийство из 20 разных видов оружия", 9, ["n", 57, "gun"]], ["Командная игра", "Первые шаги", "Сыграй 100 раундов", 82, ["n", 58, "users"]], ["Командная игра", "Ветеран раундов", "Сыграй 5 000 раундов", 12, ["n", 59, "users"]], ["Командная игра", "Победитель", "Выиграй 100 раундов", 78, ["n", 60, "trophy"]], ["Командная игра", "Чемпион", "Выиграй 1 000 раундов", 35, ["n", 61, "trophy"]], ["Командная игра", "Непобедимый", "Выиграй 5 000 раундов", 9, ["n", 62, "trophy"]], ["Командная игра", "Сапёр-новичок", "Установи бомбу 10 раз", 70, ["n", 63, "bomb"]], ["Командная игра", "Подрывных дел мастер", "Установи бомбу 500 раз", 6, ["n", 64, "bomb"]], ["Командная игра", "Кусачки", "Обезвредь бомбу 10 раз", 48, ["n", 65, "cutter"]], ["Командная игра", "Главный сапёр", "Обезвредь бомбу 200 раз", 5, ["n", 66, "cutter"]], ["Командная игра", "Ниндзя", "Обезвредь бомбу, пока живы двое противников или больше", 20, ["n", 67, "cutter"]], ["Командная игра", "На волоске", "Обезвредь бомбу меньше чем за секунду до взрыва", 3, ["n", 68, "clock"]], ["Командная игра", "Большой взрыв", "Установи бомбу и выиграй раунд взрывом 50 раз", 22, ["n", 69, "bomb"]], ["Командная игра", "Помощник", "Сделай 100 помощей в убийствах", 60, ["n", 70, "hand"]], ["Командная игра", "Правая рука", "Сделай 2 000 помощей в убийствах", 4, ["n", 71, "hand"]], ["Командная игра", "Ослепляющая поддержка", "Сделай 100 помощей флешками", 9, ["n", 72, "sun"]], ["Командная игра", "Восходящая звезда", "Стань MVP раунда 10 раз", 55, ["n", 73, "star"]], ["Командная игра", "Звезда сервера", "Стань MVP раунда 500 раз", 3, ["n", 74, "star"]], ["Командная игра", "Дуэлянт", "Выиграй раунд один против одного 25 раз", 26, ["n", 75, "shield"]], ["Командная игра", "Один против двух", "Выиграй раунд, оставшись один против двух", 30, ["n", 76, "shield"]], ["Командная игра", "Один против четырёх", "Выиграй раунд, оставшись один против четырёх", 2, ["n", 77, "shield"]], ["Командная игра", "Один против пяти", "Выиграй раунд, оставшись один против пяти", 0.7, ["n", 78, "crown"]], ["Командная игра", "Стойкий", "Доживи до конца раунда 50 раз", 60, ["n", 79, "clock"]], ["Командная игра", "Клановый боец", "Сыграй 100 раундов, когда на сервере есть твой соклановец", 14, ["n", 80, "users"]], ["Гранаты", "Слепящий", "Ослепи флешками 50 противников", 52, ["n", 81, "sun"]], ["Гранаты", "Солнце в руках", "Ослепи флешками 1 000 противников", 4, ["n", 82, "sun"]], ["Гранаты", "Тройная вспышка", "Ослепи трёх противников одной флешкой", 12, ["n", 83, "sun"]], ["Гранаты", "Дымовик", "Брось 500 дымовых гранат", 18, ["n", 84, "cloud"]], ["Гранаты", "Огонь по площади", "Нанеси противникам 10 000 урона огнём", 8, ["n", 85, "fire"]], ["Гранаты", "Осколочный", "Нанеси противникам 10 000 урона осколочными гранатами", 9, ["n", 86, "grenade"]], ["Экономика", "Эко-победа", "Выиграй раунд, потратив на снаряжение меньше $1 000", 25, ["n", 87, "coin"]], ["Экономика", "Экономист", "Выиграй 50 эко-раундов", 4, ["n", 88, "coin"]], ["Экономика", "Пистолетный раунд", "Выиграй 50 пистолетных раундов", 20, ["n", 89, "pistol"]], ["Экономика", "Трофейщик", "Сделай 100 убийств подобранным оружием противника", 16, ["n", 90, "gun"]], ["Экономика", "Щедрый", "Отдай тиммейтам 50 купленных тобой стволов", 14, ["n", 91, "hand"]], ["Экономика", "Богач", "Накопи $16 000 на счету", 55, ["n", 92, "coin"]], ["Верность", "Добро пожаловать", "Зайди на сервер впервые", 99, ["n", 93, "flag"]], ["Верность", "Завсегдатай", "Проведи на сервере 10 часов", 80, ["n", 94, "clock"]], ["Верность", "Свой человек", "Проведи на сервере 50 часов", 45, ["n", 95, "clock"]], ["Верность", "Старожил", "Проведи на сервере 500 часов", 4, ["n", 96, "clock"]], ["Верность", "Часть сервера", "Проведи на сервере 1 000 часов", 1, ["n", 97, "clock"]], ["Верность", "Три дня", "Заходи на сервер 3 дня подряд", 55, ["n", 98, "cal"]], ["Верность", "Месяц без пропусков", "Заходи на сервер 30 дней подряд", 3, ["n", 99, "cal"]], ["Верность", "Сто дней", "Заходи на сервер 100 дней подряд", 0.5, ["n", 100, "cal"]], ["Верность", "Ночная смена", "Сыграй 50 раундов с 02:00 до 06:00 по Москве", 8, ["n", 101, "moon"]], ["Верность", "Утренний кофе", "Сыграй раунд с 06:00 до 09:00 по Москве", 18, ["n", 102, "sunrise"]], ["Верность", "Знаток Mirage", "Выиграй 500 раундов на de_mirage", 10, ["n", 103, "map"]], ["Верность", "Знаток Dust2", "Выиграй 500 раундов на de_dust2", 9, ["n", 104, "map"]], ["Верность", "Знаток Inferno", "Выиграй 500 раундов на de_inferno", 8, ["n", 105, "map"]], ["Верность", "Турист", "Сыграй раунд на каждой карте сервера", 40, ["n", 106, "map"]], ["Сообщество", "Основатель", "Создай свой клан", 3, ["n", 107, "flag"]], ["Сообщество", "Полный состав", "Собери в клане 10 участников", 1.5, ["n", 108, "users"]], ["Сообщество", "Клан-чемпион", "Займи с кланом 1 место в рейтинге за месяц", 0.3, ["n", 109, "crown"]], ["Сообщество", "Поддержка проекта", "Купи любой VIP-статус", 6, ["n", 110, "star"]], ["Сообщество", "Исполнительный", "Выполни 10 заданий дня", 40, ["n", 111, "check"]], ["Сообщество", "Трудоголик", "Выполни 100 заданий дня", 8, ["n", 112, "check"]], ["Сообщество", "Честная игра", "Сыграй 100 часов без единого наказания", 12, ["n", 113, "shield"]], ["Очки", "Золотая лихорадка", "Набери 1 000 очков за месяц", 55, ["n", 114, "rank"]], ["Очки", "Хранитель", "Набери 3 000 очков за месяц", 30, ["n", 115, "rank"]], ["Очки", "Орёл", "Набери 6 000 очков за месяц", 9, ["n", 116, "rank"]], ["Очки", "Высший класс", "Набери 10 000 очков за месяц", 4, ["n", 117, "rank"]], ["Очки", "Король месяца", "Займи 1 место в рейтинге месяца", 0.5, ["n", 118, "rank"]], ["Особое", "Пацифист", "Выиграй раунд, не сделав ни одного выстрела", 20, ["n", 122, "heart"]], ["Особое", "Гравитация", "Погибни от падения с высоты", 30, ["n", 123, "jump"]], ["Особое", "Сам себе враг", "Погибни от своей же осколочной гранаты", 18, ["n", 124, "grenade"]], ["Особое", "Голый король", "Сделай 3 убийства за раунд без бронежилета", 3, ["n", 125, "shield"]]];
+const ACH_NEW=[["Стрельба", "Новобранец", "Сделай 100 убийств", 85, ["n", 0, "target"]], ["Стрельба", "Боец", "Сделай 1 000 убийств", 52, ["n", 1, "target"]], ["Стрельба", "Опытный стрелок", "Сделай 5 000 убийств", 20, ["n", 2, "target"]], ["Стрельба", "Машина войны", "Сделай 10 000 убийств", 9, ["n", 3, "skull"]], ["Стрельба", "Живая легенда", "Сделай 50 000 убийств", 1, ["n", 4, "skull"]], ["Стрельба", "Меткий глаз", "Сделай 100 убийств в голову", 74, ["n", 5, "crosshair"]], ["Стрельба", "Снайперский инстинкт", "Сделай 500 убийств в голову", 38, ["n", 6, "crosshair"]], ["Стрельба", "Мастер хедшотов", "Сделай 5 000 убийств в голову", 5, ["n", 7, "skull"]], ["Стрельба", "Безупречный", "Сделай 10 000 убийств в голову", 2, ["n", 8, "crown"]], ["Стрельба", "Открывающий", "Открой раунд первым убийством 500 раз", 11, ["n", 9, "target"]], ["Стрельба", "Двойной удар", "Убей двух противников за одну секунду", 40, ["n", 10, "bolt"]], ["Стрельба", "Тройное убийство", "Сделай 3 убийства за один раунд", 48, ["n", 11, "bolt"]], ["Стрельба", "Квадро", "Сделай 4 убийства за один раунд", 19, ["n", 12, "bolt"]], ["Стрельба", "Эйс-машина", "Сделай 5 убийств за один раунд 25 раз", 2, ["n", 13, "crown"]], ["Стрельба", "Пробивной", "Сделай 10 убийств прострелом через стену или ящик", 41, ["n", 14, "wall"]], ["Стрельба", "Рентген", "Сделай 500 убийств прострелом через стену или ящик", 3, ["n", 15, "wall"]], ["Стрельба", "Туман войны", "Сделай 10 убийств через дымовую завесу", 33, ["n", 16, "cloud"]], ["Стрельба", "Призрак в дыму", "Сделай 300 убийств через дымовую завесу", 2, ["n", 17, "cloud"]], ["Стрельба", "Акробат", "Убей противника в прыжке", 46, ["n", 18, "jump"]], ["Стрельба", "Летающий стрелок", "Сделай 100 убийств в прыжке", 4, ["n", 19, "jump"]], ["Стрельба", "Дальнобой", "Убей противника с расстояния больше 40 метров", 28, ["n", 20, "ruler"]], ["Стрельба", "Через всю карту", "Сделай 50 убийств с расстояния больше 40 метров", 6, ["n", 21, "ruler"]], ["Стрельба", "Возмездие", "Убей 50 раз того, кто убил тебя в прошлом раунде", 15, ["n", 22, "skull"]], ["Стрельба", "На последнем издыхании", "Убей противника, имея 5 HP или меньше", 12, ["n", 23, "heart"]], ["Стрельба", "Последний патрон", "Убей противника последней пулей в магазине", 22, ["n", 24, "bullet"]], ["Стрельба", "Коллатерал", "Убей двух противников одной пулей", 5, ["n", 25, "scope"]], ["Стрельба", "Чистильщик", "Сделай последнее убийство раунда 200 раз", 18, ["n", 26, "target"]], ["Стрельба", "Без единой царапины", "Сделай 3 убийства за раунд, не получив урона", 9, ["n", 27, "shield"]], ["Стрельба", "Охотник на снайперов", "Убей 100 противников, у которых в руках AWP", 16, ["n", 28, "scope"]], ["Стрельба", "Ноускоп-легенда", "Убей 200 противников из AWP или SSG 08, не открывая прицел", 1, ["n", 29, "scope"]], ["Стрельба", "Слепой снайпер", "Убей 100 противников, пока ты ослеплён флешкой", 1, ["n", 30, "eyeoff"]], ["Оружие", "Калаш", "Сделай 100 убийств из AK-47", 70, ["n", 31, "gun"]], ["Оружие", "Мастер калаша", "Сделай 1 000 убийств из AK-47", 30, ["n", 32, "gun"]], ["Оружие", "Легенда АК", "Сделай 5 000 убийств из AK-47", 7, ["n", 33, "gun"]], ["Оружие", "Эмка", "Сделай 100 убийств из M4A4", 60, ["n", 34, "gun"]], ["Оружие", "Глушитель", "Сделай 100 убийств из M4A1-S", 58, ["n", 35, "gun"]], ["Оружие", "Снайпер-ветеран", "Сделай 1 000 убийств из AWP", 10, ["n", 36, "scope"]], ["Оружие", "Глаз бога", "Сделай 3 000 убийств из AWP", 3, ["n", 37, "scope"]], ["Оружие", "Скаут", "Сделай 50 убийств из SSG 08", 25, ["n", 38, "scope"]], ["Оружие", "Дигл", "Сделай 100 убийств из Desert Eagle", 52, ["n", 39, "pistol"]], ["Оружие", "Король дигла", "Сделай 1 000 убийств из Desert Eagle", 12, ["n", 40, "pistol"]], ["Оружие", "Дигл в голову", "Сделай 100 убийств в голову из Desert Eagle", 9, ["n", 41, "pistol"]], ["Оружие", "Юсп", "Сделай 100 убийств из USP-S", 60, ["n", 42, "pistol"]], ["Оружие", "Мастер USP-S", "Сделай 1 000 убийств из USP-S", 14, ["n", 43, "pistol"]], ["Оружие", "Глок", "Сделай 100 убийств из Glock-18", 55, ["n", 44, "pistol"]], ["Оружие", "Тройка", "Сделай 100 убийств из Five-SeveN, Tec-9 или CZ75-Auto", 26, ["n", 45, "pistol"]], ["Оружие", "Ковбой", "Сделай 50 убийств из R8 Revolver", 6, ["n", 46, "pistol"]], ["Оружие", "Винтовочник", "Сделай 1 000 убийств из Galil AR, FAMAS, AUG или SG 553", 12, ["n", 47, "gun"]], ["Оружие", "Пистолет-пулемётчик", "Сделай 500 убийств из любых пистолетов-пулемётов", 23, ["n", 48, "gun"]], ["Оружие", "Дробовик", "Сделай 250 убийств из дробовиков", 11, ["n", 49, "gun"]], ["Оружие", "Пулемётчик", "Сделай 100 убийств из Negev или M249", 4, ["n", 50, "gun"]], ["Оружие", "Электрик", "Убей противника из Zeus x27", 30, ["n", 51, "bolt"]], ["Оружие", "Финка", "Убей противника ножом", 55, ["n", 52, "knife"]], ["Оружие", "Резник", "Сделай 100 убийств ножом", 2, ["n", 53, "knife"]], ["Оружие", "Подрывник", "Сделай 10 убийств осколочной гранатой", 35, ["n", 54, "grenade"]], ["Оружие", "Поджигатель", "Сделай 50 убийств коктейлем Молотова или зажигательной гранатой", 10, ["n", 55, "fire"]], ["Оружие", "Обманщик", "Убей противника ложной гранатой", 0.8, ["n", 56, "grenade"]], ["Оружие", "Арсенал", "Сделай хотя бы одно убийство из 20 разных видов оружия", 9, ["n", 57, "gun"]], ["Командная игра", "Первые шаги", "Сыграй 100 раундов", 82, ["n", 58, "users"]], ["Командная игра", "Ветеран раундов", "Сыграй 5 000 раундов", 12, ["n", 59, "users"]], ["Командная игра", "Победитель", "Выиграй 100 раундов", 78, ["n", 60, "trophy"]], ["Командная игра", "Чемпион", "Выиграй 1 000 раундов", 35, ["n", 61, "trophy"]], ["Командная игра", "Непобедимый", "Выиграй 5 000 раундов", 9, ["n", 62, "trophy"]], ["Командная игра", "Сапёр-новичок", "Установи бомбу 10 раз", 70, ["n", 63, "bomb"]], ["Командная игра", "Подрывных дел мастер", "Установи бомбу 500 раз", 6, ["n", 64, "bomb"]], ["Командная игра", "Кусачки", "Обезвредь бомбу 10 раз", 48, ["n", 65, "cutter"]], ["Командная игра", "Главный сапёр", "Обезвредь бомбу 200 раз", 5, ["n", 66, "cutter"]], ["Командная игра", "Ниндзя", "Обезвредь бомбу, пока живы двое противников или больше", 20, ["n", 67, "cutter"]], ["Командная игра", "На волоске", "Обезвредь бомбу меньше чем за секунду до взрыва", 3, ["n", 68, "clock"]], ["Командная игра", "Большой взрыв", "Установи бомбу и выиграй раунд взрывом 50 раз", 22, ["n", 69, "bomb"]], ["Командная игра", "Помощник", "Сделай 100 помощей в убийствах", 60, ["n", 70, "hand"]], ["Командная игра", "Правая рука", "Сделай 2 000 помощей в убийствах", 4, ["n", 71, "hand"]], ["Командная игра", "Ослепляющая поддержка", "Сделай 100 помощей флешками", 9, ["n", 72, "sun"]], ["Командная игра", "Восходящая звезда", "Стань MVP раунда 10 раз", 55, ["n", 73, "star"]], ["Командная игра", "Звезда сервера", "Стань MVP раунда 500 раз", 3, ["n", 74, "star"]], ["Командная игра", "Дуэлянт", "Выиграй раунд один против одного 25 раз", 26, ["n", 75, "shield"]], ["Командная игра", "Один против двух", "Выиграй раунд, оставшись один против двух", 30, ["n", 76, "shield"]], ["Командная игра", "Один против четырёх", "Выиграй раунд, оставшись один против четырёх", 2, ["n", 77, "shield"]], ["Командная игра", "Один против пяти", "Выиграй раунд, оставшись один против пяти", 0.7, ["n", 78, "crown"]], ["Командная игра", "Стойкий", "Доживи до конца раунда 50 раз", 60, ["n", 79, "clock"]], ["Командная игра", "Клановый боец", "Сыграй 100 раундов, когда на сервере есть твой соклановец", 14, ["n", 80, "users"]], ["Гранаты", "Слепящий", "Ослепи флешками 50 противников", 52, ["n", 81, "sun"]], ["Гранаты", "Солнце в руках", "Ослепи флешками 1 000 противников", 4, ["n", 82, "sun"]], ["Гранаты", "Тройная вспышка", "Ослепи трёх противников одной флешкой", 12, ["n", 83, "sun"]], ["Гранаты", "Дымовик", "Брось 500 дымовых гранат", 18, ["n", 84, "cloud"]], ["Гранаты", "Огонь по площади", "Нанеси противникам 10 000 урона огнём", 8, ["n", 85, "fire"]], ["Гранаты", "Осколочный", "Нанеси противникам 10 000 урона осколочными гранатами", 9, ["n", 86, "grenade"]], ["Экономика", "Эко-победа", "Выиграй раунд, потратив на снаряжение меньше $1 000", 25, ["n", 87, "coin"]], ["Экономика", "Экономист", "Выиграй 50 эко-раундов", 4, ["n", 88, "coin"]], ["Экономика", "Пистолетный раунд", "Выиграй 50 пистолетных раундов", 20, ["n", 89, "pistol"]], ["Экономика", "Трофейщик", "Сделай 100 убийств подобранным оружием противника", 16, ["n", 90, "gun"]], ["Экономика", "Щедрый", "Отдай тиммейтам 50 купленных тобой стволов", 14, ["n", 91, "hand"]], ["Экономика", "Богач", "Накопи $16 000 на счету", 55, ["n", 92, "coin"]], ["Верность", "Добро пожаловать", "Зайди на сервер впервые", 99, ["n", 93, "flag"]], ["Верность", "Завсегдатай", "Проведи на сервере 10 часов", 80, ["n", 94, "clock"]], ["Верность", "Свой человек", "Проведи на сервере 50 часов", 45, ["n", 95, "clock"]], ["Верность", "Старожил", "Проведи на сервере 500 часов", 4, ["n", 96, "clock"]], ["Верность", "Часть сервера", "Проведи на сервере 1 000 часов", 1, ["n", 97, "clock"]], ["Верность", "Три дня", "Заходи на сервер 3 дня подряд", 55, ["n", 98, "cal"]], ["Верность", "Месяц без пропусков", "Заходи на сервер 30 дней подряд", 3, ["n", 99, "cal"]], ["Верность", "Сто дней", "Заходи на сервер 100 дней подряд", 0.5, ["n", 100, "cal"]], ["Верность", "Ночная смена", "Сыграй 50 раундов с 02:00 до 06:00 по Москве", 8, ["n", 101, "moon"]], ["Верность", "Утренний кофе", "Сыграй раунд с 06:00 до 09:00 по Москве", 18, ["n", 102, "sunrise"]], ["Верность", "Знаток Mirage", "Выиграй 500 раундов на de_mirage", 10, ["n", 103, "map"]], ["Верность", "Знаток Dust2", "Выиграй 500 раундов на de_dust2", 9, ["n", 104, "map"]], ["Верность", "Знаток Inferno", "Выиграй 500 раундов на de_inferno", 8, ["n", 105, "map"]], ["Верность", "Турист", "Сыграй раунд на каждой карте сервера", 40, ["n", 106, "map"]], ["Сообщество", "Основатель", "Создай свой клан", 3, ["n", 107, "flag"]], ["Сообщество", "Полный состав", "Собери в клане 10 участников", 1.5, ["n", 108, "users"]], ["Сообщество", "Клан-чемпион", "Займи с кланом 1 место в рейтинге за месяц", 0.3, ["n", 109, "crown"]], ["Сообщество", "Поддержка проекта", "Купи любой VIP-статус", 6, ["n", 110, "star"]], ["Сообщество", "Исполнительный", "Заработай 10 000 ТК", 40, ["n", 111, "check"]], ["Сообщество", "Трудоголик", "Заработай 100 000 ТК", 8, ["n", 112, "check"]], ["Сообщество", "Честная игра", "Сыграй 100 часов без единого наказания", 12, ["n", 113, "shield"]], ["Очки", "Золотая лихорадка", "Набери 1 000 очков за месяц", 55, ["n", 114, "rank"]], ["Очки", "Хранитель", "Набери 3 000 очков за месяц", 30, ["n", 115, "rank"]], ["Очки", "Орёл", "Набери 6 000 очков за месяц", 9, ["n", 116, "rank"]], ["Очки", "Высший класс", "Набери 10 000 очков за месяц", 4, ["n", 117, "rank"]], ["Очки", "Король месяца", "Займи 1 место в рейтинге месяца", 0.5, ["n", 118, "rank"]], ["Особое", "Пацифист", "Выиграй раунд, не сделав ни одного выстрела", 20, ["n", 122, "heart"]], ["Особое", "Гравитация", "Погибни от падения с высоты", 30, ["n", 123, "jump"]], ["Особое", "Сам себе враг", "Погибни от своей же осколочной гранаты", 18, ["n", 124, "grenade"]], ["Особое", "Голый король", "Сделай 3 убийства за раунд без бронежилета", 3, ["n", 125, "shield"]]];
 const CORDER=Object.keys(CATC);
 const ACHS=[...ACH_ART,...ACH_NEW].map((a,i)=>[a,i]).sort((x,y)=>CORDER.indexOf(x[0][0])-CORDER.indexOf(y[0][0])||x[1]-y[1]).map(x=>x[0]);
 const ACH_NEWIMG=(ACHIMG.new||[]);
@@ -1845,11 +1944,11 @@ const ICO_USERS='<svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d
 function ranked(){return[...clans].sort((a,b)=>score(b)-score(a))}
 function drawClans(){const list=ranked();const q=$("clanQ").value.trim().toLowerCase();
   $("clanPodium").innerHTML=[1,0,2].map(k=>{const c=list[k];if(!c)return"<div></div>";const i=clans.indexOf(c);return`<button class="pod p${k+1}" data-clan="${i}" style="--pc:${PLACE[k][0]};--pg:${PLACE[k][1]}"><span class="num">#${k+1}</span><span class="ava" style="${avaStyle(c)}">${avaHTML(c)}</span><span class="pl">#${k+1}</span><b>${c.n}</b><small>${fmt(score(c))} ${plural(score(c),"очко","очка","очков")}</small></button>`}).join("");
-  const mine=myClan?"":`<div class="ccard cnew"><svg class="big" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M12 9v6M9 12h6"/></svg><b>У тебя нет клана</b><p>Создай свой или вступи в любой из списка.</p><button class="steam" id="newClanBtn">+ Создать клан</button></div>`;
+  const mine=myClan?"":`<div class="ccard cnew"><svg class="big" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M12 9v6M9 12h6"/></svg><b>У тебя нет клана</b><p>Создай свой за 300 000 ТК или вступи в любой из списка.</p><button class="steam" id="newClanBtn">Создать клан</button></div>`;
   const cards=list.map((c,k)=>[c,k]).filter(([c])=>!q||c.n.toLowerCase().includes(q)||c.t.toLowerCase().includes(q)).map(([c,k])=>clanCard(c,k)).join("");
   $("clanGrid").innerHTML=mine+(cards||`<div class="note">Клан «${q}» не найден</div>`);
-  const nb=$("newClanBtn");if(nb)nb.onclick=openNewClan}
-function clanCard(c,k,preview){const pc=k<3?PLACE[k][0]:c.c;return`<div class="ccard" ${preview?"":`data-clan="${clans.indexOf(c)}" tabindex="0" role="button"`} style="--pc:${pc}"><span class="cov ${c.cover?"":"gen"}" style="${c.cover?`background-image:url(${c.cover})`:`--cc:${c.c}`}"></span><span class="ava" style="${avaStyle(c)}">${avaHTML(c)}</span><span class="pl">#${k+1}</span><span class="cn"><span>${c.n}</span><span class="tagchip">${c.t}</span></span><span class="crow">Игроков<b>${ICO_USERS}${c.members.length}/10</b></span><span class="crow">Рейтинг<b>${ICO_CROWN}${fmt(score(c))}</b></span></div>`}
+  const nb=$("newClanBtn");if(nb)nb.onclick=tryNewClan}
+function clanCard(c,k,preview){const pc=k<3?PLACE[k][0]:c.c;return`<div class="ccard" ${preview?"":`data-clan="${clans.indexOf(c)}" tabindex="0" role="button"`} style="--pc:${pc}"><span class="cov ${c.cover?"":"gen"}" style="${c.cover?`background-image:url(${c.cover})`:`--cc:${c.c}`}"></span><span class="ava" style="${avaStyle(c)}">${avaHTML(c)}</span><span class="pl">#${k+1}</span><span class="cn"><span>${c.n}</span><span class="tagchip">${c.t}</span></span><span class="crow">Игроков<b>${ICO_USERS}${c.members.length}/30</b></span><span class="crow">Рейтинг<b>${ICO_CROWN}${fmt(score(c))}</b></span></div>`}
 document.querySelectorAll("#clanPeriod button").forEach(b=>b.onclick=()=>{period=b.dataset.p;document.querySelectorAll("#clanPeriod button").forEach(x=>x.setAttribute("aria-pressed",x===b));drawClans()});
 $("clanQ").oninput=drawClans;
 document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.matches(".ccard[data-clan]"))openClan(+e.target.dataset.clan)});
@@ -1858,7 +1957,7 @@ function openClan(i){const c=clans[i];const lead=c.members[0];const k=ranked().i
   <div class="c-banner" style="--pc:${k<3?PLACE[k][0]:c.c}"><span class="ava" style="${avaStyle(c)}">${avaHTML(c)}</span><div><h3>${c.n}</h3><small>[${c.t}] · место #${k+1}</small></div></div>
   <p class="c-desc">${c.d}</p>
   <div class="grid3"><div><small>За месяц</small><b>${fmt(c.month)}</b></div><div><small>Всего</small><b>${fmt(c.pts)}</b></div><div><small>Ср. K/D</small><b>${c.members.length?c.kd.toFixed(2):"—"}</b></div></div>
-  <div><h4>Участники · ${c.members.length}/10</h4><div class="mlist">${c.members.map(m=>`<button class="mrow" data-p="${m.n}"><span class="who"><i class="av" style="background:${m.c}">${m.n[0].toUpperCase()}</i><span>${m.n}</span>${m===lead?'<span class="lead">ЛИДЕР</span>':""}</span>${ptsChip(m)}<span class="pt">#${placeOf(m)}</span></button>`).join("")||'<div class="note">Пока никого. Вход через Steam добавит тебя лидером.</div>'}</div></div>
+  <div><h4>Участники · ${c.members.length}/30</h4><div class="mlist">${c.members.map(m=>`<button class="mrow" data-p="${m.n}"><span class="who"><i class="av" style="background:${m.c}">${m.n[0].toUpperCase()}</i><span>${m.n}</span>${m===lead?'<span class="lead">ЛИДЕР</span>':""}</span>${ptsChip(m)}<span class="pt">#${placeOf(m)}</span></button>`).join("")||'<div class="note">Пока никого. Вход через Steam добавит тебя лидером.</div>'}</div></div>
   ${c===myClan?"":'<button class="steam" style="justify-content:center" id="joinClan">Подать заявку в клан</button>'}`;
   $("drawer").hidden=false;$("scrim").hidden=false;$("dx").onclick=closeProfile;const j=$("joinClan");if(j)j.onclick=e=>e.currentTarget.textContent="Заявки заработают после входа через Steam";$("dx").focus()}
 document.addEventListener("click",e=>{const c=e.target.closest("[data-clan]");if(c)openClan(+c.dataset.clan)});
@@ -1876,17 +1975,28 @@ $("ncAva").onchange=e=>readImg(e.target,"ava","ncAvaName");
 $("ncCover").onchange=e=>readImg(e.target,"cover","ncCoverName");
 $("ncColors").onclick=e=>{const b=e.target.closest("button");if(!b)return;draft.c=b.dataset.c;document.querySelectorAll("#ncColors button").forEach(x=>x.setAttribute("aria-pressed",x===b));ncPrev()};
 $("ncNameIn").oninput=ncPrev;$("ncTagIn").oninput=ncPrev;
-function openNewClan(){$("clanModal").hidden=false;$("ncMsg").textContent="";$("ncMsg").className="";ncPrev();$("ncNameIn").focus()}
+const CLAN_COST=300000;
+let clanMade=false;try{clanMade=localStorage.getItem("clanMade")==="1"}catch(e){}
+function tryNewClan(){if(!logged){toast("Сначала войди через Steam");return}
+  if(myClan){toast("У тебя уже есть клан");return}
+  if(clanMade){toast("Клан можно создать только один раз");return}
+  if(ME.tk<CLAN_COST){toast(`Не хватает ${fmt(CLAN_COST-ME.tk)} ТК. ТК начисляются за игру на сервере`);return}
+  openNewClan()}
+function openNewClan(){$("ncHave").textContent=fmt(ME.tk)+" ТК";$("clanModal").hidden=false;$("ncMsg").textContent="";$("ncMsg").className="";ncPrev();$("ncNameIn").focus()}
 $("ncClose").onclick=()=>$("clanModal").hidden=true;
 $("clanModal").onclick=e=>{if(e.target.id==="clanModal")$("clanModal").hidden=true};
 $("clanForm").onsubmit=e=>{e.preventDefault();const n=$("ncNameIn").value.trim(),t=$("ncTagIn").value.trim().toUpperCase();
   if(clans.some(c=>c.t===t)){$("ncMsg").textContent=`Тег [${t}] уже занят, придумай другой.`;$("ncMsg").className="";return}
   if(clans.some(c=>c.n.toLowerCase()===n.toLowerCase())){$("ncMsg").textContent="Клан с таким названием уже есть.";$("ncMsg").className="";return}
-  myClan={n,t,c:draft.c,d:"Новый клан. Описание можно будет добавить в настройках.",members:[],pts:0,month:0,wins:0,kd:0,cover:draft.cover,ava:draft.ava};clans.push(myClan);
-  $("clanModal").hidden=true;drawClans();openClan(clans.length-1)};
+  if(clanMade||ME.tk<CLAN_COST){$("ncMsg").textContent="Создать клан не получится: не хватает ТК или клан уже создавался.";return}
+  ME.tk-=CLAN_COST;clanMade=true;
+  myClan={n,t,c:draft.c,d:"Новый клан. Описание можно будет добавить в настройках.",members:[ME],pts:ME.pts,month:monthPts(ME),wins:0,kd:ME.kd,cover:draft.cover,ava:draft.ava};clans.push(myClan);
+  try{localStorage.setItem("clanMade","1");localStorage.setItem("tkSpent",String(CLAN_COST));localStorage.setItem("myClan",JSON.stringify({n,t,c:draft.c}))}catch(e){}
+  try{localStorage.setItem("myClanImg",JSON.stringify({ava:draft.ava,cover:draft.cover}))}catch(e){}
+  $("clanModal").hidden=true;drawClans();drawChip();toast(`Клан [${t}] создан. Списано 300 000 ТК`);openClan(clans.length-1)};
 document.addEventListener("keydown",e=>{if(e.key==="Escape")$("clanModal").hidden=true});
 drawClans();
-$("clanBnrNew").onclick=()=>{if(!logged){toast("Сначала войди через Steam");return}openNewClan()};
+$("clanBnrNew").onclick=tryNewClan;
 
 // ---------- общее: тосты ----------
 function toast(t){let el=$("toast");if(!el){el=document.createElement("div");el.id="toast";el.className="toast";el.setAttribute("role","status");document.body.appendChild(el)}el.textContent=t;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>el.hidden=true,2600)}
@@ -1895,23 +2005,13 @@ const dstr=d=>d.toLocaleDateString("ru-RU",{day:"numeric",month:"long"});
 const daysAgo=n=>{const d=new Date(today);d.setDate(d.getDate()-n);return d};
 const daysFwd=n=>{const d=new Date(today);d.setDate(d.getDate()+n);return d};
 
-// ---------- задания ----------
-const TI={hs:'<circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/>',win:'<path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4M12 14v4M8 21h8"/>',knife:'<path d="M4 20l9-9M13 11l7-8-1 7-6 1z"/>',bomb:'<rect x="4" y="8" width="16" height="10" rx="2"/><path d="M8 12h3M14 11v3M17 11v3"/>',flash:'<circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/>',star:'<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>',awp:'<circle cx="12" cy="12" r="8"/><path d="M12 4v5M12 15v5M4 12h5M15 12h5"/>',pistol:'<path d="M3 8h17v4H11l-1 3H6l1-3H3z"/><path d="M10 15l-1 5H6l1-5"/>',users:'<circle cx="9" cy="8" r="3.5"/><path d="M2 21c0-4 3-7 7-7s7 3 7 7M16 4a3.5 3.5 0 0 1 0 7M18 14c2.4.7 4 3.2 4 7"/>',lock:'<rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/>'};
-const DAILY=[["hs","Глаз-алмаз","Сделай 15 убийств в голову",15,15,150],["win","Командный игрок","Выиграй 10 раундов",6,10,100],["knife","Ножевой бой","Убей 2 противников ножом",0,2,250],["pistol","Ковбой","Сделай 5 убийств из пистолетов",3,5,100],["awp","Дополнительное задание","Сделай 5 убийств из AWP",1,5,200,"PREMIUM"]];
-const WEEKLY=[["users","Марафон","Сыграй 200 раундов",132,200,500],["bomb","Сапёр недели","Установи или обезвредь бомбу 15 раз",15,15,400],["flash","Ослепитель","Ослепи флешками 40 противников",22,40,350],["star","Звезда недели","Стань MVP раунда 20 раз",8,20,600]];
-function taskCard([ic,t,d,c,m,rw,vip],locked){const done=c>=m;return`<article class="tc ${done?"done":""} ${locked?"locked":""}">${vip?`<span class="badge2">${vip}</span>`:""}<div class="top2"><span class="ic"><svg viewBox="0 0 24 24">${TI[locked?"lock":ic]}</svg></span><div><h3>${t}</h3><p>${d}</p></div></div><div class="bar"><span style="width:${locked?0:c/m*100}%"></span></div><div class="ft"><span>${locked?"нужен "+vip:`${c} / ${m}`}</span><b>${done?"Выполнено":"+"+rw+" очков"}</b></div></article>`}
-function drawTasks(){const vip=logged&&ME.vip&&ME.vip.tier!=="VIP";
-  $("tDaily").innerHTML=DAILY.map(t=>taskCard(t,t[6]&&!vip)).join("");
-  $("tWeekly").innerHTML=WEEKLY.map(t=>taskCard(t)).join("");
-  const RW=[50,75,100,150,200,250,500],cur=4;
-  $("streak").innerHTML=RW.map((r,i)=>`<div class="sd ${i<cur-1?"done":""} ${i===cur-1?"today":""} ${i===6?"big":""}"><small>День ${i+1}</small><i>${i+1}</i><b>+${r}</b></div>`).join("")}
-function tickTasks(){const now=new Date(),msk=new Date(now.getTime()+3*3600e3);const left=86400e3-(msk.getUTCHours()*3600e3+msk.getUTCMinutes()*60e3+msk.getUTCSeconds()*1e3);$("tReset").textContent=[Math.floor(left/3600e3),Math.floor(left%3600e3/60e3),Math.floor(left%60e3/1e3)].map(x=>String(x).padStart(2,"0")).join(":")}
-tickTasks();setInterval(tickTasks,1000);
-
 // ---------- вход (демо) и мой профиль ----------
 const meBase=[...players].sort((a,b)=>b.pts-a.pts)[9];
-const ME={...meBase,id:777,n:"Demo_Player",c:"#ff2a4b",hrs:142,balance:500,vip:{tier:"PREMIUM",until:daysFwd(18),from:daysAgo(12)}};
+const ME={...meBase,id:777,n:"Demo_Player",c:"#ff2a4b",hrs:142,balance:500,tk:324650,vip:{tier:"PREMIUM",until:daysFwd(18),from:daysAgo(12)}};
 guests.push(ME);
+try{ME.tk-=+(localStorage.getItem("tkSpent")||0);const mc=JSON.parse(localStorage.getItem("myClan")||"null");if(mc){let im={};try{im=JSON.parse(localStorage.getItem("myClanImg")||"{}")||{}}catch(e){}
+  clans.forEach(c=>{const k=c.members.indexOf(ME);if(k>=0)c.members.splice(k,1)});
+  myClan={...mc,d:"Новый клан. Описание можно будет добавить в настройках.",members:[ME],pts:ME.pts,month:0,wins:0,kd:ME.kd,cover:im.cover||null,ava:im.ava||null};clans.push(myClan);drawClans()}}catch(e){}
 let logged=false;try{logged=localStorage.getItem("demoLogin")==="1"}catch(e){}
 const PURCHASES=[[new Date(2026,9,1),"Приз: 7 место в рейтинге за сентябрь · LEGEND на 30 дней",0],[daysAgo(12),"PREMIUM на 30 дней",199],[daysAgo(43),"VIP на 30 дней",99],[daysAgo(74),"VIP на 30 дней",99]];
 const targetOf=a=>{const m=a[2].replace(/(\d)\s(\d)/g,"$1$2").match(/\d+/);return m?+m[0]:1};
@@ -1919,36 +2019,64 @@ function achProgress(){const own=new Set(achOf(ME));const rnd=rng(77);
   return ACHS.map(a=>{const t=targetOf(a);if(own.has(a))return{a,cur:t,t,done:1};const cur=a[1]==="Легенда сервера"?own.size:Math.floor(t*rnd()*0.97);return{a,cur,t:a[1]==="Легенда сервера"?ACHS.length-1:t,done:0}})}
 function meGoal(){const p=ME,v=monthPts(p),pl=placeOf(p),all=board();const goal=pl>10?all[9]:pl>3?all[2]:null;const nt=nextTier(v);
   return`<div class="mrank" style="margin-top:10px;max-width:460px"><div class="row3">${ptsChip(p,1)}<small>место <b>#${pl}</b> в рейтинге месяца</small></div>${goal?`<small>До ${pl>10?"10 места (приз LEGEND)":"3 места (приз KING)"}: <b>${fmt(monthPts(goal)-v+1)}</b> очков</small><div class="bar"><span style="width:${Math.min(100,v/monthPts(goal)*100)}%"></span></div>`:`<span class="przc god" style="align-self:flex-start">Ты в топ-3: приз KING</span>`}</div>`}
-function drawMe(){$("meGate").hidden=logged;$("meBody").hidden=!logged;
-  drawChip();
-  drawTasks();if(!logged)return;
-  const p=ME,nx=Math.min(17,p.r+1),into=p.pts-p.r*STEP,pc=p.r===17?100:Math.round(into/STEP*100),cl=clanOf(p)||myClan;
-  const pr=achProgress(),got=pr.filter(x=>x.done),near=pr.filter(x=>!x.done&&x.cur>0).sort((x,y)=>y.cur/y.t-x.cur/x.t).slice(0,6);
-  const vd=Math.round((p.vip.until-today)/864e5),vt=Math.round((p.vip.until-p.vip.from)/864e5);
-  $("meBody").innerHTML=`
-  <section class="me-hero"><i class="av" style="background:${p.c}">${p.n[0]}</i><div><h2>${cl?`<span class="ptag">[${cl.t}]</span>`:""}${p.n}<span class="vip-pill">${p.vip.tier}</span></h2><small>STEAM_1:1:48102377 · на сервере ${p.hrs} ч</small>
-    ${meGoal()}</div>
-    <div class="acts"><a class="ghost" href="#tasks">Задания</a><button class="logout" id="logout">Выйти</button></div></section>
-  <div class="me-grid"><div><small>Очки за месяц</small><b>${fmt(monthPts(p))}</b></div><div><small>Место в месяце</small><b>#${placeOf(p)}</b></div><div><small>K/D</small><b>${p.kd.toFixed(2)}</b></div><div><small>HS %</small><b>${p.hs}%</b></div><div><small>Убийства</small><b>${fmt(p.kills)}</b></div><div><small>MVP</small><b>${p.mvp}</b></div></div>
-  <section class="box me-medals"><div class="hdr" style="margin:0"><h2>Медали рейтинга</h2><span>за места в топ-10 месяца, наведи на медаль</span></div><div class="medals">${medalsHTML(p,40)}</div></section>
-  <div class="me-two">
-    <section class="box"><div class="hdr"><h2>Почти получено</h2><a class="more" href="#ach">Все достижения</a></div><div class="prog-list">${near.map(({a,cur,t})=>`<div class="prog"><span class="th" style="${achSrc(a)?`background-image:url(${achSrc(a)})`:""}"></span><div><b>${a[1]}</b><span>${a[2]}</span><div class="bar"><span style="width:${cur/t*100}%"></span></div></div><span class="num">${fmt(cur)} / ${fmt(t)}</span></div>`).join("")}</div></section>
-    <div style="display:flex;flex-direction:column;gap:14px">
-      <section class="box vip-card"><div class="hdr" style="margin:0"><h2>Статус</h2></div><div class="row2"><b>${p.vip.tier}</b><span>до ${dstr(p.vip.until)}</span></div><div class="bar"><span style="width:${vd/vt*100}%"></span></div><span style="font-size:12px;color:var(--muted)">осталось ${vd} ${plural(vd,"день","дня","дней")} из ${vt}</span><a class="steam" href="#shop" style="justify-content:center">Продлить</a><div class="row2" style="margin-top:4px"><span>Баланс</span><b style="font-family:var(--f-mono);font-size:18px;color:var(--live)">${fmt(ME.balance)} ₽</b></div></section>
-      <section class="box"><div class="hdr"><h2>Получено · ${got.length} из ${ACHS.length}</h2></div><div class="ach-mini">${got.slice(0,24).map(x=>achIco(x.a)).join("")}${got.length>24?`<span class="mi" style="background:var(--panel-2);font-size:11px;font-weight:800">+${got.length-24}</span>`:""}</div></section>
-    </div>
-  </div>
-  <section class="box"><div class="hdr"><h2>Покупки</h2></div><div class="tablewrap" style="border:0;background:none"><table class="tbl" style="min-width:480px"><thead><tr><th>Дата</th><th>Товар</th><th class="r">Сумма</th><th>Статус</th></tr></thead><tbody>${PURCHASES.map(([d,t,s])=>`<tr><td class="mono">${d.toLocaleDateString("ru-RU")}</td><td>${t}</td><td class="r">${s?s+" ₽":"приз"}</td><td><span class="st off" style="color:var(--live)">${s?"Оплачено":"Выдано"}</span></td></tr>`).join("")}</tbody></table></div></section>
-  <p class="note">Это пример профиля. После подключения входа через Steam здесь будут твои настоящие данные с сервера.</p>`;
-  $("logout").onclick=()=>setLogin(false)}
+function drawMe(){rescueSet();$("meGate").hidden=logged;$("meBody").hidden=!logged;
+  drawChip();if(!logged)return;
+  PF={p:ME,own:true};$("meBody").innerHTML=pfHTML(ME,true);pfAfter()}
+// ---------- профиль (свой и чужой) ----------
+let PFN=null,pfTab="info",pfTabO="info",pfBack="stats",PF=null;
+const tkOf=p=>p===ME?ME.tk:Math.round(p.kills*2+p.hrs*50+p.hs*13);
+const svgI=(d,c="")=>`<svg class="${c}" viewBox="0 0 24 24" aria-hidden="true">${d}</svg>`;
+const PI={tk:'<circle cx="12" cy="12" r="9"/><path d="M8.5 8.5h7M12 8.5v8"/>',kill:'<circle cx="12" cy="12" r="7"/><path d="M12 2v5M12 17v5M2 12h5M17 12h5"/>',skull:'<path d="M12 3a8 8 0 0 0-8 8c0 3 1.6 5 3.5 6v3h9v-3c1.9-1 3.5-3 3.5-6a8 8 0 0 0-8-8z"/><circle cx="9" cy="11.5" r="1.6"/><circle cx="15" cy="11.5" r="1.6"/>',hs:'<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/>',info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/>',gun:'<path d="M3 9h16l2 2v2h-7l-2 2h-2l-1 5H5l1.5-6H3z"/>',star:'<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/>',wallet:'<rect x="3" y="6" width="18" height="14" rx="2"/><path d="M3 10h18M16 15h2"/>',gear:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M2 12h3M19 12h3M4.9 19.1L7 17M17 7l2.1-2.1"/>',back:'<path d="M15 6l-6 6 6 6"/>'};
+const TCOL=t=>(T6.find(x=>x.n===t)||{c:"#9aa3ad"}).c;
+function statusOf(p){if(p===ME)return ME.vip?{t:ME.vip.tier,u:ME.vip.until,f:ME.vip.from}:null;const v=VIPS.find(x=>x[0]===p.n);if(v)return{t:v[2],u:v[3],f:daysAgo(30-Math.round((v[3]-today)/864e5))};if(isKing(p))return{t:"KING",u:daysFwd(29),f:daysAgo(1)};return null}
+const isOn=p=>p===ME||p.id%3===0;
+const two=n=>String(n).padStart(2,"0");
+const dts=(d,t)=>`${two(d.getDate())}.${two(d.getMonth()+1)}.${d.getFullYear()}${t?` ${two(d.getHours())}:${two(d.getMinutes())}`:""}`;
+function lastIn(p){const d=new Date(2026,10,1,15,4);if(!isOn(p))d.setHours(d.getHours()-((p.id*7)%40+1),(p.id*13)%60);return d}
+function pfBadges(p){const g=medalsOf(p),a=achOf(p);const md=g.map(m=>`<span class="pf-b" title="${m.place} место в рейтинге месяца${m.n>1?` · ${m.n} раза`:""}">${medalSvg(m.place,34)}</span>`);return`<div class="pf-badges">${md.join("")}<a class="pf-b ach" href="#ach" title="Достижения"><b>${a.length}</b><small>из ${ACHS.length}</small></a></div>`}
+function pfHTML(p,own){const st=statusOf(p),cl=clanOf(p)||(own?myClan:null),on=isOn(p),pc=ptier(monthPts(p))[1];
+  const tabs=own?[["info","Информация","info"],["skins","Скинченджер","gun"],["serv","Услуги","star"],["pay","Пополнения","wallet"],["set","Настройки","gear"]]:[["info","Информация","info"],["skins","Скинченджер","gun"],["serv","Услуги","star"]];
+  const cur=own?pfTab:pfTabO;
+  return`<section class="pf-head"><div class="pf-av" style="--ac:${p.c}">${esc(p.n[0].toUpperCase())}</div>
+  <div class="pf-id"><div class="pf-nm"><h1>${esc(p.n)}</h1><span class="pf-lvl" style="--pc:${pc==="top"?"#ffd36b":pc}" title="Очки рейтинга за месяц">${fmt(monthPts(p))}</span></div>
+  ${st||cl?`<div class="pf-tags">${st?`<span class="pf-role" style="--tc:${TCOL(st.t)}"><i></i>${st.t}</span>`:""}${cl?`<button class="pf-role" data-clan="${clans.indexOf(cl)}"><i style="background:${cl.c}"></i>[${esc(cl.t)}] ${esc(cl.n)}</button>`:""}</div>`:""}
+  <span class="pf-on ${on?"on":""}">${on?"В сети":"Был в сети "+dts(lastIn(p),1)}</span></div>
+  ${pfBadges(p)}</section>
+  <div class="pf-stats"><div><small>Тащер Коины</small><b>${svgI(PI.tk)}${fmt(tkOf(p))}</b></div><div><small>Убийств</small><b>${svgI(PI.kill)}${fmt(p.kills)}</b></div><div><small>Смертей</small><b>${svgI(PI.skull)}${fmt(p.deaths)}</b></div><div><small>Хедшотов</small><b>${svgI(PI.hs)}${p.hs}%</b></div><div><small>У/С</small><b>${p.kd.toFixed(2)}</b></div></div>
+  <div class="pf-tabs" role="tablist">${tabs.map(([k,n,ic])=>`<button role="tab" data-pft="${k}" aria-selected="${k===cur}">${svgI(PI[ic])}<span>${n}</span></button>`).join("")}</div>
+  <section class="pf-panel">${pfPanel(p,own,cur)}</section>`}
+function pfRows(rows){return`<div class="pf-rows">${rows.map(([a,b])=>`<div><span>${a}</span><b>${b}</b></div>`).join("")}</div>`}
+function pfLoadout(p,own){if(own)return Object.entries(SKST.sets).map(([n,s])=>{const w=W.find(x=>x.n===n);return w?{w,skin:w.skins.find(x=>x[0]===s.name),wear:s.wear,st:s.st,tag:s.tag,stk:s.stk}:null}).filter(Boolean);
+  const r=rng(p.id*31+7);const pick=c=>{const l=W.filter(w=>w.c===c);return l[Math.floor(r()*l.length)]};
+  return["knife","gloves","rifle","rifle","sniper","pistol","pistol","smg"].map(pick).filter((w,i,a)=>a.indexOf(w)===i).map(w=>{const skin=w.skins[Math.floor(r()*w.skins.length)];const hasStk=STK_OK(w)&&r()<.6;return{w,skin,wear:+(r()*.4).toFixed(3),st:r()<.3,tag:"",stk:hasStk?[0,1,2,3,4].map(()=>r()<.45?{i:Math.floor(r()*STK.length),wear:0}:null):null}})}
+function pfPanel(p,own,tab){
+  if(tab==="info"){const reg=daysAgo(40+(p.id*53)%690),on=isOn(p),cl=clanOf(p)||(own?myClan:null);
+    let h=`<h2>Информация</h2>`+pfRows([["ID",String(790000+((p.id*7919)%9000))],["Роль","Игрок"],["Дата регистрации",dts(reg)],["Место в рейтинге месяца","#"+placeOf(p)],["Часов на проекте",fmt(p.hrs)+" ч"],["Клан",cl?esc(cl.n):"Нет"],["Последний сервер",on?SERVERS[p.id%SERVERS.length].name:"Неизвестно"],["Последний вход",dts(lastIn(p),1)]]);
+    if(own)h+=`<h2 class="pf-h2">Как заработать ТК</h2>`+pfRows([["Убийство","+2 ТК"],["Убийство в голову","+3 ТК"],["Победа в раунде","+3 ТК"],["MVP раунда","+5 ТК"],["Час игры на сервере","+50 ТК"],["Привилегия","множитель до x2.5"]])+`<p class="pf-note">ТК нельзя купить, только заработать в игре. Сейчас на них создаются кланы (300 000 ТК), скоро появятся и другие награды.</p>`;
+    return h}
+  if(tab==="skins"){const l=pfLoadout(p,own);
+    return`<div class="pf-hr"><h2>Скинченджер</h2>${own?`<a class="ghost" href="#skins">Открыть скинченджер</a>`:""}</div>`+(l.length?`<div class="pf-skins">${l.map(x=>`<div class="pf-sk" style="--sc:${x.skin?RC[x.skin[5]]:"var(--line)"}"><span class="pic">${art(x.w,x.skin,x.wear,x.stk)}</span><b>${x.st&&x.skin?'<span class="stt">ST</span>':""}${x.w.n}</b><small>${x.skin?x.skin[0]:"Стандартный"}${x.tag?` · «${esc(x.tag)}»`:""}</small>${x.stk&&x.stk.some(Boolean)?`<span class="pf-stkn">${x.stk.filter(Boolean).length} ${plural(x.stk.filter(Boolean).length,"наклейка","наклейки","наклеек")}</span>`:""}</div>`).join("")}</div>`:`<div class="pf-empty">${own?"Пока всё стандартное. Выбери раскраски в скинченджере, они появятся здесь.":"Игрок пока не менял скины."}</div>`)}
+  if(tab==="serv"){const st=statusOf(p);if(!st)return`<h2>Услуги</h2><div class="pf-empty">${own?"Активных услуг нет.":"У игрока нет активных услуг."}</div>${own?`<a class="steam pf-cta" href="#shop">Открыть магазин</a>`:""}`;
+    const left=Math.max(0,Math.round((st.u-today)/864e5)),tot=Math.max(left,Math.round((st.u-st.f)/864e5))||30;
+    return`<h2>Услуги</h2><div class="pf-srv" style="--tc:${TCOL(st.t)}"><div><b>${st.t}</b><small>Привилегия на серверах Public</small></div><div class="pf-srv-r"><span>до ${dstr(st.u)}</span><div class="bar"><span style="width:${left/tot*100}%"></span></div><small>осталось ${left} ${plural(left,"день","дня","дней")}</small></div>${own?`<a class="steam" href="#shop">Продлить</a>`:""}</div>`}
+  if(tab==="pay")return`<div class="pf-bal"><div><small>Баланс</small><b>${fmt(ME.balance)} ₽</b><button class="steam" id="pfTop">Пополнить</button></div><div><small>Тащер Коины</small><b class="tkc">${svgI(PI.tk)}${fmt(ME.tk)} ТК</b><span>Зарабатываются в игре</span></div></div>
+    <h2 class="pf-h2">История пополнений и покупок</h2><div class="pf-rows pf-hist">${PURCHASES.map(([d,t,s])=>`<div><span><small>${dts(d)}</small>${t}</span><b class="${s?"":"gift"}">${s?"−"+s+" ₽":"Приз"}</b></div>`).join("")}</div>`;
+  if(tab==="set")return`<h2>Настройки</h2><div id="setSlot"></div>`;
+  return""}
+function rescueSet(){const g=document.querySelector(".set-grid"),h=$("setHome");if(g&&h&&g.parentElement!==h)h.appendChild(g)}
+function pfAfter(){const t=$("pfTop");if(t)t.onclick=()=>toast("Пополнение заработает после подключения оплаты");const sl=$("setSlot");if(sl){sl.appendChild(document.querySelector(".set-grid"));drawSettings()}}
+document.addEventListener("click",e=>{const b=e.target.closest("[data-pft]");if(!b)return;const box=b.closest("#meBody,#plBody");if(!box)return;const own=box.id==="meBody",p=own?ME:P(PFN);if(!p)return;PF={p,own};const k=b.dataset.pft;if(own)pfTab=k;else pfTabO=k;
+  rescueSet();box.querySelectorAll("[data-pft]").forEach(x=>x.setAttribute("aria-selected",x===b));box.querySelector(".pf-panel").innerHTML=pfPanel(p,own,k);pfAfter()});
+function drawPlayer(){rescueSet();const p=P(PFN);if(!p)return;PF={p,own:false};
+  $("plBody").innerHTML=`<button class="pf-back" id="pfBack">${svgI(PI.back)}Назад</button>`+pfHTML(p,false);$("pfBack").onclick=()=>go(pfBack&&pfBack!=="player"?pfBack:"stats");pfAfter()}
 function setLogin(v){logged=v;try{localStorage.setItem("demoLogin",v?"1":"0")}catch(e){}drawMe();if(typeof drawSkins==="function")drawSkins();if(typeof drawHomeProgress==="function")drawHomeProgress();if(typeof drawTiers==="function")drawTiers();if(typeof drawStats==="function")drawStats();if(v){if(curView!=="skins")go("me");toast("Вход выполнен (демо)")}else toast("Ты вышел из аккаунта")}
-document.addEventListener("click",e=>{if(e.target.closest("[data-login]"))setLogin(true)});
+document.addEventListener("click",e=>{if(e.target.closest("[data-login]"))setLogin(true);if(e.target.closest('a[href="#me"]'))pfTab="info"});
 
 // ---------- админ-панель ----------
 REASONS.forEach(([r])=>$("bReason").insertAdjacentHTML("beforeend",`<option>${r}</option>`));
 const VIPS=[["Kotleta","STEAM_1:0:58213411","LEGEND",daysFwd(24)],["Vortex","STEAM_1:1:30944120","PREMIUM",daysFwd(9)],["Lenka","STEAM_1:0:77120456","VIP",daysFwd(3)],["Bober","STEAM_1:1:12099877","PREMIUM",daysFwd(17)],[ME.n,"STEAM_1:1:48102377",ME.vip.tier,ME.vip.until]];
 function drawAdmin(){const act=bans.filter(b=>b.active);
-  $("admTiles").innerHTML=`<div><small>Онлайн сейчас</small><b>${fmt(totalOnline)}</b></div><div><small>Активные баны</small><b>${act.length}</b></div><div><small>Действующие статусы</small><b>${VIPS.length}</b></div><div><small>Новые апелляции</small><b>${typeof APPEALS!=="undefined"?APPEALS.filter(a=>a.st==="new").length:0}</b></div>`;if(typeof APPEALS!=="undefined")drawAppeals();
+  $("admTiles").innerHTML=`<div><small>Онлайн сейчас</small><b>${fmt(totalOnline)}</b></div><div><small>Активные баны</small><b>${act.length}</b></div><div><small>Действующие статусы</small><b>${VIPS.length}</b></div><div><small>Правил</small><b>${RULES.reduce((n,r)=>n+r[1].length,0)}</b></div>`;
   $("aBans").innerHTML=act.map(b=>`<div class="ai"><div><b>${esc(b.n)} · ${b.reason}</b><small>${b.sid} · ${b.perm?"навсегда":"до "+new Date(b.d.getTime()+b.days*864e5).toLocaleDateString("ru-RU")}</small></div><button data-unban="${bans.indexOf(b)}">Разбанить</button></div>`).join("")||'<div class="note">Активных банов нет</div>';
   $("aVips").innerHTML=VIPS.map((v,i)=>`<div class="ai"><div><b>${esc(v[0])} · ${v[2]}</b><small>${v[1]} · до ${v[3].toLocaleDateString("ru-RU")}</small></div><button data-unvip="${i}">Снять</button></div>`).join("")||'<div class="note">Никого</div>';
   $("rSec").innerHTML=RULES.map(([h],i)=>`<option value="${i}">${h}</option>`).join("");
@@ -2015,15 +2143,32 @@ let SKST={sets:{},cols:[{name:"Коллекция 1",sets:{}}],active:0,team:"bo
 try{const s=JSON.parse(localStorage.getItem("skins")||"null");if(s&&s.sets)SKST=s}catch(e){}
 const skSave=()=>{try{localStorage.setItem("skins",JSON.stringify(SKST))}catch(e){}};
 let skCat="knife",skQ="",gid=0;
-function art(w,skin,wear){const id="g"+(gid++);const p=SIL[w.c];
+function artBase(w,skin,wear){const id="g"+(gid++);const p=SIL[w.c];
   if(!skin)return`<svg viewBox="0 0 120 44" aria-hidden="true"><defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c9ced6"/><stop offset=".55" stop-color="#7c838d"/><stop offset="1" stop-color="#3f444b"/></linearGradient></defs><path d="${p}" fill="url(#${id})"/></svg>`;
   const [,a,b,c,pat]=skin;const dull=wear>.45?.55:wear>.15?.8:1;
   const ov=pat==="stripe"?`<pattern id="${id}p" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(35)"><rect width="4" height="10" fill="${c}" opacity=".55"/></pattern>`:pat==="camo"?`<pattern id="${id}p" width="22" height="16" patternUnits="userSpaceOnUse"><circle cx="5" cy="5" r="4" fill="${c}" opacity=".6"/><circle cx="16" cy="11" r="5" fill="${b}" opacity=".6"/></pattern>`:pat==="web"?`<pattern id="${id}p" width="14" height="14" patternUnits="userSpaceOnUse"><path d="M0 7h14M7 0v14M0 0l14 14M14 0L0 14" stroke="#000" stroke-width=".7" opacity=".7"/></pattern>`:pat==="marble"?`<radialGradient id="${id}p" cx=".3" cy=".4" r=".6"><stop offset="0" stop-color="${c}" stop-opacity=".9"/><stop offset="1" stop-color="${c}" stop-opacity="0"/></radialGradient>`:"";
   return`<svg viewBox="0 0 120 44" aria-hidden="true"><defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${a}"/><stop offset=".55" stop-color="${b}"/><stop offset="1" stop-color="${pat==="fade"?c:a}"/></linearGradient>${ov}<linearGradient id="${id}h" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".35"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".35"/></linearGradient></defs><g opacity="${dull}"><path d="${p}" fill="url(#${id})"/>${ov?`<path d="${p}" fill="url(#${id}p)"/>`:""}</g><path d="${p}" fill="url(#${id}h)"/></svg>`}
+// ---------- наклейки ----------
+const STK_BASE=[["Ace","#ff2a4b","star"],["Clutch","#ffb547","shield"],["Rush B","#5aa9ff","circle"],["One Tap","#3ddc97","rect"],["GG WP","#a78bfa","circle"],["Headshot","#ff4f6d","rect"],["No Scope","#5aa9ff","rect"],["Eco","#3ddc97","hex"],["Ninja","#c9ced6","star"],["Flash","#f5c451","circle"],["Wallbang","#ff8a3d","rect"],["Entry","#ff2a4b","shield"],["Lurk","#8b93a1","hex"],["Spray","#ff6a3d","star"],["Smoke","#c9ced6","circle"],["Tasher","#ff2a4b","shield"],["Боец","#ffb547","hex"],["Мажор","#f5c451","star"],["Пельмень","#f2e6c9","rect"],["Не рашим","#5aa9ff","rect"],["Тащер","#ff2a4b","rect"],["Изи","#3ddc97","circle"],["Катка","#a78bfa","hex"],["Скилл","#ff8a3d","shield"]];
+const STK_VAR=[["Обычная","#5aa9ff","paper"],["Голографическая","#a78bfa","holo"],["Фольгированная","#f472b6","foil"],["Золотая","#ffc94a","gold"]];
+const STK=STK_VAR.flatMap((v,vi)=>STK_BASE.map((b,bi)=>({i:vi*STK_BASE.length+bi,n:b[0],c:b[1],sh:b[2],v:vi})));
+const STK_OK=w=>!["knife","gloves","agent"].includes(w.c);
+const SX=[36,48,60,72,84];
+function stkInner(i,scr){const k=STK[i];if(!k)return"";const id="sk"+(gid++),v=STK_VAR[k.v][2];
+  const g=v==="holo"?`<linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff8ad8"/><stop offset=".35" stop-color="#8af3ff"/><stop offset=".65" stop-color="#d2ff8a"/><stop offset="1" stop-color="${k.c}"/></linearGradient>`
+    :v==="foil"?`<linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".4" stop-color="${k.c}"/><stop offset=".7" stop-color="#e9edf2"/><stop offset="1" stop-color="${k.c}"/></linearGradient>`
+    :v==="gold"?`<linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff1b8"/><stop offset=".45" stop-color="#f2c14e"/><stop offset=".75" stop-color="#a8740f"/><stop offset="1" stop-color="#ffe08a"/></linearGradient>`:"";
+  const f=g?`url(#${id})`:k.c,sh=k.sh;
+  const shape=sh==="circle"?`<circle cx="24" cy="24" r="20"/>`:sh==="shield"?`<path d="M24 3l18 6v13c0 12-8 19-18 23C14 41 6 34 6 22V9z"/>`:sh==="star"?`<path d="M24 2l6.2 13.4 14.6 1.6-10.9 9.9 3 14.4L24 34l-12.9 7.3 3-14.4L3.2 17l14.6-1.6z"/>`:sh==="hex"?`<path d="M24 3l19 11v20L24 45 5 34V14z"/>`:`<rect x="2" y="12" width="44" height="24" rx="7"/>`;
+  const t=k.n.toUpperCase(),av={rect:40,circle:33,shield:29,hex:31,star:22}[sh],fs=Math.min(sh==="star"?10:13,av/(t.length*.7)),dark=v==="gold"||v==="foil";
+  return`<defs>${g}</defs><g opacity="${(1-(scr||0)*.75).toFixed(2)}"><g fill="${f}" stroke="#fff" stroke-width="2.6" stroke-linejoin="round">${shape}</g><text x="24" y="${24+fs*.36}" text-anchor="middle" font-family="Russo One,Arial Black,sans-serif" font-size="${fs}" fill="${dark?"#1b1418":"#fff"}" stroke="${dark?"rgba(255,255,255,.55)":"rgba(0,0,0,.7)"}" stroke-width="${dark?.7:1.4}" paint-order="stroke">${esc(t)}</text></g>`}
+const stkSvg=(i,scr)=>`<svg viewBox="0 0 48 48" aria-hidden="true">${stkInner(i,scr)}</svg>`;
+function stkLayer(stk,sel){return(stk||[]).map((x,k)=>(x?`<svg x="${SX[k]-5.5}" y="11.5" width="11" height="11" viewBox="0 0 48 48">${stkInner(x.i,x.wear)}</svg>`:"")+(sel===k?`<circle cx="${SX[k]}" cy="17" r="6.6" fill="none" stroke="#ff2a4b" stroke-width=".7" stroke-dasharray="1.6 1.2"/>`:"")).join("")}
+function art(w,skin,wear,stk,sel){let h=artBase(w,skin,wear);if((stk&&stk.some(Boolean))||sel!=null)h=h.replace(/<\/svg>$/,stkLayer(stk||[],sel)+"</svg>");return h}
 const skinOf=(w,sets)=>{const s=(sets||SKST.sets)[w.n];return s?{...s,skin:w.skins.find(x=>x[0]===s.name)}:null};
 function drawSkCats(){$("skCats").innerHTML=CAT.map(([c,n])=>`<button role="tab" data-c="${c}" aria-selected="${c===skCat}" title="${n}"><svg viewBox="0 0 120 44"><path d="${SIL[c]}"/></svg>${n}</button>`).join("")}
 function drawSkGrid(){const list=W.filter(w=>(skQ?w.n.toLowerCase().includes(skQ):w.c===skCat));
-  $("skGrid").innerHTML=list.map(w=>{const s=skinOf(w);return`<button class="wcard ${s?"set":""}" data-w="${W.indexOf(w)}" style="${s?`--sc:${s.skin[2]};--sc2:${s.skin[2]}`:""}">${s&&s.st?'<span class="st-badge">ST</span>':""}<span class="pic">${art(w,s&&s.skin,s?s.wear:0)}</span><b>${w.n}</b><small>${s?s.name+(s.tag?` · «${esc(s.tag)}»`:""):"Стандартный"}</small></button>`}).join("")||'<div class="note">Ничего не найдено</div>'}
+  $("skGrid").innerHTML=list.map(w=>{const s=skinOf(w),sk=s&&s.skin,n=s&&s.stk?s.stk.filter(Boolean).length:0;return`<div class="wcard ${sk?"set":""}" role="button" tabindex="0" data-w="${W.indexOf(w)}" style="${sk?`--sc:${sk[2]};--sc2:${sk[2]}`:""}">${s&&s.st&&sk?'<span class="st-badge">ST</span>':""}<span class="pic">${art(w,sk,s?s.wear:0,s&&s.stk)}</span><b>${w.n}</b><small>${sk?s.name+(s.tag?` · «${esc(s.tag)}»`:""):"Стандартный"}${n?` · ${n} ${plural(n,"наклейка","наклейки","наклеек")}`:""}</small>${STK_OK(w)?`<button class="stk-btn" data-stk="${W.indexOf(w)}" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v10l-6 6H4z"/><path d="M14 20v-6h6"/></svg>Наклейки</button>`:""}</div>`}).join("")||'<div class="note">Ничего не найдено</div>'}
 function drawCols(){const max=3;$("skColCount").textContent=`${SKST.cols.length} / ${max}`;
   $("skCols").innerHTML=SKST.cols.map((c,i)=>{const keys=Object.keys(c.sets);const ics=keys.slice(0,4).map(k=>{const w=W.find(x=>x.n===k);return w?art(w,skinOf(w,c.sets).skin,0):""}).join("");const on=i===SKST.active;
     return`<div class="col ${on?"on":""}"><div class="ics">${ics||'<small>Пока без скинов</small>'}</div><b>${esc(c.name)}</b><small>${keys.length} ${keys.length%10===1&&keys.length!==11?"скин":keys.length%10>=2&&keys.length%10<=4&&(keys.length<12||keys.length>14)?"скина":"скинов"}</small><div class="cb">${on?'<button class="wear-on" disabled>Надета</button>':`<button class="use" data-coluse="${i}">Надеть</button>`}<button data-colren="${i}" title="Переименовать" aria-label="Переименовать"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg></button>${SKST.cols.length>1?`<button data-coldel="${i}" title="Удалить" aria-label="Удалить">✕</button>`:""}</div></div>`}).join("")+(SKST.cols.length<max?`<button class="col add" id="colAdd"><i>+</i><b>Сохранить как новую</b><small>Скопирует текущий набор в новую коллекцию</small></button>`:"");
@@ -2060,9 +2205,35 @@ $("skmST").onchange=e=>{skd.st=e.target.checked;drawSkm()};
 const closeSkm=()=>$("skModal").hidden=true;
 $("skmClose").onclick=closeSkm;$("skModal").onclick=e=>{if(e.target.id==="skModal")closeSkm()};
 document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeSkm();$("tierModal").hidden=true}});
-$("skmDefault").onclick=()=>{if(!needLogin())return;delete SKST.sets[skw.n];syncActive();closeSkm();drawSkGrid();drawCols();toast(`${skw.n}: стандартный вид`)};
+$("skmDefault").onclick=()=>{if(!needLogin())return;const o=SKST.sets[skw.n];if(o&&o.stk)SKST.sets[skw.n]={name:null,wear:.01,seed:0,tag:"",st:false,stk:o.stk};else delete SKST.sets[skw.n];syncActive();closeSkm();drawSkGrid();drawCols();toast(`${skw.n}: стандартный вид`)};
 $("skmApply").onclick=()=>{if(!needLogin())return;if(!skd.name){toast("Выбери раскраску из списка");return}SKST.sets[skw.n]={...skd};syncActive();closeSkm();drawSkGrid();drawCols();toast(`${skw.n} | ${skd.name}: применится на сервере после возрождения`)};
-$("skGrid").onclick=e=>{const b=e.target.closest(".wcard");if(b)openSkin(+b.dataset.w)};
+$("skGrid").onclick=e=>{const sb=e.target.closest("[data-stk]");if(sb){openStk(+sb.dataset.stk);return}const b=e.target.closest(".wcard");if(b)openSkin(+b.dataset.w)};
+$("skGrid").onkeydown=e=>{if(e.key==="Enter"&&e.target.matches(".wcard"))openSkin(+e.target.dataset.w)};
+// окно наклеек
+let stw=null,sts=null,ssel=0,sVar=-1;
+function openStk(i){stw=W[i];const s=SKST.sets[stw.n];sts=s&&s.stk?s.stk.map(x=>x?{...x}:null):[null,null,null,null,null];ssel=Math.max(0,sts.findIndex(x=>!x));if(ssel<0)ssel=0;
+  $("stkQ").value="";drawStk();$("stkModal").hidden=false}
+function drawStk(){const s=SKST.sets[stw.n],sk=s&&s.skin!==undefined?null:null;const skin=s&&s.name?stw.skins.find(x=>x[0]===s.name):null;
+  $("stkT").textContent=stw.n;$("stkSub").textContent=skin?skin[0]:"Стандартный";
+  $("stkPrev").innerHTML=art(stw,skin,s?s.wear:0,sts,ssel);
+  $("stkSlots").innerHTML=sts.map((x,k)=>`<button type="button" data-slot="${k}" aria-pressed="${k===ssel}" title="Слот ${k+1}">${x?stkSvg(x.i,x.wear):`<span>${k+1}</span>`}</button>`).join("");
+  const cur=sts[ssel];
+  $("stkInfo").innerHTML=cur?`<div class="si-l">${stkSvg(cur.i,cur.wear)}<div><b>Слот ${ssel+1} · ${esc(STK[cur.i].n)}</b><small style="color:${STK_VAR[STK[cur.i].v][1]}">${STK_VAR[STK[cur.i].v][0]}</small></div></div><label class="si-w">Потёртость <span>${Math.round(cur.wear*100)}%</span><input type="range" id="stkWear" min="0" max="1" step="0.05" value="${cur.wear}"></label><button type="button" id="stkDel">Снять</button>`
+    :`<div class="si-l"><div><b>Слот ${ssel+1}</b><small>Выбери наклейку в списке ниже</small></div></div>`;
+  const q=$("stkQ").value.trim().toLowerCase();
+  $("stkVar").innerHTML=[["Все",-1],...STK_VAR.map((v,k)=>[v[0].replace("ая","ые").replace("Обычные","Обычные"),k])].map(([n,k])=>`<button type="button" data-v="${k}" aria-pressed="${k===sVar}">${n}</button>`).join("");
+  $("stkList").innerHTML=STK.filter(k=>(sVar<0||k.v===sVar)&&(!q||k.n.toLowerCase().includes(q))).map(k=>`<button type="button" class="stk-o" data-si="${k.i}" style="--rc:${STK_VAR[k.v][1]}">${stkSvg(k.i)}<b>${esc(k.n)}</b><small>${STK_VAR[k.v][0]}</small></button>`).join("")||'<div class="note">Ничего не найдено</div>';
+  const wr=$("stkWear");if(wr)wr.oninput=e=>{sts[ssel].wear=+e.target.value;$("stkPrev").innerHTML=art(stw,skin,s?s.wear:0,sts,ssel);e.target.previousElementSibling.textContent=Math.round(sts[ssel].wear*100)+"%";$("stkSlots").children[ssel].innerHTML=stkSvg(sts[ssel].i,sts[ssel].wear)};
+  const dl=$("stkDel");if(dl)dl.onclick=()=>{sts[ssel]=null;drawStk()}}
+$("stkSlots").onclick=e=>{const b=e.target.closest("[data-slot]");if(!b)return;ssel=+b.dataset.slot;drawStk()};
+$("stkVar").onclick=e=>{const b=e.target.closest("[data-v]");if(!b)return;sVar=+b.dataset.v;drawStk()};
+$("stkQ").oninput=()=>drawStk();
+$("stkList").onclick=e=>{const b=e.target.closest("[data-si]");if(!b)return;sts[ssel]={i:+b.dataset.si,wear:sts[ssel]?sts[ssel].wear:0};const nx=sts.findIndex((x,k)=>!x&&k>ssel);if(nx>=0)ssel=nx;drawStk()};
+const closeStk=()=>$("stkModal").hidden=true;
+$("stkClose").onclick=closeStk;$("stkModal").onclick=e=>{if(e.target.id==="stkModal")closeStk()};
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeStk()});
+$("stkClear").onclick=()=>{sts=[null,null,null,null,null];ssel=0;drawStk()};
+$("stkSave").onclick=()=>{if(!needLogin())return;const s=SKST.sets[stw.n]||(SKST.sets[stw.n]={name:null,wear:.01,seed:0,tag:"",st:false});s.stk=sts.some(Boolean)?sts:null;if(!s.name&&!s.stk)delete SKST.sets[stw.n];syncActive();closeStk();drawSkGrid();drawCols();const n=sts.filter(Boolean).length;toast(n?`${stw.n}: ${n} ${plural(n,"наклейка","наклейки","наклеек")}, применится после возрождения`:`${stw.n}: наклейки сняты`)};
 function drawSkins(){$("skGate").hidden=logged;drawSkCats();drawSkGrid();drawCols()}
 drawSkins();
 
@@ -2073,25 +2244,6 @@ document.querySelectorAll(".socials button").forEach(b=>b.onclick=()=>{const u=S
 
 // ---------- прогресс на главной ----------
 function drawHomeProgress(){}
-
-// ---------- апелляции ----------
-var APPEALS=[{sid:"STEAM_1:1:43900668",n:"Kemper",reason:"Обход бана",contact:"kemper#2211",text:"Это мой первый аккаунт, второй взял брат. Мы играем с одного компьютера.",d:daysAgo(1),st:"new"}];
-const banBySid=sid=>bans.find(b=>b.sid===sid&&b.active);
-function openAppeal(sid){$("apForm").reset();$("apMsg").textContent="";$("apMsg").className="fmsg";if(sid)$("apSid").value=sid;$("apModal").hidden=false;(sid?$("apContact"):$("apSid")).focus()}
-$("apOpen").onclick=()=>openAppeal("");
-$("t-bans").addEventListener("click",e=>{const b=e.target.closest("[data-appeal]");if(b)openAppeal(b.dataset.appeal)});
-$("apClose").onclick=()=>$("apModal").hidden=true;
-$("apModal").onclick=e=>{if(e.target.id==="apModal")$("apModal").hidden=true};
-$("apForm").onsubmit=e=>{e.preventDefault();const sid=$("apSid").value.trim().toUpperCase();const b=banBySid(sid);
-  if(!b){$("apMsg").textContent="Активного бана на этот SteamID нет. Проверь номер в банлисте.";return}
-  if(APPEALS.some(a=>a.sid===sid&&a.st==="new")){$("apMsg").textContent="Апелляция по этому бану уже на рассмотрении.";return}
-  APPEALS.unshift({sid,n:b.n,reason:b.reason,contact:$("apContact").value.trim(),text:$("apText").value.trim(),d:new Date(today),st:"new"});
-  $("apModal").hidden=true;toast(`Апелляция №${APPEALS.length} отправлена. Ответ в течение 48 часов`);drawAdmin()};
-function drawAppeals(){$("aAppeals").innerHTML=APPEALS.map((a,i)=>`<div class="ai"><div><b>${esc(a.n)} · ${a.reason}<span class="ap-st ${a.st}">${a.st==="new"?"НОВАЯ":a.st==="ok"?"ОДОБРЕНА":"ОТКЛОНЕНА"}</span></b><small>${a.sid} · ${esc(a.contact)} · ${a.d.toLocaleDateString("ru-RU")}</small><p>${esc(a.text)}</p></div>${a.st==="new"?`<div class="btns2"><button data-apok="${i}">Снять бан</button><button data-apno="${i}">Отклонить</button></div>`:""}</div>`).join("")||'<div class="note">Апелляций нет</div>'}
-drawAdmin();
-$("v-admin").addEventListener("click",e=>{const t=e.target.closest("button");if(!t)return;
-  if(t.dataset.apok){const a=APPEALS[+t.dataset.apok];a.st="ok";const b=banBySid(a.sid);if(b){b.active=false;b.lifted=true}toast(`Бан ${a.n} снят по апелляции`);refreshAll()}
-  else if(t.dataset.apno){APPEALS[+t.dataset.apno].st="no";toast("Апелляция отклонена");drawAdmin()}});
 
 // ---------- магазин ----------
 const TIERIMG={"VIP": "img/tier/vip.jpg", "PREMIUM": "img/tier/premium.jpg", "LEGEND": "img/tier/legend.jpg", "ELITE": "img/tier/elite.jpg", "TITAN": "img/tier/titan.jpg", "GOD": "img/tier/god.jpg"};
@@ -2105,11 +2257,11 @@ const CREST={
 };
 const T6=[
  {k:"VIP",n:"VIP",c:"#b8c0cc",p:99,f:["105 HP и броня","+$300 каждый раунд","Флешка при возрождении","Тег [VIP], резервный слот"]},
- {k:"PREMIUM",n:"PREMIUM",c:"#5aa9ff",p:199,f:["110 HP, броня и шлем","+$500 каждый раунд","Флешка и дым","Набор сапёра за CT","x1.5 очков за задания"]},
+ {k:"PREMIUM",n:"PREMIUM",c:"#5aa9ff",p:199,f:["110 HP, броня и шлем","+$500 каждый раунд","Флешка и дым","Набор сапёра за CT","x1.5 ТК за игру"]},
  {k:"ELITE",n:"ELITE",c:"#3ddc97",p:349,hot:1,f:["115 HP, броня и шлем","+$800 каждый раунд","Полный набор гранат","Аптечка !medic раз в раунд","Приветствие при входе"]},
  {k:"LEGEND",n:"LEGEND",c:"#a78bfa",p:549,f:["120 HP, броня и шлем","+$1 000 каждый раунд","Zeus x27 бесплатно","Меню оружия !guns с 3-го раунда","Эффект и звук при MVP"]},
- {k:"TITAN",n:"TITAN",c:"#ffb547",p:899,f:["125 HP, броня и шлем","+$1 500 каждый раунд","Регенерация HP вне боя","+$100 за каждое убийство","x2 очков за задания"]},
- {k:"GOD",n:"KING",c:"#ff2a4b",p:1499,god:1,f:["130 HP, броня и шлем","+$2 000 каждый раунд","Возрождение раз за раунд","+10 HP за хедшот","Свой цвет дыма","Корона рядом с ником на сайте"]}
+ {k:"TITAN",n:"TITAN",c:"#ffb547",p:899,f:["125 HP, броня и шлем","+$1 500 каждый раунд","Регенерация HP вне боя","+$100 за каждое убийство","x2 ТК за игру"]},
+ {k:"GOD",n:"KING",c:"#ff2a4b",p:1499,god:1,f:["130 HP, броня и шлем","+$2 000 каждый раунд","Возрождение раз за раунд","+10 HP за хедшот","Свой цвет дыма","Отметка KING рядом с ником"]}
 ];
 const PER=[[30,"30 дней",0],[90,"90 дней",.1],[180,"180 дней",.2]];
 let per=0;
@@ -2140,8 +2292,7 @@ const CMP=[["Бой (кроме пистолетных раундов)"],
  ["Эффект и звук при MVP",[0,0,0,1,1,"свой трек"]],
  ["Удобство"],
  ["Резервный слот",[1,1,1,1,1,1]],
- ["Очки за задания",["x1","x1.5","x1.5","x1.5","x2","x2"]],
- ["Дополнительное задание дня",[0,1,1,1,1,1]],
+ ["Множитель ТК за игру",["x1.25","x1.5","x1.5","x1.75","x2","x2.5"]],
  ["Голос за смену карты",["x1","x1","x2","x2","x3","x3"]],
  ["Сайт и сообщество"],
  ["Роль в Discord",[0,1,1,1,1,1]],
@@ -2221,18 +2372,20 @@ document.documentElement.style.setProperty("--god",`url(${TIERIMG.GOD})`);
 
 drawStats();
 // ---------- навигация ----------
-const VIEWS=["play","public","me","tasks","shop","skins","stats","clans","ach","settings","bans","rules","admin","offer","privacy","404"];
+const VIEWS=["play","public","me","player","shop","skins","stats","clans","ach","bans","rules","admin","offer","privacy","404"];
 const MORE=["clans","bans","rules"];
 let curView="play";
 function viewFrom(h){return !h?"play":VIEWS.includes(h)&&h!=="404"?h:"404"}
-function route(forced){try{closeProfile()}catch(e){}["modal","srvModal","cmdModal","clanModal","skModal","apModal","buyModal","tierModal"].forEach(id=>{const m=$(id);if(m)m.hidden=true});
+function route(forced){try{closeProfile()}catch(e){}["modal","srvModal","cmdModal","clanModal","skModal","stkModal","buyModal","tierModal"].forEach(id=>{const m=$(id);if(m)m.hidden=true});
   let h="";if(typeof forced==="string")h=forced;else{try{h=location.hash.slice(1)}catch(e){h=curView}}
-  const v=viewFrom(h);curView=v;
+  if(h==="settings"){h="me";pfTab="set"}
+  let v=viewFrom(h);if(v==="player"&&!PFN)v="stats";curView=v;
   VIEWS.forEach(x=>$("v-"+x).hidden=x!==v);
   {const el=$("v-"+v);el.classList.remove("enter");void el.offsetWidth;el.classList.add("enter");setTimeout(()=>el.classList.remove("enter"),900);let k=0;el.querySelectorAll(".t6,.srv,.a3,.tc,.ccard,.wcard,.hn,.nw,.mode-card,.pm").forEach(c=>{c.style.setProperty("--i",Math.min(k++,14))})}
   document.querySelectorAll("#mainnav a,.adm-link").forEach(a=>a.classList.toggle("on",a.dataset.v===(v==="public"?"play":v)));
   try{closeUm()}catch(e){}
-  if(v==="settings")try{drawSettings()}catch(e){}
+  if(v==="me")try{drawMe()}catch(e){}
+  if(v==="player")try{drawPlayer()}catch(e){console.error(e)}
   document.querySelector(".rail").classList.remove("open");$("burger").setAttribute("aria-expanded","false");
   document.title=v==="404"?"Страница не найдена — Tasher":"Tasher CS2";
   window.scrollTo(0,0)}
@@ -2248,12 +2401,12 @@ const saveSet=()=>{try{localStorage.setItem("settings",JSON.stringify(SET))}catc
 function applySet(){document.documentElement.classList.toggle("no-anim",!SET.anim);document.body.style.backgroundImage=SET.bg?"":"none"}
 let newsSeen=0;try{newsSeen=+localStorage.getItem("newsSeen")||0}catch(e){}
 function newsUnread(){return 0}
-function drawChip(){const n=newsUnread(),t=DAILY.filter(x=>x[3]<x[4]).length;
+function drawChip(){
   const chev='<svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>';
-  const chip=logged?`<button class="me-chip" id="meBtn" aria-haspopup="menu" aria-expanded="false"><i class="av" style="background:${ME.c}">${ME.n[0]}</i><span class="nm">${ME.n}<small>${ME.vip.tier} · <span class="bal">${fmt(ME.balance)} ₽</span></small></span>${chev}</button>`
+  const chip=logged?`<button class="me-chip" id="meBtn" aria-haspopup="menu" aria-expanded="false"><i class="av" style="background:${ME.c}">${ME.n[0]}</i><span class="nm">${ME.n}<small>${ME.vip.tier} · <span class="bal">${fmt(ME.tk)} ТК</span></small></span>${chev}</button>`
     :`<button class="me-chip guest" id="meBtn" aria-haspopup="menu" aria-expanded="false"><i class="av">?</i><span class="nm">Гость<small>Войди через Steam</small></span>${chev}</button>`;
-  const items=(logged?`<div class="bal-row"><span>Баланс</span><b>${fmt(ME.balance)} ₽</b></div><a href="#me">${ico("u")}Мой профиль</a>`:`<button class="login" data-login>${ico("steam")}Войти через Steam</button><div class="sep"></div>`)
-    +`<a href="#tasks">${ico("task")}Задания${logged&&t?`<span class="cnt">${t}</span>`:""}</a><a href="#ach">${ico("ach")}Достижения</a><a href="#settings">${ico("set")}Настройки</a>`
+  const items=(logged?`<div class="bal-row"><span>Баланс</span><b>${fmt(ME.balance)} ₽</b></div><div class="bal-row"><span>Тащер Коины</span><b class="tkc">${fmt(ME.tk)} ТК</b></div><a href="#me">${ico("u")}Мой профиль</a>`:`<button class="login" data-login>${ico("steam")}Войти через Steam</button><div class="sep"></div>`)
+    +`<a href="#ach">${ico("ach")}Достижения</a><a href="#settings" data-pfset>${ico("set")}Настройки</a>`
     +(logged?`<div class="sep"></div><button class="out" id="umOut">${ico("out")}Выйти</button>`:"");
   $("steamSlot").innerHTML=chip+`<div class="umenu" id="umenu" role="menu" hidden>${items}</div>`;
   $("meBtn").onclick=e=>{e.stopPropagation();const m=$("umenu"),o=m.hidden;m.hidden=!o;$("meBtn").setAttribute("aria-expanded",o)};
@@ -2261,7 +2414,7 @@ function drawChip(){const n=newsUnread(),t=DAILY.filter(x=>x[3]<x[4]).length;
 function closeUm(){const m=$("umenu");if(m&&!m.hidden){m.hidden=true;$("meBtn").setAttribute("aria-expanded","false")}}
 document.addEventListener("click",e=>{if(!e.target.closest("#umenu")||e.target.closest("a,button"))if(!e.target.closest("#meBtn"))closeUm()});
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closeUm()});
-function drawSettings(){$("setGate").hidden=logged;
+function drawSettings(){
   $("setAv").textContent=logged?ME.n[0]:"?";$("setAv").style.background=logged?ME.c:"var(--panel-2)";
   $("setNick").textContent=logged?ME.n:"Гость";$("setSid").textContent=logged?"Steam привязан · STEAM_1:1:48102377":"Steam не привязан";
   document.querySelectorAll("[data-set]").forEach(i=>{i.checked=!!SET[i.dataset.set]});$("setMail").value=SET.mail||""}
