@@ -1578,6 +1578,59 @@ nav a.on svg{filter:drop-shadow(0 0 6px rgba(245,165,36,.8))}
 .a-foot>span:first-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .a-rw .rw{font-family:var(--f-body);font-weight:700;font-size:11px;color:var(--muted)}
 .tkr{font-weight:800;font-size:12px;color:#ffd36b;background:rgba(255,211,107,.12);border-radius:6px;padding:3px 7px;white-space:nowrap}
+
+/* ===== поддержка: мастер в 3 шага ===== */
+.sp-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
+.sp-head h1{margin:0;font-family:var(--f-display);font-weight:800;font-style:italic;font-size:clamp(30px,4vw,44px);text-transform:uppercase}
+.sp-head p{margin:4px 0 0;color:var(--muted)}
+.sp-live{display:flex;align-items:center;gap:12px;background:var(--panel);border-radius:14px;padding:12px 16px}
+.sp-live .dot{width:10px;height:10px;border-radius:50%;background:var(--live);box-shadow:0 0 0 0 rgba(61,220,151,.5);animation:livep 2s infinite}
+.sp-live b{display:block;font-size:13px}.sp-live small{font-size:12px;color:var(--muted)}
+.sp-wrap{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(260px,1fr);gap:16px;align-items:start}
+.sp-card{position:relative;background:linear-gradient(180deg,color-mix(in srgb,var(--accent) 7%,var(--panel)),var(--panel) 160px);border-radius:20px;padding:22px;display:flex;flex-direction:column;gap:18px}
+.sp-card.off{opacity:.55;pointer-events:none}
+.sp-steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.sp-steps li{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:700;color:var(--muted);padding-bottom:10px;border-bottom:2px solid var(--line);transition:color .3s,border-color .3s}
+.sp-steps i{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-weight:800;font-size:12px;background:var(--panel-2);transition:background .3s,color .3s}
+.sp-steps li.on{color:var(--fg);border-color:var(--accent)}.sp-steps li.on i{background:var(--accent);color:var(--on-accent)}
+.sp-steps li.done{color:var(--fg);border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}.sp-steps li.done i{background:color-mix(in srgb,var(--accent) 25%,var(--panel-2));color:var(--accent)}
+.sp-pane{display:flex;flex-direction:column;gap:14px;animation:fadeup .3s var(--ease)}
+.sp-pane h2{margin:0;font-size:20px;font-weight:800;font-style:italic}
+.sp-topics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.sp-topics button:last-child{grid-column:span 2;min-height:0}
+.sp-topics button{display:flex;flex-direction:column;align-items:flex-start;gap:8px;min-height:140px;text-align:left;padding:16px;border-radius:16px;border:1px solid var(--line);background:var(--panel-2);color:var(--fg);font:inherit;cursor:pointer;transition:transform .2s var(--ease),border-color .2s,background .2s}
+.sp-topics button:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--accent) 50%,var(--line))}
+.sp-topics button[aria-checked="true"]{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--panel-2))}
+.sp-topics .ri{width:44px;height:44px;border-radius:12px;background:color-mix(in srgb,var(--accent) 12%,transparent)}
+.sp-topics .ri svg{width:22px;height:22px}
+.sp-topics b{font-size:15px;margin-top:auto}.sp-topics small{font-size:12px;color:var(--muted);line-height:1.35}
+.sp-extra{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.sp-fld{display:flex;flex-direction:column;gap:6px;min-width:0}
+.sp-fld>span{display:flex;justify-content:space-between;font-size:13px;font-weight:700}
+.sp-fld small{font-weight:600;color:var(--muted)}
+.sp-fld select.tk-in{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:calc(100% - 20px) 50%,calc(100% - 15px) 50%;background-size:5px 5px;background-repeat:no-repeat;padding-right:36px}
+.sp-fld input[type=date]{color-scheme:dark}
+.sp-seg button{flex:1}
+.sp-sum{background:var(--panel-2);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.sp-sum-h{display:flex;align-items:center;gap:12px}.sp-sum-h small{display:block;font-size:12px;color:var(--accent);font-weight:700}.sp-sum-h b{font-size:16px}
+.sp-kv{display:flex;justify-content:space-between;gap:12px;font-size:13px;border-top:1px solid var(--line);padding-top:8px}.sp-kv span{color:var(--muted)}
+.sp-sum p{margin:0;font-size:14px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere;color:color-mix(in srgb,var(--fg) 85%,transparent)}
+.sp-foot{display:flex;align-items:center;gap:12px;border-top:1px solid var(--line);padding-top:16px}
+.sp-foot .tk-hint{flex:1;text-align:right}
+.sp-foot .steam{padding:12px 24px}.sp-foot .steam:disabled{opacity:.45;cursor:not-allowed}
+.sp-foot .steam svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;stroke-linejoin:round}
+.sp-side{display:flex;flex-direction:column;gap:16px}
+.sp-faq{background:var(--panel);border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:4px}
+.sp-faq h3{margin:0 0 6px;font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.sp-faq details{border-bottom:1px solid var(--line)}.sp-faq details:last-child{border-bottom:0}
+.sp-faq summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 0;font-size:14px;font-weight:700}
+.sp-faq summary::-webkit-details-marker{display:none}
+.sp-faq summary::after{content:"+";font-size:18px;color:var(--accent);transition:transform .2s}
+.sp-faq details[open] summary::after{transform:rotate(45deg)}
+.sp-faq p{margin:0 0 12px;font-size:13px;color:var(--muted);line-height:1.5}
+.sp-side .tk-mine .hdr h2{font-size:16px}
+.sp-side .tk-card{padding:12px 14px}.sp-side .tk-card .ri{display:none}.sp-side .tk-main em{display:none}
+@media (max-width:1000px){.sp-wrap{grid-template-columns:1fr}}
+@media (max-width:640px){.sp-card{padding:16px}.sp-steps span{display:none}.sp-steps li{justify-content:center}.sp-topics{grid-template-columns:1fr 1fr}.sp-topics button:last-child{grid-column:1/-1}.sp-topics button{min-height:120px}.sp-foot{flex-wrap:wrap}.sp-foot .tk-hint{order:-1;flex-basis:100%;text-align:left}.sp-foot .steam{flex:1;justify-content:center}}
 </style>
 </head>
 <body>
@@ -1758,21 +1811,40 @@ nav a.on svg{filter:drop-shadow(0 0 6px rgba(245,165,36,.8))}
 
     <!-- SUPPORT -->
     <div class="view" id="v-support" hidden>
-      <div class="page-head"><h1>Поддержка</h1><p>Обжалование блокировок, вопросы по оплате, баги и жалобы. Администратор ответит лично в твоём тикете.</p></div>
-      <div class="note" id="supGate">Чтобы создать тикет, войди через Steam: так мы увидим твой аккаунт и ответим в профиль. <button class="ghost" data-login style="display:inline-flex;margin-left:8px;padding:6px 14px">Войти</button></div>
-      <form class="tk-form" id="tkForm" novalidate>
-        <div class="tk-fh"><span class="tk-ic"><svg viewBox="0 0 24 24"><path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="3" y="13" width="4" height="7" rx="1.5"/><rect x="17" y="13" width="4" height="7" rx="1.5"/><path d="M19 20c0 1.5-2 2-5 2"/></svg></span><div><b>Создание тикета</b><small>Опиши проблему, поддержка ответит в течение 24 часов</small></div></div>
-        <div class="tk-body">
-          <div class="tk-l">Причина обращения</div>
-          <div class="tk-reasons" id="tkReasons" role="radiogroup" aria-label="Причина обращения"></div>
-          <div class="tk-l"><span>Тема</span><small id="tkSubjN">0 / 100</small></div>
-          <input class="tk-in" id="tkSubj" maxlength="100" placeholder="Кратко опиши проблему" autocomplete="off">
-          <div class="tk-l"><span>Подробности</span><small id="tkTextN">0 / 1000 (минимум 10)</small></div>
-          <textarea class="tk-in" id="tkText" maxlength="1000" rows="5" placeholder="Расскажи, что произошло, когда и на каком сервере"></textarea>
-        </div>
-        <div class="tk-foot"><span class="tk-hint" id="tkHint">Выбери причину, тему и опиши проблему</span><button class="steam" id="tkSend" type="submit" disabled><svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/></svg>Создать тикет</button></div>
-      </form>
-      <section class="tk-mine" id="tkMine"></section>
+      <div class="sp-head">
+        <div><h1>Поддержка</h1><p>Расскажи, что случилось, за три шага. Ответ придёт сюда и в уведомления.</p></div>
+        <div class="sp-live"><span class="dot"></span><div><b>Администраторы на связи</b><small>Обычно отвечаем в течение 2 часов</small></div></div>
+      </div>
+      <div class="note" id="supGate">Чтобы написать в поддержку, войди через Steam: так мы увидим твой аккаунт. <button class="ghost" data-login style="display:inline-flex;margin-left:8px;padding:6px 14px">Войти</button></div>
+      <div class="sp-wrap">
+        <form class="sp-card" id="tkForm" novalidate>
+          <ol class="sp-steps" id="spSteps"><li data-s="1"><i>1</i><span>Тема</span></li><li data-s="2"><i>2</i><span>Подробности</span></li><li data-s="3"><i>3</i><span>Отправка</span></li></ol>
+          <section class="sp-pane" data-p="1">
+            <h2>Что случилось?</h2>
+            <div class="sp-topics" id="tkReasons" role="radiogroup" aria-label="Тема обращения"></div>
+          </section>
+          <section class="sp-pane" data-p="2" hidden>
+            <h2 id="spT2">Подробности</h2>
+            <div class="sp-extra" id="spExtra"></div>
+            <label class="sp-fld"><span>Коротко о проблеме <small id="tkSubjN">0 / 100</small></span><input class="tk-in" id="tkSubj" maxlength="100" placeholder="Например: не пришёл LEGEND после оплаты" autocomplete="off"></label>
+            <label class="sp-fld"><span>Опиши подробнее <small id="tkTextN">0 / 1000</small></span><textarea class="tk-in" id="tkText" maxlength="1000" rows="5" placeholder="Что произошло, когда и на каком сервере. Чем подробнее, тем быстрее поможем."></textarea></label>
+          </section>
+          <section class="sp-pane" data-p="3" hidden>
+            <h2>Проверь и отправь</h2>
+            <div class="sp-sum" id="spSum"></div>
+          </section>
+          <div class="sp-foot"><button type="button" class="ghost" id="spBack">Назад</button><span class="tk-hint" id="tkHint"></span><button type="button" class="steam" id="spNext">Дальше</button><button class="steam" id="tkSend" type="submit" hidden><svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/></svg>Отправить</button></div>
+        </form>
+        <aside class="sp-side">
+          <section class="sp-faq"><h3>Частые вопросы</h3>
+            <details><summary>Оплатил, но привилегии нет</summary><p>Привилегия выдаётся за 1–5 минут. Перезайди на сервер. Если через 15 минут её нет, создай обращение в теме «Оплата» и укажи почту из чека.</p></details>
+            <details><summary>Скины не видно на сервере</summary><p>Проверь, что набор надет и выбрана нужная сторона. Скины применяются после возрождения.</p></details>
+            <details><summary>Как обжаловать бан</summary><p>Выбери тему «Бан или мут». Если есть демка или запись экрана, приложи ссылку на неё.</p></details>
+            <details><summary>Не начислились ТК</summary><p>ТК начисляются в конце каждого раунда. Изменения на сайте видны через пару минут.</p></details>
+          </section>
+          <section class="tk-mine" id="tkMine"></section>
+        </aside>
+      </div>
     </div>
 
     <!-- TICKETS (только владелец) -->
@@ -2694,7 +2766,7 @@ function spinWheel(){if(!logged){toast("Сначала войди через Ste
 
 
 // ---------- поддержка и тикеты ----------
-const TR=[["ban","Обжалование блокировки","Считаешь, что бан или мут выдан несправедливо",'<circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/>'],["pay","Оплата и покупки","Не пришла покупка, вопрос по оплате или балансу",'<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h3"/>'],["bug","Баг на сайте или сервере","Что-то работает не так, как должно",'<path d="M8 8a4 4 0 0 1 8 0v6a4 4 0 0 1-8 0zM4 12h4M16 12h4M5 6l3 2M19 6l-3 2M5 19l3-2M19 19l-3-2"/>'],["admin","Жалоба на администратора","Админ нарушает правила или злоупотребляет полномочиями",'<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M12 8v5M12 16v.5"/>'],["other","Другое","Общий вопрос или предложение",'<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/>']];
+const TR=[["ban","Обжалование блокировки","Бан или мут выдан по ошибке",'<circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/>'],["pay","Оплата и покупки","Не пришла покупка или вопрос по балансу",'<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h3"/>'],["bug","Баг на сайте или сервере","Что-то работает не так, как должно",'<path d="M8 8a4 4 0 0 1 8 0v6a4 4 0 0 1-8 0zM4 12h4M16 12h4M5 6l3 2M19 6l-3 2M5 19l3-2M19 19l-3-2"/>'],["admin","Жалоба на администратора","Админ нарушает правила",'<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M12 8v5M12 16v.5"/>'],["other","Другое","Общий вопрос или предложение",'<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/>']];
 const TRn=k=>(TR.find(r=>r[0]===k)||TR[4]);
 const TST={wait:["Ждёт ответа","#ffb547"],answered:["Есть ответ","#3ddc97"],closed:["Закрыт","#8b93a1"]};
 const isOwner=()=>logged&&ME.role==="owner";
@@ -2710,18 +2782,38 @@ if(!Array.isArray(TICKETS))TICKETS=[
 ];
 const tkSave=()=>{try{localStorage.setItem("tickets",JSON.stringify(TICKETS))}catch(e){}};
 const tkWhen=iso=>{const d=new Date(iso),m=Math.round((Date.now()-d)/6e4);return m<1?"только что":m<60?`${m} мин назад`:m<1440?`${Math.round(m/60)} ч назад`:d.toLocaleDateString("ru-RU")};
-let tkR=null;
+let tkR=null,spStep=1,spX={};
+const SPX={ban:{t:"Бан или мут",f:[["srv","Сервер","select"],["when","Когда выдали","date"],["proof","Ссылка на демку или запись","text","Необязательно"]]},
+ pay:{t:"Оплата",f:[["what","Что покупал","select2"],["sum","Сумма, ₽","number"],["mail","Почта из чека","email"]]},
+ bug:{t:"Баг",f:[["where","Где баг","seg"],["srv","Сервер","select"]]},
+ admin:{t:"Жалоба на администратора",f:[["adm","Ник администратора","text"],["srv","Сервер","select"],["when","Когда это было","date"]]},
+ other:{t:"Другое",f:[]}};
+function spField([k,l,type,ph]){const v=esc(spX[k]||"");
+  if(type==="select")return`<label class="sp-fld"><span>${l}</span><select class="tk-in" data-x="${k}"><option value="">Выбери сервер</option>${SERVERS.map(x=>`<option ${spX[k]===x.name?"selected":""}>${x.name}</option>`).join("")}</select></label>`;
+  if(type==="select2")return`<label class="sp-fld"><span>${l}</span><select class="tk-in" data-x="${k}"><option value="">Выбери</option>${[...T6.map(t=>t.n),"Пополнение баланса","Обмен на ТК"].map(o=>`<option ${spX[k]===o?"selected":""}>${o}</option>`).join("")}</select></label>`;
+  if(type==="seg")return`<div class="sp-fld"><span>${l}</span><div class="seg sp-seg">${["На сайте","На сервере"].map(o=>`<button type="button" data-xs="${k}" data-v="${o}" aria-pressed="${spX[k]===o}">${o}</button>`).join("")}</div></div>`;
+  return`<label class="sp-fld"><span>${l}</span><input class="tk-in" data-x="${k}" type="${type==="date"?"date":type==="number"?"number":type==="email"?"email":"text"}" value="${v}" placeholder="${ph||""}"></label>`}
+function spGo(n){spStep=n;document.querySelectorAll("#tkForm .sp-pane").forEach(p=>p.hidden=+p.dataset.p!==n);
+  document.querySelectorAll("#spSteps li").forEach(li=>{const k=+li.dataset.s;li.className=k<n?"done":k===n?"on":""});
+  if(n===2){const c=SPX[tkR];$("spT2").textContent="Подробности: "+c.t.toLowerCase();$("spExtra").innerHTML=c.f.map(spField).join("");$("spExtra").hidden=!c.f.length}
+  if(n===3){const r=TRn(tkR),c=SPX[tkR];$("spSum").innerHTML=`<div class="sp-sum-h"><span class="ri">${svgI(r[3])}</span><div><small>${c.t}</small><b>${esc($("tkSubj").value.trim())}</b></div></div>${c.f.filter(f=>spX[f[0]]).map(f=>`<div class="sp-kv"><span>${f[1]}</span><b>${esc(spX[f[0]])}</b></div>`).join("")}<p>${esc($("tkText").value.trim())}</p>`}
+  $("spBack").style.visibility=n>1?"visible":"hidden";$("spNext").hidden=n===3;$("tkSend").hidden=n!==3;tkCheck()}
 function drawSupport(){$("supGate").hidden=logged;$("tkForm").classList.toggle("off",!logged);
-  $("tkReasons").innerHTML=TR.map(([k,n,d,ic])=>`<button type="button" role="radio" data-r="${k}" aria-checked="${tkR===k}"><span class="ri">${svgI(ic)}</span><span><b>${n}</b><small>${d}</small></span></button>`).join("");
-  tkCheck();drawMyTickets()}
-function tkCheck(){const sj=$("tkSubj").value.trim(),tx=$("tkText").value.trim();$("tkSubjN").textContent=`${$("tkSubj").value.length} / 100`;$("tkTextN").textContent=`${$("tkText").value.length} / 1000 (минимум 10)`;
-  const ok=logged&&tkR&&sj.length>=3&&tx.length>=10;$("tkSend").disabled=!ok;
-  $("tkHint").textContent=!logged?"Сначала войди через Steam":!tkR?"Выбери причину обращения":sj.length<3?"Напиши тему, хотя бы 3 символа":tx.length<10?`Опиши подробнее: ещё ${10-tx.length} симв.`:"Всё готово, можно отправлять"}
-$("tkReasons").onclick=e=>{const b=e.target.closest("[data-r]");if(!b)return;tkR=b.dataset.r;$("tkReasons").querySelectorAll("[data-r]").forEach(x=>x.setAttribute("aria-checked",x===b));tkCheck()};
+  $("tkReasons").innerHTML=TR.map(([k,n,d,ic])=>`<button type="button" role="radio" data-r="${k}" aria-checked="${tkR===k}"><span class="ri">${svgI(ic)}</span><b>${SPX[k].t}</b><small>${d}</small></button>`).join("");
+  spGo(spStep);drawMyTickets()}
+function tkCheck(){const sj=$("tkSubj").value.trim(),tx=$("tkText").value.trim();$("tkSubjN").textContent=`${$("tkSubj").value.length} / 100`;$("tkTextN").textContent=`${$("tkText").value.length} / 1000`;
+  const h=!logged?"Сначала войди через Steam":spStep===1?(tkR?"":"Выбери тему"):spStep===2?(sj.length<3?"Напиши, что случилось, хотя бы 3 символа":tx.length<10?`Опиши подробнее: ещё ${10-tx.length} симв.`:""):"";
+  $("tkHint").textContent=h;$("spNext").disabled=!!h;$("tkSend").disabled=!logged}
+$("tkReasons").onclick=e=>{const b=e.target.closest("[data-r]");if(!b)return;if(tkR!==b.dataset.r)spX={};tkR=b.dataset.r;$("tkReasons").querySelectorAll("[data-r]").forEach(x=>x.setAttribute("aria-checked",x===b));spGo(2)};
+$("spNext").onclick=()=>{tkCheck();if(!$("spNext").disabled)spGo(spStep+1)};
+$("spBack").onclick=()=>spGo(Math.max(1,spStep-1));
+$("spExtra").addEventListener("input",e=>{const k=e.target.dataset.x;if(k)spX[k]=e.target.value});
+$("spExtra").addEventListener("click",e=>{const b=e.target.closest("[data-xs]");if(!b)return;spX[b.dataset.xs]=b.dataset.v;b.parentElement.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b))});
 $("tkSubj").oninput=tkCheck;$("tkText").oninput=tkCheck;
-$("tkForm").onsubmit=e=>{e.preventDefault();tkCheck();if($("tkSend").disabled)return;
-  const id=Math.max(1000,...TICKETS.map(t=>t.id))+1;TICKETS.unshift({id,n:ME.n,r:tkR,subj:$("tkSubj").value.trim(),st:"wait",msgs:[{a:0,t:$("tkText").value.trim(),d:new Date().toISOString()}]});tkSave();
-  $("tkForm").reset();tkR=null;drawSupport();drawOwnLink();toast(`Тикет №${id} создан. Ответ придёт сюда и в уведомления`)};
+$("tkForm").onsubmit=e=>{e.preventDefault();if(!logged||spStep!==3)return;
+  const extra=SPX[tkR].f.filter(f=>spX[f[0]]).map(f=>`${f[1]}: ${spX[f[0]]}`).join("\n");
+  const id=Math.max(1000,...TICKETS.map(t=>t.id))+1;TICKETS.unshift({id,n:ME.n,r:tkR,subj:$("tkSubj").value.trim(),st:"wait",msgs:[{a:0,t:(extra?extra+"\n\n":"")+$("tkText").value.trim(),d:new Date().toISOString()}]});tkSave();
+  $("tkForm").reset();tkR=null;spX={};spStep=1;drawSupport();drawOwnLink();toast(`Обращение №${id} отправлено. Ответ придёт сюда и в уведомления`)};
 function tkCard(t,own){const r=TRn(t.r),st=TST[t.st],last=t.msgs[t.msgs.length-1];return`<button class="tk-card" data-tk="${t.id}"><span class="ri">${svgI(r[3])}</span><span class="tk-main"><b>${esc(t.subj)}</b><small>№${t.id} · ${r[1]}${own?` · <span class="tk-who">${esc(t.n)}</span>`:""}</small><em>${esc(last.t).slice(0,120)}${last.t.length>120?"…":""}</em></span><span class="tk-side"><span class="tk-st" style="--sc:${st[1]}">${st[0]}</span><small>${tkWhen(last.d)}</small></span></button>`}
 function drawMyTickets(){if(!logged){$("tkMine").innerHTML="";return}const my=TICKETS.filter(t=>t.n===ME.n);
   $("tkMine").innerHTML=`<div class="hdr"><h2>Мои тикеты</h2><span>${my.length?my.length+" "+plural(my.length,"обращение","обращения","обращений"):""}</span></div>`+(my.length?`<div class="tk-list">${my.map(t=>tkCard(t,0)).join("")}</div>`:`<div class="pf-empty">У тебя пока нет обращений</div>`)}
