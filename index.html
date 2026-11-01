@@ -1631,6 +1631,33 @@ nav a.on svg{filter:drop-shadow(0 0 6px rgba(245,165,36,.8))}
 .sp-side .tk-card{padding:12px 14px}.sp-side .tk-card .ri{display:none}.sp-side .tk-main em{display:none}
 @media (max-width:1000px){.sp-wrap{grid-template-columns:1fr}}
 @media (max-width:640px){.sp-card{padding:16px}.sp-steps span{display:none}.sp-steps li{justify-content:center}.sp-topics{grid-template-columns:1fr 1fr}.sp-topics button:last-child{grid-column:1/-1}.sp-topics button{min-height:120px}.sp-foot{flex-wrap:wrap}.sp-foot .tk-hint{order:-1;flex-basis:100%;text-align:left}.sp-foot .steam{flex:1;justify-content:center}}
+
+/* ===== фортуна: лента и радар ===== */
+.fx-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
+.fx-head .seg{flex:none}
+.wf.fx-strip{grid-template-columns:1fr}.wf.fx-strip .wf-side{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:start}
+.fx-stage{display:flex;flex-direction:column;align-items:center;gap:16px;min-width:0}
+.fx-cta{display:flex;flex-direction:column;align-items:center;gap:8px}
+.fx-cta .wf-go{min-width:240px}
+.fx-left{font-size:13px;color:var(--muted)}.fx-left b{color:var(--fg);font-variant-numeric:tabular-nums}
+.st{position:relative;width:100%;height:190px;overflow:hidden;border-radius:18px;background:linear-gradient(180deg,#151214,#100e0f);box-shadow:inset 0 0 0 1px var(--line);-webkit-mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
+.st-row{display:flex;gap:10px;padding:20px 0 20px 0;will-change:transform}
+.st-it{flex:none;width:140px;height:150px;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;background:linear-gradient(180deg,#221d20,#171416);border-bottom:4px solid var(--c);box-shadow:inset 0 -50px 40px -36px var(--c);transition:transform .4s var(--ease),box-shadow .4s}
+.st-it small{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--c)}
+.st-it b{font-size:22px;font-weight:900;font-style:italic;white-space:nowrap}
+.st-it span{font-size:11px;color:var(--muted)}
+.st-it.win{transform:scale(1.07);box-shadow:inset 0 -60px 50px -30px var(--c),0 0 0 2px var(--c),0 0 30px var(--c)}
+.st-mk{position:absolute;left:50%;top:6px;bottom:6px;width:3px;transform:translateX(-50%);background:#ffd36b;border-radius:3px;box-shadow:0 0 16px #ffd36b}
+.st-mk::before,.st-mk::after{content:"";position:absolute;left:50%;transform:translateX(-50%);border:8px solid transparent}
+.st-mk::before{top:-8px;border-top-color:#ffd36b}.st-mk::after{bottom:-8px;border-bottom-color:#ffd36b}
+.rd{width:min(100%,520px);height:auto;filter:drop-shadow(0 20px 40px rgba(0,0,0,.6))}
+.rb text{font-family:var(--f-body);font-weight:800;font-size:11px;fill:var(--c);opacity:calc(.45 + var(--glow,0)*.55)}
+.rb-d{fill:var(--c);opacity:calc(.5 + var(--glow,0)*.5)}
+.rb-h{fill:var(--c);opacity:calc(var(--glow,0)*.35)}
+.rb.hit .rb-h{opacity:.45;animation:rbp 1.2s ease-in-out infinite}.rb.hit text,.rb.hit .rb-d{opacity:1}
+@keyframes rbp{50%{opacity:.1}}
+@media (max-width:900px){.wf.fx-strip .wf-side{grid-template-columns:1fr}}
+@media (max-width:640px){.st{height:160px}.st-it{width:120px;height:120px}.st-it b{font-size:18px}.fx-head .seg{width:100%}.fx-head .seg button{flex:1}}
 </style>
 </head>
 <body>
@@ -1654,7 +1681,7 @@ nav a.on svg{filter:drop-shadow(0 0 6px rgba(245,165,36,.8))}
       <span class="nav-h">Экономика</span>
       <a href="#shop" data-v="shop"><svg viewBox="0 0 24 24"><path d="M12 3l3 6 6 .9-4.5 4.3 1 6.3L12 17.6 6.5 20.5l1-6.3L3 9.9 9 9z"/></svg>Магазин</a>
       <a href="#skins" data-v="skins"><svg viewBox="0 0 24 24"><path d="M4 20l9-9M13 11l7-8-1 7-6 1z"/><path d="M15 15l4 4"/></svg>Скины</a>
-      <a href="#wheel" data-v="wheel"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.2"/><path d="M12 3v6.8M12 14.2V21M3 12h6.8M14.2 12H21M5.6 5.6l4.8 4.8M13.6 13.6l4.8 4.8M18.4 5.6l-4.8 4.8M10.4 13.6l-4.8 4.8"/></svg>Колесо</a>
+      <a href="#wheel" data-v="wheel"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 12L18 6"/><circle cx="12" cy="12" r="5"/><circle cx="16" cy="9" r="1" fill="currentColor"/></svg>Фортуна</a>
       <span class="nav-h">Сервер</span>
       <a href="#rules" data-v="rules"><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M9 11h7M9 15h7"/></svg>Правила</a>
       <a href="#bans" data-v="bans"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></svg>Баны</a>
@@ -2725,45 +2752,58 @@ $("xGo").onclick=()=>{if(!logged){toast("Сначала войди через St
   if(r>ME.balance){toast(`На балансе ${fmt(ME.balance)} ₽. Пополни баланс в профиле`);return}
   ME.balance-=r;ME.tk+=r*100;walletSave();$("xRub").value="";xUpd();drawChip();toast(`Обмен выполнен: −${fmt(r)} ₽, +${fmt(r*100)} ТК`)};
 
-// ---------- колесо фортуны ----------
+// ---------- фортуна: лента и радар ----------
 const WR=[["Обычный","#9aa3ad",75],["Редкий","#5aa9ff",20],["Легендарный","#b388ff",4],["Мифический","#ffb547",1]];
 const WSEG=[[0,"250","ТК",{tk:250}],[1,"5 000","ТК",{tk:5000}],[0,"500","ТК",{tk:500}],[2,"15 000","ТК",{tk:15000}],[0,"1 000","ТК",{tk:1000}],[1,"25 ₽","на баланс",{rub:25}],[3,"LEGEND","14 дней",{tier:"LEGEND",d:14}],[0,"2 000","ТК",{tk:2000}],[2,"50 ₽","на баланс",{rub:50}],[1,"VIP","7 дней",{tier:"VIP",d:7}],[3,"250 ₽","на баланс",{rub:250}],[2,"PREMIUM","7 дней",{tier:"PREMIUM",d:7}]];
-let WH={streak:2,last:"",rot:0,prize:null,again:0};try{Object.assign(WH,JSON.parse(localStorage.getItem("wheel")||"{}"))}catch(e){}
+let WH={streak:2,last:"",prize:null,again:0,mode:"strip"};try{Object.assign(WH,JSON.parse(localStorage.getItem("wheel")||"{}"))}catch(e){}
+if(WH.mode!=="radar")WH.mode="strip";
 const whSave=()=>{try{localStorage.setItem("wheel",JSON.stringify(WH))}catch(e){}};
 const mskDay=(d=new Date())=>new Date(d.getTime()+3*3600e3).toISOString().slice(0,10);
-let whBusy=false;
-function wheelSvg(){const n=WSEG.length,c=200,a=360/n,P=(r,deg)=>[c+r*Math.cos((deg-90)*Math.PI/180),c+r*Math.sin((deg-90)*Math.PI/180)];
-  const arc=(r0,r1,d0,d1)=>{const[a,b]=P(r1,d0),[e,f]=P(r1,d1),[g,h]=P(r0,d1),[k,l]=P(r0,d0);return`M${a},${b}A${r1},${r1} 0 0 1 ${e},${f}L${g},${h}A${r0},${r0} 0 0 0 ${k},${l}Z`};
-  let g="";WSEG.forEach(([r,t,sub],i)=>{const d0=i*a-a/2,d1=i*a+a/2,col=WR[r][1];
-    g+=`<path d="${arc(0.1,176,d0,d1)}" fill="${i%2?"#191618":"#1f1b1e"}"/><path d="${arc(0.1,176,d0,d1)}" fill="url(#wt${r})"/><path d="${arc(164,176,d0+.6,d1-.6)}" fill="${col}"/>`;
-    const flip=i*a>180;g+=`<g transform="rotate(${i*a-90} ${c} ${c})${flip?` rotate(180 ${c+112} ${c})`:""}"><text x="${c+112}" y="${c+1}" text-anchor="middle" font-family="Montserrat,sans-serif" font-weight="900" font-style="italic" font-size="${t.length>6?16:t.length>4?19:23}" fill="#fff">${t}</text><text x="${c+112}" y="${c+16}" text-anchor="middle" font-family="Montserrat,sans-serif" font-weight="700" font-size="10" fill="${col}">${sub}</text></g>`;
-    const[x1,y1]=P(48,d0),[x2,y2]=P(176,d0);g+=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#0e0c0d" stroke-width="2"/>`});
-  let bulbs="";for(let k=0;k<24;k++){const[x,y]=P(188,k*15+7.5);bulbs+=`<circle class="wb ${k%2?"b":""}" cx="${x}" cy="${y}" r="3.2"/>`}
-  return`<svg viewBox="0 0 400 400" aria-hidden="true"><defs>${WR.map((r,k)=>`<radialGradient id="wt${k}" cx="200" cy="200" r="176" gradientUnits="userSpaceOnUse"><stop offset=".3" stop-color="${r[1]}" stop-opacity="0"/><stop offset="1" stop-color="${r[1]}" stop-opacity="${k?.32:.12}"/></radialGradient>`).join("")}</defs><circle cx="200" cy="200" r="197" fill="#111012"/><circle cx="200" cy="200" r="188" fill="none" stroke="#262225" stroke-width="14"/>${bulbs}${g}<circle cx="200" cy="200" r="176" fill="none" stroke="#0e0c0d" stroke-width="2"/></svg>`}
+let whBusy=false,STRIP=[];
+const pickR=()=>{let x=Math.random()*100,r=0;for(;r<3;r++){if(x<WR[r][2])break;x-=WR[r][2]}return r};
+const pickSeg=r=>{const o=WSEG.map((s,i)=>[s,i]).filter(([s])=>s[0]===r);return o[Math.floor(Math.random()*o.length)][1]};
+const stItem=(i,win)=>{const[r,t,sub]=WSEG[i];return`<div class="st-it ${win?"win":""}" style="--c:${WR[r][1]}"><small>${WR[r][0]}</small><b>${t}</b><span>${sub}</span></div>`};
+function stripHTML(){if(!STRIP.length)STRIP=Array.from({length:14},()=>pickSeg(pickR()));return`<div class="st"><div class="st-row" id="stRow">${STRIP.map(i=>stItem(i)).join("")}</div><span class="st-mk"></span></div>`}
+// радар: метки по кругу, редкие ближе к краю
+const RPOS=WSEG.map((s,i)=>({a:i*30+15,d:[0.42,0.62,0.78,0.9][s[0]]*(0.92+((i*37)%10)/100)}));
+function radarHTML(){const c=200,R=180,P=(a,d)=>[c+R*d*Math.sin(a*Math.PI/180),c-R*d*Math.cos(a*Math.PI/180)];
+  let g=`<circle cx="${c}" cy="${c}" r="${R}" fill="url(#rbg)"/>`;[.25,.5,.75,1].forEach(k=>g+=`<circle cx="${c}" cy="${c}" r="${R*k}" fill="none" stroke="rgba(245,165,36,.18)"/>`);
+  g+=`<path d="M${c} ${c-R}V${c+R}M${c-R} ${c}H${c+R}" stroke="rgba(245,165,36,.14)"/>`;
+  for(let k=0;k<72;k++){const[x1,y1]=P(k*5,k%6?.965:.93),[x2,y2]=P(k*5,1);g+=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="rgba(245,165,36,.35)" stroke-width="${k%6?1:2}"/>`}
+  g+=`<g id="rdSweep"><path d="M${c} ${c}L${c} ${c-R}A${R} ${R} 0 0 0 ${P(-50,1).join(" ")}Z" fill="url(#rsw)"/><line x1="${c}" y1="${c}" x2="${c}" y2="${c-R}" stroke="#ffd36b" stroke-width="2"/></g>`;
+  RPOS.forEach((p,i)=>{const[x,y]=P(p.a,p.d),[r,t]=WSEG[i],col=WR[r][1];const ty=y<c?y-14:y+22;g+=`<g class="rb" data-b="${i}" style="--c:${col}"><circle class="rb-h" cx="${x}" cy="${y}" r="14"/><circle class="rb-d" cx="${x}" cy="${y}" r="${4.5+r}"/><text x="${x}" y="${ty}" text-anchor="middle">${t}</text></g>`});
+  return`<svg class="rd" viewBox="0 0 400 400" aria-hidden="true"><defs><radialGradient id="rbg"><stop offset="0" stop-color="#2a1f0e"/><stop offset="1" stop-color="#0e0c0d"/></radialGradient><linearGradient id="rsw" x1="0" y1="0" x2="1" y2="0" gradientTransform="rotate(-25)"><stop offset="0" stop-color="#ffd36b" stop-opacity="0"/><stop offset="1" stop-color="#ffd36b" stop-opacity=".5"/></linearGradient></defs>${g}<circle cx="${c}" cy="${c}" r="${R}" fill="none" stroke="#f5a524" stroke-width="3"/><circle cx="${c}" cy="${c}" r="5" fill="#ffd36b"/></svg>`}
 function whLeft(){const now=new Date(),m=new Date(now.getTime()+3*3600e3),l=86400e3-(m.getUTCHours()*3600e3+m.getUTCMinutes()*6e4+m.getUTCSeconds()*1e3);return`${two(Math.floor(l/36e5))}:${two(Math.floor(l%36e5/6e4))}:${two(Math.floor(l%6e4/1e3))}`}
-function drawWheel(){if(whBusy)return;const can=WH.last!==mskDay(),st=Math.min(7,WH.streak),tier=logged&&ME.vip?ME.vip.tier:null;
-  $("whBody").innerHTML=`<div class="page-head"><h1>Колесо фортуны</h1><p>Одна бесплатная крутка каждый день. Заходи без пропусков, чтобы получить бонусную крутку.</p></div>
-  <div class="wf"><div class="wf-stage"><div class="wf-glow"></div><div class="wf-disc" id="whDisc" style="transform:rotate(${WH.rot}deg)">${wheelSvg()}</div><div class="wf-hub"><b>TASHER</b><small>${can?"удачи!":"до завтра"}</small></div><span class="wf-pin"></span></div>
+function drawWheel(){if(whBusy)return;const can=WH.last!==mskDay(),st=Math.min(7,WH.streak),tier=logged&&ME.vip?ME.vip.tier:null,m=WH.mode;
+  $("whBody").innerHTML=`<div class="page-head fx-head"><div><h1>Фортуна</h1><p>Один бесплатный приз каждый день. Выбери, как его разыграть: лентой, как кейс, или радаром.</p></div><div class="seg" id="fxMode" role="group" aria-label="Режим"><button data-m="strip" aria-pressed="${m==="strip"}">Лента</button><button data-m="radar" aria-pressed="${m==="radar"}">Радар</button></div></div>
+  <div class="wf fx-${m}"><div class="fx-stage">${m==="strip"?stripHTML():radarHTML()}<div class="fx-cta"><button class="steam wf-go" id="whSpin" ${can?"":"disabled"}>${can?(m==="strip"?"Открыть":"Сканировать"):"Уже играл сегодня"}</button><span class="fx-left">${can?"Приз доступен сейчас":`Следующий через <b id="whLeft">${whLeft()}</b>`}</span>${tier&&tier!=="VIP"?`<span class="wf-perk">${tier}: при обычном призе ещё одна попытка</span>`:""}</div></div>
   <aside class="wf-side">
-    <div class="wf-card wf-main"><small>Ежедневная крутка</small><b id="whState">${can?"Доступна сейчас":`Через <span id="whLeft">${whLeft()}</span>`}</b><button class="steam wf-go" id="whSpin" ${can?"":"disabled"}>${can?"Крутить колесо":"Уже крутил сегодня"}</button>${tier&&tier!=="VIP"?`<span class="wf-perk">${tier}: при обычном призе ещё одна попытка</span>`:""}</div>
-    <div class="wf-card"><div class="wf-row"><small>Серия входов</small><b>${st} / 7</b></div><div class="wf-days">${[1,2,3,4,5,6,7].map(d=>`<i class="${d<=st?"on":""} ${d===7?"gift":""}">${d===7?'<svg viewBox="0 0 24 24"><rect x="3" y="9" width="18" height="12" rx="2"/><path d="M12 9v12M3 13h18M12 9c-2-4-6-4-6-1s6 1 6 1 6 2 6-1-4-3-6 1"/></svg>':d}</i>`).join("")}</div><span class="wf-hint">${st>=7?"Бонусная крутка уже твоя":`Ещё ${7-st} ${plural(7-st,"день","дня","дней")} до бонусной крутки`}</span></div>
     <div class="wf-card wf-res" id="whRes">${WH.prize!=null&&WSEG[WH.prize]?whPrize(WH.prize):`<small>Последний приз</small><b>Пока ничего</b>`}</div>
-    <div class="wf-card"><small>Призы и шансы</small><div class="wf-odds">${WR.map((r,k)=>`<div style="--rc:${r[1]}"><span class="h"><i></i>${r[0]}<b>${r[2]}%</b></span><span class="ps">${WSEG.filter(x=>x[0]===k).map(x=>`<em>${x[1]} ${x[2]==="на баланс"?"на баланс":x[2]}</em>`).join("")}</span></div>`).join("")}</div></div>
+    <div class="wf-card"><div class="wf-row"><small>Серия входов</small><b>${st} / 7</b></div><div class="wf-days">${[1,2,3,4,5,6,7].map(d=>`<i class="${d<=st?"on":""} ${d===7?"gift":""}">${d===7?'<svg viewBox="0 0 24 24"><rect x="3" y="9" width="18" height="12" rx="2"/><path d="M12 9v12M3 13h18M12 9c-2-4-6-4-6-1s6 1 6 1 6 2 6-1-4-3-6 1"/></svg>':d}</i>`).join("")}</div><span class="wf-hint">${st>=7?"Бонусный приз уже твой":`Ещё ${7-st} ${plural(7-st,"день","дня","дней")} до бонусного приза`}</span></div>
+    <div class="wf-card"><small>Призы и шансы</small><div class="wf-odds">${WR.map((r,k)=>`<div style="--rc:${r[1]}"><span class="h"><i></i>${r[0]}<b>${r[2]}%</b></span><span class="ps">${WSEG.filter(x=>x[0]===k).map(x=>`<em>${x[1]} ${x[2]}</em>`).join("")}</span></div>`).join("")}</div></div>
   </aside></div>`;
-  $("whSpin").onclick=spinWheel}
+  $("whSpin").onclick=spinWheel;
+  document.querySelectorAll("#fxMode button").forEach(b=>b.onclick=()=>{if(whBusy)return;WH.mode=b.dataset.m;whSave();drawWheel()});
+  if(m==="radar"){setSweep(WH.ang||0);if(WH.prize!=null){const e=document.querySelector(`.rb[data-b="${WH.prize}"]`);if(e)e.classList.add("hit")}}}
 setInterval(()=>{const e=$("whLeft");if(e)e.textContent=whLeft();if(e&&WH.last!==mskDay()&&curView==="wheel")drawWheel()},1000);
 function whPrize(i){const [r,t,sub]=WSEG[i];return`<small style="color:${WR[r][1]}"><i style="background:${WR[r][1]}"></i>${WR[r][0]} приз</small><b>+${t} ${sub}</b>`}
-function animRot(from,to,ms,done){const d=$("whDisc"),t0=performance.now();const f=t=>{const k=Math.min(1,(t-t0)/ms),e=1-Math.pow(1-k,4);d.style.transform=`rotate(${from+(to-from)*e}deg)`;if(k<1)requestAnimationFrame(f);else done()};requestAnimationFrame(f)}
+const ease=k=>1-Math.pow(1-k,4);
+function tween(ms,f,done){const t0=performance.now();const step=t=>{const k=Math.min(1,(t-t0)/ms);f(ease(k));if(k<1)requestAnimationFrame(step);else done()};requestAnimationFrame(step)}
+function setSweep(a){const g=$("rdSweep");if(g)g.setAttribute("transform",`rotate(${a} 200 200)`);document.querySelectorAll(".rb").forEach(b=>{const p=RPOS[+b.dataset.b],d=((a-p.a)%360+360)%360;b.style.setProperty("--glow",d<60?(1-d/60).toFixed(2):0)})}
 function spinWheel(){if(!logged){toast("Сначала войди через Steam");return}if(whBusy||WH.last===mskDay())return;
-  let x=Math.random()*100,r=0;for(;r<3;r++){if(x<WR[r][2])break;x-=WR[r][2]}
-  const opts=WSEG.map((s,i)=>[s,i]).filter(([s])=>s[0]===r),i=opts[Math.floor(Math.random()*opts.length)][1];
-  const a=360/WSEG.length,jit=(Math.random()-.5)*a*.6,from=WH.rot,to=from-from%360+360*7+(360-i*a)+jit;
-  whBusy=true;const b=$("whSpin");b.disabled=true;b.textContent="Крутится…";
-  animRot(from,to,6000,()=>{whBusy=false;const p=WSEG[i][3];if(p.tk)ME.tk+=p.tk;if(p.rub)ME.balance+=p.rub;if(p.tier&&ME.vip)ME.vip.until=daysFwd(Math.round((ME.vip.until-today)/864e5)+p.d);walletSave();
-    const y=new Date(Date.now()-864e5);if(!WH.again)WH.streak=WH.last===mskDay(y)?WH.streak+1:1;if(WH.streak>7)WH.streak=1;
-    WH.rot=to%360;WH.prize=i;const again=r===0&&ME.vip&&ME.vip.tier!=="VIP"&&!WH.again;WH.again=again?1:0;WH.last=again?"":mskDay();whSave();drawChip();drawWheel();
-    $("whRes").classList.add("pop");toast(`Выпало: ${WSEG[i][1]} ${WSEG[i][2]}${again?". Привилегия даёт ещё одну попытку":""}`)})}
-
+  const r=pickR(),i=pickSeg(r);whBusy=true;const b=$("whSpin");b.disabled=true;b.textContent=WH.mode==="strip"?"Открываем…":"Сканируем…";
+  document.querySelectorAll(".rb.hit,.st-it.win").forEach(e=>e.classList.remove("hit","win"));
+  if(WH.mode==="strip"){const N=58;STRIP=Array.from({length:N+6},(_,k)=>k===N?i:pickSeg(pickR()));
+    const row=$("stRow");row.innerHTML=STRIP.map(x=>stItem(x)).join("");row.style.transform="translateX(0)";
+    const W=row.children[1].offsetLeft-row.children[0].offsetLeft,IW=row.children[0].offsetWidth,box=row.parentElement.clientWidth,target=N*W+IW/2-box/2+(Math.random()-.5)*W*.7;
+    tween(6500,k=>row.style.transform=`translateX(${-target*k}px)`,()=>{row.children[N].classList.add("win");finish(i,r)})}
+  else{const from=WH.ang||0,to=from-from%360+360*6+RPOS[i].a+(Math.random()-.5)*10;tween(6000,k=>setSweep(from+(to-from)*k),()=>{WH.ang=to%360;const e=document.querySelector(`.rb[data-b="${i}"]`);if(e)e.classList.add("hit");finish(i,r)})}}
+function finish(i,r){whBusy=false;const p=WSEG[i][3];if(p.tk)ME.tk+=p.tk;if(p.rub)ME.balance+=p.rub;if(p.tier&&ME.vip)ME.vip.until=daysFwd(Math.round((ME.vip.until-today)/864e5)+p.d);walletSave();
+  const y=new Date(Date.now()-864e5);if(!WH.again)WH.streak=WH.last===mskDay(y)?WH.streak+1:1;if(WH.streak>7)WH.streak=1;
+  WH.prize=i;const again=r===0&&ME.vip&&ME.vip.tier!=="VIP"&&!WH.again;WH.again=again?1:0;WH.last=again?"":mskDay();whSave();drawChip();
+  $("whRes").innerHTML=whPrize(i);$("whRes").classList.remove("pop");void $("whRes").offsetWidth;$("whRes").classList.add("pop");
+  const b=$("whSpin");b.textContent=again?"Ещё попытка":"Уже играл сегодня";b.disabled=!again;const fl=document.querySelector(".fx-left");if(fl)fl.innerHTML=again?"Обычный приз: привилегия даёт ещё одну попытку":`Следующий через <b id="whLeft">${whLeft()}</b>`;
+  toast(`Выпало: ${WSEG[i][1]} ${WSEG[i][2]}${again?". Привилегия даёт ещё одну попытку":""}`)}
 
 // ---------- поддержка и тикеты ----------
 const TR=[["ban","Обжалование блокировки","Бан или мут выдан по ошибке",'<circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/>'],["pay","Оплата и покупки","Не пришла покупка или вопрос по балансу",'<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h3"/>'],["bug","Баг на сайте или сервере","Что-то работает не так, как должно",'<path d="M8 8a4 4 0 0 1 8 0v6a4 4 0 0 1-8 0zM4 12h4M16 12h4M5 6l3 2M19 6l-3 2M5 19l3-2M19 19l-3-2"/>'],["admin","Жалоба на администратора","Админ нарушает правила",'<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M12 8v5M12 16v.5"/>'],["other","Другое","Общий вопрос или предложение",'<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/>']];
