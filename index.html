@@ -197,7 +197,7 @@ footer nav{flex-direction:row;gap:16px;flex-wrap:wrap}
   .steam span,.ip code{display:none}
 }
 /* modes */
-:root{--railimg:url(img/rail.jpg?v=48c8b762);--bnr-rating:url(img/banner-rating.jpg?v=19d45884);--bnr-skins:url(img/banner-skins.jpg?v=aa8b622e);--bnr-clans:url(img/banner-clans.jpg?v=e833a368);--bnr-bans:url(img/banner-bans.jpg?v=d6d4509d);--bnr-rules:url(img/banner-rules.jpg?v=543828b4);--bnr-shop:url(img/banner-shop.jpg?v=f25ed758);--bgimg:url(img/bg.jpg?v=f3e70f26);--photo:url(img/public.jpg?v=3cc58889);--card:url(img/card-public.jpg?v=3cc58889)}
+:root{--railimg:url(img/rail.jpg?v=48c8b762);--bnr-rating:url(img/banner-rating.jpg?v=19d45884);--bnr-skins:url(img/banner-skins.jpg?v=aa8b622e);--bnr-clans:url(img/banner-clans.jpg?v=e833a368);--bnr-bans:url(img/banner-bans.jpg?v=d6d4509d);--bnr-rules:url(img/banner-rules.jpg?v=543828b4);--bnr-shop:url(img/banner-shop.jpg?v=f25ed758);--bgimg:url(img/bg.jpg?v=112b55e3);--photo:url(img/public.jpg?v=3cc58889);--card:url(img/card-public.jpg?v=3cc58889)}
 .modes-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,250px));gap:14px}
 .mode-card{position:relative;aspect-ratio:483/696;border-radius:18px;overflow:hidden;border:1px solid color-mix(in srgb,var(--accent) 55%,var(--line));background:var(--panel-2) var(--card) center/cover;padding:18px 16px;display:flex;flex-direction:column;justify-content:space-between;transition:transform .2s,box-shadow .2s;max-width:100%;box-shadow:0 0 0 0 var(--glow)}
 .mode-card::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.55),transparent 30%,transparent 70%,rgba(0,0,0,.7))}
@@ -859,7 +859,7 @@ footer nav{flex-direction:row;gap:16px;flex-wrap:wrap}
 @media (prefers-reduced-motion:reduce){.t6.god{animation:none}}
 /* ===== спокойная тема: меньше цвета, больше контраста ===== */
 :root{--ink:#0e0c0d;--panel:#161314;--panel-2:#1f1b1d;--line:#2f2a2c;--fg:#f3f0f1;--muted:#b6adb1;--glow:rgba(245,165,36,.10)}
-body{background:linear-gradient(180deg,rgba(14,12,13,.9) 0,rgba(14,12,13,.97) 360px,var(--ink) 700px) fixed,var(--bgimg) center top/cover fixed,var(--ink)}
+body{background:linear-gradient(180deg,rgba(14,12,13,.35) 0,rgba(14,12,13,.55) 45%,rgba(14,12,13,.85) 100%) fixed,var(--bgimg) center/cover fixed,var(--ink)}
 .rail{background:var(--panel);backdrop-filter:none}
 nav a.on{background:var(--panel-2);box-shadow:inset 2px 0 0 var(--accent)}
 nav .tag{background:var(--panel-2);color:var(--muted);border:1px solid var(--line)}
@@ -1486,7 +1486,6 @@ nav a.on{box-shadow:inset 2px 0 0 var(--accent),0 0 22px rgba(245,165,36,.12)}
 nav a.on svg{filter:drop-shadow(0 0 6px rgba(245,165,36,.8))}
 
 /* тёмный фон без красных картинок */
-body{background-image:none!important}
 :root{--railimg:none!important}
 </style>
 </head>
