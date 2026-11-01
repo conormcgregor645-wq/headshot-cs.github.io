@@ -1428,9 +1428,10 @@ button.pf-role{cursor:pointer}button.pf-role:hover{border-color:color-mix(in srg
 .app{position:relative;z-index:1}
 html.no-anim #fx{display:none}
 /* заголовки: перелив + проявление */
-.pb-text h1,.page-head h1,.pf-nm h1,.cl-id h1,.mode-hero h1{padding-right:.12em;background:linear-gradient(100deg,#fff 0%,#fff 38%,#ff9aa9 46%,#ffd36b 50%,#ff9aa9 54%,#fff 62%,#fff 100%);background-size:260% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:fxShine 7s linear infinite;filter:drop-shadow(0 0 22px rgba(255,42,75,.28))}
+.home-head h1{padding-right:.12em;background:linear-gradient(100deg,#fff 0%,#fff 38%,#ff9aa9 46%,#ffd36b 50%,#ff9aa9 54%,#fff 62%,#fff 100%);background-size:260% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:fxShine 7s linear infinite;filter:drop-shadow(0 0 22px rgba(255,42,75,.28))}
 @keyframes fxShine{from{background-position:120% 0}to{background-position:-160% 0}}
-.view.enter .pb-text h1,.view.enter .page-head h1,.view.enter .pf-nm h1,.view.enter .cl-id h1,.view.enter .mode-hero h1{animation:fxWipe .9s var(--ease) both,fxShine 7s linear infinite}
+.view.enter .pb-text h1,.view.enter .page-head h1,.view.enter .pf-nm h1,.view.enter .cl-id h1,.view.enter .mode-hero h1{animation:fxWipe .9s var(--ease) both}
+.view.enter .home-head h1{animation:fxWipe .9s var(--ease) both,fxShine 7s linear infinite}
 @keyframes fxWipe{from{clip-path:inset(0 100% 0 0);opacity:.2;transform:translateX(-12px)}to{clip-path:inset(0 -10% 0 0);opacity:1;transform:none}}
 .view.enter .pb-text p,.view.enter .page-head p{animation:fxUp .8s .15s var(--ease) both}
 .view.enter .pb-text>div,.view.enter .rt-timer{animation:fxUp .8s .28s var(--ease) both}
@@ -1444,18 +1445,12 @@ html.no-anim #fx{display:none}
 .steam::after{content:"";position:absolute;top:-10%;bottom:-10%;left:-70%;width:45%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.4),transparent);transform:skewX(-20deg);transition:left .7s var(--ease);pointer-events:none}
 .steam:hover::after{left:140%}
 .steam:disabled{animation:none;background-image:none!important;background:#2a2729!important;box-shadow:none!important}
-/* прожектор за курсором на карточках */
-.srv,.rt-row:not(.rt-h),.pf-stats>div,.wf-card,.xch,.pf-rows>div,.cl-row,.stk-o,.wcard{--mx:50%;--my:50%}
-.srv::after,.rt-row:not(.rt-h)::after,.pf-stats>div::after,.wf-card::after,.xch::after,.cl-row::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .3s;background:radial-gradient(260px circle at var(--mx) var(--my),rgba(255,42,75,.14),transparent 60%);box-shadow:inset 0 0 0 1px rgba(255,80,100,.22)}
-.srv:hover::after,.rt-row:not(.rt-h):hover::after,.pf-stats>div:hover::after,.wf-card:hover::after,.xch:hover::after,.cl-row:hover::after{opacity:1}
-.rt-row,.pf-stats>div,.wf-card,.xch,.cl-row{position:relative}
 /* цифры профиля светятся */
 .pf-stats b{text-shadow:0 0 18px rgba(255,255,255,.12)}
 .pf-stats b svg{filter:drop-shadow(0 0 6px rgba(255,42,75,.7))}
 /* плашки очков: блик */
 .rt-pts{overflow:hidden}
 .rt-pts>span{position:relative;z-index:1}
-.rt-row.top .rt-pts::after,.pd .rt-pts::after{left:auto;width:auto;transform:none;opacity:1;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.35) 50%,transparent 70%);background-size:250% 100%;animation:fxShine 3.2s linear infinite}
 /* топ-1: пульсирующее золото */
 .rt-row.t1{animation:fxGold 2.8s ease-in-out infinite}
 @keyframes fxGold{50%{box-shadow:0 0 0 1px rgba(255,211,107,.35),0 0 26px rgba(255,211,107,.12)}}
@@ -2758,9 +2753,6 @@ document.addEventListener("pointerdown",e=>{const b=e.target.closest(".steam,.tm
       const al=p.a*(0.6+0.4*Math.sin(p.t*2));cx.beginPath();cx.fillStyle=`rgba(${p.c},${al})`;cx.shadowColor=`rgba(${p.c},.9)`;cx.shadowBlur=8;cx.arc(p.x,p.y,p.r,0,6.283);cx.fill()}
     requestAnimationFrame(loop)}
   requestAnimationFrame(loop);
-  // прожектор
-  const SPOT=".srv,.rt-row,.pf-stats>div,.wf-card,.xch,.cl-row";
-  document.addEventListener("pointermove",e=>{const el=e.target.closest&&e.target.closest(SPOT);if(!el)return;const r=el.getBoundingClientRect();el.style.setProperty("--mx",(e.clientX-r.left)+"px");el.style.setProperty("--my",(e.clientY-r.top)+"px")},{passive:true});
   // появление при прокрутке
   const RV=".rt-row:not(.rt-h),.srv,.box,.pf-panel,.wf-card,.ccard,.t6,.a3,.wcard,.cl-row,.pf-sk,.rule-sec";
   const io="IntersectionObserver" in window?new IntersectionObserver(es=>es.forEach(en=>{if(en.isIntersecting){en.target.classList.add("in");io.unobserve(en.target)}}),{rootMargin:"0px 0px -6% 0px"}):null;
