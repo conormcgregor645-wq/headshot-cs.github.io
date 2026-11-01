@@ -197,7 +197,7 @@ footer nav{flex-direction:row;gap:16px;flex-wrap:wrap}
   .steam span,.ip code{display:none}
 }
 /* modes */
-:root{--railimg:url(img/rail.jpg?v=48c8b762);--bnr-rating:url(img/banner-rating.jpg?v=19d45884);--bnr-skins:url(img/banner-skins.jpg?v=aa8b622e);--bnr-clans:url(img/banner-clans.jpg?v=e833a368);--bnr-bans:url(img/banner-bans.jpg?v=d6d4509d);--bnr-rules:url(img/banner-rules.jpg?v=543828b4);--bnr-shop:url(img/banner-shop.jpg?v=f25ed758);--bgimg:url(img/bg.jpg?v=112b55e3);--photo:url(img/public.jpg?v=3cc58889);--card:url(img/card-public.jpg?v=3cc58889)}
+:root{--railimg:url(img/rail.jpg?v=34c5c3ab);--bnr-rating:url(img/banner-rating.jpg?v=19d45884);--bnr-skins:url(img/banner-skins.jpg?v=aa8b622e);--bnr-clans:url(img/banner-clans.jpg?v=e833a368);--bnr-bans:url(img/banner-bans.jpg?v=d6d4509d);--bnr-rules:url(img/banner-rules.jpg?v=543828b4);--bnr-shop:url(img/banner-shop.jpg?v=f25ed758);--bgimg:url(img/bg.jpg?v=112b55e3);--photo:url(img/public.jpg?v=3cc58889);--card:url(img/card-public.jpg?v=3cc58889)}
 .modes-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,250px));gap:14px}
 .mode-card{position:relative;aspect-ratio:483/696;border-radius:18px;overflow:hidden;border:1px solid color-mix(in srgb,var(--accent) 55%,var(--line));background:var(--panel-2) var(--card) center/cover;padding:18px 16px;display:flex;flex-direction:column;justify-content:space-between;transition:transform .2s,box-shadow .2s;max-width:100%;box-shadow:0 0 0 0 var(--glow)}
 .mode-card::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.55),transparent 30%,transparent 70%,rgba(0,0,0,.7))}
@@ -1486,12 +1486,14 @@ nav a.on{box-shadow:inset 2px 0 0 var(--accent),0 0 22px rgba(245,165,36,.12)}
 nav a.on svg{filter:drop-shadow(0 0 6px rgba(245,165,36,.8))}
 
 /* тёмный фон без красных картинок */
-:root{--railimg:none!important}
 
-/* баннеры: картинка целиком по высоте, прижата вправо */
+/* баннеры: картинка целиком по высоте, прижата вправо, чёрный край растворяется в фоне */
 @media (min-width:901px){
-.pbanner{min-height:clamp(360px,25vw,470px)}
-.pbanner::before{background-size:auto 100%!important;background-position:right center!important;-webkit-mask-image:linear-gradient(90deg,transparent 0%,transparent 22%,#000 50%,#000 97%,transparent 100%),linear-gradient(0deg,transparent 0%,#000 14%,#000 88%,transparent 100%)!important;mask-image:linear-gradient(90deg,transparent 0%,transparent 22%,#000 50%,#000 97%,transparent 100%),linear-gradient(0deg,transparent 0%,#000 14%,#000 88%,transparent 100%)!important}
+.pbanner{min-height:clamp(360px,25vw,470px);background:transparent!important}
+.pbanner::before{inset:0 0 0 auto!important;height:100%;aspect-ratio:1600/688;width:auto;max-width:100%;background-size:cover!important;background-position:right center!important;opacity:1!important;
+ -webkit-mask-image:linear-gradient(90deg,transparent 0%,transparent 18%,rgba(0,0,0,.6) 36%,#000 52%,#000 96%,transparent 100%),linear-gradient(0deg,transparent 0%,#000 16%,#000 86%,transparent 100%)!important;-webkit-mask-composite:source-in!important;
+ mask-image:linear-gradient(90deg,transparent 0%,transparent 18%,rgba(0,0,0,.6) 36%,#000 52%,#000 96%,transparent 100%),linear-gradient(0deg,transparent 0%,#000 16%,#000 86%,transparent 100%)!important;mask-composite:intersect!important}
+.pbanner::after{display:none!important}
 }
 </style>
 </head>
