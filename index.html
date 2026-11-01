@@ -1309,7 +1309,9 @@ button.pf-role{cursor:pointer}button.pf-role:hover{border-color:color-mix(in srg
 /* ===== фон карты на серверах ===== */
 .srv.has-img{background:linear-gradient(90deg,rgba(14,12,13,.94) 30%,rgba(14,12,13,.62)),var(--mimg) center 40%/cover}
 .srv-top{position:relative;isolation:isolate;padding-top:34px;padding-bottom:24px}
-.srv-top::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(14,12,13,.35),var(--panel) 96%),var(--mimg,none) center 35%/cover}
+.srv-top::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(14,12,13,.5),rgba(14,12,13,.62) 55%,var(--panel) 98%),var(--mimg,none) center 40%/cover}
+.srv-x{position:absolute!important;top:12px;right:12px;left:auto}
+.srv-top h3,.srv-top small,.srv-sub{text-shadow:0 2px 8px rgba(0,0,0,.7)}
 /* ===== KING и тег клана ===== */
 .kb{display:inline-flex;align-items:center;margin-left:8px;flex:none;font:italic 900 10px/1 var(--f-body);letter-spacing:.06em;color:#2a1204;background:linear-gradient(135deg,#ffe08a,#ffb547 45%,#ff7a3d);border:0;border-radius:5px;padding:4px 7px 4px 6px;box-shadow:0 0 12px rgba(255,181,71,.35),inset 0 1px 0 rgba(255,255,255,.55);position:relative;overflow:hidden;vertical-align:middle}
 .kb::after{content:"";position:absolute;top:0;bottom:0;width:40%;left:-60%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.7),transparent);animation:kbs 3.2s ease-in-out infinite}
@@ -1991,7 +1993,7 @@ async function copyText(text,btn,el){const old=btn.textContent;try{await navigat
 $("copy").onclick=e=>copyText(cmd.textContent,e.currentTarget,cmd);
 
 // ---------- сервера режима Public (пример) ----------
-const MAPIMG={};
+const MAPIMG={"Mirage": "img/map-mirage.jpg", "Dust2": "img/map-dust2.jpg", "Inferno": "img/map-inferno.jpg"};
 const mapBg=m=>MAPIMG[m]?`--mimg:url(${MAPIMG[m]});`:"";
 const MAPC={Mirage:"#d9a35a",Dust2:"#f5c451",Inferno:"#ff6a3d",Ancient:"#3ddc97"};
 const SERVERS=[];
