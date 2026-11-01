@@ -1452,7 +1452,7 @@ html.no-anim #fx{display:none}
 .rt-pts{overflow:hidden}
 .rt-pts>span{position:relative;z-index:1}
 /* топ-1: пульсирующее золото */
-.rt-row.t1{animation:fxGold 2.8s ease-in-out infinite}
+
 @keyframes fxGold{50%{box-shadow:0 0 0 1px rgba(255,211,107,.35),0 0 26px rgba(255,211,107,.12)}}
 .rt-row.top .rt-pl{text-shadow:0 0 16px currentColor}
 /* пьедестал: вращающееся кольцо */
@@ -1495,6 +1495,18 @@ nav a.on svg{filter:drop-shadow(0 0 6px rgba(245,165,36,.8))}
  mask-image:linear-gradient(90deg,transparent 0%,transparent 18%,rgba(0,0,0,.6) 36%,#000 52%,#000 96%,transparent 100%),linear-gradient(0deg,transparent 0%,#000 16%,#000 86%,transparent 100%)!important;mask-composite:intersect!important}
 .pbanner::after{display:none!important}
 }
+
+/* плашка очков: аккуратный чип */
+.rt-pts,.rt-pts.big{clip-path:none;border-radius:9px;height:32px;padding:0 13px 0 12px;gap:8px;overflow:hidden;
+ background:linear-gradient(180deg,color-mix(in srgb,var(--pc) 20%,#17141a),color-mix(in srgb,var(--pc) 8%,#0f0d10));
+ border:1px solid color-mix(in srgb,var(--pc) 42%,transparent);
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 4px 14px rgba(0,0,0,.35),0 0 16px color-mix(in srgb,var(--pc) 12%,transparent)}
+.rt-pts::before{left:0;top:6px;bottom:6px;width:3px;border-radius:0 3px 3px 0;transform:none;background:linear-gradient(180deg,color-mix(in srgb,var(--pc) 70%,#fff),var(--pc))}
+.rt-pts::after{display:none}
+.rt-pts>span{margin-left:4px;font-style:normal;font-weight:800;font-size:15px;letter-spacing:.01em;color:color-mix(in srgb,var(--pc) 55%,#fff);text-shadow:0 0 12px color-mix(in srgb,var(--pc) 35%,transparent)}
+.rt-pts.big{height:40px;padding:0 16px 0 15px;border-radius:11px}.rt-pts.big>span{font-size:20px}
+.rt .rt-pts{min-width:92px;justify-content:center}
+.rt-row.top{box-shadow:none}
 </style>
 </head>
 <body>
