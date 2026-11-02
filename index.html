@@ -1713,7 +1713,7 @@ nav a.on svg{filter:drop-shadow(0 0 6px rgba(245,165,36,.8))}
 .cs-warn b{display:block;font-size:17px;font-weight:900;font-style:italic;text-transform:uppercase;color:#ffd36b}
 .cs-warn p{margin:4px 0 0;font-size:14px;color:color-mix(in srgb,var(--fg) 82%,transparent);max-width:80ch}
 .cs-card{cursor:pointer}.cs-card.king{border-color:rgba(255,215,0,.55);box-shadow:0 0 30px rgba(255,215,0,.12)}
-.cs-art img{width:100%;height:100%;object-fit:contain}
+.cs-art{height:190px;padding-top:0}.cs-art img,.cp-art img{width:100%;height:100%;object-fit:contain;-webkit-mask-image:radial-gradient(closest-side,#000 70%,transparent 100%);mask-image:radial-gradient(closest-side,#000 70%,transparent 100%);transition:transform .4s var(--ease)}.cs-card:hover .cs-art img{transform:translateY(-4px) scale(1.05)}
 .cs-look{font-size:13px;font-weight:800;color:var(--cc);border:1px solid color-mix(in srgb,var(--cc) 45%,transparent);border-radius:999px;padding:8px 14px}
 .cs-card:hover .cs-look{background:color-mix(in srgb,var(--cc) 15%,transparent)}
 .cp-sheet{width:min(980px,100%);max-height:min(92vh,900px);display:flex;flex-direction:column;gap:14px;min-width:0}
@@ -1740,6 +1740,9 @@ nav a.on svg{filter:drop-shadow(0 0 6px rgba(245,165,36,.8))}
 .tk-quick button:hover{border-color:var(--accent)}
 .fmsg.ok{color:var(--live)}.fmsg.err{color:var(--accent)}
 @media (max-width:640px){.cs-warn{flex-direction:column;align-items:flex-start;padding:16px}.cp-head{flex-wrap:wrap}.cp-art{width:110px;height:74px}.cp-items{grid-template-columns:1fr 1fr}.cp-foot .seg{width:100%}.cp-foot .seg button{flex:1}.cp-foot .steam{width:100%;justify-content:center}.cs-look{display:none}.cs-rows:not(.n1) .cs-st{height:96px}.cs-rows:not(.n1) .st-it.sk{width:90px;height:78px}.cs-rows:not(.n1) .st-it.sk svg{width:78px;height:32px}.cs-wins{grid-template-columns:1fr 1fr}}
+
+.cs-art{overflow:hidden}.cs-art img{width:auto;height:190px;max-width:100%}.cp-art{overflow:hidden}.cp-art img{width:auto;height:100px;max-width:100%}
+@media (max-width:640px){.cs-art{height:150px}.cs-art img{height:150px}.cp-art img{height:74px}}
 </style>
 </head>
 <body>
@@ -2778,7 +2781,7 @@ function needLogin(){if(logged)return true;toast("Сначала войди че
 function syncActive(){SKST.cols[SKST.active].sets=JSON.parse(JSON.stringify(SKST.sets));skSave()}
 document.addEventListener("keydown",e=>{if(e.key==="Escape"){$("tierModal").hidden=true;if(!csBusy)$("caseModal").hidden=true}});
 // ---------- кейсы и инвентарь ----------
-const CASEIMG={};
+const CASEIMG={"daily": "img/case/daily.jpg?v=7d81d656", "pistol": "img/case/pistol.jpg?v=e6429227", "army": "img/case/army.jpg?v=34ed5086", "forb": "img/case/forb.jpg?v=3afc9f02", "sniper": "img/case/sniper.jpg?v=d95a7b65", "desert": "img/case/desert.jpg?v=bec2bdc6", "fire": "img/case/fire.jpg?v=a931ce09", "tasher": "img/case/tasher.jpg?v=8cce164a", "secret": "img/case/secret.jpg?v=fe0efc45", "gloves": "img/case/gloves.jpg?v=47b4578c", "knife": "img/case/knife.jpg?v=d93286aa", "king": "img/case/king.jpg?v=2fafbf90"};
 const CASES=[
  {k:"daily",n:"Ежедневный",p:0,v:1500,c:"#b8c0cc",odds:[78,18,3.5,.5,0],pool:"gun",d:"Бесплатно раз в день"},
  {k:"pistol",n:"Пистолетный",p:3000,c:"#9fb4c8",odds:[50,32,12,6,0],pool:"pistol",d:"Только пистолеты"},
@@ -2820,7 +2823,8 @@ function caseArt(c){if(CASEIMG[c.k])return`<img src="${CASEIMG[c.k]}" alt="" loa
   <rect x="34" y="44" width="14" height="18" rx="3" fill="#ffd36b"/><rect x="112" y="44" width="14" height="18" rx="3" fill="#ffd36b"/><rect x="66" y="22" width="28" height="10" rx="4" fill="none" stroke="#ffd36b" stroke-width="3"/>
   <circle cx="80" cy="72" r="14" fill="#141113" stroke="#ffd36b" stroke-width="2"/><text x="80" y="78" text-anchor="middle" font-family="Montserrat,sans-serif" font-weight="900" font-style="italic" font-size="16" fill="#ffd36b">${c.k==="king"?"K":"T"}</text></svg>`}
 const csLeft=()=>{const m=new Date(Date.now()+3*3600e3),l=86400e3-(m.getUTCHours()*3600e3+m.getUTCMinutes()*6e4+m.getUTCSeconds()*1e3);return`${two(Math.floor(l/36e5))}:${two(Math.floor(l%36e5/6e4))}:${two(Math.floor(l%6e4/1e3))}`};
-const oddsHTML=c=>c.odds.map((o,r)=>o?`<span style="--rc:${RC[r]}"><i></i>${RN[r]} <b>${String(o).replace(".",",")}%</b></span>`:"").join("")+(c.knife?`<span style="--rc:var(--r-global)"><i></i>Нож <b>${c.knife}%</b></span>`:"")+(c.gloves?`<span style="--rc:var(--r-global)"><i></i>Перчатки <b>${c.gloves}%</b></span>`:"");
+const effO=(c,o)=>String(+(o*(1-((c.knife||0)+(c.gloves||0))/100)).toFixed(1)).replace(".",",");
+const oddsHTML=c=>c.odds.map((o,r)=>o?`<span style="--rc:${RC[r]}"><i></i>${RN[r]} <b>${effO(c,o)}%</b></span>`:"").join("")+(c.knife?`<span style="--rc:var(--r-global)"><i></i>Нож <b>${c.knife}%</b></span>`:"")+(c.gloves?`<span style="--rc:var(--r-global)"><i></i>Перчатки <b>${c.gloves}%</b></span>`:"");
 function drawCases(){$("csGrid").innerHTML=CASES.map((c,i)=>{const free=!c.p,used=free&&csDay===mskDay();
   return`<article class="cs-card ${c.k==="king"?"king":""}" style="--cc:${c.c}" data-cprev="${i}" tabindex="0" role="button" aria-label="${c.n}: что внутри"><div class="cs-art">${caseArt(c)}</div><div class="cs-body"><h3>${c.n}</h3><small>${c.d}</small><div class="cs-odds">${oddsHTML(c)}</div></div>
   <div class="cs-foot"><span class="cs-price">${free?(used?`через <b class="csLeft">${csLeft()}</b>`:"<b>Бесплатно</b>"):`<b>${fmt(c.p)}</b> ТК`}</span><span class="cs-look">Что внутри</span></div></article>`}).join("")}
@@ -2829,7 +2833,7 @@ setInterval(()=>{document.querySelectorAll(".csLeft").forEach(e=>e.textContent=c
 let cpI=0,cpN=1;
 function openPreview(i){cpI=i;const c=CASES[i];if(!c.p)cpN=1;
   $("cpHead").innerHTML=`<div class="cp-art" style="--cc:${c.c}">${caseArt(c)}</div><div class="cp-ti"><h4 id="cpT" style="color:${c.c}">${c.n}</h4><small>${c.d} · ${c.items.length} ${plural(c.items.length,"скин","скина","скинов")}</small><div class="cs-odds">${oddsHTML(c)}</div></div><button class="x" id="cpClose" aria-label="Закрыть">✕</button>`;
-  const sp=c.pool!=="knife"&&c.pool!=="gloves";const groups=[...(sp&&c.knife?[["knife",c.items.filter(x=>x[3]==="knife"),"Ножи · "+c.knife+"%"]]:[]),...(sp&&c.gloves?[["gloves",c.items.filter(x=>x[3]==="gloves"),"Перчатки · "+c.gloves+"%"]]:[]),...[4,3,2,1,0].map(r=>[r,c.items.filter(x=>x[2]===r&&!(sp&&x[3])),RN[r]+(c.odds[r]?" · "+String(c.odds[r]).replace(".",",")+"%":"")])].filter(g=>g[1].length);
+  const sp=c.pool!=="knife"&&c.pool!=="gloves";const groups=[...(sp&&c.knife?[["knife",c.items.filter(x=>x[3]==="knife"),"Ножи · "+c.knife+"%"]]:[]),...(sp&&c.gloves?[["gloves",c.items.filter(x=>x[3]==="gloves"),"Перчатки · "+c.gloves+"%"]]:[]),...[4,3,2,1,0].map(r=>[r,c.items.filter(x=>x[2]===r&&!(sp&&x[3])),RN[r]+(c.odds[r]?" · "+effO(c,c.odds[r])+"%":"")])].filter(g=>g[1].length);
   $("cpList").innerHTML=groups.map(([g,l,ttl])=>{const r=typeof g==="number"?g:4;return`<div class="cp-g"><div class="cp-gh" style="--rc:${RC[r]}"><i></i>${ttl}<span>${l.length} шт. · распыление ${fmt(dustOf(c,r))} ТК</span></div><div class="cp-items">${l.map(([wn,sn])=>{const w=W.find(x=>x.n===wn),sk=w.skins.find(x=>x[0]===sn);return`<div class="cp-it" style="--rc:${RC[r]}">${art(w,sk,0)}<b>${wn}</b><span>${sn}</span></div>`}).join("")}</div></div>`}).join("");
   cpDrawFoot();$("cpModal").hidden=false;$("cpClose").onclick=()=>$("cpModal").hidden=true}
 function cpDrawFoot(){const c=CASES[cpI],free=!c.p,used=free&&csDay===mskDay();
