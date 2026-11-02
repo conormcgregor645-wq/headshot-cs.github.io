@@ -1791,6 +1791,13 @@ nav a.on svg{filter:drop-shadow(0 0 6px rgba(245,165,36,.8))}
 .cz-it b{font-size:13px}.cz-it .nm{font-size:12px;font-weight:700;color:var(--rc);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.cz-it small{font-size:11px;color:#ffd36b;font-weight:700;margin-top:2px}
 .inv-val{font-size:13px;color:var(--muted);align-self:center;margin-right:auto}.inv-val b{color:#ffd36b;font-size:15px;margin-left:4px}
 @media (max-width:640px){.cz-top{padding:18px 14px;min-height:0}.cz-hero{gap:10px}.cz-art,.cz-art img{height:180px}.cz-info{align-items:stretch;min-width:0;width:100%}.cz-x{width:100%}.cz-x button{flex:1}.cz-go{min-width:0;width:100%}.cz-stage.n1 .cs-st{height:180px}.cz-stage.n1 .st-it.sk{width:130px;height:150px}.cz-stage.n1 .st-it.sk svg{width:116px;height:50px}.cz-grid{grid-template-columns:1fr 1fr}.cz-acts{flex-direction:column}.cz-acts>*{min-width:0;width:100%}}
+
+.cz-top{isolation:isolate}
+.cz-top::before{content:"";position:absolute;inset:-20px;z-index:-2;background:var(--czmap) center/cover,var(--czcase) center/70% no-repeat;filter:blur(2px) saturate(1.15);opacity:.6;transform:scale(1.05)}
+.cz-top::after{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(70% 90% at 50% 45%,transparent 0%,rgba(14,12,13,.55) 70%,rgba(14,12,13,.85)),linear-gradient(0deg,rgba(14,12,13,.75),transparent 45%),radial-gradient(60% 90% at 50% 0%,color-mix(in srgb,var(--cc) 25%,transparent),transparent 70%)}
+
+.inv-dall{height:42px;padding:0 16px;font-size:13px;color:#ffd36b}
+@media (max-width:640px){.inv-dall{order:3;width:100%;justify-content:center}}
 </style>
 </head>
 <body>
@@ -2085,7 +2092,7 @@ nav a.on svg{filter:drop-shadow(0 0 6px rgba(245,165,36,.8))}
       <section class="cs-warn"><span class="cs-warn-ic"><svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg></span><div><b>Скины только для игры на серверах Tasher</b><p>Всё, что выпадает из кейсов, работает только у нас на серверах. Скины нельзя вывести в Steam, продать, обменять на деньги или передать другому игроку. Ненужный скин можно распылить в ТК.</p></div></section>
       <div class="cs-top"><div class="seg" id="csTabs" role="tablist" aria-label="Раздел"><button data-t="cases" aria-pressed="true">Кейсы</button><button data-t="inv" aria-pressed="false">Инвентарь <span id="invCnt"></span></button></div><span class="cs-bal">Баланс <b id="csBal">0 ТК</b></span></div>
       <section id="csCases"><div class="cs-grid" id="csGrid"></div></section>
-      <section id="csInv" hidden><div class="cs-inv-tools"><div class="inv-val">Стоимость инвентаря <b id="invVal">0 ТК</b></div><div class="seg" id="invF" role="group" aria-label="Фильтр"><button data-f="all" aria-pressed="true">Все</button><button data-f="on" aria-pressed="false">Надето</button></div><select id="invSort" aria-label="Сортировка"><option value="r">Сначала редкие</option><option value="n">Сначала новые</option></select></div><div class="cs-inv" id="invGrid"></div></section>
+      <section id="csInv" hidden><div class="cs-inv-tools"><div class="inv-val">Стоимость инвентаря <b id="invVal">0 ТК</b></div><div class="seg" id="invF" role="group" aria-label="Фильтр"><button data-f="all" aria-pressed="true">Все</button><button data-f="on" aria-pressed="false">Надето</button></div><button class="ghost inv-dall" id="invDall" type="button">Распылить всё</button><select id="invSort" aria-label="Сортировка"><option value="r">Сначала редкие</option><option value="n">Сначала новые</option></select></div><div class="cs-inv" id="invGrid"></div></section>
     </div>
 
     <!-- OFFER -->
@@ -2883,20 +2890,21 @@ function invCard(it){const w=invW(it),sk=invSk(it);if(!w||!sk)return"";const on=
   <div class="iv-acts"><button class="${on?"":"use"}" data-ieq="${it.id}">${on?"Снять":"Надеть"}</button>${on&&STK_OK(w)?`<button class="iv-ic" data-istk="${it.id}" title="Наклейки" aria-label="Наклейки"><svg viewBox="0 0 24 24"><path d="M4 4h16v10l-6 6H4z"/><path d="M14 20v-6h6"/></svg></button>`:""}<button class="iv-del" data-idel="${it.id}" title="Распылить за ${fmt(itDust(it))} ТК">Распылить</button></div></article>`}
 function drawInv(){const list=INV.filter(it=>invF==="all"||isOnIt(it)).sort($("invSort").value==="r"?(a,b)=>b.r-a.r||b.t-a.t:(a,b)=>b.t-a.t);
   $("invGrid").innerHTML=list.map(invCard).join("")||`<div class="pf-empty cs-empty">${!logged?"Войди через Steam, чтобы собирать скины.":invF==="on"?"Ничего не надето. Нажми «Надеть» на любом скине.":"Инвентарь пуст. Открой бесплатный ежедневный кейс, чтобы получить первый скин."}${logged&&invF==="all"?'<button class="steam" data-gocases>К кейсам</button>':""}</div>`;
+  {const free=INV.filter(it=>!isOnIt(it)),sum=free.reduce((s,it)=>s+itDust(it),0);const b=$("invDall");b.hidden=!free.length;b.textContent=`Распылить всё +${fmt(sum)} ТК`}
   $("invCnt").textContent=INV.length?INV.length:"";$("invVal").textContent=fmt(INV.reduce((s,it)=>s+itDust(it),0))+" ТК"}
 function drawSkGrid(){drawInv()}function drawCols(){}
 function drawSkins(){$("skGate").hidden=logged;$("csBal").textContent=logged?fmt(ME.tk)+" ТК":"—";document.querySelectorAll("#csTabs button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.t===csTab));$("csCases").hidden=csTab!=="cases";$("csInv").hidden=csTab!=="inv";drawCases();drawInv()}
 $("csTabs").onclick=e=>{const b=e.target.closest("[data-t]");if(!b)return;csTab=b.dataset.t;drawSkins()};
 $("invF").onclick=e=>{const b=e.target.closest("[data-f]");if(!b)return;invF=b.dataset.f;$("invF").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b));drawInv()};
 $("invSort").onchange=drawInv;
+$("invDall").onclick=()=>{if(!needLogin())return;const free=INV.filter(it=>!isOnIt(it));if(!free.length)return;const n=free.length,sum=dust(free);drawSkins();toast(`Распылено ${n} ${plural(n,"скин","скина","скинов")}: +${fmt(sum)} ТК. Надетые скины остались`)};
 function equip(it,on){if(on){const old=SKST.sets[it.w];SKST.sets[it.w]={name:it.s,wear:it.wear,seed:it.seed,tag:"",st:it.st,stk:old&&old.stk||null,inv:it.id}}else delete SKST.sets[it.w];syncActive()}
 function dust(list){let sum=0;list.forEach(it=>{if(isOnIt(it))equip(it,false);sum+=itDust(it)});const ids=new Set(list.map(x=>x.id));INV=INV.filter(x=>!ids.has(x.id));ME.tk+=sum;walletSave();invSave();drawChip();return sum}
 $("invGrid").addEventListener("click",e=>{const g=e.target.closest("[data-gocases]");if(g){csTab="cases";drawSkins();return}
   const q=e.target.closest("[data-ieq],[data-istk],[data-idel]");if(!q||!needLogin())return;const id=q.dataset.ieq||q.dataset.istk||q.dataset.idel,it=INV.find(x=>x.id===id);if(!it)return;
   if(q.dataset.ieq){const on=!isOnIt(it);equip(it,on);drawInv();toast(on?`${it.w} | ${it.s}: надето, на сервере после возрождения`:`${it.w}: снято, стандартный вид`)}
   else if(q.dataset.istk)openStk(W.findIndex(w=>w.n===it.w));
-  else{if(q.dataset.sure!=="1"){q.dataset.sure="1";q.textContent="Точно?";setTimeout(()=>{if(q.isConnected){q.dataset.sure="";q.textContent="Распылить"}},2500);return}
-    const sum=dust([it]);drawSkins();toast(`Скин распылён: +${fmt(sum)} ТК`)}});
+  else{const sum=dust([it]);drawSkins();toast(`Скин распылён: +${fmt(sum)} ТК`)}});
 // открытие ×1–×5
 const stSkin=it=>{const w=invW(it),sk=invSk(it);return`<div class="st-it sk" style="--c:${RC[it.r]}">${art(w,sk,0)}<b>${w.n}</b><span>${sk[0]}</span></div>`};
 let csCur=null;
@@ -2905,10 +2913,12 @@ var CZ=null,czN=1,czState="idle",czBusy=false;
 function openCasePage(i){CZ=i;czN=1;czState="idle";go("case")}
 function openCase(i,n){openCasePage(i);czN=n||1;czOpen()}
 function czItem([wn,sn,r],c){const w=W.find(x=>x.n===wn),sk=w&&w.skins.find(x=>x[0]===sn);if(!sk)return"";return`<div class="cz-it" style="--rc:${RC[r]}"><span class="pic">${art(w,sk,0)}</span><b>${wn}</b><span class="nm">${sn}</span><small>${fmt(dustOf(c,r))} ТК</small></div>`}
+const CZMAP={daily:"Mirage",army:"Dust2",sniper:"Mirage",desert:"Dust2",fire:"Inferno",pistol:"Inferno"};
+function czBg(c){const m=CZMAP[c.k]&&MAPIMG[CZMAP[c.k]],ci=CASEIMG[c.k];const alt={tasher:"var(--bnr-shop)",secret:"var(--bnr-skins)",knife:"var(--bnr-skins)",king:TIERIMG.GOD?`url(${TIERIMG.GOD})`:"none",gloves:TIERIMG.ELITE?`url(${TIERIMG.ELITE})`:"none",forb:TIERIMG.LEGEND?`url(${TIERIMG.LEGEND})`:"none"}[c.k];return`--czmap:${m?`url(${m})`:alt||"none"};--czcase:${ci?`url(${ci})`:"none"}`}
 function drawCasePage(){const c=CASES[CZ];if(!c)return;const free=!c.p,used=free&&csDay===mskDay();
   const items=[...c.items].sort((a,b)=>b[2]-a[2]);
   $("czBody").innerHTML=`<button class="pf-back" id="czBack">${svgI(PI.back)}Все кейсы</button>
-  <section class="cz-top" style="--cc:${c.c}" id="czTop">${czTopHTML(c,free,used)}</section>
+  <section class="cz-top" style="--cc:${c.c};${czBg(c)}" id="czTop">${czTopHTML(c,free,used)}</section>
   <section class="cz-cont"><div class="hdr"><h2>Содержимое кейса</h2><span>${items.length} ${plural(items.length,"предмет","предмета","предметов")}</span></div><div class="cz-grid">${items.map(x=>czItem(x,c)).join("")}</div></section>`;
   $("czBack").onclick=()=>{if(!czBusy){csTab="cases";go("skins")}};czBind()}
 function czTopHTML(c,free,used){
