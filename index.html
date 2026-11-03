@@ -1844,6 +1844,62 @@ select#invSort:focus{outline:none;border-color:#f5a524}
 
 .seg{max-width:100%;overflow-x:auto;scrollbar-width:none}.seg::-webkit-scrollbar{display:none}
 @media (max-width:640px){.iv-acts{flex-wrap:wrap}.iv-acts .iv-del{flex:1 1 100%}}
+
+/* апгрейд */
+.cs-links{display:flex;gap:8px;flex-wrap:wrap}
+.up-top{display:grid;grid-template-columns:1fr 300px 1fr;gap:16px;align-items:stretch}
+.up-card{position:relative;border-radius:20px;background:radial-gradient(90% 70% at 50% 0%,color-mix(in srgb,var(--uc,var(--accent)) 12%,transparent),transparent 70%),var(--panel);border:1px solid var(--line);padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0;min-height:300px}
+.up-card h3{font-size:13px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:flex;justify-content:space-between;gap:8px}
+.up-card h3 b{color:var(--fg);letter-spacing:0}
+.up-stake{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;flex:1;align-content:start}
+.up-slot{aspect-ratio:1.15;border-radius:12px;border:1px dashed var(--line);display:grid;place-items:center;color:var(--muted);font-size:12px;text-align:center;padding:4px;position:relative;overflow:hidden;background:color-mix(in srgb,var(--rc,#000) 10%,transparent)}
+.up-slot.on{border-style:solid;border-color:color-mix(in srgb,var(--rc) 55%,transparent);cursor:pointer}
+.up-slot.on:hover::after{content:"✕";position:absolute;top:4px;right:6px;font-size:11px;color:var(--fg)}
+.up-slot .skw,.up-slot svg{width:100%;height:60%}
+.up-slot small{position:absolute;bottom:4px;left:0;right:0;font-weight:800;color:var(--fg);font-size:11px}
+.up-tk{display:flex;gap:8px;align-items:center}
+.up-tk input{flex:1;min-width:0;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;color:var(--fg);font:inherit;font-weight:700}
+.up-tk button{padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:none;color:var(--muted);font-weight:700;cursor:pointer}
+.up-tk button:hover{color:var(--fg);border-color:var(--accent)}
+.up-mid{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
+.up-ring{position:relative;width:260px;height:260px}
+.up-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.up-ring .bg{fill:none;stroke:color-mix(in srgb,var(--line) 80%,transparent);stroke-width:14}
+.up-ring .win{fill:none;stroke:url(#upGrad);stroke-width:14;stroke-linecap:butt;transition:stroke-dasharray .35s var(--ease);filter:drop-shadow(0 0 8px rgba(245,165,36,.45))}
+.up-needle{position:absolute;inset:0;transform-origin:50% 50%;pointer-events:none}
+.up-needle::before{content:"";position:absolute;left:50%;top:-6px;width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;border-top:18px solid #fff;transform:translateX(-50%);filter:drop-shadow(0 2px 6px rgba(0,0,0,.6))}
+.up-c{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.up-c b{font-size:44px;font-weight:900;font-style:italic;line-height:1;color:var(--fg)}
+.up-c small{color:var(--muted);font-size:12px;letter-spacing:.08em;text-transform:uppercase;margin-top:6px}
+.up-c.win b{color:var(--live)}.up-c.lose b{color:#eb4b4b}
+.up-go{min-width:220px}
+.up-go[disabled]{opacity:.5;cursor:not-allowed}
+.up-target{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:4px;border-radius:14px;background:radial-gradient(70% 60% at 50% 40%,color-mix(in srgb,var(--rc,transparent) 20%,transparent),transparent 75%)}
+.up-target .pic .skw,.up-target .pic svg{width:220px;height:150px;max-width:100%}
+.up-target b{font-size:16px}.up-target .nm{color:var(--rc);font-weight:700;font-size:13px}.up-target em{font-style:normal;color:var(--muted);font-size:12px}
+.up-target .pr{font-weight:900;font-size:18px;margin-top:4px}
+.up-empty{color:var(--muted);font-size:14px;text-align:center;padding:20px}
+.up-lists{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+.up-list{border-radius:20px;background:var(--panel);border:1px solid var(--line);padding:16px;min-width:0}
+.up-lh{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.up-lh h3{font-size:18px;font-weight:900;font-style:italic;text-transform:uppercase}
+.up-flt{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.up-flt button{padding:6px 10px;border-radius:99px;border:1px solid var(--line);background:none;color:var(--muted);font-weight:700;font-size:12px;cursor:pointer}
+.up-flt button[aria-pressed="true"]{background:linear-gradient(180deg,#ffc24d,#f5a524);color:#1a1206;border-color:transparent}
+.up-qr{display:grid;grid-template-columns:1fr 100px 100px;gap:8px}.up-q{width:100%;min-width:0;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:9px 12px;color:var(--fg);font:inherit;margin-bottom:10px}
+.up-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:8px;max-height:520px;overflow:auto;padding-right:4px}
+.up-it{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;gap:1px;padding:10px 8px 8px;border-radius:12px;background:radial-gradient(80% 60% at 50% 30%,color-mix(in srgb,var(--rc) 14%,transparent),transparent 75%),var(--panel-2);border:1px solid transparent;border-bottom:3px solid var(--rc);cursor:pointer;min-width:0;font:inherit;color:inherit}
+.up-it:hover{border-color:color-mix(in srgb,var(--rc) 45%,transparent)}
+.up-it[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
+.up-it .pic .skw,.up-it .pic svg{width:100%;height:64px}
+.up-it b{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.up-it .nm{font-size:11px;color:var(--rc);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.up-it em{font-style:normal;font-size:10px;color:var(--muted)}
+.up-it .pr{font-weight:800;font-size:12px;margin-top:2px}
+.up-it .st{position:absolute;top:6px;left:6px;font-size:9px;font-weight:900;color:#cf6a32}
+.up-it.dis{opacity:.4;cursor:not-allowed}
+@media (max-width:1100px){.up-top{grid-template-columns:1fr 1fr}.up-mid{grid-column:1/-1;order:-1}.up-lists{grid-template-columns:1fr}}
+@media (max-width:640px){.up-qr{grid-template-columns:1fr 1fr}.up-qr #upQ{grid-column:1/-1}.up-top{grid-template-columns:1fr}.up-ring{width:220px;height:220px}.up-c b{font-size:36px}.up-card{min-height:0}.up-grid{grid-template-columns:repeat(2,1fr);max-height:460px}.up-go{width:100%}}
 </style>
 </head>
 <body>
@@ -1867,6 +1923,7 @@ select#invSort:focus{outline:none;border-color:#f5a524}
       <span class="nav-h">Экономика</span>
       <a href="#shop" data-v="shop"><svg viewBox="0 0 24 24"><path d="M12 3l3 6 6 .9-4.5 4.3 1 6.3L12 17.6 6.5 20.5l1-6.3L3 9.9 9 9z"/></svg>Магазин</a>
       <a href="#skins" data-v="skins"><svg viewBox="0 0 24 24"><path d="M4 20l9-9M13 11l7-8-1 7-6 1z"/><path d="M15 15l4 4"/></svg>Скины</a>
+      <a href="#upgrade" data-v="upgrade"><svg viewBox="0 0 24 24"><path d="M12 20V5M6 11l6-6 6 6"/><path d="M5 20h14"/></svg>Апгрейд</a>
       <a href="#wheel" data-v="wheel"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 12L18 6"/><circle cx="12" cy="12" r="5"/><circle cx="16" cy="9" r="1" fill="currentColor"/></svg>Фортуна</a>
       <span class="nav-h">Сервер</span>
       <a href="#rules" data-v="rules"><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M9 11h7M9 15h7"/></svg>Правила</a>
@@ -2007,6 +2064,10 @@ select#invSort:focus{outline:none;border-color:#f5a524}
 
     <!-- WHEEL -->
     <div class="view" id="v-wheel" hidden><div id="whBody"></div></div>
+    <div class="view" id="v-upgrade" hidden>
+      <div class="page-head"><h1>Апгрейд</h1><p>Поставь скины и ТК, выбери скин дороже и попробуй прокачать. Чем дороже цель, тем ниже шанс.</p></div>
+      <div id="upBody"></div>
+    </div>
 
     <!-- PLAYER -->
     <div class="view" id="v-player" hidden><div id="plBody"></div></div>
@@ -2136,7 +2197,7 @@ select#invSort:focus{outline:none;border-color:#f5a524}
       </section>
       <div class="note sk-gate" id="skGate">Ты не вошёл. Кейсы можно посмотреть, а чтобы открывать их и собирать инвентарь, войди через Steam. <button class="ghost" data-login>Войти</button></div>
       <section class="cs-warn"><span class="cs-warn-ic"><svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg></span><div><b>Скины только для игры на серверах Tasher</b><p>Всё, что выпадает из кейсов, работает только у нас на серверах. Скины нельзя вывести в Steam, продать, обменять на деньги или передать другому игроку. Ненужный скин можно продать за ТК.</p></div></section>
-      <div class="cs-top"><a class="ghost cs-invlink" href="#me" data-goinv>Мой инвентарь <span id="invCnt"></span></a><span class="cs-bal">Баланс <b id="csBal">0 ТК</b></span></div>
+      <div class="cs-top"><span class="cs-links"><a class="ghost cs-invlink" href="#me" data-goinv>Мой инвентарь <span id="invCnt"></span></a><a class="ghost" href="#upgrade">Апгрейд</a></span><span class="cs-bal">Баланс <b id="csBal">0 ТК</b></span></div>
       <section id="csCases"><div class="cs-grid" id="csGrid"></div></section>
       <div id="invHome" hidden><section id="csInv"><div class="cs-inv-tools"><div class="inv-val">Стоимость инвентаря <b id="invVal">0 ТК</b></div><div class="seg" id="invF" role="group" aria-label="Фильтр"><button data-f="all" aria-pressed="true">Все</button><button data-f="on" aria-pressed="false">Надето</button></div><button class="ghost inv-dall" id="invDall" type="button">Продать всё</button><select id="invSort" aria-label="Сортировка"><option value="r">Сначала редкие</option><option value="n">Сначала новые</option></select></div><div class="cs-inv" id="invGrid"></div></section></div>
     </div>
@@ -3031,6 +3092,62 @@ function czOpen(){if(!needLogin()||czBusy)return;const c=CASES[CZ],n=c.p?czN:1;
   sndStart();requestAnimationFrame(()=>{let left=rows.length;rows.forEach((row,k)=>{const W2=row.children[1].offsetLeft-row.children[0].offsetLeft,IW=row.children[0].offsetWidth,box=row.parentElement.clientWidth,target=N*W2+IW/2-box/2+(Math.random()-.5)*W2*.7;let lastI=-1;
     tween(5600+k*350,e=>{row.style.transform=`translateX(${-target*e}px)`;if(k===0){const ci=Math.floor((target*e+box/2)/W2);if(ci!==lastI){lastI=ci;sndTick()}}},()=>{row.children[N].classList.add("win");if(--left===0){INV.push(...wins);invSave();sndWin(Math.max(...wins.map(w=>w.r)));setTimeout(()=>{czBusy=false;czState="res";czRenderTop();drawSkins()},900)}})})})}
 $("csmClose").onclick=()=>{if(!csBusy)$("caseModal").hidden=true};$("caseModal").onclick=e=>{if(e.target.id==="caseModal"&&!csBusy)$("caseModal").hidden=true};
+
+// ---------- апгрейд ----------
+const WSH=["FN","MW","FT","WW","BS"],UP_EDGE=.9,UP_MAX=75;
+let UP={sel:[],tk:0,t:null,f:"x2",q:"",lo:"",hi:"",busy:false,res:null,all:null};
+function upAll(){if(UP.all)return UP.all;const l=[];W.forEach(w=>{if(w.c==="item"||w.c==="agent")return;w.skins.forEach(sk=>{const a=sk[9]||[];wearOpts(sk,false).forEach(i=>{if(a[i])l.push({w,sk,i,p:a[i]})})})});l.sort((a,b)=>a.p-b.p);return UP.all=l}
+const upStake=()=>UP.sel.reduce((s,id)=>{const it=INV.find(x=>x.id===id);return s+(it?itDust(it):0)},0)+UP.tk;
+const upChance=()=>{const s=upStake();return UP.t&&s>0?Math.min(UP_MAX,s/UP.t.p*UP_EDGE*100):0};
+function upGoal(){const s=upStake();if(!s)return null;const f=UP.f;if(f[0]==="x")return s*parseFloat(f.slice(1));return s*UP_EDGE*100/parseFloat(f)}
+function upTargetsHTML(){const s=upStake(),q=UP.q.trim().toLowerCase(),g=upGoal();let l=upAll().filter(x=>(s?x.p>s*1.2:x.p>=50)&&(!UP.lo||x.p>=+UP.lo)&&(!UP.hi||x.p<=+UP.hi));
+  if(q)l=l.filter(x=>(x.w.n+" "+x.sk[0]).toLowerCase().includes(q));
+  if(g&&!UP.lo&&!UP.hi)l=l.slice().sort((a,b)=>Math.abs(Math.log(a.p/g))-Math.abs(Math.log(b.p/g))).slice(0,60).sort((a,b)=>a.p-b.p);else l=l.slice(0,60);
+  return l.map(x=>{const k=x.w.n+"|"+x.sk[0]+"|"+x.i,on=UP.t&&UP.t.k===k;return`<button class="up-it" type="button" data-upt="${esc(k)}" aria-pressed="${!!on}" style="--rc:${RC[x.sk[5]]}"><span class="pic">${art(x.w,x.sk,WBR[x.i][0]+.01)}</span><b>${x.w.n}</b><span class="nm">${x.sk[0]==="Vanilla"?"Обычный":x.sk[0]}</span><em>${WSH[x.i]}${s?` · ${Math.min(UP_MAX,s/x.p*UP_EDGE*100).toFixed(1)}%`:""}</em><span class="pr">${fmt(x.p)} ТК</span></button>`}).join("")||`<div class="up-empty">Ничего не найдено</div>`}
+function upInvHTML(){const l=INV.filter(it=>{const w=invW(it);return w&&w.c!=="agent"&&!isOnIt(it)}).sort((a,b)=>itDust(b)-itDust(a));
+  if(!logged)return`<div class="up-empty">Войди через Steam, чтобы ставить скины.</div>`;
+  if(!l.length)return`<div class="up-empty">Нет свободных скинов. Надетые скины в апгрейд не ставятся. <a href="#skins">Открыть кейс</a></div>`;
+  return l.map(it=>{const w=invW(it),sk=invSk(it),on=UP.sel.includes(it.id),full=!on&&UP.sel.length>=6;return`<button class="up-it${full?" dis":""}" type="button" data-upi="${it.id}" aria-pressed="${on}" style="--rc:${RC[it.r]}">${it.st?'<span class="st">ST</span>':""}<span class="pic">${art(w,sk,it.wear)}</span><b>${w.n}</b><span class="nm">${sk[0]}</span><em>${it.fx?"":WSH[wIdx(it.wear)]}</em><span class="pr">${fmt(itDust(it))} ТК</span></button>`}).join("")}
+function upRing(ch){const C=2*Math.PI*90;return`<svg viewBox="0 0 200 200" aria-hidden="true"><defs><linearGradient id="upGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffd36b"/><stop offset="1" stop-color="#f5a524"/></linearGradient></defs><circle class="bg" cx="100" cy="100" r="90"/><circle class="win" id="upArc" cx="100" cy="100" r="90" stroke-dasharray="${C*ch/100} ${C}"/></svg>`}
+function drawUp(){UP.sel=UP.sel.filter(id=>{const it=INV.find(x=>x.id===id);return it&&!isOnIt(it)});if(UP.tk>ME.tk)UP.tk=Math.max(0,ME.tk);
+  const s=upStake(),ch=upChance(),t=UP.t,r=UP.res;
+  const slots=Array.from({length:6},(_,k)=>{const id=UP.sel[k],it=id&&INV.find(x=>x.id===id);if(!it)return`<div class="up-slot">${k===0?"Выбери скины ниже":""}</div>`;const w=invW(it),sk=invSk(it);return`<div class="up-slot on" data-upi="${it.id}" style="--rc:${RC[it.r]}" title="Убрать">${art(w,sk,it.wear)}<small>${fmt(itDust(it))}</small></div>`}).join("");
+  const tgt=t?`<div class="up-target" style="--rc:${RC[t.sk[5]]}"><span class="pic">${art(t.w,t.sk,WBR[t.i][0]+.01)}</span><b>${t.w.n}</b><span class="nm">${t.sk[0]==="Vanilla"?"Обычный":t.sk[0]}</span><em>${wearName(WBR[t.i][0]+.01)}</em><span class="pr">${fmt(t.p)} ТК${s?` · ×${(t.p/s).toFixed(2)}`:""}</span></div>`:`<div class="up-target"><div class="up-empty">Выбери скин, который хочешь получить</div></div>`;
+  const cen=r&&!UP.busy?`<div class="up-c ${r.win?"win":"lose"}"><b>${r.win?"Есть!":"Мимо"}</b><small>${r.win?"Скин в инвентаре":"Ставка сгорела"}</small></div>`:`<div class="up-c"><b>${ch?ch.toFixed(ch<10?2:1):"0"}%</b><small>Шанс</small></div>`;
+  $("upBody").innerHTML=`<section class="up-top">
+   <div class="up-card"><h3>Ставка <b>${fmt(s)} ТК</b></h3><div class="up-stake">${slots}</div>
+    <div class="up-tk"><input id="upTk" type="number" min="0" step="1" inputmode="numeric" placeholder="Добавить ТК" value="${UP.tk||""}" ${logged?"":"disabled"}><button type="button" id="upMax">Макс.</button></div>
+    <small style="color:var(--muted)">Баланс: <b style="color:var(--accent)">${logged?fmt(ME.tk):"—"} ТК</b></small></div>
+   <div class="up-mid"><div class="up-ring">${upRing(ch)}<div class="up-needle" id="upNeedle"></div>${cen}</div>
+    <button class="steam up-go" id="upGo" type="button" ${!t||!s||UP.busy?"disabled":""}>${UP.busy?"Крутим…":"Апгрейд"}</button></div>
+   <div class="up-card" style="--uc:${t?RC[t.sk[5]]:"var(--accent)"}"><h3>Цель ${t?`<b>${fmt(t.p)} ТК</b>`:""}</h3>${tgt}</div>
+  </section>
+  <section class="up-lists">
+   <div class="up-list"><div class="up-lh"><h3>Мои скины</h3><span style="color:var(--muted);font-size:13px">до 6 штук</span></div><div class="up-grid" id="upInv">${upInvHTML()}</div></div>
+   <div class="up-list"><div class="up-lh"><h3>Выбрать цель</h3></div>
+    <div class="up-flt" id="upFlt">${[["x1.5","×1.5"],["x2","×2"],["x5","×5"],["x10","×10"],["75","75%"],["50","50%"],["30","30%"]].map(([k,n])=>`<button type="button" data-upf="${k}" aria-pressed="${UP.f===k}">${n}</button>`).join("")}</div>
+    <div class="up-qr"><input class="up-q" id="upQ" type="search" placeholder="Поиск: AK-47, Керамбит, Asiimov…" value="${esc(UP.q)}"><input class="up-q" id="upLo" type="number" min="0" inputmode="numeric" placeholder="Цена от" value="${UP.lo}"><input class="up-q" id="upHi" type="number" min="0" inputmode="numeric" placeholder="до" value="${UP.hi}"></div>
+    <div class="up-grid" id="upTg">${upTargetsHTML()}</div></div>
+  </section>`;
+  const ti=$("upTk");ti.oninput=()=>{UP.tk=Math.max(0,Math.min(ME.tk,Math.floor(+ti.value||0)));upSoft()};ti.onchange=()=>drawUp();
+  $("upMax").onclick=()=>{if(!needLogin())return;UP.tk=Math.max(0,ME.tk);drawUp()};
+  $("upQ").oninput=e=>{UP.q=e.target.value;$("upTg").innerHTML=upTargetsHTML()};$("upLo").oninput=e=>{UP.lo=e.target.value;$("upTg").innerHTML=upTargetsHTML()};$("upHi").oninput=e=>{UP.hi=e.target.value;$("upTg").innerHTML=upTargetsHTML()};
+  $("upGo").onclick=upSpin}
+function upSoft(){const s=upStake(),ch=upChance(),C=2*Math.PI*90;const a=$("upArc");if(a)a.setAttribute("stroke-dasharray",`${C*ch/100} ${C}`);const c=document.querySelector(".up-c");if(c&&!UP.res)c.innerHTML=`<b>${ch?ch.toFixed(ch<10?2:1):"0"}%</b><small>Шанс</small>`;const h=document.querySelector(".up-card h3 b");if(h)h.textContent=fmt(s)+" ТК";$("upTg").innerHTML=upTargetsHTML();$("upGo").disabled=!UP.t||!s||UP.busy}
+document.addEventListener("click",e=>{if(curView!=="upgrade"||UP.busy)return;
+  const i=e.target.closest("[data-upi]");if(i){if(!needLogin())return;const id=i.dataset.upi,k=UP.sel.indexOf(id);if(k>=0)UP.sel.splice(k,1);else if(UP.sel.length<6)UP.sel.push(id);else{toast("Можно поставить до 6 скинов");return}UP.res=null;if(UP.t&&UP.t.p<=upStake()*1.2)UP.t=null;drawUp();return}
+  const t=e.target.closest("[data-upt]");if(t){const[n,p,wi]=t.dataset.upt.split("|"),x=upAll().find(z=>z.w.n===n&&z.sk[0]===p&&z.i===+wi);if(!x)return;const s=upStake();if(s&&x.p<=s*1.2){toast("Цель должна стоить хотя бы в 1,2 раза дороже ставки");return}UP.t={...x,k:t.dataset.upt};UP.res=null;drawUp();return}
+  const f=e.target.closest("[data-upf]");if(f){UP.f=f.dataset.upf;document.querySelectorAll("[data-upf]").forEach(b=>b.setAttribute("aria-pressed",b===f));$("upTg").innerHTML=upTargetsHTML()}});
+function upSpin(){if(!needLogin()||UP.busy)return;const s=upStake(),t=UP.t;if(!t||!s)return;if(t.p<=s*1.2){toast("Цель должна стоить хотя бы в 1,2 раза дороже ставки");return}if(UP.tk>ME.tk){toast("Не хватает ТК");return}
+  const ch=upChance(),win=Math.random()*100<ch;
+  const stake=UP.sel.map(id=>INV.find(x=>x.id===id)).filter(Boolean);stake.forEach(it=>{if(isOnIt(it))equip(it,false)});const ids=new Set(stake.map(x=>x.id));INV=INV.filter(x=>!ids.has(x.id));ME.tk-=UP.tk;walletSave();invSave();drawChip();
+  UP.busy=true;UP.res=null;const btn=$("upGo");btn.disabled=true;btn.textContent="Крутим…";const c=document.querySelector(".up-c");if(c)c.innerHTML=`<b>${ch.toFixed(ch<10?2:1)}%</b><small>Шанс</small>`;
+  const arc=ch*3.6,m=Math.min(6,arc/4),fin=win?m+Math.random()*(arc-2*m):arc+m+Math.random()*(360-arc-2*m),tot=360*5+fin,nd=$("upNeedle");let lastS=-1;
+  try{sndStart()}catch(e){}
+  tween(4800,e=>{const a=tot*e;nd.style.transform=`rotate(${a}deg)`;const st=Math.floor(a/24);if(st!==lastS){lastS=st;try{sndTick()}catch(x){}}},()=>{
+    let got=null;if(win){const[lo,hi]=wearRange(t.sk,t.i);got={id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),w:t.w.n,s:t.sk[0],r:t.sk[5],wear:Math.floor((lo+Math.random()*(hi-lo))*1000)/1000,st:false,seed:Math.floor(Math.random()*1000),t:Date.now()};INV.push(got);invSave();try{sndWin(t.sk[5])}catch(x){}}else{try{tone(180,.4,"sine",.03)}catch(x){}}
+    UP.busy=false;UP.res={win,t};UP.sel=[];UP.tk=0;if(!win)UP.t=null;else UP.t=null;drawUp();$("upNeedle").style.transform=`rotate(${fin}deg)`;
+    toast(win?`Апгрейд удался: ${t.w.n} | ${t.sk[0]} (${WSH[t.i]}) в инвентаре`:`Не повезло: шанс был ${ch.toFixed(1)}%`)})}
 // окно наклеек
 let stw=null,sts=null,ssel=0,sVar=-1,stkIt=null;
 function openStkItem(it){stkIt=it;stw=invW(it);const s=SKST.sets[stw.n];const src=it.stk||(isOnIt(it)&&s&&s.stk)||null;sts=src?src.map(x=>x?{...x}:null):[null,null,null,null,null];ssel=Math.max(0,sts.findIndex(x=>!x));$("stkQ").value="";drawStk();$("stkModal").hidden=false}
@@ -3342,7 +3459,7 @@ document.documentElement.style.setProperty("--god",`url(${TIERIMG.GOD})`);
 
 drawStats();
 // ---------- навигация ----------
-const VIEWS=["play","public","me","player","clan","case","wheel","support","tickets","shop","skins","stats","clans","ach","bans","rules","admin","offer","privacy","404"];
+const VIEWS=["play","public","me","player","clan","case","wheel","upgrade","support","tickets","shop","skins","stats","clans","ach","bans","rules","admin","offer","privacy","404"];
 const MORE=["clans","bans","rules"];
 let curView="play";
 function viewFrom(h){return !h?"play":VIEWS.includes(h)&&h!=="404"?h:"404"}
@@ -3359,6 +3476,7 @@ function route(forced){try{closeProfile()}catch(e){}["modal","srvModal","cmdModa
   if(v==="clan")try{drawClanPage()}catch(e){console.error(e)}
   if(v==="case")try{if(!czBusy){czState="idle";drawCasePage()}}catch(e){console.error(e)}
   if(v==="wheel")try{drawWheel()}catch(e){console.error(e)}
+  if(v==="upgrade")try{drawUp()}catch(e){console.error(e)}
   if(v==="ach")try{drawAch()}catch(e){console.error(e)}
   if(v==="support")try{drawSupport()}catch(e){console.error(e)}
   if(v==="tickets")try{drawTickets()}catch(e){console.error(e)}
