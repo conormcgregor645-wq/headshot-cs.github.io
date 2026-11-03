@@ -1866,7 +1866,11 @@ select#invSort:focus{outline:none;border-color:#f5a524}
 .up-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
 .up-ring .bg{fill:none;stroke:color-mix(in srgb,var(--line) 80%,transparent);stroke-width:14}
 .up-ring .win{fill:none;stroke:url(#upGrad);stroke-width:14;stroke-linecap:butt;transition:stroke-dasharray .35s var(--ease);filter:drop-shadow(0 0 8px rgba(245,165,36,.45))}
-.up-needle{position:absolute;inset:0;transform-origin:50% 50%;pointer-events:none}
+.up-ring .tk{stroke:rgba(255,255,255,.14);stroke-width:1.2}
+.up-needle{position:absolute;inset:0;transform-origin:50% 50%;pointer-events:none;will-change:transform;z-index:2}
+.up-needle::after{content:"";position:absolute;left:50%;top:6px;width:4px;height:22px;border-radius:2px;background:linear-gradient(#fff,rgba(255,255,255,0));transform:translateX(-50%);opacity:.0;transition:opacity .3s}
+.up-ring.spin .up-needle::after{opacity:.55}
+.up-ring::before{content:"";position:absolute;inset:6%;border-radius:50%;box-shadow:0 0 0 0 transparent;transition:box-shadow .5s;pointer-events:none}.up-ring.won::before{box-shadow:0 0 40px 6px rgba(61,220,151,.35)}.up-ring.lost::before{box-shadow:0 0 40px 6px rgba(235,75,75,.3)}
 .up-needle::before{content:"";position:absolute;left:50%;top:-6px;width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;border-top:18px solid #fff;transform:translateX(-50%);filter:drop-shadow(0 2px 6px rgba(0,0,0,.6))}
 .up-c{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
 .up-c b{font-size:44px;font-weight:900;font-style:italic;line-height:1;color:var(--fg)}
@@ -3108,7 +3112,7 @@ function upInvHTML(){const l=INV.filter(it=>{const w=invW(it);return w&&w.c!=="a
   if(!logged)return`<div class="up-empty">Войди через Steam, чтобы ставить скины.</div>`;
   if(!l.length)return`<div class="up-empty">Нет свободных скинов. Надетые скины в апгрейд не ставятся. <a href="#skins">Открыть кейс</a></div>`;
   return l.map(it=>{const w=invW(it),sk=invSk(it),on=UP.sel.includes(it.id),full=!on&&UP.sel.length>=6;return`<button class="up-it${full?" dis":""}" type="button" data-upi="${it.id}" aria-pressed="${on}" style="--rc:${RC[it.r]}">${it.st?'<span class="st">ST</span>':""}<span class="pic">${art(w,sk,it.wear)}</span><b>${w.n}</b><span class="nm">${sk[0]}</span><em>${it.fx?"":WSH[wIdx(it.wear)]}</em><span class="pr">${fmt(itDust(it))} ТК</span></button>`}).join("")}
-function upRing(ch){const C=2*Math.PI*90;return`<svg viewBox="0 0 200 200" aria-hidden="true"><defs><linearGradient id="upGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffd36b"/><stop offset="1" stop-color="#f5a524"/></linearGradient></defs><circle class="bg" cx="100" cy="100" r="90"/><circle class="win" id="upArc" cx="100" cy="100" r="90" stroke-dasharray="${C*ch/100} ${C}"/></svg>`}
+function upRing(ch){const C=2*Math.PI*90;return`<svg viewBox="0 0 200 200" aria-hidden="true"><defs><linearGradient id="upGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffd36b"/><stop offset="1" stop-color="#f5a524"/></linearGradient></defs><circle class="bg" cx="100" cy="100" r="90"/>${Array.from({length:60},(_,k)=>{const a=k*6*Math.PI/180,r1=k%5?77:74,r2=80;return`<line class="tk" x1="${100+r1*Math.cos(a)}" y1="${100+r1*Math.sin(a)}" x2="${100+r2*Math.cos(a)}" y2="${100+r2*Math.sin(a)}"/>`}).join("")}<circle class="win" id="upArc" cx="100" cy="100" r="90" stroke-dasharray="${C*ch/100} ${C}"/></svg>`}
 function drawUp(){UP.sel=UP.sel.filter(id=>{const it=INV.find(x=>x.id===id);return it&&!isOnIt(it)});if(UP.tk>ME.tk)UP.tk=Math.max(0,ME.tk);
   const s=upStake(),ch=upChance(),t=UP.t,r=UP.res;
   const slots=Array.from({length:6},(_,k)=>{const id=UP.sel[k],it=id&&INV.find(x=>x.id===id);if(!it)return`<div class="up-slot">${k===0?"Выбери скины ниже":""}</div>`;const w=invW(it),sk=invSk(it);return`<div class="up-slot on" data-upi="${it.id}" style="--rc:${RC[it.r]}" title="Убрать">${art(w,sk,it.wear)}<small>${fmt(itDust(it))}</small></div>`}).join("");
@@ -3118,7 +3122,7 @@ function drawUp(){UP.sel=UP.sel.filter(id=>{const it=INV.find(x=>x.id===id);retu
    <div class="up-card"><h3>Ставка <b>${fmt(s)} ТК</b></h3><div class="up-stake">${slots}</div>
     <div class="up-tk"><input id="upTk" type="number" min="0" step="1" inputmode="numeric" placeholder="Добавить ТК" value="${UP.tk||""}" ${logged?"":"disabled"}><button type="button" id="upMax">Макс.</button></div>
     <small style="color:var(--muted)">Баланс: <b style="color:var(--accent)">${logged?fmt(ME.tk):"—"} ТК</b></small></div>
-   <div class="up-mid"><div class="up-ring">${upRing(ch)}<div class="up-needle" id="upNeedle"></div>${cen}</div>
+   <div class="up-mid"><div class="up-ring">${upRing(ch)}<div class="up-needle" id="upNeedle" style="transform:rotate(${UP.ang||0}deg)"></div>${cen}</div>
     <button class="steam up-go" id="upGo" type="button" ${!t||!s||UP.busy?"disabled":""}>${UP.busy?"Крутим…":"Апгрейд"}</button></div>
    <div class="up-card" style="--uc:${t?RC[t.sk[5]]:"var(--accent)"}"><h3>Цель ${t?`<b>${fmt(t.p)} ТК</b>`:""}</h3>${tgt}</div>
   </section>
@@ -3144,10 +3148,16 @@ function upSpin(){if(!needLogin()||UP.busy)return;const s=upStake(),t=UP.t;if(!t
   UP.busy=true;UP.res=null;const btn=$("upGo");btn.disabled=true;btn.textContent="Крутим…";const c=document.querySelector(".up-c");if(c)c.innerHTML=`<b>${ch.toFixed(ch<10?2:1)}%</b><small>Шанс</small>`;
   const arc=ch*3.6,m=Math.min(6,arc/4),fin=win?m+Math.random()*(arc-2*m):arc+m+Math.random()*(360-arc-2*m),tot=360*5+fin,nd=$("upNeedle");let lastS=-1;
   try{sndStart()}catch(e){}
-  tween(4800,e=>{const a=tot*e;nd.style.transform=`rotate(${a}deg)`;const st=Math.floor(a/24);if(st!==lastS){lastS=st;try{sndTick()}catch(x){}}},()=>{
+  const from=UP.ang||0,dur=5600,end=from-from%360+360*6+fin;UP.ang=end%360;
+  nd.style.transform=`rotate(${from}deg)`;
+  // щелчки заранее по таймлайну (без работы в каждом кадре)
+  try{const a=sndCtx();if(a){const bz=(p1,p2,t)=>3*p1*t*(1-t)*(1-t)+3*p2*t*t*(1-t)+t*t*t;let last=Math.floor(from/30),lt=-1;for(let k=1;k<=800;k++){const t=k/800,x=bz(.12,.12,t),y=bz(.75,1,t),ang=from+(end-from)*y,c=Math.floor(ang/30);if(c!==last){last=c;const tm=x*dur/1000;if(tm-lt>.045){lt=tm;tone(1400,.03,"square",.008,tm);tone(650,.045,"sine",.014,tm)}}}}}catch(e){}
+  const fx=nd.animate([{transform:`rotate(${from}deg)`},{transform:`rotate(${end}deg)`}],{duration:dur,easing:"cubic-bezier(.12,.75,.12,1)",fill:"forwards"});
+  document.querySelector(".up-ring").classList.add("spin");
+  fx.onfinish=()=>{document.querySelector(".up-ring")?.classList.remove("spin");
     let got=null;if(win){const[lo,hi]=wearRange(t.sk,t.i);got={id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),w:t.w.n,s:t.sk[0],r:t.sk[5],wear:Math.floor((lo+Math.random()*(hi-lo))*1000)/1000,st:false,seed:Math.floor(Math.random()*1000),t:Date.now()};INV.push(got);invSave();try{sndWin(t.sk[5])}catch(x){}}else{try{tone(180,.4,"sine",.03)}catch(x){}}
-    UP.busy=false;UP.res={win,t};UP.sel=[];UP.tk=0;if(!win)UP.t=null;else UP.t=null;drawUp();$("upNeedle").style.transform=`rotate(${fin}deg)`;
-    toast(win?`Апгрейд удался: ${t.w.n} | ${t.sk[0]} (${WSH[t.i]}) в инвентаре`:`Не повезло: шанс был ${ch.toFixed(1)}%`)})}
+    UP.busy=false;UP.res={win,t};UP.sel=[];UP.tk=0;if(!win)UP.t=null;else UP.t=null;drawUp();$("upNeedle").style.transform=`rotate(${UP.ang}deg)`;const rg=document.querySelector(".up-ring");if(rg){rg.classList.add(win?"won":"lost");setTimeout(()=>rg.classList.remove("won","lost"),1600)}
+    toast(win?`Апгрейд удался: ${t.w.n} | ${t.sk[0]} (${WSH[t.i]}) в инвентаре`:`Не повезло: шанс был ${ch.toFixed(1)}%`)}}
 // окно наклеек
 let stw=null,sts=null,ssel=0,sVar=-1,stkIt=null;
 function openStkItem(it){stkIt=it;stw=invW(it);const s=SKST.sets[stw.n];const src=it.stk||(isOnIt(it)&&s&&s.stk)||null;sts=src?src.map(x=>x?{...x}:null):[null,null,null,null,null];ssel=Math.max(0,sts.findIndex(x=>!x));$("stkQ").value="";drawStk();$("stkModal").hidden=false}
