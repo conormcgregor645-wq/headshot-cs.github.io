@@ -1876,7 +1876,7 @@ select#invSort:focus{outline:none;border-color:#f5a524}
 .up-c b{font-size:44px;font-weight:900;font-style:italic;line-height:1;color:var(--fg)}
 .up-c small{color:var(--muted);font-size:12px;letter-spacing:.08em;text-transform:uppercase;margin-top:6px}
 .up-c.win b{color:var(--live)}.up-c.lose b{color:#eb4b4b}
-.up-go{min-width:220px}
+.up-go{min-width:220px;justify-content:center;text-align:center}
 .up-go[disabled]{opacity:.5;cursor:not-allowed}
 .up-target{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:4px;border-radius:14px;background:radial-gradient(70% 60% at 50% 40%,color-mix(in srgb,var(--rc,transparent) 20%,transparent),transparent 75%)}
 .up-target .pic .skw,.up-target .pic svg{width:220px;height:150px;max-width:100%}
@@ -3227,7 +3227,7 @@ function upBurst(host,col){if(!host)return;const r=host.getBoundingClientRect();
 function upTicks(n,dur,hi,lo){try{const a=sndCtx();if(!a)return;const bz=(p1,p2,t)=>3*p1*t*(1-t)*(1-t)+3*p2*t*t*(1-t)+t*t*t;let last=0,lt=-1;for(let k=1;k<=900;k++){const t=k/900,x=bz(.12,.12,t),y=bz(.75,1,t),c=Math.floor(n*y);if(c!==last){last=c;const tm=x*dur/1000;if(tm-lt>.045){lt=tm;tone(hi,.03,"square",.008,tm);tone(lo,.045,"sine",.014,tm)}}}}catch(e){}}
 // ---------- апгрейд ----------
 const WSH=["FN","MW","FT","WW","BS"],UP_EDGE=.9,UP_MAX=75;
-let UP={st:(()=>{try{const v=localStorage.getItem("upStyle");return["e","f","g"].includes(v)?v:"e"}catch(e){return"e"}})(),sel:[],tk:0,t:null,f:"x2",q:"",lo:"",hi:"",busy:false,res:null,all:null};
+let UP={st:"b",sel:[],tk:0,t:null,f:"x2",q:"",lo:"",hi:"",busy:false,res:null,all:null};
 function upAll(){if(UP.all)return UP.all;const l=[];W.forEach(w=>{if(w.c==="item"||w.c==="agent")return;w.skins.forEach(sk=>{const a=sk[9]||[];wearOpts(sk,false).forEach(i=>{if(a[i])l.push({w,sk,i,p:a[i]})})})});l.sort((a,b)=>a.p-b.p);return UP.all=l}
 const upStake=()=>UP.sel.reduce((s,id)=>{const it=INV.find(x=>x.id===id);return s+(it?itDust(it):0)},0)+UP.tk;
 const upChance=()=>{const s=upStake();return UP.t&&s>0?Math.min(UP_MAX,s/UP.t.p*UP_EDGE*100):0};
@@ -3246,7 +3246,7 @@ function drawUp(){UP.sel=UP.sel.filter(id=>{const it=INV.find(x=>x.id===id);retu
   const slots=Array.from({length:6},(_,k)=>{const id=UP.sel[k],it=id&&INV.find(x=>x.id===id);if(!it)return`<div class="up-slot">${k===0?"Выбери скины ниже":""}</div>`;const w=invW(it),sk=invSk(it);return`<div class="up-slot on" data-upi="${it.id}" style="--rc:${RC[it.r]}" title="Убрать">${art(w,sk,it.wear)}<small>${fmt(itDust(it))}</small></div>`}).join("");
   const tgt=t?`<div class="up-target" style="--rc:${RC[t.sk[5]]}"><span class="pic">${art(t.w,t.sk,WBR[t.i][0]+.01)}</span><b>${t.w.n}</b><span class="nm">${t.sk[0]==="Vanilla"?"Обычный":t.sk[0]}</span><em>${wearName(WBR[t.i][0]+.01)}</em><span class="pr">${fmt(t.p)} ТК${s?` · ×${(t.p/s).toFixed(2)}`:""}</span></div>`:`<div class="up-target"><div class="up-empty">Выбери скин, который хочешь получить</div></div>`;
   const cen=r&&!UP.busy?`<div class="up-c ${r.win?"win":"lose"}"><b>${r.win?"Есть!":"Мимо"}</b><small>${r.win?"Скин в инвентаре":"Ставка сгорела"}</small></div>`:`<div class="up-c"><b>${ch?ch.toFixed(ch<10?2:1):"0"}%</b><small>Шанс</small></div>`;
-  $("upBody").className="up-s-"+UP.st;$("upBody").innerHTML=`<div class="up-sw">Оформление (временно, выбери вариант):${[["e","1 · Портал"],["f","2 · Лента"],["g","3 · Реактор"]].map(([k,n])=>`<button type="button" data-ups="${k}" aria-pressed="${UP.st===k}">${n}</button>`).join("")}</div><section class="up-top">
+  $("upBody").className="up-s-"+UP.st;$("upBody").innerHTML=`<section class="up-top">
    <div class="up-card"><h3>Ставка <b>${fmt(s)} ТК</b></h3><div class="up-stake">${slots}</div>
     <div class="up-tk"><input id="upTk" type="number" min="0" step="1" inputmode="numeric" placeholder="Добавить ТК" value="${UP.tk||""}" ${logged?"":"disabled"}><button type="button" id="upMax">Макс.</button></div>
     <small style="color:var(--muted)">Баланс: <b style="color:var(--accent)">${logged?fmt(ME.tk):"—"} ТК</b></small></div>
