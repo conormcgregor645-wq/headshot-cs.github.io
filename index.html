@@ -2906,7 +2906,7 @@ CASES.forEach(c=>{const ev=it=>{const w=W.find(x=>x.n===it[0]),sk=w&&w.skins.fin
   let e=wsum?tot/wsum*(1-sp/100):0;if(c.knife)e+=c.knife/100*(avg(c.items.filter(i=>i[3]==="knife"))||0);if(c.gloves)e+=c.gloves/100*(avg(c.items.filter(i=>i[3]==="gloves"))||0);
   c.ev=Math.round(e);if(c.p)c.p=niceP(e/.8)});
 {const k=CASES.find(c=>c.k==="king");const all=[];W.forEach(w=>w.skins.forEach(sk=>{if(sk[11])return;const v=itemEV(w,sk);if(v)all.push([w.n,sk[0],sk[5],w.c==="knife"||w.c==="gloves"?w.c:"",v])}));all.sort((a,b)=>b[4]-a[4]);
-  const top=all.slice(0,40).filter((x,i,a)=>a.findIndex(y=>y[0]===x[0])===i).slice(0,20);k.items=top.map(x=>x.slice(0,4));k.wt=top.map(x=>1/Math.pow(x[4],.85));const ws=k.wt.reduce((a,b)=>a+b,0);
+  const top=all.slice(0,40).filter((x,i,a)=>a.findIndex(y=>y[0]===x[0])===i).slice(0,20);k.items=top.map(x=>x.slice(0,4));k.wt=top.map(x=>1/Math.pow(x[4],.55));const ws=k.wt.reduce((a,b)=>a+b,0);
   k.ev=Math.round(top.reduce((s,x,i)=>s+x[4]*k.wt[i]/ws,0));k.p=niceP(k.ev/.8);k.knife=0;k.gloves=0;k.odds=[0,0,0,0,0,100]}
 CASES.forEach(c=>c.sec="tasher");
 // кейсы с фиксированными предметами (цветная коллекция, люкс, премиум)
