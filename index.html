@@ -1718,7 +1718,7 @@ nav a.on svg{filter:drop-shadow(0 0 6px rgba(245,165,36,.8))}
 .cs-warn b{display:block;font-size:17px;font-weight:900;font-style:italic;text-transform:uppercase;color:#ffd36b}
 .cs-warn p{margin:4px 0 0;font-size:14px;color:color-mix(in srgb,var(--fg) 82%,transparent);max-width:80ch}
 .cs-card{cursor:pointer}.cs-card.king{border-color:rgba(255,215,0,.55);box-shadow:0 0 30px rgba(255,215,0,.12)}
-.cs-art{height:190px;padding-top:0}.cs-art img,.cp-art img{width:100%;height:100%;object-fit:contain;-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cfilter id='b' x='-20%25' y='-20%25' width='140%25' height='140%25'%3E%3CfeGaussianBlur stdDeviation='1.6'/%3E%3C/filter%3E%3Crect x='2' y='2' width='96' height='96' rx='14' fill='white' filter='url(%23b)'/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cfilter id='b' x='-20%25' y='-20%25' width='140%25' height='140%25'%3E%3CfeGaussianBlur stdDeviation='1.6'/%3E%3C/filter%3E%3Crect x='2' y='2' width='96' height='96' rx='14' fill='white' filter='url(%23b)'/%3E%3C/svg%3E");-webkit-mask-size:100% 100%;mask-size:100% 100%;-webkit-mask-mode:luminance;mask-mode:luminance;transition:transform .4s var(--ease)}.cs-card:hover .cs-art img{transform:translateY(-4px) scale(1.05)}
+.cs-art{height:190px;padding-top:0}.cs-art img,.cp-art img{width:100%;height:100%;object-fit:contain;-webkit-mask-image:radial-gradient(closest-side,#000 80%,transparent 100%);mask-image:radial-gradient(closest-side,#000 80%,transparent 100%);transition:transform .4s var(--ease)}.cs-card:hover .cs-art img{transform:translateY(-4px) scale(1.05)}
 .cs-look{font-size:13px;font-weight:800;color:var(--cc);border:1px solid color-mix(in srgb,var(--cc) 45%,transparent);border-radius:999px;padding:8px 14px}
 .cs-card:hover .cs-look{background:color-mix(in srgb,var(--cc) 15%,transparent)}
 .cp-sheet{width:min(980px,100%);max-height:min(92vh,900px);display:flex;flex-direction:column;gap:14px;min-width:0}
@@ -1776,7 +1776,7 @@ nav a.on svg{filter:drop-shadow(0 0 6px rgba(245,165,36,.8))}
 .cz-art{position:relative;width:min(100%,340px);height:280px;display:grid;place-items:center;animation:czFloat 4s ease-in-out infinite}
 .cz-art::before{content:"";position:absolute;inset:-6% -14%;z-index:0;border-radius:50%;background:radial-gradient(closest-side,color-mix(in srgb,var(--cc) 42%,transparent),color-mix(in srgb,var(--cc) 14%,transparent) 55%,transparent);filter:blur(30px);pointer-events:none}
 .cz-art>*{position:relative;z-index:1}
-.cz-art img{width:auto;height:280px;max-width:100%;object-fit:contain;-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cfilter id='b' x='-20%25' y='-20%25' width='140%25' height='140%25'%3E%3CfeGaussianBlur stdDeviation='1.6'/%3E%3C/filter%3E%3Crect x='2' y='2' width='96' height='96' rx='14' fill='white' filter='url(%23b)'/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cfilter id='b' x='-20%25' y='-20%25' width='140%25' height='140%25'%3E%3CfeGaussianBlur stdDeviation='1.6'/%3E%3C/filter%3E%3Crect x='2' y='2' width='96' height='96' rx='14' fill='white' filter='url(%23b)'/%3E%3C/svg%3E");-webkit-mask-size:100% 100%;mask-size:100% 100%;-webkit-mask-mode:luminance;mask-mode:luminance;}
+.cz-art img{width:auto;height:280px;max-width:100%;object-fit:contain;-webkit-mask-image:radial-gradient(closest-side,#000 80%,transparent 100%);mask-image:radial-gradient(closest-side,#000 80%,transparent 100%);}
 .cz-art svg{width:100%;height:auto}
 @keyframes czFloat{50%{transform:translateY(-8px)}}
 .cz-info{display:flex;flex-direction:column;align-items:flex-start;gap:12px;min-width:260px}
@@ -2235,6 +2235,7 @@ select#invSort:focus{outline:none;border-color:#f5a524}
           <h2>Интерфейс</h2>
           <div class="set-row"><div><b>Анимации</b><small>Плавные переходы и эффекты</small></div><label class="switch"><input type="checkbox" data-set="anim"><span></span></label></div>
           <div class="set-row"><div><b>Фоновая картинка</b><small>Арт карты вверху страницы</small></div><label class="switch"><input type="checkbox" data-set="bg"><span></span></label></div>
+          <div class="set-row"><div><b>Звук открытия кейсов</b><small>Тихие щелчки прокрутки и мелодия выигрыша</small></div><label class="switch"><input type="checkbox" data-set="caseSound"><span></span></label></div>
         </section>
       </div>
     </div>
@@ -2993,19 +2994,18 @@ function czTopHTML(c,free,used){
   return`<div class="cz-hero"><div class="cz-art">${caseArt(c)}</div><div class="cz-info"><h1 style="color:${c.c}">${c.n}</h1><p>${c.d}</p>
     ${free?"":`<div class="seg cz-x" id="czX" role="group" aria-label="Сколько открыть">${[1,2,3,4,5].map(n=>`<button data-n="${n}" aria-pressed="${n===czN}">×${n}</button>`).join("")}</div>`}
     <button class="steam cz-go" id="czGo" ${used?"disabled":""}>${used?`Следующий через <span class="csLeft">${csLeft()}</span>`:free?"Открыть бесплатно":`Открыть ×${czN} за ${fmt(c.p*czN)} ТК`}</button>
-    ${logged?`<span class="cz-bal">Баланс: <b>${fmt(ME.tk)} ТК</b><button class="cz-snd" id="czSnd" type="button" aria-label="Звук" title="Звук открытия">${SND.on?"🔊":"🔇"}</button></span>`:`<span class="cz-bal">Войди через Steam, чтобы открывать кейсы</span>`}</div></div>`}
+    ${logged?`<span class="cz-bal">Баланс: <b>${fmt(ME.tk)} ТК</b></span>`:`<span class="cz-bal">Войди через Steam, чтобы открывать кейсы</span>`}</div></div>`}
 function czRenderTop(){const c=CASES[CZ],free=!c.p,used=free&&csDay===mskDay();$("czTop").innerHTML=czTopHTML(c,free,used);czBind()}
 function czBind(){const x=$("czX");if(x)x.onclick=e=>{const b=e.target.closest("[data-n]");if(!b)return;czN=+b.dataset.n;czRenderTop()};
   const g=$("czGo");if(g)g.onclick=czOpen;const a=$("czSell");if(a)a.onclick=()=>{const l=csCur.wins.filter(w=>INV.some(x=>x.id===w.id)),n=l.length,sum=dust(l);czState="idle";czRenderTop();drawInv();toast(`Продано ${n} ${plural(n,"предмет","предмета","предметов")}: +${fmt(sum)} ТК`)};
   const t=$("czTake");if(t)t.onclick=()=>{const n=csCur.wins.length;czState="idle";czRenderTop();toast(n>1?"Скины добавлены в инвентарь":"Скин добавлен в инвентарь")}}
 // звук открытия кейса (Web Audio, тихо)
-const SND={on:true,ctx:null,last:0};try{SND.on=localStorage.getItem("snd")!=="0"}catch(e){}
+const SND={get on(){return SET.caseSound!==false},ctx:null,last:0};
 function sndCtx(){if(!SND.on)return null;try{if(!SND.ctx)SND.ctx=new(window.AudioContext||window.webkitAudioContext)();if(SND.ctx.state==="suspended")SND.ctx.resume();return SND.ctx}catch(e){return null}}
 function tone(f,d,type,vol,t0){const a=sndCtx();if(!a)return;const t=a.currentTime+(t0||0),o=a.createOscillator(),g=a.createGain();o.type=type||"sine";o.frequency.setValueAtTime(f,t);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol||.04,t+.006);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g).connect(a.destination);o.start(t);o.stop(t+d+.02)}
 const sndTick=()=>{const n=performance.now();if(n-SND.last<35)return;SND.last=n;tone(1500,.035,"square",.012);tone(700,.05,"sine",.018)};
 const sndStart=()=>{tone(220,.25,"sine",.03);tone(330,.3,"sine",.02,.05)};
 const sndWin=r=>{const base=r>=5?[523,659,784,1047,1319]:r>=4?[523,659,784,1047]:r>=3?[440,554,659]:[392,494];base.forEach((f,i)=>{tone(f,.5,"triangle",.035,i*.09);tone(f*2,.3,"sine",.012,i*.09)})};
-document.addEventListener("click",e=>{const b=e.target.closest("#czSnd");if(!b)return;SND.on=!SND.on;try{localStorage.setItem("snd",SND.on?"1":"0")}catch(x){}b.textContent=SND.on?"🔊":"🔇";if(SND.on)tone(880,.12,"sine",.03)});
 function czOpen(){if(!needLogin()||czBusy)return;const c=CASES[CZ],n=c.p?czN:1;
   if(!c.p&&csDay===mskDay()){toast("Бесплатный кейс уже открыт сегодня");return}
   if(c.p&&ME.tk<c.p*n){toast(`Не хватает ${fmt(c.p*n-ME.tk)} ТК. Их можно заработать в игре: за убийства, часы на сервере, достижения и Фортуну`);return}
@@ -3355,7 +3355,7 @@ document.addEventListener("click",e=>{const a=e.target.closest('a[href^="#"]');i
 // ---------- меню профиля и настройки ----------
 const UI={u:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/>',set:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M2 12h3M19 12h3M4.9 19.1L7 17M17 7l2.1-2.1"/>',task:'<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 9l2 2 4-4M8 15h8"/>',ach:'<circle cx="12" cy="9" r="6"/><path d="M8.5 14L7 22l5-3 5 3-1.5-8"/>',news:'<path d="M4 5h13v14a2 2 0 0 0 2 2H6a2 2 0 0 1-2-2z"/><path d="M17 9h3v10a2 2 0 0 1-2 2M8 9h5M8 13h5M8 17h3"/>',shop:'<path d="M12 3l3 6 6 .9-4.5 4.3 1 6.3L12 17.6 6.5 20.5l1-6.3L3 9.9 9 9z"/>',out:'<path d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10"/>',steam:'<circle cx="16" cy="8" r="4"/><circle cx="8" cy="16" r="3"/><path d="M10.5 14.2 13 11"/>'};
 const ico=k=>`<svg viewBox="0 0 24 24">${UI[k]}</svg>`;
-let SET={publicProfile:true,showRating:true,clanTag:true,newsNotify:true,vipNotify:true,monthNotify:true,anim:true,bg:true,mail:""};
+let SET={publicProfile:true,showRating:true,clanTag:true,newsNotify:true,vipNotify:true,monthNotify:true,anim:true,bg:true,caseSound:true,mail:""};
 try{Object.assign(SET,JSON.parse(localStorage.getItem("settings")||"{}"))}catch(e){}
 const saveSet=()=>{try{localStorage.setItem("settings",JSON.stringify(SET))}catch(e){}};
 function applySet(){document.documentElement.classList.toggle("no-anim",!SET.anim);document.body.style.backgroundImage=SET.bg?"":"none"}
