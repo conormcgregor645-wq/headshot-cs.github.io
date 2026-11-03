@@ -3361,7 +3361,7 @@ function drawHomeProgress(){}
 const WR=[["Обычный","#9aa3ad",75],["Редкий","#5aa9ff",20],["Легендарный","#b388ff",4],["Мифический","#ffb547",1]];
 const WSEG=[[0,"150","ТК",{tk:150}],[1,"1 500","ТК",{tk:1500}],[0,"300","ТК",{tk:300}],[2,"4 500","ТК",{tk:4500}],[0,"450","ТК",{tk:450}],[1,"25 ₽","на баланс",{rub:25}],[3,"LEGEND","14 дней",{tier:"LEGEND",d:14}],[0,"600","ТК",{tk:600}],[2,"50 ₽","на баланс",{rub:50}],[1,"VIP","7 дней",{tier:"VIP",d:7}],[3,"250 ₽","на баланс",{rub:250}],[2,"PREMIUM","7 дней",{tier:"PREMIUM",d:7}]];
 let WH={streak:2,last:"",prize:null,again:0,mode:"strip"};try{Object.assign(WH,JSON.parse(localStorage.getItem("wheel")||"{}"))}catch(e){}
-if(WH.mode!=="radar")WH.mode="strip";
+WH.mode="radar";
 const whSave=()=>{try{localStorage.setItem("wheel",JSON.stringify(WH))}catch(e){}};
 const mskDay=(d=new Date())=>new Date(d.getTime()+3*3600e3).toISOString().slice(0,10);
 let whBusy=false,STRIP=[];
@@ -3380,7 +3380,7 @@ function radarHTML(){const c=200,R=180,P=(a,d)=>[c+R*d*Math.sin(a*Math.PI/180),c
   return`<svg class="rd" viewBox="0 0 400 400" aria-hidden="true"><defs><radialGradient id="rbg"><stop offset="0" stop-color="#2a1f0e"/><stop offset="1" stop-color="#0e0c0d"/></radialGradient><linearGradient id="rsw" x1="0" y1="0" x2="1" y2="0" gradientTransform="rotate(-25)"><stop offset="0" stop-color="#ffd36b" stop-opacity="0"/><stop offset="1" stop-color="#ffd36b" stop-opacity=".5"/></linearGradient></defs>${g}<circle cx="${c}" cy="${c}" r="${R}" fill="none" stroke="#f5a524" stroke-width="3"/><circle cx="${c}" cy="${c}" r="5" fill="#ffd36b"/></svg>`}
 function whLeft(){const now=new Date(),m=new Date(now.getTime()+3*3600e3),l=86400e3-(m.getUTCHours()*3600e3+m.getUTCMinutes()*6e4+m.getUTCSeconds()*1e3);return`${two(Math.floor(l/36e5))}:${two(Math.floor(l%36e5/6e4))}:${two(Math.floor(l%6e4/1e3))}`}
 function drawWheel(){if(whBusy)return;const can=WH.last!==mskDay(),st=Math.min(7,WH.streak),tier=logged&&ME.vip?ME.vip.tier:null,m=WH.mode;
-  $("whBody").innerHTML=`<div class="page-head fx-head"><div><h1>Фортуна</h1><p>Один бесплатный приз каждый день. Выбери, как его разыграть: лентой, как кейс, или радаром.</p></div><div class="seg" id="fxMode" role="group" aria-label="Режим"><button data-m="strip" aria-pressed="${m==="strip"}">Лента</button><button data-m="radar" aria-pressed="${m==="radar"}">Радар</button></div></div>
+  $("whBody").innerHTML=`<div class="page-head fx-head"><div><h1>Фортуна</h1><p>Один бесплатный приз каждый день. Запусти радар и посмотри, на чём остановится луч.</p></div></div>
   <div class="wf fx-${m}"><div class="fx-stage">${m==="strip"?stripHTML():radarHTML()}<div class="fx-cta"><button class="steam wf-go" id="whSpin" ${can?"":"disabled"}>${can?(m==="strip"?"Открыть":"Сканировать"):"Уже играл сегодня"}</button><span class="fx-left">${can?"Приз доступен сейчас":`Следующий через <b id="whLeft">${whLeft()}</b>`}</span>${tier&&tier!=="VIP"?`<span class="wf-perk">${tier}: при обычном призе ещё одна попытка</span>`:""}</div></div>
   <aside class="wf-side">
     <div class="wf-card wf-res" id="whRes">${WH.prize!=null&&WSEG[WH.prize]?whPrize(WH.prize):`<small>Последний приз</small><b>Пока ничего</b>`}</div>
