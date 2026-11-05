@@ -3234,11 +3234,11 @@ function czOpen(){if(!needLogin()||czBusy)return;const c=CASES[CZ],n=c.p?czN:1;
   if(!c.p&&csDay===mskDay()){toast("Бесплатный кейс уже открыт сегодня");return}
   if(c.p&&ME.tk<c.p*n){toast(`Не хватает ${fmt(c.p*n-ME.tk)} ТК. Их можно заработать в игре: за убийства, часы на сервере, достижения и Фортуну`);return}
   if(c.p){ME.tk-=c.p*n;walletSave();drawChip()}else csDay=mskDay();
-  const wins=Array.from({length:n},()=>rollCase(c));csCur={c,wins,i:CZ,n};czBusy=true;czState="spin";czN=n;czRenderTop();
+  const wins=Array.from({length:n},()=>rollCase(c));INV.push(...wins);invSave();csCur={c,wins,i:CZ,n};czBusy=true;czState="spin";czN=n;czRenderTop();
   $("czTop").scrollIntoView({behavior:"smooth",block:"start"});
   const N=40,rows=[...$("czTop").querySelectorAll(".st-row")];rows.forEach((row,k)=>{const items=Array.from({length:N+6},(_,q)=>q===N?wins[k]:rollCase(c));row.innerHTML=items.map(stSkin).join("")});
   sndStart();requestAnimationFrame(()=>{let left=rows.length;rows.forEach((row,k)=>{const W2=row.children[1].offsetLeft-row.children[0].offsetLeft,IW=row.children[0].offsetWidth,box=row.parentElement.clientWidth,target=N*W2+IW/2-box/2+(Math.random()-.5)*W2*.7;let lastI=-1;
-    tween(5600+k*350,e=>{row.style.transform=`translateX(${-target*e}px)`;if(k===0){const ci=Math.floor((target*e+box/2)/W2);if(ci!==lastI){lastI=ci;sndTick()}}},()=>{row.children[N].classList.add("win");if(--left===0){INV.push(...wins);invSave();sndWin(Math.max(...wins.map(w=>w.r)));setTimeout(()=>{czBusy=false;czState="res";czRenderTop();drawSkins()},900)}})})})}
+    tween(5600+k*350,e=>{row.style.transform=`translateX(${-target*e}px)`;if(k===0){const ci=Math.floor((target*e+box/2)/W2);if(ci!==lastI){lastI=ci;sndTick()}}},()=>{row.children[N].classList.add("win");if(--left===0){sndWin(Math.max(...wins.map(w=>w.r)));setTimeout(()=>{czBusy=false;czState="res";czRenderTop();drawSkins()},900)}})})})}
 $("csmClose").onclick=()=>{if(!csBusy)$("caseModal").hidden=true};$("caseModal").onclick=e=>{if(e.target.id==="caseModal"&&!csBusy)$("caseModal").hidden=true};
 
 
@@ -3258,7 +3258,7 @@ function upBurst(host,col){if(!host)return;const r=host.getBoundingClientRect();
 function upTicks(n,dur,hi,lo){try{const a=sndCtx();if(!a)return;const bz=(p1,p2,t)=>3*p1*t*(1-t)*(1-t)+3*p2*t*t*(1-t)+t*t*t;let last=0,lt=-1;for(let k=1;k<=900;k++){const t=k/900,x=bz(.12,.12,t),y=bz(.75,1,t),c=Math.floor(n*y);if(c!==last){last=c;const tm=x*dur/1000;if(tm-lt>.045){lt=tm;tone(hi,.03,"square",.008,tm);tone(lo,.045,"sine",.014,tm)}}}}catch(e){}}
 // ---------- апгрейд ----------
 const WSH=["FN","MW","FT","WW","BS"],UP_EDGE=.9,UP_MAX=75;
-let UP={st:"b",sel:[],tk:0,t:null,f:"x2",q:"",lo:"",hi:"",busy:false,res:null,all:null};
+let UP={st:"a",sel:[],tk:0,t:null,f:"x2",q:"",lo:"",hi:"",busy:false,res:null,all:null};
 function upAll(){if(UP.all)return UP.all;const l=[];W.forEach(w=>{if(w.c==="item"||w.c==="agent")return;w.skins.forEach(sk=>{const a=sk[9]||[];wearOpts(sk,false).forEach(i=>{if(a[i])l.push({w,sk,i,p:a[i]})})})});l.sort((a,b)=>a.p-b.p);return UP.all=l}
 const upStake=()=>UP.sel.reduce((s,id)=>{const it=INV.find(x=>x.id===id);return s+(it?itDust(it):0)},0)+UP.tk;
 const upChance=()=>{const s=upStake();if(!(UP.t&&s>0))return 0;const fair=Math.min(UP_MAX,s/UP.t.p*UP_EDGE*100);if(UP.fix&&UP.fixK===UP.t.k&&UP.fixS===s)return Math.min(fair,UP.fix);return fair};
@@ -3310,8 +3310,8 @@ document.addEventListener("click",e=>{if(curView!=="upgrade"||UP.busy)return;
   const us=e.target.closest("[data-ups]");if(us){UP.st=us.dataset.ups;try{localStorage.setItem("upStyle",UP.st)}catch(x){}UP.res=null;drawUp();return}
   if(e.target.closest("[data-upmore]")){UP.lim=(UP.lim||60)+120;$("upTg").innerHTML=upTargetsHTML();return}
   const f=e.target.closest("[data-upf]");if(f){UP.f=f.dataset.upf;UP.auto=true;if(!upStake()){document.querySelectorAll("[data-upf]").forEach(b=>b.setAttribute("aria-pressed",b===f));$("upTg").innerHTML=upTargetsHTML();toast("Сначала выбери скины или ТК для ставки");return}upRandom();UP.res=null;drawUp();upFlash()}});
-function upSpin(){if(!needLogin()||UP.busy)return;const s=upStake(),t=UP.t;if(!t||!s)return;if(t.p<=s*1.2){toast("Цель должна стоить хотя бы в 1,2 раза дороже ставки");return}if(UP.tk>ME.tk){toast("Не хватает ТК");return}
-  const ch=upChance(),win=Math.random()*100<ch;
+function upSpin(){if(!needLogin()||UP.busy)return;const s=upStake(),t=UP.t;if(!t||!s)return;if(t.p<=s*(UP.fix&&UP.fixK===t.k?1.05:1.2)){toast("Цель должна стоить хотя бы в 1,2 раза дороже ставки");return}if(UP.tk>ME.tk){toast("Не хватает ТК");return}
+  const ch=upChance(),win=Math.random()*100<ch;if(win){const[lo,hi]=wearRange(t.sk,t.i);INV.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),w:t.w.n,s:t.sk[0],r:t.sk[5],wear:Math.floor((lo+Math.random()*(hi-lo))*1000)/1000,st:false,seed:Math.floor(Math.random()*1000),t:Date.now()})}
   const stake=UP.sel.map(id=>INV.find(x=>x.id===id)).filter(Boolean);stake.forEach(it=>{if(isOnIt(it))equip(it,false)});const ids=new Set(stake.map(x=>x.id));INV=INV.filter(x=>!ids.has(x.id));ME.tk-=UP.tk;walletSave();invSave();drawChip();
   UP.busy=true;UP.res=null;const btn=$("upGo");btn.disabled=true;btn.textContent="Крутим…";const c=document.querySelector(".up-c");if(c)c.innerHTML=`<b>${ch.toFixed(ch<10?2:1)}%</b><small>Шанс</small>`;
   const arc=ch*3.6,m=Math.min(6,arc/4),fin=win?m+Math.random()*(arc-2*m):arc+m+Math.random()*(360-arc-2*m),tot=360*5+fin,nd=$("upNeedle");let lastS=-1;
@@ -3332,7 +3332,7 @@ function upSpin(){if(!needLogin()||UP.busy)return;const s=upStake(),t=UP.t;if(!t
     fx=el.animate([{transform:`rotate(${from}deg)`},{transform:`rotate(${end}deg)`}],{duration:dur,easing:"cubic-bezier(.12,.75,.12,1)",fill:"forwards"})}
   ring&&ring.classList.add("spin");
   fx.onfinish=()=>{ring&&ring.classList.remove("spin");
-    let got=null;if(win){const[lo,hi]=wearRange(t.sk,t.i);got={id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),w:t.w.n,s:t.sk[0],r:t.sk[5],wear:Math.floor((lo+Math.random()*(hi-lo))*1000)/1000,st:false,seed:Math.floor(Math.random()*1000),t:Date.now()};INV.push(got);invSave();try{sndWin(t.sk[5])}catch(x){}}else{try{tone(180,.4,"sine",.03)}catch(x){}}
+    if(win){try{sndWin(t.sk[5])}catch(x){}}else{try{tone(180,.4,"sine",.03)}catch(x){}}
     UP.busy=false;UP.res={win,t};UP.sel=[];if(UP.tk>ME.tk)UP.tk=0;if(UP.auto&&upStake())upRandom();else UP.t=null;drawUp();const rg=document.querySelector(".up-ring,.up-bar,.upp,.uln,.urc");if(rg&&["e","f","g"].includes(UP.st))upBurst(rg,win?"#ffc24d":"#eb4b4b");if(rg&&win&&UP.st!=="c")upBurst(rg,"#3ddc97");if(rg){rg.classList.add(win?"won":"lost");setTimeout(()=>rg.classList.remove("won","lost"),1600)}
     toast(win?`Апгрейд удался: ${t.w.n} | ${t.sk[0]} (${WSH[t.i]}) в инвентаре`:`Не повезло: шанс был ${ch.toFixed(1)}%`)}}
 // окно наклеек
@@ -3414,16 +3414,17 @@ const ease=k=>1-Math.pow(1-k,4);
 function tween(ms,f,done){const t0=performance.now();const step=t=>{const k=Math.min(1,(t-t0)/ms);f(ease(k));if(k<1)requestAnimationFrame(step);else done()};requestAnimationFrame(step)}
 function setSweep(a){const g=$("rdSweep");if(g)g.setAttribute("transform",`rotate(${a} 200 200)`);document.querySelectorAll(".rb").forEach(b=>{const p=RPOS[+b.dataset.b],d=((a-p.a)%360+360)%360;b.style.setProperty("--glow",d<60?(1-d/60).toFixed(2):0)})}
 function spinWheel(){if(!logged){toast("Сначала войди через Steam");return}if(whBusy||WH.last===mskDay())return;
-  const r=pickR(),i=pickSeg(r);whBusy=true;const b=$("whSpin");b.disabled=true;b.textContent=WH.mode==="strip"?"Открываем…":"Сканируем…";
+  const r=pickR(),i=pickSeg(r);whBusy=true;const AG=whApply(i,r);const b=$("whSpin");b.disabled=true;b.textContent=WH.mode==="strip"?"Открываем…":"Сканируем…";
   document.querySelectorAll(".rb.hit,.st-it.win").forEach(e=>e.classList.remove("hit","win"));
   if(WH.mode==="strip"){const N=58;STRIP=Array.from({length:N+6},(_,k)=>k===N?i:pickSeg(pickR()));
     const row=$("stRow");row.innerHTML=STRIP.map(x=>stItem(x)).join("");row.style.transform="translateX(0)";
     const W=row.children[1].offsetLeft-row.children[0].offsetLeft,IW=row.children[0].offsetWidth,box=row.parentElement.clientWidth,target=N*W+IW/2-box/2+(Math.random()-.5)*W*.7;
-    tween(6500,k=>row.style.transform=`translateX(${-target*k}px)`,()=>{row.children[N].classList.add("win");finish(i,r)})}
-  else{const from=WH.ang||0,to=from-from%360+360*6+RPOS[i].a+(Math.random()-.5)*10;tween(6000,k=>setSweep(from+(to-from)*k),()=>{WH.ang=to%360;const e=document.querySelector(`.rb[data-b="${i}"]`);if(e)e.classList.add("hit");finish(i,r)})}}
-function finish(i,r){whBusy=false;const p=WSEG[i][3];if(p.tk)ME.tk+=p.tk;if(p.rub)ME.balance+=p.rub;if(p.tier&&ME.vip)ME.vip.until=daysFwd(Math.round((ME.vip.until-today)/864e5)+p.d);walletSave();
+    tween(6500,k=>row.style.transform=`translateX(${-target*k}px)`,()=>{row.children[N].classList.add("win");finish(i,r,AG)})}
+  else{const from=WH.ang||0,to=from-from%360+360*6+RPOS[i].a+(Math.random()-.5)*10;tween(6000,k=>setSweep(from+(to-from)*k),()=>{WH.ang=to%360;const e=document.querySelector(`.rb[data-b="${i}"]`);if(e)e.classList.add("hit");finish(i,r,AG)})}}
+function whApply(i,r){const p=WSEG[i][3];if(p.tk)ME.tk+=p.tk;if(p.rub)ME.balance+=p.rub;if(p.tier&&ME.vip)ME.vip.until=daysFwd(Math.round((ME.vip.until-today)/864e5)+p.d);walletSave();
   const y=new Date(Date.now()-864e5);if(!WH.again)WH.streak=WH.last===mskDay(y)?WH.streak+1:1;if(WH.streak>7)WH.streak=1;
-  WH.prize=i;const again=r===0&&ME.vip&&ME.vip.tier!=="VIP"&&!WH.again;WH.again=again?1:0;WH.last=again?"":mskDay();whSave();drawChip();
+  WH.prize=i;const again=r===0&&ME.vip&&ME.vip.tier!=="VIP"&&!WH.again;WH.again=again?1:0;WH.last=again?"":mskDay();whSave();drawChip();return again}
+function finish(i,r,again){whBusy=false;drawChip();
   $("whRes").innerHTML=whPrize(i);$("whRes").classList.remove("pop");void $("whRes").offsetWidth;$("whRes").classList.add("pop");
   const b=$("whSpin");b.textContent=again?"Ещё попытка":"Уже играл сегодня";b.disabled=!again;const fl=document.querySelector(".fx-left");if(fl)fl.innerHTML=again?"Обычный приз: привилегия даёт ещё одну попытку":`Следующий через <b id="whLeft">${whLeft()}</b>`;
   toast(`Выпало: ${WSEG[i][1]} ${WSEG[i][2]}${again?". Привилегия даёт ещё одну попытку":""}`)}
