@@ -13,13 +13,13 @@ def get(job):
             req = urllib.request.Request(u, headers={'User-Agent': 'Mozilla/5.0'})
             data = urllib.request.urlopen(req, timeout=30).read()
             im = Image.open(io.BytesIO(data)).convert('RGBA')
-            im.thumbnail((360, 270))
+            im.thumbnail((160, 160) if ('128fx128f' in u or '/stickers/' in u) else (360, 270))
             im.save(f'img/sk/{i}.webp', 'WEBP', quality=86, method=6)
             return True
         except Exception as e:
             time.sleep(1 + t * 2)
     print('не скачалось', u, file=sys.stderr)
     return False
-with ThreadPoolExecutor(8) as ex:
+with ThreadPoolExecutor(16) as ex:
     ok = sum(ex.map(get, todo))
 print('готово', ok)
