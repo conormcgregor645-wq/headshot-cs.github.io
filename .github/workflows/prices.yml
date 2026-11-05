@@ -1,0 +1,20 @@
+name: Цены market.csgo.com
+on:
+  push:
+    paths: ['tools/fetch_prices.py']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  prices:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 tools/fetch_prices.py
+      - run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add tools/prices_market.json
+          git diff --cached --quiet || git commit -m "Цены market.csgo.com"
+          git pull --rebase origin main
+          git push
