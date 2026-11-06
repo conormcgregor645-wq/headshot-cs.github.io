@@ -1865,7 +1865,7 @@ select#invSort:focus{outline:none;border-color:#f5a524}
 .up-ring{position:relative;width:260px;height:260px}
 .up-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
 .up-ring .bg{fill:none;stroke:color-mix(in srgb,var(--line) 80%,transparent);stroke-width:14}
-.up-ring .win{fill:none;stroke:url(#upGrad);stroke-width:14;stroke-linecap:butt;transition:stroke-dasharray .35s var(--ease);filter:drop-shadow(0 0 8px rgba(245,165,36,.45))}
+.up-ring .win{fill:none;stroke:url(#upGrad);stroke-width:14;stroke-linecap:butt;transition:stroke-dasharray .35s var(--ease);filter:none}
 .up-ring .tk{stroke:rgba(255,255,255,.14);stroke-width:1.2}
 .up-needle{position:absolute;inset:0;transform-origin:50% 50%;pointer-events:none;will-change:transform;z-index:2}
 .up-needle::after{content:"";position:absolute;left:50%;top:6px;width:4px;height:22px;border-radius:2px;background:linear-gradient(#fff,rgba(255,255,255,0));transform:translateX(-50%);opacity:.0;transition:opacity .3s}
@@ -2098,8 +2098,6 @@ select#invSort:focus{outline:none;border-color:#f5a524}
 .up-s-a .up-ring{isolation:isolate;transition:transform .5s cubic-bezier(.2,.8,.2,1),filter .4s}
 
 .up-ring.spin .up-ring.spin .up-needle::before{border-top-color:#fff;filter:drop-shadow(0 0 10px #ffd36b) drop-shadow(0 0 18px rgba(255,200,90,.8))}
-.up-ring.spin .win{animation:upArcPulse .6s ease-in-out infinite}
-@keyframes upArcPulse{50%{filter:drop-shadow(0 0 16px rgba(255,190,60,.95))}}
 .up-trail{position:absolute;inset:0;border-radius:50%;pointer-events:none;opacity:0;transition:opacity .3s;background:conic-gradient(from -75deg,transparent 0deg,rgba(255,255,255,0) 0deg,rgba(255,230,170,.65) 75deg,transparent 75.5deg);-webkit-mask:radial-gradient(closest-side,transparent 78%,#000 80%,#000 97%,transparent 99%);mask:radial-gradient(closest-side,transparent 78%,#000 80%,#000 97%,transparent 99%)}
 .up-ring.spin .up-trail{opacity:1}
 .up-ring.upx-tense{animation:upTense .14s linear infinite}
@@ -2517,7 +2515,7 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;ba
       <a href="#skins" data-v="skins"><svg viewBox="0 0 24 24"><path d="M4 20l9-9M13 11l7-8-1 7-6 1z"/><path d="M15 15l4 4"/></svg>Кейсы</a>
       <a href="#inventory" data-v="inventory"><svg viewBox="0 0 24 24"><path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5z"/><path d="M3 7.5 12 12l9-4.5M12 12v9"/></svg>Инвентарь<span id="invCnt" hidden></span></a>
       <a href="#contract" data-v="contract"><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M9 12h6M9 16h4"/><path d="M14 3v5h5"/></svg>Контракт</a>
-      <a href="#market" data-v="market"><svg viewBox="0 0 24 24"><path d="M3 9l1.6-5h14.8L21 9"/><path d="M4 9v11h16V9"/><path d="M3 9c0 1.7 1.3 3 3 3s3-1.3 3-3c0 1.7 1.3 3 3 3s3-1.3 3-3c0 1.7 1.3 3 3 3s3-1.3 3-3"/><path d="M10 20v-5h4v5"/></svg>Площадка</a>
+      <a href="#market" data-v="market"><svg viewBox="0 0 24 24"><path d="M3 9l1.6-5h14.8L21 9"/><path d="M4 9v11h16V9"/><path d="M3 9c0 1.7 1.3 3 3 3s3-1.3 3-3c0 1.7 1.3 3 3 3s3-1.3 3-3c0 1.7 1.3 3 3 3s3-1.3 3-3"/><path d="M10 20v-5h4v5"/></svg>Торговля</a>
       <a href="#upgrade" data-v="upgrade"><svg viewBox="0 0 24 24"><path d="M12 20V5M6 11l6-6 6 6"/><path d="M5 20h14"/></svg>Апгрейд</a>
       <span class="nav-h">Сервер</span>
       <a href="#rules" data-v="rules"><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M9 11h7M9 15h7"/></svg>Правила</a>
@@ -2789,11 +2787,11 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;ba
 
     <div class="view" id="v-inventory" hidden>
       <div class="page-head"><h1>Инвентарь</h1><p>Все твои скины и агенты. Надевай их для игры на серверах, клей наклейки или продавай за ТК.</p></div>
-      <section id="csInv"><div class="cs-inv-tools"><div class="inv-val">Стоимость инвентаря <b id="invVal">0 ТК</b></div><div class="seg" id="invF" role="group" aria-label="Фильтр"><button data-f="all" aria-pressed="true">Все</button><button data-f="on" aria-pressed="false">Надето</button></div><button class="ghost inv-dall" id="invDall" type="button">Продать всё</button><select id="invSort" aria-label="Сортировка"><option value="r">Сначала редкие</option><option value="n">Сначала новые</option></select></div><div class="inv-hint"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg><span>Цена на карточке — рыночная. Сайт выкупает сразу: ширпотреб, армейское и запрещённое за <b>100%</b>, засекреченное <b>80%</b>, тайное и золото <b>75%</b>. На <a href="#market" data-mksell>Площадке</a> можно продать дороже, а если лот не купят, сайт сам выкупит его за 85–95%.</span></div><div class="cs-inv" id="invGrid"></div></section>
+      <section id="csInv"><div class="cs-inv-tools"><div class="inv-val">Стоимость инвентаря <b id="invVal">0 ТК</b></div><div class="seg" id="invF" role="group" aria-label="Фильтр"><button data-f="all" aria-pressed="true">Все</button><button data-f="on" aria-pressed="false">Надето</button></div><button class="ghost inv-dall" id="invDall" type="button">Продать всё</button><select id="invSort" aria-label="Сортировка"><option value="r">Сначала редкие</option><option value="n">Сначала новые</option></select></div><div class="inv-hint"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg><span>Цена на карточке — рыночная. Сайт выкупает сразу: ширпотреб, армейское и запрещённое за <b>100%</b>, засекреченное <b>80%</b>, тайное и золото <b>75%</b>. В <a href="#market" data-mksell>Торговле</a> можно продать дороже, а если лот не купят, сайт сам выкупит его за 85–95%.</span></div><div class="cs-inv" id="invGrid"></div></section>
     </div>
 
     <div class="view" id="v-market" hidden>
-      <div class="page-head"><h1>Торговая площадка</h1><p>Покупай скины у других игроков и продавай свои по своей цене. Комиссия площадки 5%, деньги приходят на баланс сразу после продажи.</p></div>
+      <div class="page-head"><h1>Торговля</h1><p>Покупай скины у других игроков и продавай свои по своей цене. Комиссия 5%, деньги приходят на баланс сразу после продажи.</p></div>
       <section id="mkBox"></section>
     </div>
 
@@ -3699,7 +3697,7 @@ $("invGrid").addEventListener("click",e=>{const g=e.target.closest("[data-gocase
   const q=e.target.closest("[data-ieq],[data-istk],[data-idel]");if(!q||!needLogin())return;const id=q.dataset.ieq||q.dataset.istk||q.dataset.idel,it=INV.find(x=>x.id===id);if(!it)return;
   if(q.dataset.ieq){const sd=q.dataset.side,on=!onSide(it,sd);equip(it,on,sd);drawInv();const tn=sd==="ct"?"за спецназ (CT)":"за террористов (T)";toast(on?`${it.w} | ${it.s}: надето ${tn}`:`${it.w}: снято ${tn}`)}
   else if(q.dataset.istk)openStkItem(it);
-  else{const sum=dust([it]);drawSkins();toast(`Продано сайту за ${Math.round(sellK(it)*100)}%: +${fmt(sum)} ТК${sellK(it)<1?". Больше можно получить на Площадке":""}`)}});
+  else{const sum=dust([it]);drawSkins();toast(`Продано сайту за ${Math.round(sellK(it)*100)}%: +${fmt(sum)} ТК${sellK(it)<1?". Больше можно получить в Торговле":""}`)}});
 // открытие ×1–×5
 const stSkin=it=>{const w=invW(it),sk=invSk(it);return`<div class="st-it sk" style="--c:${RC[it.r]}">${sk&&sk[6]?`<span class="skw ok"><img src="${skImg(sk)}" data-s="${skSteam(sk)}" alt="" decoding="async" ${IMGFB}></span>`:art(w,sk,0)}<b>${w.n}</b><span>${sk[0]}</span></div>`};
 let csCur=null;
@@ -4341,7 +4339,7 @@ function mkCard(g){const x=g.min,it=x.it,w=invW(it),sk=invSk(it);if(!w||!sk)retu
   return`<article class="mk-c" style="--rc:${RC[it.r]}" data-mkg="${esc(g.k)}" tabindex="0"><div class="mk-ct">${it.wear>0?`<span class="mk-w" style="--wc:${MK_WC[wIdx(it.wear)]}">${HG}${WSH[wIdx(it.wear)]} <i>•</i> ${mkFlt(it.wear)}</span>`:`<span class="mk-w" style="--wc:var(--muted)">${HG}Без износа</span>`}<span class="mk-cnt">x${g.l.length}</span></div>
    ${it.sp&&SP[it.sp]?`<span class="sp-chip mk-spc">✦ ${SP[it.sp].n}</span>`:""}<span class="pic">${art(w,sk,it.wear)}</span>${mkStkRow(it,"mk-stk")||'<div class="mk-stk"></div>'}
    <small class="mk-wn">${it.sv?"Сувенирный ":it.st?"StatTrak™ ":""}${esc(w.n)}</small><b class="mk-sn">${esc(mkSkN(sk[0]))}</b><b class="mk-p">${fmt(x.p)} ТК</b>
-   <div class="mk-cta"><button class="mk-ic" type="button" data-mkg="${esc(g.k)}" title="Все предложения" aria-label="Все предложения">${CART}</button><button class="mk-now${arm?" arm":""}" type="button" data-mkb="${x.id}">${arm?`Подтвердить`:`${BOLT}Купить сейчас`}</button></div></article>`}
+   <div class="mk-cta"><button class="mk-now" type="button" data-mkg="${esc(g.k)}">${BOLT}Купить</button></div></article>`}
 function mkFilt(){const q=mkQ.trim().toLowerCase();let l=mkGroups().filter(g=>{const x=g.min,it=x.it,w=invW(it);if(!w)return false;
    if(mkCat==="st"&&!it.st)return false;if(mkCat==="sv"&&!it.sv)return false;if(mkCat==="sp"&&!it.sp)return false;
    if(!["all","st","sv","sp"].includes(mkCat)&&w.c!==mkCat)return false;if(mkLo&&x.p<+mkLo)return false;if(mkHi&&x.p>+mkHi)return false;
@@ -4384,7 +4382,7 @@ function mkSellTab(){const free=INV.filter(it=>!isOnIt(it)&&!it.fx&&invW(it)&&in
    side=`<div class="mk-lot" style="--rc:${RC[it.r]}"><div class="mk-lot-h"><span>Новый лот</span>${itBadge(it,"mk-b")}</div><span class="pic">${art(w,sk,it.wear)}</span><b class="mk-n">${mkName(it)}</b><span class="mk-s">${esc(mkSkN(sk[0]))}</span>${mkFloat(it)}
     <label class="mk-pin"><span>Твоя цена</span><div><input id="mkP" inputmode="numeric" value="${p}" autocomplete="off"><i>ТК</i></div></label>
     <dl class="mk-sum"><dt>Цена лота</dt><dd>${fmt(p)} ТК</dd><dt>Комиссия 5%</dt><dd>−${fmt(fee)} ТК</dd><dt>Ты получишь</dt><dd class="get">${fmt(p-fee)} ТК</dd></dl><div class="mk-term"><span>Гарантированный выкуп</span><div>${MK_TERMS.map(([h,k],i)=>`<button type="button" data-mkterm="${i}" aria-pressed="${mkTerm===i}"><b>${h<48?h+" ч":h/24+" дня"}</b><small>${Math.round(k*100)}% · ${fmt(Math.floor(Math.min(p,v)*k))}</small></button>`).join("")}</div><p>Если за ${MK_TERMS[mkTerm][0]<48?MK_TERMS[mkTerm][0]+" ч":MK_TERMS[mkTerm][0]/24+" дня"} лот никто не купит, сайт сам выкупит его за <b>${fmt(Math.floor(Math.min(p,v)*MK_TERMS[mkTerm][1]))} ТК</b>. Сразу сайту — ${fmt(itSell(it))} ТК.</p></div>
-    <button class="steam mk-go" type="button" id="mkList">Выставить на продажу</button><small class="mk-note">Пока скин на площадке, его нет в инвентаре. Снять лот можно в любой момент.</small></div>`}
+    <button class="steam mk-go" type="button" id="mkList">Выставить на продажу</button><small class="mk-note">Пока скин выставлен в Торговле, его нет в инвентаре. Снять лот можно в любой момент.</small></div>`}
   return`<div class="mk-sell"><div class="mk-inv"><div class="mk-hd"><b>Твои скины</b><span>${free.length?`${free.length} шт.`:""}</span></div>${free.length?`<div class="mk-igrid">${grid}</div>`:`<div class="mk-empty">${logged?"В инвентаре нет скинов для продажи.":"Войди через Steam, чтобы продавать скины."}</div>`}</div><aside class="mk-side">${side}</aside></div>`}
 function mkMyTab(){if(!MK.my.length)return`<div class="mk-empty big"><b>У тебя нет активных лотов</b><span>Выстави скин во вкладке «Продать».</span></div>`;
   return`<div class="mk-rows">${MK.my.map(m=>{const it=m.it,w=invW(it),sk=invSk(it);if(!w||!sk)return"";const v=mkVal(it),sp=mkSpeed(m.p/v);
@@ -4405,7 +4403,7 @@ function mkBuy(id){if(!needLogin())return;const k=MK.l.findIndex(x=>x.id===id);i
   if(ME.tk<x.p){toast(`Не хватает ${fmt(x.p-ME.tk)} ТК`);mkArm=null;drawMk();return}
   if(mkArm!==id){mkArm=id;drawMk();clearTimeout(mkBuy.t);mkBuy.t=setTimeout(()=>{if(mkArm===id){mkArm=null;if(curView==="market")drawMk()}},4000);return}
   mkArm=null;ME.tk-=x.p;walletSave();drawChip();MK.l.splice(k,1);const it=Object.assign({},x.it,{id:mkId(),t:Date.now()});if(!it.stk)delete it.stk;INV.push(it);invSave();
-  MK.h.unshift({k:"buy",it:x.it,p:x.p,n:x.n,t:Date.now()});try{notify("buy","Покупка на площадке",`${mkName(it)} | ${mkSkN(it.s)} за ${fmt(x.p)} ТК у ${x.n}. Скин в инвентаре`)}catch(e){}mkDeal(x,logged?ME.n:"Гость");if(mkDet)mkDet.sel=null;mkSave();drawMk();try{drawInv()}catch(e){}toast(`Куплено: ${mkName(it)} | ${it.s}. Скин уже в инвентаре`)}
+  MK.h.unshift({k:"buy",it:x.it,p:x.p,n:x.n,t:Date.now()});try{notify("buy","Покупка в Торговле",`${mkName(it)} | ${mkSkN(it.s)} за ${fmt(x.p)} ТК у ${x.n}. Скин в инвентаре`)}catch(e){}mkDeal(x,logged?ME.n:"Гость");if(mkDet)mkDet.sel=null;mkSave();drawMk();try{drawInv()}catch(e){}toast(`Куплено: ${mkName(it)} | ${it.s}. Скин уже в инвентаре`)}
 document.addEventListener("click",e=>{if(!e.target.closest("#mkBox"))return;const t=e.target;let b;
   if(b=t.closest("[data-mkt]")){mkTab=b.dataset.mkt;mkArm=null;mkDet=null;drawMk();return}
   if(b=t.closest("[data-mkb]")){mkBuy(b.dataset.mkb);return}
@@ -4437,7 +4435,7 @@ document.addEventListener("change",e=>{if(e.target.id==="mkSort"){mkSort=e.targe
 
 // ===== Уведомления =====
 let NTF=[];try{NTF=JSON.parse(localStorage.getItem("ntf1")||"[]")||[]}catch(e){}
-if(!localStorage.getItem("ntf1"))NTF=[{k:"info",t:"Добро пожаловать на TASHER",x:"Здесь будут уведомления о продаже скинов на площадке, пополнениях счёта и призах.",d:Date.now(),r:0}];
+if(!localStorage.getItem("ntf1"))NTF=[{k:"info",t:"Добро пожаловать на TASHER",x:"Здесь будут уведомления о продаже скинов в Торговле, пополнениях счёта и призах.",d:Date.now(),r:0}];
 const ntfSave=()=>{try{localStorage.setItem("ntf1",JSON.stringify(NTF.slice(0,60)))}catch(e){}};
 const NTF_I={sell:['<path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.4"/>',"#3ddc97"],buy:['<path d="M3 4h2l2.4 11h10.2L20 7H6.2"/><circle cx="9" cy="19.5" r="1.4"/><circle cx="17" cy="19.5" r="1.4"/>',"#f5a524"],top:['<rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M3 10h18M16 14.5h2"/>',"#5aa9ff"],prize:['<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="2"/><path d="M12 3.5v6.5M12 14v6.5M3.5 12H10M14 12h6.5"/>',"#c084fc"],pay:['<path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.4 6.7 19.4l1.2-6L3.4 9.3l6-.7z"/>',"#ffd36b"],info:['<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/>',"#a8919b"]};
 function notify(k,t,x){NTF.unshift({k,t,x,d:Date.now(),r:0});NTF=NTF.slice(0,60);ntfSave();drawNtfBadge();const p=$("ntf");if(p&&!p.hidden)drawNtf();const b=$("ntfBtn");if(b&&!document.documentElement.classList.contains("no-anim")){b.classList.remove("ring");void b.offsetWidth;b.classList.add("ring")}}
@@ -4486,7 +4484,7 @@ function route(forced){try{closeProfile()}catch(e){}["modal","srvModal","cmdModa
   if(v==="support")try{drawSupport()}catch(e){console.error(e)}
   if(v==="tickets")try{drawTickets()}catch(e){console.error(e)}
   document.querySelector(".rail").classList.remove("open");$("burger").setAttribute("aria-expanded","false");
-  {const T={play:"",public:"Public",me:"Мой профиль",player:"Профиль игрока",clan:"Клан",case:"Кейс",wheel:"Фортуна",upgrade:"Апгрейд",inventory:"Инвентарь",contract:"Контракт",market:"Торговая площадка",support:"Поддержка",tickets:"Тикеты",shop:"Магазин",skins:"Кейсы",stats:"Рейтинг",clans:"Кланы",ach:"Достижения",bans:"Банлист",rules:"Правила",admin:"Админ-панель",offer:"Публичная оферта",privacy:"Конфиденциальность","404":"Страница не найдена"};document.title=(T[v]?T[v]+" — ":"")+"Tasher CS2"}
+  {const T={play:"",public:"Public",me:"Мой профиль",player:"Профиль игрока",clan:"Клан",case:"Кейс",wheel:"Фортуна",upgrade:"Апгрейд",inventory:"Инвентарь",contract:"Контракт",market:"Торговля",support:"Поддержка",tickets:"Тикеты",shop:"Магазин",skins:"Кейсы",stats:"Рейтинг",clans:"Кланы",ach:"Достижения",bans:"Банлист",rules:"Правила",admin:"Админ-панель",offer:"Публичная оферта",privacy:"Конфиденциальность","404":"Страница не найдена"};document.title=(T[v]?T[v]+" — ":"")+"Tasher CS2"}
   window.scrollTo(0,0);setTimeout(()=>{try{if(!document.documentElement.classList.contains("no-anim"))countIn(document.getElementById("v-"+v))}catch(e){}},30)}
 // переход по странице: работает и там, где ссылки с # не меняют адрес
 function go(v){route(v);try{if(location.hash!=="#"+v)history.replaceState(null,"","#"+v)}catch(e){}}
