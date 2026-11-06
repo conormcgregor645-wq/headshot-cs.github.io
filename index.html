@@ -2468,6 +2468,15 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;ba
  .logo b{filter:none!important}
  .iv:hover,.mk-c:hover{transform:none!important}
 }
+
+/* плавная прокрутка кейса */
+.st{-webkit-mask-image:none!important;mask-image:none!important;contain:layout paint;isolation:isolate}
+.st::before,.st::after{content:"";position:absolute;top:0;bottom:0;width:14%;z-index:2;pointer-events:none}
+.st::before{left:0;background:linear-gradient(90deg,#0c0806,rgba(12,8,6,0))}.st::after{right:0;background:linear-gradient(270deg,#0c0806,rgba(12,8,6,0))}
+.st-mk{z-index:3}
+.st-row{will-change:transform;backface-visibility:hidden;transform:translate3d(0,0,0)}
+.st-row .skw>img{filter:none!important}
+.st-row .st-it:not(.win){transition:none!important}
 </style>
 </head>
 <body>
@@ -2597,7 +2606,6 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;ba
       <div class="clan-tools">
         <div class="seg seg-wide" id="clanPeriod" role="group" aria-label="Период"><button data-p="month" aria-pressed="true">Рейтинг за месяц</button><button data-p="all">За всё время</button></div>
         <input type="search" id="clanQ" placeholder="Поиск клана по названию или тегу">
-        <button class="steam clan-new" id="clanBnrNew" type="button"><span>Создать клан</span></button>
       </div>
       <div id="clanMine"></div>
       <div class="rt-wrap"><div class="rt rt-clan" id="clanGrid"></div></div>
@@ -3340,7 +3348,7 @@ $("clanForm").onsubmit=e=>{e.preventDefault();const n=$("ncNameIn").value.trim()
   try{localStorage.setItem("myClanImg",JSON.stringify({ava:draft.ava,cover:draft.cover}))}catch(e){}
   $("clanModal").hidden=true;drawClans();drawChip();toast(`Клан [${t}] создан. Списано 50 000 ТК`);openClan(clans.length-1)};
 document.addEventListener("keydown",e=>{if(e.key==="Escape")$("clanModal").hidden=true});
-$("clanBnrNew").onclick=tryNewClan;
+{const cb=$("clanBnrNew");if(cb)cb.onclick=tryNewClan}
 
 // ---------- общее: тосты ----------
 function toast(t){let el=$("toast");if(!el){el=document.createElement("div");el.id="toast";el.className="toast";el.setAttribute("role","status");document.body.appendChild(el)}el.textContent=t;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>el.hidden=true,2600)}
@@ -3677,7 +3685,7 @@ $("invGrid").addEventListener("click",e=>{const g=e.target.closest("[data-gocase
   else if(q.dataset.istk)openStkItem(it);
   else{const sum=dust([it]);drawSkins();toast(`Продано: +${fmt(sum)} ТК`)}});
 // открытие ×1–×5
-const stSkin=it=>{const w=invW(it),sk=invSk(it);return`<div class="st-it sk" style="--c:${RC[it.r]}">${art(w,sk,0)}<b>${w.n}</b><span>${sk[0]}</span></div>`};
+const stSkin=it=>{const w=invW(it),sk=invSk(it);return`<div class="st-it sk" style="--c:${RC[it.r]}">${sk&&sk[6]?`<span class="skw ok"><img src="${skImg(sk)}" data-s="${skSteam(sk)}" alt="" decoding="async" ${IMGFB}></span>`:art(w,sk,0)}<b>${w.n}</b><span>${sk[0]}</span></div>`};
 let csCur=null;
 // ---------- страница кейса (как на кейс-сайтах) ----------
 var CZ=null,czN=1,czState="idle",czBusy=false;
@@ -3719,9 +3727,9 @@ function czOpen(){if(!needLogin()||czBusy)return;const c=CASES[CZ],n=c.p?czN:1;
   if(c.p){ME.tk-=c.p*n;walletSave();drawChip()}else csDay=mskDay();
   const wins=Array.from({length:n},()=>rollCase(c));INV.push(...wins);invSave();setTimeout(()=>wins.forEach(it=>myDrop(it,CZ)),5600);csCur={c,wins,i:CZ,n};czBusy=true;czState="spin";czN=n;czRenderTop();
   $("czTop").scrollIntoView({behavior:"smooth",block:"start"});
-  const tok=++czTok,N=40,rows=[...$("czTop").querySelectorAll(".st-row")];rows.forEach((row,k)=>{const items=Array.from({length:N+6},(_,q)=>q===N?wins[k]:rollCase(c));row.innerHTML=items.map(stSkin).join("")});
+  const tok=++czTok,N=matchMedia("(hover:none)").matches?28:34,rows=[...$("czTop").querySelectorAll(".st-row")];rows.forEach((row,k)=>{const items=Array.from({length:N+6},(_,q)=>q===N?wins[k]:rollCase(c));row.innerHTML=items.map(stSkin).join("")});
   sndStart();requestAnimationFrame(()=>{let left=rows.length;rows.forEach((row,k)=>{const W2=row.children[1].offsetLeft-row.children[0].offsetLeft,IW=row.children[0].offsetWidth,box=row.parentElement.clientWidth,target=N*W2+IW/2-box/2+(Math.random()-.5)*W2*.7;let lastI=-1;
-    tween(5600+k*350,e=>{if(tok!==czTok)return;row.style.transform=`translateX(${-target*e}px)`;if(k===0){const ci=Math.floor((target*e+box/2)/W2);if(ci!==lastI){lastI=ci;sndTick()}}},()=>{if(tok!==czTok)return;row.children[N].classList.add("win");if(--left===0){sndWin(Math.max(...wins.map(w=>w.r)));setTimeout(()=>{if(tok!==czTok)return;czBusy=false;czState="res";if(curView==="case")czRenderTop();drawSkins()},900)}})})})}
+    tween(5600+k*350,e=>{if(tok!==czTok)return;row.style.transform=`translate3d(${-target*e}px,0,0)`;if(k===0){const ci=Math.floor((target*e+box/2)/W2);if(ci!==lastI){lastI=ci;sndTick()}}},()=>{if(tok!==czTok)return;row.children[N].classList.add("win");if(--left===0){sndWin(Math.max(...wins.map(w=>w.r)));setTimeout(()=>{if(tok!==czTok)return;czBusy=false;czState="res";if(curView==="case")czRenderTop();drawSkins()},900)}})})})}
 $("csmClose").onclick=()=>{if(!csBusy)$("caseModal").hidden=true};$("caseModal").onclick=e=>{if(e.target.id==="caseModal"&&!csBusy)$("caseModal").hidden=true};
 
 
