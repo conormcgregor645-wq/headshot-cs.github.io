@@ -2097,10 +2097,7 @@ select#invSort:focus{outline:none;border-color:#f5a524}
 /* ===== апгрейд: спецэффекты ===== */
 .up-s-a .up-ring{isolation:isolate;transition:transform .5s cubic-bezier(.2,.8,.2,1),filter .4s}
 
-@keyframes upBreath{50%{transform:scale(1.06);opacity:.7}}
-.up-trail{position:absolute;inset:0;border-radius:50%;pointer-events:none;opacity:0;transition:opacity .3s;background:conic-gradient(from -75deg,transparent 0deg,rgba(255,255,255,0) 0deg,rgba(255,230,170,.65) 75deg,transparent 75.5deg);-webkit-mask:radial-gradient(closest-side,transparent 78%,#000 80%,#000 97%,transparent 99%);mask:radial-gradient(closest-side,transparent 78%,#000 80%,#000 97%,transparent 99%)}
-.up-ring.spin .up-trail{opacity:1}
-.up-ring.spin .up-needle::before{border-top-color:#fff;filter:drop-shadow(0 0 10px #ffd36b) drop-shadow(0 0 18px rgba(255,200,90,.8))}
+.up-ring.spin .up-ring.spin .up-needle::before{border-top-color:#fff;filter:drop-shadow(0 0 10px #ffd36b) drop-shadow(0 0 18px rgba(255,200,90,.8))}
 .up-ring.spin .win{animation:upArcPulse .6s ease-in-out infinite}
 @keyframes upArcPulse{50%{filter:drop-shadow(0 0 16px rgba(255,190,60,.95))}}
 .up-ring.spin .up-c b{animation:upNum .5s ease-in-out infinite}
@@ -3475,7 +3472,7 @@ function drawUp(){UP.sel=UP.sel.filter(id=>{const it=INV.find(x=>x.id===id);retu
    <div class="up-card"><h3>Ставка <b>${fmt(s)} ТК</b></h3><div class="up-stake">${slots}</div>
     <div class="up-tk"><input id="upTk" type="number" min="0" step="1" inputmode="numeric" placeholder="Добавить ТК" value="${UP.tk||""}" ${logged?"":"disabled"}><button type="button" id="upMax">Макс.</button></div>
     <small style="color:var(--muted)">Баланс: <b style="color:var(--accent)">${logged?fmt(ME.tk):"—"} ТК</b></small></div>
-   <div class="up-mid">${UP.st==="e"?upPortal(ch,t):UP.st==="f"?upLane(ch,t,s):UP.st==="g"?upReactor(ch):UP.st==="c"?`<div class="up-x">${t&&s?`×${(t.p/s).toFixed(2)}`:"×—"}</div><div class="up-bar"><div class="up-bar-tr"><i class="up-bar-win" id="upArc" style="width:${ch}%"></i><i class="up-bar-mk" id="upNeedle" style="left:${UP.pos||0}%"></i></div></div>${cen}`:UP.st==="d"?`<div class="up-ring"><div class="up-dial" id="upDial" style="transform:rotate(${UP.dang||0}deg)">${upRing(ch)}</div><div class="up-needle"></div>${cen}</div>`:`<div class="up-ring">${upRing(ch)}<div class="up-needle" id="upNeedle" style="transform:rotate(${UP.ang||0}deg)"><i class="up-trail"></i></div>${cen}</div>`}
+   <div class="up-mid">${UP.st==="e"?upPortal(ch,t):UP.st==="f"?upLane(ch,t,s):UP.st==="g"?upReactor(ch):UP.st==="c"?`<div class="up-x">${t&&s?`×${(t.p/s).toFixed(2)}`:"×—"}</div><div class="up-bar"><div class="up-bar-tr"><i class="up-bar-win" id="upArc" style="width:${ch}%"></i><i class="up-bar-mk" id="upNeedle" style="left:${UP.pos||0}%"></i></div></div>${cen}`:UP.st==="d"?`<div class="up-ring"><div class="up-dial" id="upDial" style="transform:rotate(${UP.dang||0}deg)">${upRing(ch)}</div><div class="up-needle"></div>${cen}</div>`:`<div class="up-ring">${upRing(ch)}<div class="up-needle" id="upNeedle" style="transform:rotate(${UP.ang||0}deg)"></div>${cen}</div>`}
     <button class="steam up-go" id="upGo" type="button" ${!t||!s||UP.busy?"disabled":""}>${UP.busy?"Крутим…":!s?"Выбери ставку":!t?"Выбери цель":"Апгрейд"}</button></div>
    <div class="up-card" style="--uc:${t?RC[t.sk[5]]:"var(--accent)"}"><h3>Цель ${t?`<b>${fmt(t.p)} ТК</b>`:""}</h3>${tgt}</div>
   </section>
