@@ -2453,6 +2453,21 @@ input[type=search],input:not([type]),.mk-in,.mk-srch input,.up-q,select{backgrou
 .st-it{background:linear-gradient(180deg,rgba(40,27,20,.85),rgba(18,12,9,.9))!important}
 .up-slot{border-color:rgba(255,196,128,.12)!important;background:rgba(12,8,6,.35)!important}
 .ctr-slot:not(.on){border-color:rgba(255,196,128,.14)!important;background:rgba(12,8,6,.35)!important}
+
+/* ===== производительность ===== */
+body{background:var(--ink)!important}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(1200px 600px at 70% -10%,rgba(245,140,40,.10),transparent 60%),linear-gradient(180deg,rgba(10,7,6,.38) 0,rgba(10,7,6,.72) 38%,rgba(10,7,6,.94) 100%),var(--bgimg) center/cover no-repeat,var(--ink);transform:translateZ(0)}
+.steam{animation:none!important;background-position:0 0;transition:background-position .6s ease,filter .2s,transform .2s}
+.steam:hover:not(:disabled){background-position:100% 0}
+.a3,.iv,.mk-c,.cz-it,.up-it,.mkd-r,.mk-row{content-visibility:auto;contain-intrinsic-size:auto 220px}
+@media (hover:none),(max-width:1024px){
+ *{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+ .rail{background:#0e0a08!important}
+ .seg,.mk-tabs,.mkd-var,.me-chip,.tb-ic,.drops{background:rgba(14,10,8,.9)!important}
+ .logo b,.home-head h1,.drop.r5::before,.pd-av::before,.bar span::after,.kb::after,.pf-av,.cz-art,.pd-num,.pts.top,.t6.god,.przc.god,.pd-prize,.upp-skin,.upp-glow{animation:none!important}
+ .logo b{filter:none!important}
+ .iv:hover,.mk-c:hover{transform:none!important}
+}
 </style>
 </head>
 <body>
@@ -3482,9 +3497,9 @@ let STK=[],STKREADY=false,STKWAIT=[];
 function stkSet(d){STK=d.map((x,i)=>({i,n:x[0],v:x[1],img:x[2][0]==="~"?STKP+x[2].slice(1):x[2][0]==="^"?STKC+x[2].slice(1):x[2],t:x[3]||0}));STKREADY=true;STKWAIT.splice(0).forEach(f=>{try{f()}catch(e){}})}
 // наклейки подгружаются отдельно, после показа страницы
 const STKINL=null;
-function stkLoad(){if(STKREADY||stkLoad.p)return;stkLoad.p=1;fetch("img/stk.json?v=5d36291d").then(r=>r.json()).then(d=>{stkSet(d);try{const v=curView;if(["inventory","me","player","skins"].includes(v))route(v)}catch(e){}}).catch(()=>{stkLoad.p=0;setTimeout(stkLoad,4000)})}
+function stkLoad(){if(STKREADY||stkLoad.p)return;stkLoad.p=1;fetch("img/stk.json?v=5d36291d").then(r=>r.json()).then(d=>{stkSet(d);try{const v=curView;if(["inventory","me","player","skins","market"].includes(v))route(v)}catch(e){}}).catch(()=>{stkLoad.p=0;setTimeout(stkLoad,4000)})}
 const stkNeed=f=>{if(STKREADY)return f();STKWAIT.push(f);stkLoad()};
-if(STKINL)stkSet(STKINL);else(window.requestIdleCallback||(f=>setTimeout(f,1200)))(stkLoad,{timeout:2500});
+if(STKINL)stkSet(STKINL);
 const STK_OK=w=>!["knife","gloves","agent","item","equip"].includes(w.c);
 const SX=[36,48,60,72,84];
 const SKLOCAL=1;
@@ -3849,7 +3864,7 @@ function pushDrop(d){DROPS.unshift(d);if(DROPS.length>24)DROPS.length=24;const t
 function fakeDrop(){const pc=CASES.filter(c=>c.p),wt=pc.map(c=>1/Math.sqrt(c.p));let x=Math.random()*wt.reduce((a,b)=>a+b,0),i=0;for(;i<pc.length-1;i++){if(x<wt[i])break;x-=wt[i]}
   const c=pc[i],it=rollCase(c);return{n:NICKS[Math.floor(Math.random()*NICKS.length)],w:it.w,s:it.s,r:it.r,wear:it.wear,c:CASES.indexOf(c)}}
 for(let k=0;k<16;k++)DROPS.push(fakeDrop());
-function dropLoop(){clearTimeout(dropT);dropT=setTimeout(()=>{if(!document.hidden)pushDrop(fakeDrop());dropLoop()},2600+Math.random()*4200)}dropLoop();
+function dropLoop(){clearTimeout(dropT);dropT=setTimeout(()=>{if(!document.hidden)pushDrop(fakeDrop());dropLoop()},(matchMedia("(hover:none)").matches?2.2:1)*(2600+Math.random()*4200))}dropLoop();
 function myDrop(it,ci,src){if(!it||it.fx)return;pushDrop({n:logged?ME.n:"Гость",w:it.w,s:it.s,r:it.r,wear:it.wear,c:ci,src,me:1})}
 $("dropsTr").addEventListener("click",e=>{const a=e.target.closest("[data-cprev]");if(!a)return;e.preventDefault();openCasePage(+a.dataset.cprev)});
 
@@ -4277,10 +4292,10 @@ function mkTick(steps){steps=Math.max(1,Math.min(steps||1,400));let sold=[];
     MK.my=MK.my.filter(m=>{const ratio=m.p/mkVal(m.it),q=ratio<=.9?.12:ratio<=1?.05:ratio<=1.08?.015:ratio<=1.15?.004:0;if(Math.random()<q){sold.push(m);return false}return true})}
   sold.forEach(m=>{const get=Math.round(m.p*(1-MK_FEE)),b=mkNick();ME.tk+=get;MK.h.unshift({k:"sell",it:m.it,p:m.p,get,n:b,t:Date.now()});mkDeal(m,b);try{notify("sell","Скин продан",`${mkName(m.it)} | ${mkSkN(m.it.s)} купил ${b}. На баланс +${fmt(get)} ТК`)}catch(e){}});
   if(sold.length){walletSave();drawChip();const m=sold[0],w=invW(m.it);toast(sold.length>1?`Продано лотов: ${sold.length}. Деньги уже на балансе`:`Твой лот купили: ${w?w.n:m.it.w} | ${m.it.s} · +${fmt(Math.round(m.p*(1-MK_FEE)))} ТК`)}
-  MK.h=MK.h.slice(0,80);MK.t=Date.now();mkSave();return sold.length}
+  MK.h=MK.h.slice(0,80);MK.t=Date.now();clearTimeout(mkTick.s);mkTick.s=setTimeout(mkSave,1500);return sold.length}
 {const el=Date.now()-(MK.t||0);if(!MK.t||el>864e5){MK.l=[];MK.d=[];MK.seed={};mkFill();for(let k=0;k<14;k++){const x=mkPick();if(x)mkDeal(mkOffer(x,x.van?0:spWear(x.sk,x.i,x.sp)))}MK.d.forEach((d,k)=>d.t=Date.now()-k*41e4)}if(MK.my.length&&MK.t)mkTick(Math.floor(el/1e4));MK.t=Date.now();mkSave()}
-stkNeed(()=>{let ch=0;MK.l.forEach(x=>{if(x.it.stk===undefined){mkStk(x.it);ch=1}});if(ch){mkSave();if(curView==="market"&&!mkArm)drawMk(true)}});
-setInterval(()=>{if(document.hidden)return;const n=mkTick(1);if(curView==="market"&&!mkArm&&!mkDet&&(n||mkTab==="buy"))drawMk(true)},1e4);
+(f=>STKREADY?f():STKWAIT.push(f))(()=>{let ch=0;MK.l.forEach(x=>{if(x.it.stk===undefined){mkStk(x.it);ch=1}});if(ch){mkSave();if(curView==="market"&&!mkArm)drawMk(true)}});
+setInterval(()=>{if(document.hidden)return;if(curView!=="market"&&!MK.my.length)return;const n=mkTick(1);if(curView==="market"&&!mkArm&&!mkDet&&mkTab==="buy"){if(n)drawMk(true);else{const f=document.querySelector(".mk-feed");if(f)f.outerHTML=mkFeed()}}},1e4);
 
 const mkAgo=t=>{const m=Math.round((Date.now()-t)/6e4);return m<1?"только что":m<60?`${m} мин`:m<1440?`${Math.round(m/60)} ч`:`${Math.round(m/1440)} д`};
 const mkAgo2=t=>{const a=mkAgo(t);return a==="только что"?a:a+" назад"};
@@ -4435,7 +4450,8 @@ function route(forced){try{closeProfile()}catch(e){}["modal","srvModal","cmdModa
   if(v==="upgrade")try{drawUp()}catch(e){console.error(e)}
   if(v==="inventory")try{drawInv()}catch(e){console.error(e)}
   if(v==="contract")try{drawCtr()}catch(e){console.error(e)}
-  if(v==="market")try{mkArm=null;drawMk()}catch(e){console.error(e)}
+  if(!STKREADY&&["inventory","market","me","player"].includes(v))try{stkLoad()}catch(e){}
+  if(v==="market")try{mkArm=null;const el=Date.now()-(MK.t||Date.now());if(el>2e4)mkTick(Math.min(60,Math.floor(el/1e4)));drawMk()}catch(e){console.error(e)}
   try{drawDrops()}catch(e){}
   if(v==="ach")try{if(!ACHFLAG)ACHFOR=null;ACHFLAG=0;drawAch()}catch(e){console.error(e)}
   if(v==="support")try{drawSupport()}catch(e){console.error(e)}
