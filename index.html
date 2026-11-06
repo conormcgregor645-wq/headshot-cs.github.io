@@ -2096,12 +2096,8 @@ select#invSort:focus{outline:none;border-color:#f5a524}
 
 /* ===== апгрейд: спецэффекты ===== */
 .up-s-a .up-ring{isolation:isolate;transition:transform .5s cubic-bezier(.2,.8,.2,1),filter .4s}
-.up-s-a .up-ring.spin{transform:scale(1.06)}
-.up-halo{position:absolute;inset:-14%;border-radius:50%;pointer-events:none;z-index:-1;background:radial-gradient(closest-side,rgba(245,165,36,.22),rgba(245,165,36,.06) 60%,transparent 75%);animation:upBreath 3.4s ease-in-out infinite}
+
 @keyframes upBreath{50%{transform:scale(1.06);opacity:.7}}
-.up-ring.spin .up-halo{animation-duration:.9s;background:radial-gradient(closest-side,rgba(255,200,90,.38),rgba(245,165,36,.1) 60%,transparent 75%)}
-.up-sweep{position:absolute;inset:-4%;border-radius:50%;pointer-events:none;opacity:0;background:conic-gradient(from 0deg,transparent 0 70%,rgba(255,215,120,.0) 70%,rgba(255,215,120,.35) 96%,transparent 100%);-webkit-mask:radial-gradient(closest-side,transparent 86%,#000 88%,#000 98%,transparent 100%);mask:radial-gradient(closest-side,transparent 86%,#000 88%,#000 98%,transparent 100%);transition:opacity .4s}
-.up-ring.spin .up-sweep{opacity:1;animation:ptSpin .7s linear infinite}
 .up-trail{position:absolute;inset:0;border-radius:50%;pointer-events:none;opacity:0;transition:opacity .3s;background:conic-gradient(from -75deg,transparent 0deg,rgba(255,255,255,0) 0deg,rgba(255,230,170,.65) 75deg,transparent 75.5deg);-webkit-mask:radial-gradient(closest-side,transparent 78%,#000 80%,#000 97%,transparent 99%);mask:radial-gradient(closest-side,transparent 78%,#000 80%,#000 97%,transparent 99%)}
 .up-ring.spin .up-trail{opacity:1}
 .up-ring.spin .up-needle::before{border-top-color:#fff;filter:drop-shadow(0 0 10px #ffd36b) drop-shadow(0 0 18px rgba(255,200,90,.8))}
@@ -2110,7 +2106,7 @@ select#invSort:focus{outline:none;border-color:#f5a524}
 .up-ring.spin .up-c b{animation:upNum .5s ease-in-out infinite}
 @keyframes upNum{50%{transform:scale(1.06);text-shadow:0 0 22px rgba(255,200,90,.7)}}
 .up-ring.upx-tense{animation:upTense .14s linear infinite}
-@keyframes upTense{25%{transform:scale(1.06) translate(1px,-1px)}75%{transform:scale(1.06) translate(-1px,1px)}}
+@keyframes upTense{25%{transform:translate(1px,-1px)}75%{transform:translate(-1px,1px)}}
 .up-top.upx-live .up-card{transition:filter .4s,opacity .4s}
 .up-top.upx-live .up-card:first-child{filter:brightness(.55) saturate(.7)}
 .up-target{transition:transform .3s}
@@ -2139,6 +2135,47 @@ select#invSort:focus{outline:none;border-color:#f5a524}
 .upx-card small{font-size:12px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:var(--live)}
 .upx-card b{font-size:22px;font-weight:900;font-style:italic}.upx-card .nm{color:var(--rc);font-weight:800}
 .upx-card em{font-style:normal;font-size:20px;font-weight:900;color:#ffd36b;margin-top:4px}
+
+/* контракт: документ */
+.ctr-side.cd{position:relative;gap:14px;padding:0 0 16px;overflow:hidden;background:linear-gradient(180deg,rgba(245,165,36,.07),transparent 140px),repeating-linear-gradient(0deg,rgba(255,255,255,.018) 0 1px,transparent 1px 26px),var(--panel);border:1px solid color-mix(in srgb,var(--accent) 22%,var(--line))}
+.ctr-side.cd>*:not(.cd-h){margin-inline:16px}
+.cd-h{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px dashed color-mix(in srgb,var(--accent) 30%,var(--line));background:linear-gradient(90deg,rgba(245,165,36,.12),transparent)}
+.cd-h span{display:flex;align-items:center;gap:8px;font-weight:900;font-style:italic;text-transform:uppercase;letter-spacing:.04em;font-size:14px}
+.cd-h svg{width:18px;height:18px;fill:none;stroke:var(--accent);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.cd-h i{font-style:normal;font-size:11px;color:var(--muted);font-family:ui-monospace,Menlo,monospace;letter-spacing:.08em}
+.cd-main{display:flex;align-items:center;gap:16px}
+.cd-gw{position:relative;flex:none;width:112px;height:112px}
+.cd-g{width:100%;height:100%}
+.cd-g path{fill:none;stroke:rgba(255,255,255,.07);stroke-width:9;stroke-linecap:round;transition:stroke .3s}
+.cd-g path.req{stroke:rgba(245,165,36,.22)}
+.cd-g path.on{filter:drop-shadow(0 0 5px currentColor)}
+.cd-gc{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.cd-gc b{font-size:30px;font-weight:900;font-style:italic;line-height:1}
+.cd-gc small{font-size:11px;color:var(--muted)}
+.cd-sum{min-width:0;display:flex;flex-direction:column;gap:3px}
+.cd-sum small{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;font-weight:800}
+.cd-sum b{font-size:26px;font-weight:900;line-height:1.1;background:linear-gradient(180deg,#fff,#ffd36b);-webkit-background-clip:text;background-clip:text;color:transparent}
+.cd-sum b i{font-style:normal;font-size:14px}
+.cd-sum span{font-size:13px;color:var(--muted)}
+.cd-range{padding:12px;border-radius:14px;background:rgba(0,0,0,.25);border:1px solid var(--line)}
+.cd-range.ph small{color:var(--muted);font-size:12px}
+.cd-rh{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
+.cd-rh small{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;font-weight:800}
+.cd-up{font-size:12px;color:var(--muted)}.cd-up b{color:var(--live);font-size:15px}
+.cd-track{position:relative;height:8px;border-radius:4px;background:rgba(255,255,255,.06)}
+.cd-lose{position:absolute;left:0;top:0;bottom:0;border-radius:4px 0 0 4px;background:linear-gradient(90deg,rgba(235,75,75,.25),rgba(235,75,75,.6))}
+.cd-win{position:absolute;right:0;top:0;bottom:0;border-radius:0 4px 4px 0;background:linear-gradient(90deg,rgba(61,220,151,.6),rgba(61,220,151,.25));box-shadow:0 0 12px rgba(61,220,151,.35)}
+.cd-mark{position:absolute;top:-6px;bottom:-6px;width:3px;margin-left:-1.5px;border-radius:2px;background:#fff;box-shadow:0 0 10px #fff}
+.cd-mark em{position:absolute;bottom:calc(100% + 3px);left:50%;transform:translateX(-50%);font-style:normal;font-size:10px;font-weight:800;color:var(--fg);white-space:nowrap;text-transform:uppercase;letter-spacing:.06em}
+.cd-rl{display:flex;justify-content:space-between;margin-top:8px;font-size:12px;font-weight:800}
+.cd-rl span:first-child{color:#eb8a8a}.cd-rl span:last-child{color:#7ee2b4}
+.ctr-go svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;margin-right:6px}
+.ctr-go:not([disabled]){box-shadow:0 0 0 1px rgba(255,210,110,.4),0 10px 30px rgba(245,165,36,.35);animation:cdReady 2.2s ease-in-out infinite}
+@keyframes cdReady{50%{box-shadow:0 0 0 1px rgba(255,210,110,.6),0 10px 40px rgba(245,165,36,.55)}}
+.cd-lnk{background:none;border:0;color:var(--muted);font:inherit;font-size:13px;font-weight:700;cursor:pointer;padding:4px 6px;border-radius:6px}
+.cd-lnk:hover{color:var(--accent)}
+.ctr-side.cd .ctr-res{margin-top:0}
+@media (max-width:640px){.cd-gw{width:92px;height:92px}.cd-sum b{font-size:22px}}
 </style>
 </head>
 <body>
@@ -3438,7 +3475,7 @@ function drawUp(){UP.sel=UP.sel.filter(id=>{const it=INV.find(x=>x.id===id);retu
    <div class="up-card"><h3>Ставка <b>${fmt(s)} ТК</b></h3><div class="up-stake">${slots}</div>
     <div class="up-tk"><input id="upTk" type="number" min="0" step="1" inputmode="numeric" placeholder="Добавить ТК" value="${UP.tk||""}" ${logged?"":"disabled"}><button type="button" id="upMax">Макс.</button></div>
     <small style="color:var(--muted)">Баланс: <b style="color:var(--accent)">${logged?fmt(ME.tk):"—"} ТК</b></small></div>
-   <div class="up-mid">${UP.st==="e"?upPortal(ch,t):UP.st==="f"?upLane(ch,t,s):UP.st==="g"?upReactor(ch):UP.st==="c"?`<div class="up-x">${t&&s?`×${(t.p/s).toFixed(2)}`:"×—"}</div><div class="up-bar"><div class="up-bar-tr"><i class="up-bar-win" id="upArc" style="width:${ch}%"></i><i class="up-bar-mk" id="upNeedle" style="left:${UP.pos||0}%"></i></div></div>${cen}`:UP.st==="d"?`<div class="up-ring"><div class="up-dial" id="upDial" style="transform:rotate(${UP.dang||0}deg)">${upRing(ch)}</div><div class="up-needle"></div>${cen}</div>`:`<div class="up-ring">${upRing(ch)}<div class="up-needle" id="upNeedle" style="transform:rotate(${UP.ang||0}deg)"><i class="up-trail"></i></div>${cen}<i class="up-halo"></i><i class="up-sweep"></i></div>`}
+   <div class="up-mid">${UP.st==="e"?upPortal(ch,t):UP.st==="f"?upLane(ch,t,s):UP.st==="g"?upReactor(ch):UP.st==="c"?`<div class="up-x">${t&&s?`×${(t.p/s).toFixed(2)}`:"×—"}</div><div class="up-bar"><div class="up-bar-tr"><i class="up-bar-win" id="upArc" style="width:${ch}%"></i><i class="up-bar-mk" id="upNeedle" style="left:${UP.pos||0}%"></i></div></div>${cen}`:UP.st==="d"?`<div class="up-ring"><div class="up-dial" id="upDial" style="transform:rotate(${UP.dang||0}deg)">${upRing(ch)}</div><div class="up-needle"></div>${cen}</div>`:`<div class="up-ring">${upRing(ch)}<div class="up-needle" id="upNeedle" style="transform:rotate(${UP.ang||0}deg)"><i class="up-trail"></i></div>${cen}</div>`}
     <button class="steam up-go" id="upGo" type="button" ${!t||!s||UP.busy?"disabled":""}>${UP.busy?"Крутим…":!s?"Выбери ставку":!t?"Выбери цель":"Апгрейд"}</button></div>
    <div class="up-card" style="--uc:${t?RC[t.sk[5]]:"var(--accent)"}"><h3>Цель ${t?`<b>${fmt(t.p)} ТК</b>`:""}</h3>${tgt}</div>
   </section>
@@ -3524,14 +3561,18 @@ function ctrCard(it,on,dis){const w=invW(it),sk=invSk(it);return`<button class="
 function drawCtr(){const box=$("ctrBox");if(!box)return;CTR=CTR.filter(id=>{const it=INV.find(x=>x.id===id);return it&&ctrOk(it)});const P=ctrPlan();
   const slots=Array.from({length:CTR_MAX},(_,k)=>{const it=P&&P.items[k];if(!it)return`<div class="ctr-slot${k<CTR_MIN?" req":""}"><span>${k+1}</span></div>`;const w=invW(it),sk=invSk(it);return`<button type="button" class="ctr-slot on" data-ctri="${it.id}" style="--rc:${RC[it.r]};--d:${k}" title="Убрать">${art(w,sk,it.wear)}<small>${fmt(itDust(it))}</small></button>`}).join("");
   const n=P?P.items.length:0;
-  const info=!P?`<p class="ctr-hint">Нажимай на скины ниже, чтобы положить их в контракт. Нужно минимум ${CTR_MIN}, можно до ${CTR_MAX}.</p>`:
-   `<div class="ctr-stat"><div><small>Вклад</small><b>${fmt(Math.round(P.S))} ТК</b></div><div><small>Скинов</small><b>${n} / ${CTR_MAX}</b></div>${P.ready?`<div><small>Можешь получить</small><b>${fmt(Math.round(P.min))} – ${fmt(Math.round(P.max))} ТК</b></div><div><small>Шанс получить дороже вклада</small><b style="color:var(--live)">${Math.round(P.up*100)}%</b></div>`:`<div class="wide"><small>Добавь ещё</small><b>${CTR_MIN-n}</b></div>`}</div>
-    <div class="ctr-bar"><i style="width:${n/CTR_MAX*100}%"></i></div>`;
+  const SEG=CTR_MAX,gauge=`<svg viewBox="0 0 120 120" class="cd-g">${Array.from({length:SEG},(_,k)=>{const a0=(-90+k*36+3)*Math.PI/180,a1=(-90+(k+1)*36-3)*Math.PI/180,r=52,x0=60+r*Math.cos(a0),y0=60+r*Math.sin(a0),x1=60+r*Math.cos(a1),y1=60+r*Math.sin(a1),on=k<n,req=k<CTR_MIN;return`<path d="M${x0.toFixed(2)} ${y0.toFixed(2)} A${r} ${r} 0 0 1 ${x1.toFixed(2)} ${y1.toFixed(2)}" class="${on?"on":req?"req":""}" style="${on?`stroke:${RC[P.items[k].r]}`:""}"/>`}).join("")}</svg>`;
+  const pos=v=>P&&P.ready?Math.max(0,Math.min(100,Math.log(v/P.min)/Math.log(P.max/P.min)*100)):0;
+  const info=`<div class="cd-main"><div class="cd-gw">${gauge}<div class="cd-gc"><b>${n}</b><small>из ${CTR_MAX}</small></div></div>
+    <div class="cd-sum"><small>Твой вклад</small><b>${P?fmt(Math.round(P.S)):"0"} <i>ТК</i></b><span>${!P?`Положи от ${CTR_MIN} до ${CTR_MAX} любых скинов`:P.ready?"Контракт готов к подписи":`Добавь ещё ${CTR_MIN-n} ${plural(CTR_MIN-n,"скин","скина","скинов")}`}</span></div></div>
+   ${P&&P.ready?`<div class="cd-range"><div class="cd-rh"><small>Можешь получить</small><span class="cd-up">в плюс <b>${Math.round(P.up*100)}%</b></span></div>
+     <div class="cd-track"><i class="cd-lose" style="width:${pos(P.S)}%"></i><i class="cd-win" style="left:${pos(P.S)}%"></i><i class="cd-mark" style="left:${pos(P.S)}%"><em>вклад</em></i></div>
+     <div class="cd-rl"><span>${fmt(Math.round(P.min))} ТК</span><span>${fmt(Math.round(P.max))} ТК</span></div></div>`:`<div class="cd-range ph"><small>Диапазон результата появится, когда положишь ${CTR_MIN} скина</small></div>`}`;
   const all=INV.filter(ctrOk),list=all.filter(it=>ctrF==="all"||String(it.r)===ctrF).sort((a,b)=>itDust(a)-itDust(b));
   const rs=[...new Set(all.map(it=>it.r))].sort();
   box.innerHTML=`<div class="ctr-top"><div class="ctr-stage ${ctrBusy?"busy":""}" id="ctrStage"><div class="ctr-slots">${slots}</div><div class="ctr-core" id="ctrCore"></div></div>
-   <div class="ctr-side">${ctrRes?`<div class="ctr-res" style="--rc:${RC[ctrRes.r]}"><span class="pic">${art(invW(ctrRes),invSk(ctrRes),ctrRes.wear)}</span><div><small>Контракт выполнен</small><b>${esc(ctrRes.w)} | ${esc(ctrRes.s==="Vanilla"?"Обычный":ctrRes.s)}</b><span>${RN[ctrRes.r]} · ${wearName(ctrRes.wear)}</span><em>${fmt(itDust(ctrRes))} ТК</em></div></div>`:""}${info}
-    <button class="steam ctr-go" id="ctrGo" type="button" ${P&&P.ready&&!ctrBusy?"":"disabled"}>${ctrBusy?"Подписываем…":P&&P.ready?"Подписать контракт":`Положи минимум ${CTR_MIN} скина`}</button>${P&&!ctrBusy?`<div class="ctr-row"><button class="ghost" id="ctrAuto" type="button">Добавить дешёвые</button><button class="ghost" id="ctrClr" type="button">Очистить</button></div>`:!ctrBusy&&all.length?`<button class="ghost" id="ctrAuto" type="button">Добавить ${Math.min(CTR_MAX,all.length)} самых дешёвых</button>`:""}</div></div>
+   <div class="ctr-side cd"><div class="cd-h"><span><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/></svg>Контракт обмена</span><i>№ ${String(9000+INV.length*37%1000).padStart(4,"0")}</i></div>${ctrRes?`<div class="ctr-res" style="--rc:${RC[ctrRes.r]}"><span class="pic">${art(invW(ctrRes),invSk(ctrRes),ctrRes.wear)}</span><div><small>Контракт выполнен</small><b>${esc(ctrRes.w)} | ${esc(ctrRes.s==="Vanilla"?"Обычный":ctrRes.s)}</b><span>${RN[ctrRes.r]} · ${wearName(ctrRes.wear)}</span><em>${fmt(itDust(ctrRes))} ТК</em></div></div>`:""}${info}
+    <button class="steam ctr-go" id="ctrGo" type="button" ${P&&P.ready&&!ctrBusy?"":"disabled"}><svg viewBox="0 0 24 24"><path d="M4 20c3-1 5-4 7-4s2 3 4 3 3-2 5-3"/><path d="M14 4l6 6-8 8H6v-6z"/></svg>${ctrBusy?"Подписываем…":P&&P.ready?"Подписать контракт":"Подписать"}</button>${P&&!ctrBusy?`<div class="ctr-row"><button class="cd-lnk" id="ctrAuto" type="button">+ Добавить дешёвые</button><button class="cd-lnk" id="ctrClr" type="button">Очистить</button></div>`:!ctrBusy&&all.length?`<div class="ctr-row"><button class="cd-lnk" id="ctrAuto" type="button">+ Добавить ${Math.min(CTR_MAX,all.length)} самых дешёвых</button></div>`:""}</div></div>
    <div class="up-lh"><h3>Мои скины</h3><span style="color:var(--muted);font-size:13px">надетые скины и агенты не участвуют</span></div>
    ${rs.length>1?`<div class="up-flt" id="ctrFlt">${[["all","Все"],...rs.map(r=>[String(r),RN[r]])].map(([k,t])=>`<button type="button" data-ctrf="${k}" aria-pressed="${ctrF===k}">${t}</button>`).join("")}</div>`:""}
    <div class="up-grid ctr-grid">${list.length?list.map(it=>{const on=CTR.includes(it.id);return ctrCard(it,on,!on&&n>=CTR_MAX)}).join(""):`<div class="up-empty">${logged?"Нет свободных скинов. Открой пару кейсов.":"Войди через Steam, чтобы заключать контракты."}</div>`}</div>`;
