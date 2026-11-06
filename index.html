@@ -2180,6 +2180,117 @@ select#invSort:focus{outline:none;border-color:#f5a524}
 .iv .sp-chip{top:34px;left:10px;right:auto}
 .sp-t{display:inline-block;font-size:11px;font-weight:900;background:linear-gradient(90deg,#9ff3ff,#c9a7ff,#ffd38a);-webkit-background-clip:text;background-clip:text;color:transparent}
 .cs-bw .sp-t{font-size:12px;margin-top:2px}
+
+/* ===== Торговая площадка ===== */
+.mk-hero{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:14px}
+.mk-st{position:relative;overflow:hidden;padding:14px 16px;border-radius:16px;background:linear-gradient(160deg,rgba(255,255,255,.035),transparent 60%),var(--panel);border:1px solid var(--line)}
+.mk-st small{display:block;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.mk-st b{display:block;margin-top:4px;font-size:22px;font-weight:900;font-style:italic;font-variant-numeric:tabular-nums}
+.mk-st.acc{background:radial-gradient(120% 140% at 100% 0%,rgba(245,165,36,.22),transparent 60%),var(--panel);border-color:rgba(245,165,36,.35)}
+.mk-st.acc b{color:var(--accent)}
+.mk-tabs{display:flex;gap:4px;padding:4px;border-radius:999px;background:var(--panel);border:1px solid var(--line);width:max-content;max-width:100%;overflow-x:auto;margin-bottom:14px}
+.mk-tabs button{border:0;background:none;color:var(--muted);font:inherit;font-weight:800;font-size:14px;padding:9px 18px;border-radius:999px;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px;transition:color .2s,background .2s}
+.mk-tabs button:hover{color:var(--fg)}
+.mk-tabs button[aria-selected="true"]{background:linear-gradient(135deg,var(--accent),var(--accent-2));color:var(--on-accent);box-shadow:0 6px 18px rgba(245,165,36,.25)}
+.mk-tabs button i{font-style:normal;font-size:11px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;display:inline-grid;place-items:center;background:rgba(0,0,0,.25)}
+.mk-tabs button:not([aria-selected="true"]) i{background:var(--panel-2);color:var(--accent)}
+.mk-body.buy{display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:14px;align-items:start}
+.mk-tools{display:grid;grid-template-columns:1fr 110px 110px 190px;gap:8px;margin-bottom:10px}
+.mk-srch{position:relative}.mk-srch svg{position:absolute;left:14px;top:50%;width:16px;height:16px;transform:translateY(-50%);fill:none;stroke:var(--muted);stroke-width:2;pointer-events:none}
+.mk-srch input,.mk-in{width:100%;min-width:0;height:42px;background:var(--panel);border:1px solid var(--line);border-radius:12px!important;color:var(--fg);font:inherit;font-size:14px;padding:0 14px}
+.mk-srch input{padding-left:38px}
+select.mk-in{appearance:none;-webkit-appearance:none;background:var(--panel) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a8919b' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") right 12px center/14px no-repeat;padding-right:34px;cursor:pointer}
+.mk-srch input:focus,.mk-in:focus{outline:0;border-color:rgba(245,165,36,.6)}
+.mk-cats{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:12px;scrollbar-width:none}.mk-cats::-webkit-scrollbar{display:none}
+.mk-cats button{flex:none;padding:7px 13px;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:var(--muted);font:inherit;font-weight:700;font-size:13px;cursor:pointer;transition:all .2s}
+.mk-cats button:hover{color:var(--fg);border-color:rgba(245,165,36,.4)}
+.mk-cats button[aria-pressed="true"]{color:var(--on-accent);background:linear-gradient(180deg,#ffc24d,#f5a524);border-color:transparent}
+.mk-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(196px,1fr));gap:10px}
+.mk-c{position:relative;display:flex;flex-direction:column;gap:3px;padding:12px;border-radius:16px;background:radial-gradient(90% 55% at 50% 22%,color-mix(in srgb,var(--rc) 20%,transparent),transparent 72%),linear-gradient(180deg,var(--panel-2),var(--panel));border:1px solid var(--line);min-width:0;transition:transform .25s var(--ease),border-color .25s,box-shadow .25s}
+.mk-c::after{content:"";position:absolute;left:14px;right:14px;bottom:0;height:2px;border-radius:2px;background:var(--rc);opacity:.85}
+.mk-c:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--rc) 50%,var(--line));box-shadow:0 14px 30px rgba(0,0,0,.35),0 0 0 1px color-mix(in srgb,var(--rc) 20%,transparent)}
+.mk-tags{display:flex;align-items:center;gap:5px;min-height:22px;flex-wrap:nowrap;min-width:0}
+.mk-tags .sp-chip{position:static;max-width:none;flex:0 1 auto;min-width:0}.mk-tags .mk-b{flex:none}
+.mk-main,.mk-feed,.mk-inv,.mk-side{min-width:0}
+.mk-b{font-size:10px;font-weight:900;padding:2px 6px;border-radius:6px;color:#ff9a3d;border:1px solid rgba(255,154,61,.6)}.mk-b.sv{color:#ffd54a;border-color:rgba(255,213,74,.6)}
+.mk-dsc,.mk-ovr,.mk-fair{flex:none;margin-left:auto;font-size:11px;font-weight:900;padding:3px 8px;border-radius:999px;font-variant-numeric:tabular-nums}
+.mk-dsc{color:#0d1f17;background:var(--live)}.mk-ovr{color:var(--muted);background:var(--panel-2);border:1px solid var(--line)}.mk-fair{color:var(--muted);font-weight:700}
+.mk-c .pic{display:grid;place-items:center;height:96px;margin:4px 0 2px}.mk-c .pic .skw,.mk-c .pic svg{width:100%;height:96px}
+.mk-c:hover .pic .skw{transform:scale(1.05)}.mk-c .pic .skw{transition:transform .35s var(--ease)}
+.mk-n{font-size:14px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mk-s{font-size:12px;font-weight:700;color:var(--rc);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mk-fl{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:6px;margin-top:4px;font-size:10px;color:var(--muted);font-variant-numeric:tabular-nums}
+.mk-fl span{font-weight:900;color:var(--fg)}
+.mk-fl-b{position:relative;height:4px;border-radius:2px;background:linear-gradient(90deg,#3ddc97 0 7%,#9be15d 7% 15%,#f5c451 15% 38%,#ff8a3d 38% 45%,#eb4b4b 45%)}
+.mk-fl-b i{position:absolute;top:-3px;width:2px;height:10px;margin-left:-1px;border-radius:1px;background:#fff;box-shadow:0 0 6px rgba(255,255,255,.8)}
+.mk-f{display:flex;align-items:flex-end;justify-content:space-between;gap:8px;margin-top:8px;padding-top:9px;border-top:1px dashed var(--line)}
+.mk-sel{display:flex;align-items:center;gap:7px;min-width:0;flex:1;overflow:hidden}
+.mk-sel span{display:flex;flex-direction:column;font-size:12px;font-weight:700;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mk-sel small{font-size:10px;color:var(--muted);font-weight:600}
+.mk-ava{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-size:12px;font-weight:900;color:#fff;background:linear-gradient(135deg,hsl(var(--h) 70% 50%),hsl(calc(var(--h) + 40) 70% 35%))}
+.mk-pr{text-align:right;flex:none}.mk-pr b{display:block;font-size:15px;font-weight:900;font-style:italic;white-space:nowrap;font-variant-numeric:tabular-nums}
+.mk-pr small{font-size:10px;color:var(--muted);text-decoration:line-through;text-decoration-color:rgba(168,145,155,.5)}
+.mk-buy{justify-content:center;width:100%;margin-top:9px;padding:9px 12px;font-size:13px}
+.mk-buy.arm{background:linear-gradient(135deg,#3ddc97,#1fae72);color:#06170f;animation:mkArm 1s ease-in-out infinite}
+@keyframes mkArm{50%{box-shadow:0 0 0 4px rgba(61,220,151,.18)}}
+.mk-more{margin:14px auto 0;justify-content:center}
+.mk-empty{grid-column:1/-1;padding:40px 20px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:16px}
+.mk-empty.big{display:flex;flex-direction:column;gap:6px;padding:60px 20px}.mk-empty.big b{color:var(--fg);font-size:18px;font-style:italic}
+.mk-feed{position:sticky;top:16px;border-radius:18px;background:var(--panel);border:1px solid var(--line);padding:14px}
+.mk-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}.mk-hd b{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:900;font-style:italic;text-transform:uppercase}.mk-hd span{font-size:12px;color:var(--muted)}
+.mk-live{width:8px;height:8px;border-radius:50%;background:var(--live);box-shadow:0 0 0 0 rgba(61,220,151,.6);animation:mkLive 1.8s infinite}
+@keyframes mkLive{70%{box-shadow:0 0 0 7px rgba(61,220,151,0)}100%{box-shadow:0 0 0 0 rgba(61,220,151,0)}}
+.mk-fl-l{display:flex;flex-direction:column;gap:6px}
+.mk-fi{display:grid;grid-template-columns:54px minmax(0,1fr) auto;align-items:center;gap:8px;padding:6px 8px 6px 6px;border-radius:12px;background:linear-gradient(90deg,color-mix(in srgb,var(--rc) 14%,transparent),transparent 60%),var(--panel-2);border-left:2px solid var(--rc)}
+.mk-fi .pic .skw,.mk-fi .pic svg{width:54px;height:36px}
+.mk-fi div{min-width:0}.mk-fi b{display:block;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mk-fi span{display:block;font-size:11px;color:var(--rc);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mk-fp{text-align:right}.mk-fp b{font-size:12px;font-variant-numeric:tabular-nums}.mk-fp small{font-size:10px;color:var(--muted)}
+.mk-sell{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:14px;align-items:start}
+.mk-inv{border-radius:20px;background:var(--panel);border:1px solid var(--line);padding:16px;min-width:0}
+.mk-igrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:8px;max-height:640px;overflow-y:auto;padding-right:2px}
+.mk-side{position:sticky;top:16px}
+.mk-ph{display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;padding:44px 24px;border-radius:20px;border:1px dashed rgba(245,165,36,.35);background:radial-gradient(80% 60% at 50% 0%,rgba(245,165,36,.08),transparent 70%),var(--panel)}
+.mk-ph svg{width:44px;height:44px;fill:none;stroke:var(--accent);stroke-width:1.6;margin-bottom:4px}.mk-ph b{font-size:17px;font-style:italic}.mk-ph span{font-size:13px;color:var(--muted);line-height:1.5}
+.mk-lot{display:flex;flex-direction:column;gap:4px;padding:16px;border-radius:20px;background:radial-gradient(90% 40% at 50% 18%,color-mix(in srgb,var(--rc) 22%,transparent),transparent 72%),linear-gradient(180deg,var(--panel-2),var(--panel));border:1px solid color-mix(in srgb,var(--rc) 35%,var(--line))}
+.mk-lot-h{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.mk-lot-h>span:first-child{font-size:11px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-right:auto}
+.mk-lot-h .sp-chip{position:static}
+.mk-lot .pic{display:grid;place-items:center;height:140px}.mk-lot .pic .skw,.mk-lot .pic svg{width:100%;height:140px}
+.mk-lot .mk-n{font-size:17px;white-space:normal}
+.mk-pin{display:flex;flex-direction:column;gap:6px;margin-top:12px}.mk-pin>span{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.mk-pin>div{position:relative}.mk-pin input{width:100%;height:52px;border-radius:14px!important;background:var(--ink);border:1px solid var(--line);color:var(--fg);font:inherit;font-size:22px;font-weight:900;font-style:italic;padding:0 52px 0 16px;font-variant-numeric:tabular-nums}
+.mk-pin input:focus{outline:0;border-color:var(--accent);box-shadow:0 0 0 4px var(--glow)}
+.mk-pin i{position:absolute;right:16px;top:50%;transform:translateY(-50%);font-style:normal;font-weight:900;color:var(--accent)}
+.mk-pin.sm input{height:40px;font-size:16px;padding-right:44px}.mk-pin.sm i{right:12px;font-size:13px}
+.mk-q{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-top:6px}
+.mk-q button{padding:7px 0;border-radius:9px;border:1px solid var(--line);background:var(--panel-2);color:var(--muted);font:inherit;font-size:12px;font-weight:800;cursor:pointer}
+.mk-q button:hover{color:var(--fg);border-color:rgba(245,165,36,.5)}
+.mk-spd{margin-top:10px;padding:10px 12px;border-radius:12px;background:var(--panel-2);--c:var(--muted)}
+.mk-spd>div{display:flex;justify-content:space-between;gap:8px;align-items:baseline;margin-bottom:7px}.mk-spd span{font-size:13px;font-weight:800;color:var(--c)}.mk-spd small{font-size:11px;color:var(--muted)}
+.mk-spd>i{display:block;height:5px;border-radius:3px;background:linear-gradient(90deg,var(--c) var(--w),rgba(255,255,255,.07) var(--w));transition:background .3s}
+.mk-spd.fast{--c:#3ddc97}.mk-spd.good{--c:#9be15d}.mk-spd.mid{--c:#f5c451}.mk-spd.slow{--c:#ff8a3d}.mk-spd.no{--c:#eb4b4b}
+.mk-spd.sm{margin-top:6px;padding:7px 10px;max-width:340px}
+.mk-sum{display:grid;grid-template-columns:1fr auto;gap:6px 10px;margin:12px 0 4px;font-size:13px}.mk-sum dt{color:var(--muted)}.mk-sum dd{margin:0;text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
+.mk-sum dt:nth-last-of-type(1),.mk-sum dd.get{padding-top:8px;border-top:1px dashed var(--line);font-size:15px}.mk-sum dd.get{color:var(--live);font-weight:900;font-style:italic;font-size:18px}
+.mk-go{justify-content:center;width:100%;margin-top:8px;padding:13px}
+.mk-note{display:block;margin-top:8px;font-size:11px;color:var(--muted);text-align:center;line-height:1.45}
+.mk-rows{display:flex;flex-direction:column;gap:8px}
+.mk-row{display:grid;grid-template-columns:110px minmax(0,1fr) 190px auto;align-items:center;gap:14px;padding:10px 14px 10px 10px;border-radius:16px;background:linear-gradient(90deg,color-mix(in srgb,var(--rc) 13%,transparent),transparent 45%),var(--panel);border:1px solid var(--line);border-left:3px solid var(--rc)}
+.mk-row.hist{grid-template-columns:90px minmax(0,1fr) auto auto}
+.mk-row .pic .skw,.mk-row .pic svg{width:100%;height:64px}.mk-row.hist .pic .skw,.mk-row.hist .pic svg{height:52px}
+.mk-ri{min-width:0}.mk-ri b{display:block;font-size:15px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mk-ri b .mk-s{font-size:13px;margin-left:4px}.mk-ri>small{font-size:12px;color:var(--muted)}
+.mk-rp small{display:block;margin-top:4px;font-size:11px;color:var(--muted);text-align:right}
+.mk-ra{display:flex;gap:6px}.mk-ra .ghost{padding:9px 14px;font-size:13px}.mk-x:hover{border-color:#eb4b4b;color:#ff8080}
+.mk-tag{font-size:11px;font-weight:900;padding:4px 10px;border-radius:999px;text-transform:uppercase;letter-spacing:.05em}.mk-tag.s{color:#0d1f17;background:var(--live)}.mk-tag.b{color:var(--on-accent);background:var(--accent)}
+.mk-hp{font-size:16px;font-weight:900;font-style:italic;min-width:120px;text-align:right;font-variant-numeric:tabular-nums}.mk-hp.s{color:var(--live)}
+@media (max-width:1100px){.mk-body.buy{grid-template-columns:1fr}.mk-feed{position:static}.mk-fl-l{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}.mk-sell{grid-template-columns:1fr}.mk-side{position:static;order:-1}}
+@media (max-width:640px){.mk-hero{grid-template-columns:1fr 1fr;gap:8px}.mk-st{padding:11px 13px}.mk-st b{font-size:18px}
+ .mk-tabs{width:100%}.mk-tabs button{flex:1;justify-content:center;padding:9px 10px;font-size:13px}
+ .mk-tools{grid-template-columns:1fr 1fr}.mk-srch,#mkSort{grid-column:1/-1}
+ .mk-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.mk-c{padding:10px}.mk-c .pic,.mk-c .pic .skw,.mk-c .pic svg{height:72px}.mk-n{font-size:13px}
+ .mk-f{flex-direction:column;align-items:stretch;gap:6px}.mk-pr{text-align:left;display:flex;align-items:baseline;gap:6px}.mk-pr b{font-size:15px}.mk-sel small{display:none}
+ .mk-igrid{grid-template-columns:repeat(2,1fr);max-height:520px}
+ .mk-row,.mk-row.hist{grid-template-columns:76px minmax(0,1fr);gap:8px 10px}.mk-row .pic .skw,.mk-row .pic svg{height:50px}.mk-rp,.mk-ra{grid-column:1/-1}.mk-ra .ghost{flex:1;justify-content:center}.mk-rp small{text-align:left}
+ .mk-row.hist .mk-tag{grid-column:1/-1;grid-row:2;justify-self:start}.mk-row.hist .mk-hp{grid-column:1/-1;grid-row:2;justify-self:end;min-width:0}}
 </style>
 </head>
 <body>
@@ -2205,6 +2316,7 @@ select#invSort:focus{outline:none;border-color:#f5a524}
       <a href="#skins" data-v="skins"><svg viewBox="0 0 24 24"><path d="M4 20l9-9M13 11l7-8-1 7-6 1z"/><path d="M15 15l4 4"/></svg>Кейсы</a>
       <a href="#inventory" data-v="inventory"><svg viewBox="0 0 24 24"><path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5z"/><path d="M3 7.5 12 12l9-4.5M12 12v9"/></svg>Инвентарь<span id="invCnt" hidden></span></a>
       <a href="#contract" data-v="contract"><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M9 12h6M9 16h4"/><path d="M14 3v5h5"/></svg>Контракт</a>
+      <a href="#market" data-v="market"><svg viewBox="0 0 24 24"><path d="M3 9l1.6-5h14.8L21 9"/><path d="M4 9v11h16V9"/><path d="M3 9c0 1.7 1.3 3 3 3s3-1.3 3-3c0 1.7 1.3 3 3 3s3-1.3 3-3c0 1.7 1.3 3 3 3s3-1.3 3-3"/><path d="M10 20v-5h4v5"/></svg>Площадка</a>
       <a href="#upgrade" data-v="upgrade"><svg viewBox="0 0 24 24"><path d="M12 20V5M6 11l6-6 6 6"/><path d="M5 20h14"/></svg>Апгрейд</a>
       <a href="#wheel" data-v="wheel"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 12L18 6"/><circle cx="12" cy="12" r="5"/><circle cx="16" cy="9" r="1" fill="currentColor"/></svg>Фортуна</a>
       <span class="nav-h">Сервер</span>
@@ -2476,6 +2588,11 @@ select#invSort:focus{outline:none;border-color:#f5a524}
     <div class="view" id="v-inventory" hidden>
       <div class="page-head"><h1>Инвентарь</h1><p>Все твои скины и агенты. Надевай их для игры на серверах, клей наклейки или продавай за ТК.</p></div>
       <section id="csInv"><div class="cs-inv-tools"><div class="inv-val">Стоимость инвентаря <b id="invVal">0 ТК</b></div><div class="seg" id="invF" role="group" aria-label="Фильтр"><button data-f="all" aria-pressed="true">Все</button><button data-f="on" aria-pressed="false">Надето</button></div><button class="ghost inv-dall" id="invDall" type="button">Продать всё</button><select id="invSort" aria-label="Сортировка"><option value="r">Сначала редкие</option><option value="n">Сначала новые</option></select></div><div class="cs-inv" id="invGrid"></div></section>
+    </div>
+
+    <div class="view" id="v-market" hidden>
+      <div class="page-head"><h1>Торговая площадка</h1><p>Покупай скины у других игроков и продавай свои по своей цене. Комиссия площадки 5%, деньги приходят на баланс сразу после продажи.</p></div>
+      <section id="mkBox"></section>
     </div>
 
     <div class="view" id="v-contract" hidden>
@@ -3546,7 +3663,7 @@ function upSpin(){if(!needLogin()||UP.busy)return;const s=upStake(),t=UP.t;if(!t
     toast(win?`Апгрейд удался: ${t.w.n} | ${t.sk[0]} (${WSH[t.i]}) в инвентаре`:`Не повезло: шанс был ${ch.toFixed(1)}%`)}}
 
 // ---------- живая лента выпадений ----------
-const DROPS_V=["play","skins","case","upgrade","inventory","contract","wheel"];let DROPS=[],dropT=0;
+const DROPS_V=["play","skins","case","upgrade","inventory","contract","market","wheel"];let DROPS=[],dropT=0;
 function dropCard(d){const w=W.find(x=>x.n===d.w),sk=w&&w.skins.find(x=>x[0]===d.s);if(!sk)return"";const c=CASES[d.c];
   return`<a class="drop r${d.r}" href="#skins" ${d.c!=null?`data-cprev="${d.c}"`:""} style="--rc:${RC[d.r]}" title="${esc(d.n)} · ${esc(w.n)} | ${esc(sk[0])}${c?` · ${esc(c.n)}`:d.src?` · ${d.src}`:""}"><span class="pic">${art(w,sk,d.wear||.1)}</span><span class="dr-t"><b>${esc(w.n)}</b><small>${esc(sk[0]==="Vanilla"?"Обычный":sk[0])}</small></span><span class="dr-n">${esc(d.n)}</span></a>`}
 function drawDrops(){const box=$("drops");if(!box)return;const on=DROPS_V.includes(curView);box.hidden=!on;if(!on)return;$("dropsTr").innerHTML=DROPS.map(dropCard).join("")}
@@ -3944,7 +4061,108 @@ document.documentElement.style.setProperty("--god",`url(${TIERIMG.GOD})`);
 
 drawStats();
 // ---------- навигация ----------
-const VIEWS=["play","public","me","player","clan","case","wheel","upgrade","inventory","contract","support","tickets","shop","skins","stats","clans","ach","bans","rules","admin","offer","privacy","404"];
+// ===== Торговая площадка =====
+const MK_FEE=.05,MK_N=72;
+let MK={l:[],my:[],h:[],d:[],t:0},mkTab="buy",mkCat="all",mkQ="",mkSort="deal",mkLo="",mkHi="",mkSel=null,mkArm=null,mkPage=1;
+try{const o=JSON.parse(localStorage.getItem("mkt1")||"null");if(o&&o.l)MK=Object.assign(MK,o)}catch(e){}
+function mkSave(){try{localStorage.setItem("mkt1",JSON.stringify(MK))}catch(e){}}
+const mkId=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const MK_CAT=[["all","Все"],["knife","Ножи"],["gloves","Перчатки"],["rifle","Винтовки"],["sniper","Снайперские"],["pistol","Пистолеты"],["smg","ПП"],["heavy","Тяжёлое"],["st","StatTrak™"],["sv","Сувенирные"],["sp","Особые"]];
+function mkVal(it){return itDust(it)||1}
+function mkGen(){const U=upAll();if(!U.length)return null;
+  const r=Math.random(),target=r<.55?40+Math.pow(Math.random(),1.6)*3000:r<.85?3000+Math.random()*40000:r<.97?40000+Math.random()*400000:400000+Math.random()*2000000;
+  let lo=0,hi=U.length-1;while(lo<hi){const m=(lo+hi)>>1;if(U[m].p<target)lo=m+1;else hi=m}
+  const x=U[Math.max(0,Math.min(U.length-1,lo+Math.floor((Math.random()-.5)*30)))];
+  const it={w:x.w.n,s:x.sk[0],r:x.sk[5],wear:x.van?0:spWear(x.sk,x.i,x.sp),st:!!x.st,sv:!!x.sv,seed:Math.floor(Math.random()*1000)};if(x.sp)it.sp=x.sp;
+  const v=mkVal(it);if(!v)return null;
+  return{id:mkId(),it,p:Math.max(1,Math.round(v*(.84+Math.random()*.28))),n:NICKS[Math.floor(Math.random()*NICKS.length)],t:Date.now()-Math.floor(Math.random()*36e5*6)}}
+function mkFill(){let g=0;while(MK.l.length<MK_N&&g++<400){const x=mkGen();if(x)MK.l.push(x)}}
+function mkDeal(x,buyer){MK.d.unshift({it:x.it,p:x.p,n:buyer||NICKS[Math.floor(Math.random()*NICKS.length)],t:Date.now()});MK.d=MK.d.slice(0,30)}
+// жизнь площадки: другие игроки покупают и выставляют лоты, покупают и твои
+function mkTick(steps){steps=Math.max(1,Math.min(steps||1,400));let sold=[];
+  for(let s=0;s<steps;s++){
+    if(MK.l.length&&Math.random()<.35){const k=Math.floor(Math.random()*MK.l.length),x=MK.l[k],ratio=x.p/mkVal(x.it);if(Math.random()<(ratio<.95?.9:ratio<1.05?.5:.15)){MK.l.splice(k,1);mkDeal(x)}}
+    if(MK.l.length<MK_N&&Math.random()<.45){const x=mkGen();if(x){x.t=Date.now();MK.l.push(x)}}
+    MK.my=MK.my.filter(m=>{const ratio=m.p/mkVal(m.it),q=ratio<=.9?.12:ratio<=1?.05:ratio<=1.08?.015:ratio<=1.15?.004:0;if(Math.random()<q){sold.push(m);return false}return true})}
+  sold.forEach(m=>{const get=Math.round(m.p*(1-MK_FEE)),b=NICKS[Math.floor(Math.random()*NICKS.length)];ME.tk+=get;MK.h.unshift({k:"sell",it:m.it,p:m.p,get,n:b,t:Date.now()});mkDeal(m,b)});
+  if(sold.length){walletSave();drawChip();const m=sold[0],w=invW(m.it);toast(sold.length>1?`Продано лотов: ${sold.length}. Деньги уже на балансе`:`Твой лот купили: ${w?w.n:m.it.w} | ${m.it.s} · +${fmt(Math.round(m.p*(1-MK_FEE)))} ТК`)}
+  MK.h=MK.h.slice(0,80);MK.t=Date.now();mkSave();return sold.length}
+{const el=Date.now()-(MK.t||0);if(!MK.t||el>864e5){MK.l=[];MK.d=[];mkFill();for(let k=0;k<14;k++){const x=mkGen();if(x)mkDeal(x)}MK.d.forEach((d,k)=>d.t=Date.now()-k*41e4)}if(MK.my.length&&MK.t)mkTick(Math.floor(el/1e4));MK.t=Date.now();mkSave()}
+setInterval(()=>{if(document.hidden)return;const n=mkTick(1);if(curView==="market"&&!mkArm&&(n||mkTab==="buy"))drawMk(true)},1e4);
+
+const mkAgo=t=>{const m=Math.round((Date.now()-t)/6e4);return m<1?"только что":m<60?`${m} мин`:m<1440?`${Math.round(m/60)} ч`:`${Math.round(m/1440)} д`};
+const mkAva=n=>{let h=0;for(const c of n)h=(h*31+c.charCodeAt(0))%360;return`<i class="mk-ava" style="--h:${h}">${esc(n[0].toUpperCase())}</i>`};
+function mkFloat(it){if(!(it.wear>0))return"";const pc=Math.min(100,it.wear*100);return`<div class="mk-fl" title="Флоат ${it.wear}"><div class="mk-fl-b"><i style="left:${pc}%"></i></div><span>${WSH[wIdx(it.wear)]}</span><em>${it.wear.toFixed(it.wear<.01?4:3)}</em></div>`}
+function mkName(it){const w=invW(it);return`${itPre(it)}${w?w.n:it.w}`}
+function mkCard(x,mine){const it=x.it,w=invW(it),sk=invSk(it);if(!w||!sk)return"";const v=mkVal(it),d=Math.round((x.p/v-1)*100),arm=mkArm===x.id;
+  return`<article class="mk-c" style="--rc:${RC[it.r]}"><div class="mk-tags">${itBadge(it,"mk-b")}${d<=-3?`<span class="mk-dsc">−${-d}%</span>`:d>=3?`<span class="mk-ovr">+${d}%</span>`:`<span class="mk-fair">по рынку</span>`}</div>
+   <span class="pic">${art(w,sk,it.wear)}</span><b class="mk-n">${mkName(it)}</b><span class="mk-s">${sk[0]==="Vanilla"?"Обычный":esc(sk[0])}</span>${mkFloat(it)}
+   <div class="mk-f"><div class="mk-sel">${mkAva(x.n)}<span>${esc(x.n)}<small>${mkAgo(x.t)}</small></span></div><div class="mk-pr"><b>${fmt(x.p)} ТК</b><small>рынок ${fmt(v)}</small></div></div>
+   <button class="${arm?"steam mk-buy arm":"steam mk-buy"}" type="button" data-mkb="${x.id}">${arm?`Подтвердить · ${fmt(x.p)} ТК`:`Купить`}</button></article>`}
+function mkFilt(){const q=mkQ.trim().toLowerCase();let l=MK.l.filter(x=>{const it=x.it,w=invW(it);if(!w)return false;
+   if(mkCat==="st"&&!it.st)return false;if(mkCat==="sv"&&!it.sv)return false;if(mkCat==="sp"&&!it.sp)return false;
+   if(!["all","st","sv","sp"].includes(mkCat)&&w.c!==mkCat)return false;if(mkLo&&x.p<+mkLo)return false;if(mkHi&&x.p>+mkHi)return false;
+   if(q&&!(`${w.n} ${it.s} ${x.n}`.toLowerCase().includes(q)))return false;return true});
+  const S={deal:(a,b)=>a.p/mkVal(a.it)-b.p/mkVal(b.it),cheap:(a,b)=>a.p-b.p,rich:(a,b)=>b.p-a.p,new:(a,b)=>b.t-a.t}[mkSort];return l.sort(S)}
+function mkStats(){const day=Date.now()-864e5,dd=MK.d.filter(d=>d.t>day);return[MK.l.length,dd.length+MK.h.filter(h=>h.t>day).length,dd.reduce((s,d)=>s+d.p,0)+MK.h.filter(h=>h.t>day).reduce((s,h)=>s+h.p,0)]}
+function mkBuyTab(){const l=mkFilt(),per=24*mkPage,sh=l.slice(0,per);
+  return`<div class="mk-tools"><div class="mk-srch"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input id="mkQ" type="search" placeholder="Оружие, скин или продавец" value="${esc(mkQ)}" autocomplete="off"></div>
+   <input class="mk-in" id="mkLo" inputmode="numeric" placeholder="Цена от" value="${esc(mkLo)}"><input class="mk-in" id="mkHi" inputmode="numeric" placeholder="до" value="${esc(mkHi)}">
+   <select class="mk-in" id="mkSort"><option value="deal"${mkSort==="deal"?" selected":""}>Сначала выгодные</option><option value="cheap"${mkSort==="cheap"?" selected":""}>Сначала дешёвые</option><option value="rich"${mkSort==="rich"?" selected":""}>Сначала дорогие</option><option value="new"${mkSort==="new"?" selected":""}>Сначала новые</option></select></div>
+   <div class="mk-cats" id="mkCats">${MK_CAT.map(([k,n])=>`<button type="button" data-mkc="${k}" aria-pressed="${mkCat===k}">${n}</button>`).join("")}</div>
+   <div class="mk-grid">${sh.map(x=>mkCard(x)).join("")||`<div class="mk-empty">Ничего не нашлось. Попробуй другой фильтр, новые лоты появляются каждую минуту.</div>`}</div>${l.length>sh.length?`<button class="ghost mk-more" type="button" id="mkMore">Показать ещё · ${fmt(l.length-sh.length)}</button>`:""}`}
+function mkSpeed(r){return r<=.9?["Купят почти сразу","fast",95]:r<=1?["Быстрая продажа","good",72]:r<=1.08?["Продастся со временем","mid",45]:r<=1.15?["Долго, цена выше рынка","slow",20]:["Слишком дорого, не купят","no",4]}
+function mkSellTab(){const free=INV.filter(it=>!isOnIt(it)&&!it.fx&&invW(it)&&invSk(it)).sort((a,b)=>mkVal(b)-mkVal(a));if(mkSel&&!free.some(it=>it.id===mkSel.id))mkSel=null;
+  const grid=free.map(it=>{const w=invW(it),sk=invSk(it);return`<button class="up-it" type="button" data-mks="${it.id}" aria-pressed="${!!(mkSel&&mkSel.id===it.id)}" style="--rc:${RC[it.r]}">${itBadge(it,"up-stt")}<span class="pic">${art(w,sk,it.wear)}</span><b>${w.n}</b><span class="nm">${sk[0]==="Vanilla"?"Обычный":sk[0]}</span><em>${it.wear>0?WSH[wIdx(it.wear)]:RN[it.r]}</em><span class="pr">${fmt(mkVal(it))} ТК</span></button>`}).join("");
+  let side;if(!mkSel)side=`<div class="mk-ph"><svg viewBox="0 0 24 24"><path d="M3 9l1.5-5h15L21 9"/><path d="M4 9v11h16V9"/><path d="M3 9h18"/><path d="M9 20v-6h6v6"/></svg><b>Выбери скин слева</b><span>Поставь цену, и лот увидят все игроки. Деньги придут на баланс сразу после продажи.</span></div>`;
+  else{const it=mkSel,w=invW(it),sk=invSk(it),v=mkVal(it);if(mkSel.p==null)mkSel.p=v;const p=Math.max(1,Math.round(+mkSel.p||0)),fee=Math.round(p*MK_FEE),sp=mkSpeed(p/v);
+   side=`<div class="mk-lot" style="--rc:${RC[it.r]}"><div class="mk-lot-h"><span>Новый лот</span>${itBadge(it,"mk-b")}</div><span class="pic">${art(w,sk,it.wear)}</span><b class="mk-n">${mkName(it)}</b><span class="mk-s">${sk[0]==="Vanilla"?"Обычный":esc(sk[0])}</span>${mkFloat(it)}
+    <label class="mk-pin"><span>Твоя цена</span><div><input id="mkP" inputmode="numeric" value="${p}" autocomplete="off"><i>ТК</i></div></label>
+    <div class="mk-q"><button type="button" data-mkq=".9">−10%</button><button type="button" data-mkq=".97">−3%</button><button type="button" data-mkq="1">Рынок</button><button type="button" data-mkq="1.05">+5%</button><button type="button" data-mkq="1.1">+10%</button></div>
+    <div class="mk-spd ${sp[1]}"><div><span>${sp[0]}</span><small>рынок ${fmt(v)} ТК</small></div><i style="--w:${sp[2]}%"></i></div>
+    <dl class="mk-sum"><dt>Цена лота</dt><dd>${fmt(p)} ТК</dd><dt>Комиссия 5%</dt><dd>−${fmt(fee)} ТК</dd><dt>Ты получишь</dt><dd class="get">${fmt(p-fee)} ТК</dd></dl>
+    <button class="steam mk-go" type="button" id="mkList">Выставить на продажу</button><small class="mk-note">Пока скин на площадке, его нет в инвентаре. Снять лот можно в любой момент.</small></div>`}
+  return`<div class="mk-sell"><div class="mk-inv"><div class="mk-hd"><b>Твои скины</b><span>${free.length?`${free.length} шт.`:""}</span></div>${free.length?`<div class="mk-igrid">${grid}</div>`:`<div class="mk-empty">${logged?"В инвентаре нет скинов для продажи.":"Войди через Steam, чтобы продавать скины."}</div>`}</div><aside class="mk-side">${side}</aside></div>`}
+function mkMyTab(){if(!MK.my.length)return`<div class="mk-empty big"><b>У тебя нет активных лотов</b><span>Выстави скин во вкладке «Продать».</span></div>`;
+  return`<div class="mk-rows">${MK.my.map(m=>{const it=m.it,w=invW(it),sk=invSk(it);if(!w||!sk)return"";const v=mkVal(it),sp=mkSpeed(m.p/v);
+   return`<div class="mk-row" style="--rc:${RC[it.r]}"><span class="pic">${art(w,sk,it.wear)}</span><div class="mk-ri"><b>${mkName(it)} <span class="mk-s">${sk[0]==="Vanilla"?"Обычный":esc(sk[0])}</span></b><small>${it.wear>0?wearName(it.wear)+" · ":""}выставлен ${mkAgo(m.t)==="только что"?"только что":mkAgo(m.t)+" назад"}</small><div class="mk-spd sm ${sp[1]}"><div><span>${sp[0]}</span><small>рынок ${fmt(v)} ТК</small></div><i style="--w:${sp[2]}%"></i></div></div>
+    <div class="mk-rp"><div class="mk-pin sm"><div><input data-mkpe="${m.id}" inputmode="numeric" value="${m.p}"><i>ТК</i></div></div><small>получишь ${fmt(Math.round(m.p*(1-MK_FEE)))} ТК</small></div>
+    <div class="mk-ra"><button class="ghost" type="button" data-mksave="${m.id}">Сохранить</button><button class="ghost mk-x" type="button" data-mkx="${m.id}">Снять</button></div></div>`}).join("")}</div>`}
+function mkHistTab(){if(!MK.h.length)return`<div class="mk-empty big"><b>Сделок пока нет</b><span>Здесь появятся твои покупки и продажи.</span></div>`;
+  return`<div class="mk-rows">${MK.h.map(h=>{const it=h.it,w=invW(it),sk=invSk(it);if(!w||!sk)return"";const s=h.k==="sell";
+   return`<div class="mk-row hist" style="--rc:${RC[it.r]}"><span class="pic">${art(w,sk,it.wear)}</span><div class="mk-ri"><b>${mkName(it)} <span class="mk-s">${sk[0]==="Vanilla"?"Обычный":esc(sk[0])}</span></b><small>${s?"Покупатель":"Продавец"} ${esc(h.n)} · ${mkAgo(h.t)==="только что"?"только что":mkAgo(h.t)+" назад"}</small></div><span class="mk-tag ${s?"s":"b"}">${s?"Продажа":"Покупка"}</span><b class="mk-hp ${s?"s":"b"}">${s?"+"+fmt(h.get):"−"+fmt(h.p)} ТК</b></div>`}).join("")}</div>`}
+function mkFeed(){return`<aside class="mk-feed"><div class="mk-hd"><b><i class="mk-live"></i>Последние сделки</b></div><div class="mk-fl-l">${MK.d.slice(0,12).map(d=>{const it=d.it,w=invW(it),sk=invSk(it);if(!w||!sk)return"";return`<div class="mk-fi" style="--rc:${RC[it.r]}"><span class="pic">${art(w,sk,it.wear)}</span><div><b>${w.n}</b><span>${sk[0]==="Vanilla"?"Обычный":esc(sk[0])}</span></div><div class="mk-fp"><b>${fmt(d.p)}</b><small>${mkAgo(d.t)}</small></div></div>`}).join("")}</div></aside>`}
+function drawMk(soft){const box=$("mkBox");if(!box)return;if(soft&&(mkTab!=="buy"||box.contains(document.activeElement)&&document.activeElement.tagName==="INPUT"))return;
+  const [n,dd,vol]=mkStats(),sy=window.scrollY;
+  box.innerHTML=`<div class="mk-hero"><div class="mk-st"><small>Лотов</small><b>${fmt(n)}</b></div><div class="mk-st"><small>Сделок за сутки</small><b>${fmt(dd)}</b></div><div class="mk-st"><small>Оборот за сутки</small><b>${fmt(vol)} ТК</b></div><div class="mk-st acc"><small>Комиссия</small><b>5%</b></div></div>
+   <div class="mk-tabs" role="tablist">${[["buy","Купить"],["sell","Продать"],["my",`Мои лоты${MK.my.length?` <i>${MK.my.length}</i>`:""}`],["hist","История"]].map(([k,t])=>`<button type="button" role="tab" data-mkt="${k}" aria-selected="${mkTab===k}">${t}</button>`).join("")}</div>
+   <div class="mk-body ${mkTab}">${mkTab==="buy"?`<div class="mk-main">${mkBuyTab()}</div>${mkFeed()}`:mkTab==="sell"?mkSellTab():mkTab==="my"?mkMyTab():mkHistTab()}</div>`;
+  if(soft)window.scrollTo(0,sy)}
+function mkBuy(id){if(!needLogin())return;const k=MK.l.findIndex(x=>x.id===id);if(k<0){toast("Этот лот уже купили");mkArm=null;drawMk();return}const x=MK.l[k];
+  if(ME.tk<x.p){toast(`Не хватает ${fmt(x.p-ME.tk)} ТК`);mkArm=null;drawMk();return}
+  if(mkArm!==id){mkArm=id;drawMk();clearTimeout(mkBuy.t);mkBuy.t=setTimeout(()=>{if(mkArm===id){mkArm=null;if(curView==="market")drawMk()}},4000);return}
+  mkArm=null;ME.tk-=x.p;walletSave();drawChip();MK.l.splice(k,1);const it=Object.assign({},x.it,{id:mkId(),t:Date.now()});INV.push(it);invSave();
+  MK.h.unshift({k:"buy",it:x.it,p:x.p,n:x.n,t:Date.now()});mkDeal(x,logged?ME.n:"Гость");mkSave();drawMk();try{drawInv()}catch(e){}toast(`Куплено: ${mkName(it)} | ${it.s}. Скин уже в инвентаре`)}
+document.addEventListener("click",e=>{if(!e.target.closest("#mkBox"))return;const t=e.target;let b;
+  if(b=t.closest("[data-mkt]")){mkTab=b.dataset.mkt;mkArm=null;drawMk();return}
+  if(b=t.closest("[data-mkc]")){mkCat=b.dataset.mkc;mkPage=1;drawMk();return}
+  if(b=t.closest("[data-mkb]")){mkBuy(b.dataset.mkb);return}
+  if(t.closest("#mkMore")){mkPage++;drawMk();return}
+  if(b=t.closest("[data-mks]")){const it=INV.find(x=>x.id===b.dataset.mks);mkSel=it?Object.assign({},it,{p:null}):null;drawMk();return}
+  if(b=t.closest("[data-mkq]")){if(mkSel){mkSel.p=Math.max(1,Math.round(mkVal(mkSel)*+b.dataset.mkq));drawMk()}return}
+  if(t.closest("#mkList")){if(!needLogin()||!mkSel)return;const k=INV.findIndex(x=>x.id===mkSel.id);if(k<0)return;const p=Math.max(1,Math.round(+mkSel.p||0));if(p>mkVal(INV[k])*3){toast("Цена больше чем в 3 раза выше рынка. Такой лот не купят");return}
+   const it=INV.splice(k,1)[0];invSave();MK.my.unshift({id:mkId(),it,p,t:Date.now()});mkSave();mkSel=null;mkTab="my";drawMk();try{drawInv()}catch(e){}toast("Лот выставлен. Его уже видят другие игроки");return}
+  if(b=t.closest("[data-mkx]")){const k=MK.my.findIndex(m=>m.id===b.dataset.mkx);if(k<0)return;const m=MK.my.splice(k,1)[0];INV.push(m.it);invSave();mkSave();drawMk();try{drawInv()}catch(e){}toast("Лот снят, скин вернулся в инвентарь");return}
+  if(b=t.closest("[data-mksave]")){const m=MK.my.find(m=>m.id===b.dataset.mksave),inp=document.querySelector(`[data-mkpe="${b.dataset.mksave}"]`);if(!m||!inp)return;const p=Math.max(1,Math.round(+inp.value.replace(/\D/g,"")||0));if(p>mkVal(m.it)*3){toast("Слишком высокая цена");return}m.p=p;m.t=Date.now();mkSave();drawMk();toast("Цена обновлена");return}
+});
+document.addEventListener("input",e=>{const t=e.target;if(!t.closest||!t.closest("#mkBox"))return;
+  if(t.id==="mkQ"){mkQ=t.value;mkPage=1;clearTimeout(drawMk.q);drawMk.q=setTimeout(()=>{drawMk();const q=$("mkQ");if(q){q.focus();q.setSelectionRange(q.value.length,q.value.length)}},250);return}
+  if(t.id==="mkLo"||t.id==="mkHi"){t.value=t.value.replace(/\D/g,"");if(t.id==="mkLo")mkLo=t.value;else mkHi=t.value;clearTimeout(drawMk.q);const id=t.id;drawMk.q=setTimeout(()=>{drawMk();const q=$(id);if(q){q.focus();q.setSelectionRange(q.value.length,q.value.length)}},400);return}
+  if(t.id==="mkP"&&mkSel){t.value=t.value.replace(/\D/g,"");mkSel.p=t.value;clearTimeout(drawMk.q);drawMk.q=setTimeout(()=>{drawMk();const q=$("mkP");if(q){q.focus();q.setSelectionRange(q.value.length,q.value.length)}},500);return}
+  if(t.dataset.mkpe){t.value=t.value.replace(/\D/g,"")}});
+document.addEventListener("change",e=>{if(e.target.id==="mkSort"){mkSort=e.target.value;drawMk()}});
+
+const VIEWS=["play","public","me","player","clan","case","wheel","upgrade","inventory","contract","market","support","tickets","shop","skins","stats","clans","ach","bans","rules","admin","offer","privacy","404"];
 const MORE=["clans","bans","rules"];
 let curView="play";
 function viewFrom(h){return !h?"play":VIEWS.includes(h)&&h!=="404"?h:"404"}
@@ -3965,12 +4183,13 @@ function route(forced){try{closeProfile()}catch(e){}["modal","srvModal","cmdModa
   if(v==="upgrade")try{drawUp()}catch(e){console.error(e)}
   if(v==="inventory")try{drawInv()}catch(e){console.error(e)}
   if(v==="contract")try{drawCtr()}catch(e){console.error(e)}
+  if(v==="market")try{mkArm=null;drawMk()}catch(e){console.error(e)}
   try{drawDrops()}catch(e){}
   if(v==="ach")try{drawAch()}catch(e){console.error(e)}
   if(v==="support")try{drawSupport()}catch(e){console.error(e)}
   if(v==="tickets")try{drawTickets()}catch(e){console.error(e)}
   document.querySelector(".rail").classList.remove("open");$("burger").setAttribute("aria-expanded","false");
-  {const T={play:"",public:"Public",me:"Мой профиль",player:"Профиль игрока",clan:"Клан",case:"Кейс",wheel:"Фортуна",upgrade:"Апгрейд",inventory:"Инвентарь",contract:"Контракт",support:"Поддержка",tickets:"Тикеты",shop:"Магазин",skins:"Кейсы",stats:"Рейтинг",clans:"Кланы",ach:"Достижения",bans:"Банлист",rules:"Правила",admin:"Админ-панель",offer:"Публичная оферта",privacy:"Конфиденциальность","404":"Страница не найдена"};document.title=(T[v]?T[v]+" — ":"")+"Tasher CS2"}
+  {const T={play:"",public:"Public",me:"Мой профиль",player:"Профиль игрока",clan:"Клан",case:"Кейс",wheel:"Фортуна",upgrade:"Апгрейд",inventory:"Инвентарь",contract:"Контракт",market:"Торговая площадка",support:"Поддержка",tickets:"Тикеты",shop:"Магазин",skins:"Кейсы",stats:"Рейтинг",clans:"Кланы",ach:"Достижения",bans:"Банлист",rules:"Правила",admin:"Админ-панель",offer:"Публичная оферта",privacy:"Конфиденциальность","404":"Страница не найдена"};document.title=(T[v]?T[v]+" — ":"")+"Tasher CS2"}
   window.scrollTo(0,0);setTimeout(()=>{try{if(!document.documentElement.classList.contains("no-anim"))countIn(document.getElementById("v-"+v))}catch(e){}},30)}
 // переход по странице: работает и там, где ссылки с # не меняют адрес
 function go(v){route(v);try{if(location.hash!=="#"+v)history.replaceState(null,"","#"+v)}catch(e){}}
