@@ -3247,8 +3247,7 @@ function wearRange(sk,i){const lo=Math.max(sk[7]||0,WBR[i][0]),hi=Math.min(sk[8]
 // особые версии: редкие паттерны и флоаты
 const SP={bg:{n:"Синий паттерн",ok:(w,sk)=>sk[0]==="Case Hardened",m:w=>w.c==="knife"?10:(w.n==="AK-47"||w.n==="Five-SeveN")?8:4},
   fi:{n:"Fire & Ice",ok:(w,sk)=>w.c==="knife"&&sk[0]==="Marble Fade",m:()=>3},
-  f100:{n:"Fade 100%",ok:(w,sk)=>sk[0]==="Fade",m:()=>1.6},
-  lf:{n:"Низкий флоат",ok:(w,sk,i)=>i===0&&(sk[7]||0)<.065&&(w.c==="knife"||w.c==="gloves"||sk[5]>=3),m:()=>2}};
+  f100:{n:"Fade 100%",ok:(w,sk)=>sk[0]==="Fade",m:()=>1.6}};
 const spList=(w,sk,i)=>Object.keys(SP).filter(k=>SP[k].ok(w,sk,i));
 function spWear(sk,i,sp){const[lo,hi]=wearRange(sk,i);if(sp==="lf"){const a=lo,b=Math.min(hi,lo+.005);return Math.floor((a+Math.random()*(b-a))*10000)/10000}return Math.floor((lo+Math.random()*(hi-lo))*1000)/1000}
 const itPre=it=>it.sv?"Сувенирный ":it.st?"StatTrak™ ":"";
@@ -3299,7 +3298,7 @@ const CCASES=[{"k":"cblackandwhite","n":"Черно-Белый","sec":"color","i
   const CUT={cpremium4:.04},vals=o.items.map(itemVal),mx=Math.max(...vals),keep=vals.map(v=>v>0&&v>=mx*(CUT[o.k]||.015)),ok=o.items.filter((_,j)=>keep[j]),vv=vals.filter((_,j)=>keep[j]),wt=vv.map(v=>Math.pow(v,-.6)),ev=Math.round(vv.reduce((s,v,j)=>s+v*wt[j],0)/wt.reduce((a,b)=>a+b,0));CASES.push({k:o.k,n:o.n,sec:o.sec,img:sk?skImg(sk):"",c:CC[o.k]||(o.sec==="luxe"?"#e4ae39":"#b388ff"),items:ok,wt,ev,p:niceP(ev/.8),odds:[0,0,0,0,0,100],d:DS[o.sec]})})}
 CASES.forEach(c=>{if(c.p)tuneCase(c)});
 CASES.sort((a,b)=>(a.p||0)-(b.p||0));
-let INV=[];try{INV=JSON.parse(localStorage.getItem("inv2")||"[]")||[]}catch(e){}
+let INV=[];try{INV=JSON.parse(localStorage.getItem("inv2")||"[]")||[]}catch(e){}INV.forEach(it=>{if(it.sp&&!SP[it.sp])delete it.sp});
 INV=INV.filter(it=>{const w=W.find(x=>x.n===it.w);return w&&w.skins.some(x=>x[0]===it.s)});
 Object.keys(SKST.sets).forEach(k=>{const s=SKST.sets[k],w=W.find(x=>x.n===k);if(!w||(s.name&&!w.skins.some(x=>x[0]===s.name)))delete SKST.sets[k]});
 let csDay="";try{csDay=localStorage.getItem("caseDay")||""}catch(e){}
