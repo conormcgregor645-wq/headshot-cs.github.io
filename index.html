@@ -3587,7 +3587,7 @@ const CZBG={};
 const CZMAP={daily:"Mirage",army:"Dust2",sniper:"Mirage",desert:"Dust2",fire:"Inferno",pistol:"Inferno"};
 function czBg(c){return"--czmap:none;--czcase:none"}
 function drawCasePage(){const c=CASES[CZ];if(!c)return;const free=!c.p,used=free&&csDay===mskDay();
-  const items=[...c.items].map(i=>[i,itemVal(i)]).sort((a,b)=>b[0][2]-a[0][2]||b[1]-a[1]).map(x=>x[0]);
+  const items=[...c.items].map(i=>[i,itemVal(i)]).sort((a,b)=>b[1]-a[1]).map(x=>x[0]);
   $("czBody").innerHTML=`<button class="pf-back" id="czBack">${svgI(PI.back)}Все кейсы</button>
   <section style="--cc:${c.c};${czBg(c)}" id="czTop" class="cz-top${CZBG[c.k]?" full":""}">${czTopHTML(c,free,used)}</section>
   <section class="cz-cont"><div class="hdr"><h2>Содержимое кейса</h2><span>${items.length} ${plural(items.length,"предмет","предмета","предметов")}</span></div><div class="cz-grid">${items.map(x=>czItem(x,c)).join("")}</div></section>`;
