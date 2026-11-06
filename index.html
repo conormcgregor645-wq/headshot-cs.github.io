@@ -3546,9 +3546,9 @@ $("dropsTr").addEventListener("click",e=>{const a=e.target.closest("[data-cprev]
 // ---------- контракт ----------
 let CTR=[],ctrBusy=false,ctrRes=null,ctrF="all";const CTR_MIN=3,CTR_MAX=10,CTR_RET=.95;
 const ctrOk=it=>{const w=invW(it);return w&&!isOnIt(it)&&!["agent","item"].includes(w.c)};
-let CTRPOOL=null;function ctrAll(){if(CTRPOOL)return CTRPOOL;const L=[];W.forEach(w=>{if(["agent","item"].includes(w.c))return;w.skins.forEach(sk=>{const v=itemEV(w,sk);if(v>0)L.push([w,sk,v])})});L.sort((a,b)=>a[2]-b[2]);return CTRPOOL=L}
+const CTRPOOL={};function ctrAll(st){st=!!st;if(CTRPOOL[st])return CTRPOOL[st];const L=[];W.forEach(w=>{if(["agent","item"].includes(w.c))return;const s2=st&&w.c!=="gloves";w.skins.forEach(sk=>{if(s2&&!(sk[10]&&sk[10].some(x=>x)))return;wearOpts(sk,s2).forEach(i=>{const[lo,hi]=wearRange(sk,i),v=skPrice(w,sk,(lo+hi)/2,s2);if(v>0)L.push([w,sk,v,i,s2])})})});L.sort((a,b)=>a[2]-b[2]);return CTRPOOL[st]=L}
 function ctrPlan(){const items=CTR.map(id=>INV.find(x=>x.id===id)).filter(Boolean);if(!items.length)return null;const S=items.reduce((s,it)=>s+itDust(it),0);
-  if(items.length<CTR_MIN)return{S,items,ready:false};const all=ctrAll();let L=all.filter(x=>x[2]>=S*.3&&x[2]<=S*4);
+  if(items.length<CTR_MIN)return{S,items,ready:false};const all=ctrAll(items.every(it=>it.st));if(all[all.length-1][2]<S)return{S,items,ready:false,big:all[all.length-1][2]};let L=all.filter(x=>x[2]>=S*.3&&x[2]<=S*4);
   if(L.length<8){L=all.slice().sort((a,b)=>Math.abs(Math.log(a[2]/S))-Math.abs(Math.log(b[2]/S))).slice(0,30)}
   if(L.length>160){const st=L.length/160;L=Array.from({length:160},(_,k)=>L[Math.floor(k*st)])}
   const El=a=>{const w=L.map(x=>Math.pow(x[2],-a)),T=w.reduce((p,q)=>p+q,0);return L.reduce((s,x,j)=>s+x[2]*w[j],0)/T};let lo=-6,hi=12;for(let k=0;k<50;k++){const m=(lo+hi)/2;if(El(m)>S*CTR_RET)lo=m;else hi=m}
@@ -3561,7 +3561,7 @@ function drawCtr(){const box=$("ctrBox");if(!box)return;CTR=CTR.filter(id=>{cons
   const SEG=CTR_MAX,gauge=`<svg viewBox="0 0 120 120" class="cd-g">${Array.from({length:SEG},(_,k)=>{const a0=(-90+k*36+3)*Math.PI/180,a1=(-90+(k+1)*36-3)*Math.PI/180,r=52,x0=60+r*Math.cos(a0),y0=60+r*Math.sin(a0),x1=60+r*Math.cos(a1),y1=60+r*Math.sin(a1),on=k<n,req=k<CTR_MIN;return`<path d="M${x0.toFixed(2)} ${y0.toFixed(2)} A${r} ${r} 0 0 1 ${x1.toFixed(2)} ${y1.toFixed(2)}" class="${on?"on":req?"req":""}" style="${on?`stroke:${RC[P.items[k].r]}`:""}"/>`}).join("")}</svg>`;
   const pos=v=>P&&P.ready?Math.max(0,Math.min(100,Math.log(v/P.min)/Math.log(P.max/P.min)*100)):0;
   const info=`<div class="cd-main"><div class="cd-gw">${gauge}<div class="cd-gc"><b>${n}</b><small>из ${CTR_MAX}</small></div></div>
-    <div class="cd-sum"><small>Твой вклад</small><b>${P?fmt(Math.round(P.S)):"0"} <i>ТК</i></b><span>${!P?`Положи от ${CTR_MIN} до ${CTR_MAX} любых скинов`:P.ready?"Контракт готов к подписи":`Добавь ещё ${CTR_MIN-n} ${plural(CTR_MIN-n,"скин","скина","скинов")}`}</span></div></div>
+    <div class="cd-sum"><small>Твой вклад</small><b>${P?fmt(Math.round(P.S)):"0"} <i>ТК</i></b><span>${!P?`Положи от ${CTR_MIN} до ${CTR_MAX} любых скинов`:P.ready?"Контракт готов к подписи":P.big?`Слишком дорого: максимум ${fmt(P.big)} ТК`:`Добавь ещё ${CTR_MIN-n} ${plural(CTR_MIN-n,"скин","скина","скинов")}`}</span></div></div>
    ${P&&P.ready?`<div class="cd-range"><div class="cd-rh"><small>Можешь получить</small><span class="cd-up">в плюс <b>${Math.round(P.up*100)}%</b></span></div>
      <div class="cd-track"><i class="cd-lose" style="width:${pos(P.S)}%"></i><i class="cd-win" style="left:${pos(P.S)}%"></i><i class="cd-mark" style="left:${pos(P.S)}%"><em>вклад</em></i></div>
      <div class="cd-rl"><span>${fmt(Math.round(P.min))} ТК</span><span>${fmt(Math.round(P.max))} ТК</span></div></div>`:`<div class="cd-range ph"><small>Диапазон результата появится, когда положишь ${CTR_MIN} скина</small></div>`}`;
@@ -3577,8 +3577,8 @@ function drawCtr(){const box=$("ctrBox");if(!box)return;CTR=CTR.filter(id=>{cons
   const au=$("ctrAuto");if(au)au.onclick=()=>{if(!needLogin())return;const free=INV.filter(it=>ctrOk(it)&&!CTR.includes(it.id)).sort((a,b)=>itDust(a)-itDust(b));while(CTR.length<CTR_MAX&&free.length)CTR.push(free.shift().id);ctrRes=null;drawCtr()}}
 function ctrBurst(host,col,n){if(!host)return;const r=host.getBoundingClientRect();for(let k=0;k<n;k++){const p=document.createElement("i");p.className="up-pt";p.style.background=col;p.style.color=col;p.style.left=r.width/2+"px";p.style.top=r.height/2+"px";host.appendChild(p);const a=Math.random()*Math.PI*2,d=80+Math.random()*Math.max(r.width,r.height)*.55,sz=3+Math.random()*7;p.style.width=p.style.height=sz+"px";
   p.animate([{transform:"translate(-50%,-50%) scale(1)",opacity:1},{transform:`translate(calc(-50% + ${Math.cos(a)*d}px),calc(-50% + ${Math.sin(a)*d}px)) scale(.15)`,opacity:0}],{duration:900+Math.random()*900,easing:"cubic-bezier(.1,.8,.2,1)"}).onfinish=()=>p.remove()}}
-function ctrSign(){if(!needLogin()||ctrBusy)return;const P=ctrPlan();if(!P||!P.ready)return;let x=Math.random(),q=0;for(;q<P.wt.length-1;q++){if(x<P.wt[q])break;x-=P.wt[q]}const[w,sk]=P.L[q];
-  const st=P.items.every(it=>it.st)&&w.c!=="gloves";const got={id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),w:w.n,s:sk[0],r:sk[5],wear:rollWear(sk,st),st,seed:Math.floor(Math.random()*1000),t:Date.now()};
+function ctrSign(){if(!needLogin()||ctrBusy)return;const P=ctrPlan();if(!P||!P.ready)return;let x=Math.random(),q=0;for(;q<P.wt.length-1;q++){if(x<P.wt[q])break;x-=P.wt[q]}const[w,sk,,wi,st]=P.L[q];const[wl,wh]=wearRange(sk,wi);
+  const got={id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),w:w.n,s:sk[0],r:sk[5],wear:Math.floor((wl+Math.random()*(wh-wl))*1000)/1000,st,seed:Math.floor(Math.random()*1000),t:Date.now()};
   const ids=new Set(P.items.map(it=>it.id));INV=INV.filter(it=>!ids.has(it.id));INV.push(got);invSave();
   ctrBusy=true;ctrRes=null;const stage=$("ctrStage"),core=$("ctrCore"),na=document.documentElement.classList.contains("no-anim");
   const sr=stage.getBoundingClientRect(),cx=sr.width/2,cy=sr.height/2;stage.classList.add("busy");$("ctrGo").disabled=true;$("ctrGo").textContent="Подписываем…";
