@@ -2173,33 +2173,6 @@ select#invSort:focus{outline:none;border-color:#f5a524}
 .cd-lnk:hover{color:var(--accent)}
 .ctr-side.cd .ctr-res{margin-top:0}
 @media (max-width:640px){.cd-gw{width:92px;height:92px}.cd-sum b{font-size:22px}}
-
-/* 3D-витрина скинов */
-.s3d{position:relative;display:grid;place-items:center;width:100%;height:100%;perspective:760px;isolation:isolate}
-.s3d-t{display:grid;place-items:center;width:100%;height:100%;transform-style:preserve-3d;transform:rotateX(var(--tx,0deg)) rotateY(var(--ty,0deg));transition:transform .5s cubic-bezier(.2,.8,.2,1)}
-.s3d-i{position:relative;display:grid;place-items:center;width:100%;height:100%;transform-style:preserve-3d;animation:s3dIdle 7s ease-in-out infinite}
-.s3d .skw{transform-style:preserve-3d}
-.s3d .skw>img{transform:translateZ(6px)}
-.s3d .skw:not(.ok)>img.s3d-l,.s3d-l:not([src]){display:none}.s3d:not(.mk) .s3d-gl{display:none}
-.s3d .skw>img.s3d-l{filter:brightness(.22) saturate(.6);transform:translateZ(calc(var(--z) * -1px))}
-.s3d-gl{position:absolute;inset:0;pointer-events:none;transform:translateZ(7px);-webkit-mask:var(--m) center/contain no-repeat;mask:var(--m) center/contain no-repeat;background:linear-gradient(112deg,transparent 38%,rgba(255,255,255,.0) 42%,rgba(255,255,255,.55) 49%,rgba(255,255,255,.12) 53%,transparent 60%);background-size:260% 100%;mix-blend-mode:screen;animation:s3dGl 7s ease-in-out infinite}
-.s3d.r5 .s3d-gl{background:linear-gradient(112deg,transparent 36%,rgba(255,240,180,.7) 49%,transparent 62%),linear-gradient(90deg,#ff5f9e33,#ffd36a33,#5fffd133,#7a8bff33,#ff5f9e33);background-size:260% 100%,300% 100%;animation:s3dGl 7s ease-in-out infinite,s3dHolo 5s linear infinite}
-.s3d-sh{position:absolute;left:22%;right:22%;bottom:2%;height:12%;border-radius:50%;background:radial-gradient(closest-side,rgba(0,0,0,.55),transparent);filter:blur(4px);z-index:-1;animation:s3dSh 7s ease-in-out infinite}
-.s3d-ray{position:absolute;left:50%;top:50%;width:160%;aspect-ratio:1;translate:-50% -50%;z-index:-2;pointer-events:none;background:repeating-conic-gradient(from 0deg,color-mix(in srgb,var(--rc) 26%,transparent) 0deg,transparent 7deg 13deg,color-mix(in srgb,var(--rc) 26%,transparent) 20deg);-webkit-mask:radial-gradient(closest-side,#000 10%,transparent 70%);mask:radial-gradient(closest-side,#000 10%,transparent 70%);animation:s3dRay 30s linear infinite;opacity:.6;filter:blur(1.5px)}
-.s3d-in{animation:s3dIn 1.15s cubic-bezier(.16,.9,.24,1) both;animation-delay:var(--d,0ms)}
-@keyframes s3dIdle{0%,100%{transform:rotateY(-22deg) rotateX(7deg) translateY(0)}50%{transform:rotateY(22deg) rotateX(-3deg) translateY(-7px)}}
-@keyframes s3dGl{0%,100%{background-position:100% 0,0 0}50%{background-position:0 0,100% 0}}
-@keyframes s3dHolo{to{background-position:0 0,300% 0}}
-@keyframes s3dSh{0%,100%{transform:scaleX(1);opacity:.9}50%{transform:scaleX(.8);opacity:.55}}
-@keyframes s3dRay{to{rotate:360deg}}
-@keyframes s3dIn{0%{transform:rotateY(-560deg) scale(.3) translateZ(-200px);opacity:0;filter:brightness(3)}60%{opacity:1;filter:brightness(1.6)}100%{transform:none;opacity:1;filter:none}}
-.ctr-res .pic .s3d .skw{width:170px;height:112px}
-@media (max-width:640px){.ctr-res .pic .s3d .skw{width:120px;height:80px}}
-/* 3D-наклон карточек под курсором */
-.tl3d .skw{transition:transform .25s cubic-bezier(.2,.8,.2,1),filter .25s;transform:perspective(520px) rotateX(var(--tx,0deg)) rotateY(var(--ty,0deg)) translateZ(14px) scale(1.06);filter:drop-shadow(var(--sx,0px) 12px 10px rgba(0,0,0,.55)) brightness(1.08)}
-.cs-bw,.ctr-res{overflow:hidden}.cs-bw .pic,.ctr-res .pic,.up-target .pic,.tl3d .pic{overflow:visible}
-.up-target{position:relative;overflow:hidden}
-html.no-anim .s3d-i,html.no-anim .s3d-gl,html.no-anim .s3d-ray{animation:none!important}
 </style>
 </head>
 <body>
@@ -3399,7 +3372,7 @@ function drawCasePage(){const c=CASES[CZ];if(!c)return;const free=!c.p,used=free
   $("czBack").onclick=()=>{czCancel();csTab="cases";go("skins")};czBind()}
 function czTopHTML(c,free,used){
   if(czState==="spin")return`<div class="cz-stage n${czN}">${Array.from({length:czN},()=>`<div class="st cs-st"><div class="st-row"></div><span class="st-mk"></span></div>`).join("")}</div>`;
-  if(czState==="res"){const wins=csCur.wins,n=wins.length;setTimeout(()=>{csCur.shown=1},0);return`<div class="cs-big n${n}">${wins.map((it,k)=>{const w=invW(it),sk=invSk(it);return`<div class="cs-bw" style="--rc:${RC[it.r]};--d:${k*90}ms"><span class="pic">${s3d(w,sk,it.wear,it.r,!csCur.shown,k*140+200)}</span><b>${it.st?"StatTrak™ ":""}${w.n}</b><span class="nm">${sk[0]}</span><span class="val">${fmt(itDust(it))} ТК</span></div>`}).join("")}</div>
+  if(czState==="res"){const wins=csCur.wins,n=wins.length;return`<div class="cs-big n${n}">${wins.map((it,k)=>{const w=invW(it),sk=invSk(it);return`<div class="cs-bw" style="--rc:${RC[it.r]};--d:${k*90}ms"><span class="pic">${art(w,sk,it.wear)}</span><b>${it.st?"StatTrak™ ":""}${w.n}</b><span class="nm">${sk[0]}</span><span class="val">${fmt(itDust(it))} ТК</span></div>`}).join("")}</div>
     <div class="cz-acts"><button class="ghost" id="czSell">Продать ${n>1?"всё":""} · +${fmt(csCur.wins.reduce((s,it)=>s+itDust(it),0))} ТК</button><button class="steam" id="czTake">Забрать</button></div>`}
   return`<div class="cz-hero"><div class="cz-art">${caseArt(c)}</div><div class="cz-info"><h1 style="color:${c.c}">${c.n}</h1><p>${c.d}</p>
     ${free?"":`<div class="seg cz-x" id="czX" role="group" aria-label="Сколько открыть">${[1,2,3,4,5].map(n=>`<button data-n="${n}" aria-pressed="${n===czN}">×${n}</button>`).join("")}</div>`}
@@ -3428,21 +3401,6 @@ function czOpen(){if(!needLogin()||czBusy)return;const c=CASES[CZ],n=c.p?czN:1;
 $("csmClose").onclick=()=>{if(!csBusy)$("caseModal").hidden=true};$("caseModal").onclick=e=>{if(e.target.id==="caseModal"&&!csBusy)$("caseModal").hidden=true};
 
 
-
-// 3D-витрина скина: объём (слои), блик по силуэту, тень, лучи для редких
-function s3d(w,sk,wear,r,intro,d){let a=art(w,sk,wear);const m=sk&&sk[6]?skImg(sk):"";
-  if(m){const ly=[1,2,3,4,5].map(z=>`<img class="s3d-l" style="--z:${z}" alt="" aria-hidden="true">`).join("");a=a.replace(/<img /,ly+"<img ").replace(`onload="this.parentNode.classList.add('ok')"`,`onload="s3dOk(this)"`)}
-  return`<span class="s3d r${r}${intro?" s3d-in":""}" style="--rc:${RC[r]};${d!=null?`--d:${d}ms;`:""}">${r>=4?'<i class="s3d-ray"></i>':""}<span class="s3d-t"><span class="s3d-i">${a}${m?'<i class="s3d-gl"></i>':""}</span></span><i class="s3d-sh"></i></span>`}
-function s3dOk(im){const p=im.parentNode;p.classList.add("ok");const u=im.currentSrc||im.src;p.querySelectorAll(".s3d-l").forEach(l=>l.src=u);const h=im.closest(".s3d");if(h){h.style.setProperty("--m",`url("${u}")`);h.classList.add("mk")}}
-// наклон под курсором: витрины и карточки
-(function(){const SEL=".up-it,.ctr-slot.on,.up-slot.on,.cz-it,.iv,.cs-bw,.up-target,.ctr-res";let cur=null;
-  const off=el=>{el.classList.remove("tl3d");el.style.removeProperty("--tx");el.style.removeProperty("--ty");el.style.removeProperty("--sx")};
-  document.addEventListener("pointermove",e=>{if(e.pointerType!=="mouse")return;const el=e.target.closest&&e.target.closest(SEL);if(cur&&cur!==el){off(cur);cur=null}if(!el)return;
-    const r=el.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5,hero=el.querySelector(".s3d");
-    el.style.setProperty("--tx",(-y*(hero?22:26)).toFixed(1)+"deg");el.style.setProperty("--ty",(x*(hero?30:30)).toFixed(1)+"deg");el.style.setProperty("--sx",(-x*14).toFixed(1)+"px");
-    if(!hero)el.classList.add("tl3d");cur=el},{passive:true});
-  document.addEventListener("pointerleave",()=>{if(cur){off(cur);cur=null}},true);
-  document.addEventListener("pointerout",e=>{if(cur&&!e.relatedTarget||cur&&e.relatedTarget&&!cur.contains(e.relatedTarget)){off(cur);cur=null}},{passive:true})})();
 // --- варианты оформления апгрейда: портал, лента, реактор
 function upTArt(t){return t?art(t.w,t.sk,WBR[t.i][0]+.01):""}
 function upPortal(ch,t){const C=2*Math.PI*94;return`<div class="upp" id="upPt"><div class="upp-glow"></div><div class="upp-r upp-r1"></div><div class="upp-r upp-r2"></div><div class="upp-r upp-r3"></div>
@@ -3508,7 +3466,7 @@ function upRing(ch){const C=2*Math.PI*90;return`<svg viewBox="0 0 200 200" aria-
 function drawUp(){UP.sel=UP.sel.filter(id=>{const it=INV.find(x=>x.id===id);return it&&!isOnIt(it)});if(UP.tk>ME.tk)UP.tk=Math.max(0,ME.tk);
   const s=upStake(),ch=upChance(),t=UP.t,r=UP.res;
   const slots=Array.from({length:6},(_,k)=>{const id=UP.sel[k],it=id&&INV.find(x=>x.id===id);if(!it)return`<div class="up-slot">${k===0?"Выбери скины ниже":""}</div>`;const w=invW(it),sk=invSk(it);return`<div class="up-slot on" data-upi="${it.id}" style="--rc:${RC[it.r]}" title="Убрать">${art(w,sk,it.wear)}<small>${fmt(itDust(it))}</small></div>`}).join("");
-  const tgt=t?`<div class="up-target" style="--rc:${RC[t.sk[5]]}"><span class="pic">${s3d(t.w,t.sk,WBR[t.i][0]+.01,t.sk[5])}</span><b>${t.st?"StatTrak™ ":""}${t.w.n}</b><span class="nm">${t.sk[0]==="Vanilla"?"Обычный":t.sk[0]}</span><em>${t.van?"Без износа":wearName(WBR[t.i][0]+.01)}</em><span class="pr">${fmt(t.p)} ТК${s?` · ×${(t.p/s).toFixed(2)}`:""}</span></div>`:`<div class="up-target"><div class="up-empty">Выбери скин, который хочешь получить</div></div>`;
+  const tgt=t?`<div class="up-target" style="--rc:${RC[t.sk[5]]}"><span class="pic">${art(t.w,t.sk,WBR[t.i][0]+.01)}</span><b>${t.st?"StatTrak™ ":""}${t.w.n}</b><span class="nm">${t.sk[0]==="Vanilla"?"Обычный":t.sk[0]}</span><em>${t.van?"Без износа":wearName(WBR[t.i][0]+.01)}</em><span class="pr">${fmt(t.p)} ТК${s?` · ×${(t.p/s).toFixed(2)}`:""}</span></div>`:`<div class="up-target"><div class="up-empty">Выбери скин, который хочешь получить</div></div>`;
   const cen=r&&!UP.busy?`<div class="up-c ${r.win?"win":"lose"}"><b>${r.win?"Есть!":"Мимо"}</b><small>${r.win?"Скин в инвентаре":"Ставка сгорела"}</small></div>`:`<div class="up-c"><b>${ch?ch.toFixed(ch<10?2:1):"0"}%</b><small>Шанс</small></div>`;
   $("upBody").className="up-s-"+UP.st;$("upBody").innerHTML=`<section class="up-top">
    <div class="up-card"><h3>Ставка <b>${fmt(s)} ТК</b></h3><div class="up-stake">${slots}</div>
@@ -3610,7 +3568,7 @@ function drawCtr(){const box=$("ctrBox");if(!box)return;CTR=CTR.filter(id=>{cons
   const all=INV.filter(ctrOk),list=all.filter(it=>ctrF==="all"||String(it.r)===ctrF).sort((a,b)=>itDust(a)-itDust(b));
   const rs=[...new Set(all.map(it=>it.r))].sort();
   box.innerHTML=`<div class="ctr-top"><div class="ctr-stage ${ctrBusy?"busy":""}" id="ctrStage"><div class="ctr-slots">${slots}</div><div class="ctr-core" id="ctrCore"></div></div>
-   <div class="ctr-side cd"><div class="cd-h"><span><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/></svg>Контракт обмена</span><i>№ ${String(9000+INV.length*37%1000).padStart(4,"0")}</i></div>${ctrRes?`<div class="ctr-res" style="--rc:${RC[ctrRes.r]}"><span class="pic">${s3d(invW(ctrRes),invSk(ctrRes),ctrRes.wear,ctrRes.r,!ctrRes.shown)}</span><div><small>Контракт выполнен</small><b>${esc(ctrRes.w)} | ${esc(ctrRes.s==="Vanilla"?"Обычный":ctrRes.s)}</b><span>${RN[ctrRes.r]} · ${wearName(ctrRes.wear)}</span><em>${fmt(itDust(ctrRes))} ТК</em></div></div>`:""}${info}
+   <div class="ctr-side cd"><div class="cd-h"><span><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/></svg>Контракт обмена</span><i>№ ${String(9000+INV.length*37%1000).padStart(4,"0")}</i></div>${ctrRes?`<div class="ctr-res" style="--rc:${RC[ctrRes.r]}"><span class="pic">${art(invW(ctrRes),invSk(ctrRes),ctrRes.wear)}</span><div><small>Контракт выполнен</small><b>${esc(ctrRes.w)} | ${esc(ctrRes.s==="Vanilla"?"Обычный":ctrRes.s)}</b><span>${RN[ctrRes.r]} · ${wearName(ctrRes.wear)}</span><em>${fmt(itDust(ctrRes))} ТК</em></div></div>`:""}${info}
     <button class="steam ctr-go" id="ctrGo" type="button" ${P&&P.ready&&!ctrBusy?"":"disabled"}><svg viewBox="0 0 24 24"><path d="M4 20c3-1 5-4 7-4s2 3 4 3 3-2 5-3"/><path d="M14 4l6 6-8 8H6v-6z"/></svg>${ctrBusy?"Подписываем…":P&&P.ready?"Подписать контракт":"Подписать"}</button>${P&&!ctrBusy?`<div class="ctr-row"><button class="cd-lnk" id="ctrAuto" type="button">+ Добавить дешёвые</button><button class="cd-lnk" id="ctrClr" type="button">Очистить</button></div>`:!ctrBusy&&all.length?`<div class="ctr-row"><button class="cd-lnk" id="ctrAuto" type="button">+ Добавить ${Math.min(CTR_MAX,all.length)} самых дешёвых</button></div>`:""}</div></div>
    <div class="up-lh"><h3>Мои скины</h3><span style="color:var(--muted);font-size:13px">надетые скины и агенты не участвуют</span></div>
    ${rs.length>1?`<div class="up-flt" id="ctrFlt">${[["all","Все"],...rs.map(r=>[String(r),RN[r]])].map(([k,t])=>`<button type="button" data-ctrf="${k}" aria-pressed="${ctrF===k}">${t}</button>`).join("")}</div>`:""}
@@ -3631,7 +3589,7 @@ function ctrSign(){if(!needLogin()||ctrBusy)return;const P=ctrPlan();if(!P||!P.r
     if(!na)setTimeout(()=>{try{tone(500+k*70,.08,"sine",.012)}catch(e){}},k*55+700)});
   if(!na){core.classList.add("charge");core.style.setProperty("--rc",RC[got.r])}
   setTimeout(()=>{core.classList.remove("charge");core.classList.add("boom");ctrBurst(stage,RC[got.r],na?0:48);ctrBurst(stage,"#ffd36b",na?0:24);try{sndWin(got.r)}catch(e){}
-    setTimeout(()=>{ctrBusy=false;ctrRes=got;CTR=[];drawCtr();drawInv();const c=document.querySelector(".ctr-res");if(ctrRes)ctrRes.shown=1;if(c&&!na){c.animate([{transform:"rotateY(90deg) scale(.7)",opacity:0},{transform:"rotateY(-10deg) scale(1.04)",opacity:1,offset:.7},{transform:"none",opacity:1}],{duration:700,easing:"cubic-bezier(.2,.8,.2,1)"});c.classList.add("glow")}
+    setTimeout(()=>{ctrBusy=false;ctrRes=got;CTR=[];drawCtr();drawInv();const c=document.querySelector(".ctr-res");if(c&&!na){c.animate([{transform:"rotateY(90deg) scale(.7)",opacity:0},{transform:"rotateY(-10deg) scale(1.04)",opacity:1,offset:.7},{transform:"none",opacity:1}],{duration:700,easing:"cubic-bezier(.2,.8,.2,1)"});c.classList.add("glow")}
       myDrop(got,null,"контракт");toast(`Контракт: ${got.w} | ${got.s} — ${fmt(itDust(got))} ТК`)},na?0:550)},na?0:1500)}
 document.addEventListener("click",e=>{const f=e.target.closest("[data-ctrf]");if(f){ctrF=f.dataset.ctrf;drawCtr();return}
   const c=e.target.closest("[data-ctri]");if(c&&!ctrBusy){if(!needLogin())return;const id=c.dataset.ctri,k=CTR.indexOf(id);if(k>=0)CTR.splice(k,1);else{if(CTR.length>=CTR_MAX){toast(`В контракт помещается до ${CTR_MAX} скинов`);return}CTR.push(id)}ctrRes=null;drawCtr()}});
