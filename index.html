@@ -2484,6 +2484,14 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;ba
 .mk-cmp{margin-top:8px;padding:9px 12px;border-radius:10px;background:rgba(245,165,36,.07);border:1px dashed rgba(245,165,36,.25);font-size:12px;color:var(--muted)}
 .mk-cmp b{color:var(--fg)}.mk-cmp b.pl{color:var(--live)}
 .iv-acts{flex-wrap:wrap!important}.iv-acts .iv-sd,.iv-acts .iv-ic{flex:1 1 0!important;width:auto!important}.iv-acts .iv-del{flex:1 1 100%!important}
+
+.mk-term{margin-top:10px}.mk-term>span{display:block;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.mk-term>div{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.mk-term button{display:flex;flex-direction:column;align-items:center;gap:1px;padding:8px 4px;border-radius:10px;border:1px solid var(--line);background:rgba(12,8,6,.5);color:var(--fg);font:inherit;cursor:pointer}
+.mk-term button b{font-size:14px;font-weight:900}.mk-term button small{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+.mk-term button[aria-pressed="true"]{border-color:var(--accent);background:rgba(245,165,36,.12);box-shadow:0 0 0 1px var(--accent) inset}.mk-term button[aria-pressed="true"] small{color:var(--accent)}
+.mk-term p{margin:8px 0 0;font-size:12px;color:var(--muted);line-height:1.5}.mk-term p b{color:var(--live)}
+.mk-bo{display:inline-block;margin-top:6px;font-size:11px;font-weight:700;color:var(--accent);padding:3px 8px;border-radius:999px;background:rgba(245,165,36,.1)}
 </style>
 </head>
 <body>
@@ -2781,7 +2789,7 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;ba
 
     <div class="view" id="v-inventory" hidden>
       <div class="page-head"><h1>Инвентарь</h1><p>Все твои скины и агенты. Надевай их для игры на серверах, клей наклейки или продавай за ТК.</p></div>
-      <section id="csInv"><div class="cs-inv-tools"><div class="inv-val">Стоимость инвентаря <b id="invVal">0 ТК</b></div><div class="seg" id="invF" role="group" aria-label="Фильтр"><button data-f="all" aria-pressed="true">Все</button><button data-f="on" aria-pressed="false">Надето</button></div><button class="ghost inv-dall" id="invDall" type="button">Продать всё</button><select id="invSort" aria-label="Сортировка"><option value="r">Сначала редкие</option><option value="n">Сначала новые</option></select></div><div class="inv-hint"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg><span>Цена на карточке — рыночная. Сайт выкупает скины сразу за <b>75%</b> этой цены, а на <a href="#market" data-mksell>Площадке</a> другие игроки покупают по твоей цене.</span></div><div class="cs-inv" id="invGrid"></div></section>
+      <section id="csInv"><div class="cs-inv-tools"><div class="inv-val">Стоимость инвентаря <b id="invVal">0 ТК</b></div><div class="seg" id="invF" role="group" aria-label="Фильтр"><button data-f="all" aria-pressed="true">Все</button><button data-f="on" aria-pressed="false">Надето</button></div><button class="ghost inv-dall" id="invDall" type="button">Продать всё</button><select id="invSort" aria-label="Сортировка"><option value="r">Сначала редкие</option><option value="n">Сначала новые</option></select></div><div class="inv-hint"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg><span>Цена на карточке — рыночная. Сайт выкупает сразу: ширпотреб за <b>100%</b>, армейское <b>90%</b>, запрещённое <b>85%</b>, засекреченное <b>80%</b>, тайное и золото <b>75%</b>. На <a href="#market" data-mksell>Площадке</a> можно продать дороже, а если лот не купят, сайт сам выкупит его за 85–95%.</span></div><div class="cs-inv" id="invGrid"></div></section>
     </div>
 
     <div class="view" id="v-market" hidden>
@@ -3670,28 +3678,28 @@ function invCard(it){const w=invW(it),sk=invSk(it);if(!w||!sk)return"";const on=
   return`<article class="iv${on?" on":""}" style="--rc:${RC[it.r]}"><div class="iv-top">${wr?`<span class="iv-w" style="--wc:${["#3ddc97","#9be15d","#f5c451","#ff8a3d","#eb4b4b"][wIdx(it.wear)]}">${WSH[wIdx(it.wear)]} <i>•</i> ${it.wear.toFixed(it.wear<.01?4:3)}</span>`:`<span class="iv-w" style="--wc:var(--rc)">${RN[it.r]}</span>`}${itBadge(it,"st-badge")}</div>
   <span class="pic">${art(w,sk,it.wear,it.stk||null)}</span>
   <small class="iv-wn">${itPre(it)}${w.n}</small><b class="iv-sn">${sk[0]==="Vanilla"?"Обычный":sk[0]}</b><span class="val">${fmt(itDust(it))} ТК</span>
-  <div class="iv-acts">${sides.map(sd=>{const o=onSide(it,sd);return`<button class="iv-sd ${sd}${o?" on":""}" data-ieq="${it.id}" data-side="${sd}" title="${o?"Снять":"Надеть"} за ${sd==="ct"?"спецназ":"террористов"}" aria-pressed="${o}">${sd==="ct"?"CT":"T"}</button>`}).join("")}${STK_OK(w)?`<button class="iv-ic" data-istk="${it.id}" title="Наклейки" aria-label="Наклейки"><svg viewBox="0 0 24 24"><path d="M4 4h16v10l-6 6H4z"/><path d="M14 20v-6h6"/></svg></button>`:""}<button class="iv-del" data-idel="${it.id}" title="Продать сайту сразу за 75% цены">Продать ${fmt(itSell(it))}</button></div></article>`}
+  <div class="iv-acts">${sides.map(sd=>{const o=onSide(it,sd);return`<button class="iv-sd ${sd}${o?" on":""}" data-ieq="${it.id}" data-side="${sd}" title="${o?"Снять":"Надеть"} за ${sd==="ct"?"спецназ":"террористов"}" aria-pressed="${o}">${sd==="ct"?"CT":"T"}</button>`}).join("")}${STK_OK(w)?`<button class="iv-ic" data-istk="${it.id}" title="Наклейки" aria-label="Наклейки"><svg viewBox="0 0 24 24"><path d="M4 4h16v10l-6 6H4z"/><path d="M14 20v-6h6"/></svg></button>`:""}<button class="iv-del" data-idel="${it.id}" title="Продать сайту сразу за ${Math.round(sellK(it)*100)}% цены">Продать ${fmt(itSell(it))}</button></div></article>`}
 function drawInv(){const list=INV.filter(it=>invF==="all"||isOnIt(it)).sort($("invSort").value==="r"?(a,b)=>b.r-a.r||b.t-a.t:(a,b)=>b.t-a.t);
   $("invGrid").innerHTML=list.map(invCard).join("")||`<div class="pf-empty cs-empty">${!logged?"Войди через Steam, чтобы собирать скины.":invF==="on"?"Ничего не надето. Нажми «Надеть» на любом скине.":"Инвентарь пуст. Открой бесплатный ежедневный кейс, чтобы получить первый скин."}${logged&&invF==="all"?'<button class="steam" data-gocases>К кейсам</button>':""}</div>`;
-  {const free=INV.filter(it=>!isOnIt(it)),sum=free.reduce((s,it)=>s+itSell(it),0);const b=$("invDall");b.hidden=!free.length;b.textContent=`Продать всё сайту +${fmt(sum)} ТК`;b.title="Сайт выкупает сразу за 75% цены"}
+  {const free=INV.filter(it=>!isOnIt(it)),sum=free.reduce((s,it)=>s+itSell(it),0);const b=$("invDall");b.hidden=!free.length;b.textContent=`Продать всё сайту +${fmt(sum)} ТК`;b.title="Сайт выкупает сразу: ширпотреб 100%, армейское 90%, запрещённое 85%, засекреченное 80%, тайное и золото 75%"}
   $("invCnt").textContent=INV.length?INV.length:"";$("invVal").textContent=fmt(INV.reduce((s,it)=>s+itDust(it),0))+" ТК"}
 function drawSkGrid(){drawInv()}function drawCols(){}
 function drawSkins(){$("skGate").hidden=logged;$("csBal").textContent=logged?fmt(ME.tk)+" ТК":"—";$("csCases").hidden=false;drawCases();drawInv()}
 
 $("invF").onclick=e=>{const b=e.target.closest("[data-f]");if(!b)return;invF=b.dataset.f;$("invF").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b));drawInv()};
 $("invSort").onchange=drawInv;
-$("invDall").onclick=()=>{if(!needLogin())return;const free=INV.filter(it=>!isOnIt(it));if(!free.length)return;const n=free.length,sum=dust(free);drawSkins();toast(`Продано сайту ${n} ${plural(n,"предмет","предмета","предметов")} за 75% цены: +${fmt(sum)} ТК. Надетые остались`)};
+$("invDall").onclick=()=>{if(!needLogin())return;const free=INV.filter(it=>!isOnIt(it));if(!free.length)return;const n=free.length,sum=dust(free);drawSkins();toast(`Продано сайту ${n} ${plural(n,"предмет","предмета","предметов")}: +${fmt(sum)} ТК. Надетые остались`)};
 const slotCls=n=>{const w=W.find(x=>x.n===n);return w&&(w.c==="knife"||w.c==="gloves")?w.c:null};
 function slotClear(m,wn){const c=slotCls(wn);if(!c)return;Object.keys(m).forEach(k=>{if(k!==wn&&slotCls(k)===c)delete m[k]})}
 [SKST.sets,SKST.setsT].forEach(m=>{const seen={};Object.keys(m||{}).forEach(k=>{const c=slotCls(k);if(!c)return;if(seen[c])delete m[k];else seen[c]=1})});
 function equip(it,on,side){const w=invW(it),sides=side?[side]:w?sidesOf(w):["ct","t"];sides.forEach(sd=>{const m=sideMap(it.w,sd);if(on){slotClear(m,it.w);m[it.w]={name:it.s,wear:it.wear,seed:it.seed,tag:"",st:it.st,stk:it.stk||null,inv:it.id}}else if(m[it.w]&&m[it.w].inv===it.id)delete m[it.w]});syncActive()}
-const SELL_K=.75,itSell=it=>Math.max(1,Math.floor(itDust(it)*SELL_K));
+const SELL_R=[1,.9,.85,.8,.75,.75],sellK=it=>SELL_R[Math.max(0,Math.min(5,it.r|0))],itSell=it=>Math.max(1,Math.floor(itDust(it)*sellK(it)));
 function dust(list){let sum=0;list.forEach(it=>{if(isOnIt(it))equip(it,false);sum+=itSell(it)});const ids=new Set(list.map(x=>x.id));INV=INV.filter(x=>!ids.has(x.id));ME.tk+=sum;walletSave();invSave();drawChip();return sum}
 $("invGrid").addEventListener("click",e=>{const g=e.target.closest("[data-gocases]");if(g){go("skins");return}
   const q=e.target.closest("[data-ieq],[data-istk],[data-idel]");if(!q||!needLogin())return;const id=q.dataset.ieq||q.dataset.istk||q.dataset.idel,it=INV.find(x=>x.id===id);if(!it)return;
   if(q.dataset.ieq){const sd=q.dataset.side,on=!onSide(it,sd);equip(it,on,sd);drawInv();const tn=sd==="ct"?"за спецназ (CT)":"за террористов (T)";toast(on?`${it.w} | ${it.s}: надето ${tn}`:`${it.w}: снято ${tn}`)}
   else if(q.dataset.istk)openStkItem(it);
-  else{const sum=dust([it]);drawSkins();toast(`Продано сайту за 75%: +${fmt(sum)} ТК. Полную цену можно получить на Площадке`)}});
+  else{const sum=dust([it]);drawSkins();toast(`Продано сайту за ${Math.round(sellK(it)*100)}%: +${fmt(sum)} ТК${sellK(it)<1?". Больше можно получить на Площадке":""}`)}});
 // открытие ×1–×5
 const stSkin=it=>{const w=invW(it),sk=invSk(it);return`<div class="st-it sk" style="--c:${RC[it.r]}">${sk&&sk[6]?`<span class="skw ok"><img src="${skImg(sk)}" data-s="${skSteam(sk)}" alt="" decoding="async" ${IMGFB}></span>`:art(w,sk,0)}<b>${w.n}</b><span>${sk[0]}</span></div>`};
 let csCur=null;
@@ -3713,14 +3721,14 @@ function drawCasePage(){const c=CASES[CZ];if(!c)return;const free=!c.p,used=free
 function czTopHTML(c,free,used){
   if(czState==="spin")return`<div class="cz-stage n${czN}">${Array.from({length:czN},()=>`<div class="st cs-st"><div class="st-row"></div><span class="st-mk"></span></div>`).join("")}</div>`;
   if(czState==="res"){const wins=csCur.wins,n=wins.length;return`<div class="cs-big n${n}">${wins.map((it,k)=>{const w=invW(it),sk=invSk(it);return`<div class="cs-bw" style="--rc:${RC[it.r]};--d:${k*90}ms"><span class="pic">${art(w,sk,it.wear)}</span><b>${itPre(it)}${w.n}</b><span class="nm">${sk[0]}</span>${it.sp?`<span class="sp-t">✦ ${SP[it.sp].n}</span>`:""}<span class="val">${fmt(itDust(it))} ТК</span></div>`}).join("")}</div>
-    <div class="cz-acts"><button class="ghost" id="czSell" title="Сайт выкупает сразу за 75% цены, полную цену можно получить на Площадке">Продать ${n>1?"всё ":""}сайту · +${fmt(csCur.wins.reduce((s,it)=>s+itSell(it),0))} ТК</button><button class="steam" id="czTake">Забрать</button></div>`}
+    <div class="cz-acts"><button class="ghost" id="czSell" title="Сайт выкупает сразу: ширпотреб 100%, армейское 90%, запрещённое 85%, засекреченное 80%, тайное и золото 75%">Продать ${n>1?"всё ":""}сайту · +${fmt(csCur.wins.reduce((s,it)=>s+itSell(it),0))} ТК</button><button class="steam" id="czTake">Забрать</button></div>`}
   return`<div class="cz-hero"><div class="cz-art">${caseArt(c)}</div><div class="cz-info"><h1 style="color:${c.c}">${c.n}</h1><p>${c.d}</p>
     ${free?"":`<div class="seg cz-x" id="czX" role="group" aria-label="Сколько открыть">${[1,2,3,4,5].map(n=>`<button data-n="${n}" aria-pressed="${n===czN}">×${n}</button>`).join("")}</div>`}
     <button class="steam cz-go" id="czGo" ${used?"disabled":""}>${used?`Следующий через <span class="csLeft">${csLeft()}</span>`:free?"Открыть бесплатно":`Открыть ×${czN} за ${fmt(c.p*czN)} ТК`}</button>
     ${logged?`<span class="cz-bal">Баланс: <b>${fmt(ME.tk)} ТК</b></span>`:`<span class="cz-bal">Войди через Steam, чтобы открывать кейсы</span>`}</div></div>`}
 function czRenderTop(){const c=CASES[CZ],free=!c.p,used=free&&csDay===mskDay();$("czTop").innerHTML=czTopHTML(c,free,used);czBind()}
 function czBind(){const x=$("czX");if(x)x.onclick=e=>{const b=e.target.closest("[data-n]");if(!b)return;czN=+b.dataset.n;czRenderTop()};
-  const g=$("czGo");if(g)g.onclick=czOpen;const a=$("czSell");if(a)a.onclick=()=>{const l=csCur.wins.filter(w=>INV.some(x=>x.id===w.id)),n=l.length,sum=dust(l);czState="idle";czRenderTop();drawInv();toast(`Продано сайту ${n} ${plural(n,"предмет","предмета","предметов")} за 75% цены: +${fmt(sum)} ТК`)};
+  const g=$("czGo");if(g)g.onclick=czOpen;const a=$("czSell");if(a)a.onclick=()=>{const l=csCur.wins.filter(w=>INV.some(x=>x.id===w.id)),n=l.length,sum=dust(l);czState="idle";czRenderTop();drawInv();toast(`Продано сайту ${n} ${plural(n,"предмет","предмета","предметов")}: +${fmt(sum)} ТК`)};
   const t=$("czTake");if(t)t.onclick=()=>{const n=csCur.wins.length;czState="idle";czRenderTop();toast(n>1?"Скины добавлены в инвентарь":"Скин добавлен в инвентарь")}}
 // звук открытия кейса (Web Audio, тихо)
 const SND={get on(){return SET.caseSound!==false},ctx:null,last:0};
@@ -4269,7 +4277,7 @@ document.documentElement.style.setProperty("--god",`url(${TIERIMG.GOD})`);
 drawStats();
 // ---------- навигация ----------
 // ===== Торговая площадка =====
-const MK_FEE=.05,MK_TOT=520,MK_V=3;
+const MK_TERMS=[[6,.85],[24,.9],[72,.95]];let mkTerm=1;const MK_FEE=.05,MK_TOT=520,MK_V=3;
 let MK={v:MK_V,l:[],my:[],h:[],d:[],seed:{},t:0},mkTab="buy",mkCat="all",mkQ="",mkSort="cheap",mkLo="",mkHi="",mkSel=null,mkArm=null,mkPage=1,mkDet=null;
 try{const o=JSON.parse(localStorage.getItem("mkt1")||"null");if(o&&o.l){MK=Object.assign(MK,o);if(o.v!==MK_V){MK.l=[];MK.d=[];MK.seed={};MK.t=0;MK.v=MK_V}}}catch(e){}
 function mkSave(){try{localStorage.setItem("mkt1",JSON.stringify(MK))}catch(e){}}
@@ -4301,19 +4309,21 @@ function mkEntries(base){const[w,s,v,sp]=base.split("|");return upAll().filter(x
 function mkEnsure(base){if(MK.seed[base])return;MK.seed[base]=1;mkEntries(base).forEach(x=>{const has=MK.l.some(l=>mkGk(l.it)===`${base}|${x.van?-1:x.i}`);if(!has&&Math.random()<.75)MK.l.push(...mkSeedGroup(x,1+Math.floor(Math.pow(Math.random(),2)*20)))});mkSave()}
 function mkDeal(x,buyer){MK.d.unshift({it:x.it,p:x.p,n:buyer||mkNick(),t:Date.now()});MK.d=MK.d.slice(0,30)}
 // жизнь площадки: другие игроки покупают и выставляют лоты, покупают и твои
-function mkTick(steps){steps=Math.max(1,Math.min(steps||1,400));let sold=[];
+function mkTick(steps){steps=Math.max(1,Math.min(steps||1,400));let sold=[],bo=0;
   for(let s=0;s<steps;s++){
     if(MK.l.length&&Math.random()<.5){const k=Math.floor(Math.random()*MK.l.length),x=MK.l[k];MK.l.splice(k,1);mkDeal(x)}
     if(MK.l.length<MK_TOT&&Math.random()<.55){if(Math.random()<.7&&MK.l.length){const b=MK.l[Math.floor(Math.random()*MK.l.length)],e=upAll().find(x=>mkGk({w:x.w.n,s:x.sk[0],st:x.st,sv:x.sv,sp:x.sp,wear:x.van?0:WBR[x.i][0]+.001})===mkGk(b.it));if(e)MK.l.push(mkOffer(e,mkWear(e),Date.now()))}else{const x=mkPick();if(x)MK.l.push(...mkSeedGroup(x,1+Math.floor(Math.random()*3)).map(o=>(o.t=Date.now(),o)))}}
     MK.my=MK.my.filter(m=>{const ratio=m.p/mkVal(m.it),q=ratio<=.9?.12:ratio<=.97?.05:ratio<=1.03?.012:ratio<=1.1?.003:0;if(Math.random()<q){sold.push(m);return false}return true})}
+  {const now=Date.now();MK.my=MK.my.filter(m=>{if(m.bt&&now>=m.bt){const get=Math.max(1,Math.floor(Math.min(m.p,mkVal(m.it))*m.bk));ME.tk+=get;MK.h.unshift({k:"sell",it:m.it,p:get,get,n:"Сайт · гарантированный выкуп",t:now});try{notify("sell","Лот выкуплен сайтом",`${mkName(m.it)} | ${mkSkN(m.it.s)} никто не купил за ${m.bh} ч — сайт выкупил его за ${Math.round(m.bk*100)}%: +${fmt(get)} ТК`)}catch(e){}bo++;return false}return true});if(bo){walletSave();drawChip()}}
   sold.forEach(m=>{const get=Math.round(m.p*(1-MK_FEE)),b=mkNick();ME.tk+=get;MK.h.unshift({k:"sell",it:m.it,p:m.p,get,n:b,t:Date.now()});mkDeal(m,b);try{notify("sell","Скин продан",`${mkName(m.it)} | ${mkSkN(m.it.s)} купил ${b}. На баланс +${fmt(get)} ТК`)}catch(e){}});
   if(sold.length){walletSave();drawChip();const m=sold[0],w=invW(m.it);toast(sold.length>1?`Продано лотов: ${sold.length}. Деньги уже на балансе`:`Твой лот купили: ${w?w.n:m.it.w} | ${m.it.s} · +${fmt(Math.round(m.p*(1-MK_FEE)))} ТК`)}
-  MK.h=MK.h.slice(0,80);MK.t=Date.now();clearTimeout(mkTick.s);mkTick.s=setTimeout(mkSave,1500);return sold.length}
+  MK.h=MK.h.slice(0,80);MK.t=Date.now();clearTimeout(mkTick.s);mkTick.s=setTimeout(mkSave,1500);return sold.length+bo}
 {const el=Date.now()-(MK.t||0);if(!MK.t||el>864e5){MK.l=[];MK.d=[];MK.seed={};mkFill();for(let k=0;k<14;k++){const x=mkPick();if(x)mkDeal(mkOffer(x,x.van?0:spWear(x.sk,x.i,x.sp)))}MK.d.forEach((d,k)=>d.t=Date.now()-k*41e4)}if(MK.my.length&&MK.t)mkTick(Math.floor(el/1e4));MK.t=Date.now();mkSave()}
 (f=>STKREADY?f():STKWAIT.push(f))(()=>{let ch=0;MK.l.forEach(x=>{if(x.it.stk===undefined){mkStk(x.it);ch=1}});if(ch){mkSave();if(curView==="market"&&!mkArm)drawMk(true)}});
 setInterval(()=>{if(document.hidden)return;if(curView!=="market"&&!MK.my.length)return;const n=mkTick(1);if(curView==="market"&&!mkArm&&!mkDet&&mkTab==="buy"){if(n)drawMk(true);else{const f=document.querySelector(".mk-feed");if(f)f.outerHTML=mkFeed()}}},1e4);
 
 const mkAgo=t=>{const m=Math.round((Date.now()-t)/6e4);return m<1?"только что":m<60?`${m} мин`:m<1440?`${Math.round(m/60)} ч`:`${Math.round(m/1440)} д`};
+const mkLeft=t=>{const m=Math.max(1,Math.round((t-Date.now())/6e4));return m<60?`${m} мин`:m<1440?`${Math.floor(m/60)} ч ${m%60} мин`:`${Math.floor(m/1440)} д ${Math.floor(m%1440/60)} ч`};
 const mkAgo2=t=>{const a=mkAgo(t);return a==="только что"?a:a+" назад"};
 const mkAva=n=>{let h=0;for(const c of n)h=(h*31+c.charCodeAt(0))%360;return`<i class="mk-ava" style="--h:${h}">${esc(n[0].toUpperCase())}</i>`};
 const mkFlt=w=>w.toFixed(w<.01?4:w<.1?4:3);
@@ -4373,12 +4383,12 @@ function mkSellTab(){const free=INV.filter(it=>!isOnIt(it)&&!it.fx&&invW(it)&&in
   else{const it=mkSel,w=invW(it),sk=invSk(it),v=mkVal(it);if(mkSel.p==null)mkSel.p=v;const p=Math.max(1,Math.round(+mkSel.p||0)),fee=Math.round(p*MK_FEE),sp=mkSpeed(p/v);
    side=`<div class="mk-lot" style="--rc:${RC[it.r]}"><div class="mk-lot-h"><span>Новый лот</span>${itBadge(it,"mk-b")}</div><span class="pic">${art(w,sk,it.wear)}</span><b class="mk-n">${mkName(it)}</b><span class="mk-s">${esc(mkSkN(sk[0]))}</span>${mkFloat(it)}
     <label class="mk-pin"><span>Твоя цена</span><div><input id="mkP" inputmode="numeric" value="${p}" autocomplete="off"><i>ТК</i></div></label>
-    <dl class="mk-sum"><dt>Цена лота</dt><dd>${fmt(p)} ТК</dd><dt>Комиссия 5%</dt><dd>−${fmt(fee)} ТК</dd><dt>Ты получишь</dt><dd class="get">${fmt(p-fee)} ТК</dd></dl><div class="mk-cmp">Сайт выкупил бы сразу за <b>${fmt(itSell(it))} ТК</b>${p-fee>itSell(it)?` · на площадке на <b class="pl">${fmt(p-fee-itSell(it))} ТК</b> больше`:""}</div>
+    <dl class="mk-sum"><dt>Цена лота</dt><dd>${fmt(p)} ТК</dd><dt>Комиссия 5%</dt><dd>−${fmt(fee)} ТК</dd><dt>Ты получишь</dt><dd class="get">${fmt(p-fee)} ТК</dd></dl><div class="mk-term"><span>Гарантированный выкуп</span><div>${MK_TERMS.map(([h,k],i)=>`<button type="button" data-mkterm="${i}" aria-pressed="${mkTerm===i}"><b>${h<48?h+" ч":h/24+" дня"}</b><small>${Math.round(k*100)}% · ${fmt(Math.floor(Math.min(p,v)*k))}</small></button>`).join("")}</div><p>Если за ${MK_TERMS[mkTerm][0]<48?MK_TERMS[mkTerm][0]+" ч":MK_TERMS[mkTerm][0]/24+" дня"} лот никто не купит, сайт сам выкупит его за <b>${fmt(Math.floor(Math.min(p,v)*MK_TERMS[mkTerm][1]))} ТК</b>. Сразу сайту — ${fmt(itSell(it))} ТК.</p></div>
     <button class="steam mk-go" type="button" id="mkList">Выставить на продажу</button><small class="mk-note">Пока скин на площадке, его нет в инвентаре. Снять лот можно в любой момент.</small></div>`}
   return`<div class="mk-sell"><div class="mk-inv"><div class="mk-hd"><b>Твои скины</b><span>${free.length?`${free.length} шт.`:""}</span></div>${free.length?`<div class="mk-igrid">${grid}</div>`:`<div class="mk-empty">${logged?"В инвентаре нет скинов для продажи.":"Войди через Steam, чтобы продавать скины."}</div>`}</div><aside class="mk-side">${side}</aside></div>`}
 function mkMyTab(){if(!MK.my.length)return`<div class="mk-empty big"><b>У тебя нет активных лотов</b><span>Выстави скин во вкладке «Продать».</span></div>`;
   return`<div class="mk-rows">${MK.my.map(m=>{const it=m.it,w=invW(it),sk=invSk(it);if(!w||!sk)return"";const v=mkVal(it),sp=mkSpeed(m.p/v);
-   return`<div class="mk-row" style="--rc:${RC[it.r]}"><span class="pic">${art(w,sk,it.wear)}</span><div class="mk-ri"><b>${mkName(it)} <span class="mk-s">${esc(mkSkN(sk[0]))}</span></b><small>${it.wear>0?wearName(it.wear)+" · ":""}выставлен ${mkAgo2(m.t)}</small></div>
+   return`<div class="mk-row" style="--rc:${RC[it.r]}"><span class="pic">${art(w,sk,it.wear)}</span><div class="mk-ri"><b>${mkName(it)} <span class="mk-s">${esc(mkSkN(sk[0]))}</span></b><small>${it.wear>0?wearName(it.wear)+" · ":""}выставлен ${mkAgo2(m.t)}</small>${m.bt?`<span class="mk-bo">Выкуп сайтом через ${mkLeft(m.bt)} · ${fmt(Math.floor(Math.min(m.p,v)*m.bk))} ТК</span>`:""}</div>
     <div class="mk-rp"><div class="mk-pin sm"><div><input data-mkpe="${m.id}" inputmode="numeric" value="${m.p}"><i>ТК</i></div></div><small>получишь ${fmt(Math.round(m.p*(1-MK_FEE)))} ТК</small></div>
     <div class="mk-ra"><button class="ghost" type="button" data-mksave="${m.id}">Сохранить</button><button class="ghost mk-x" type="button" data-mkx="${m.id}">Снять</button></div></div>`}).join("")}</div>`}
 function mkHistTab(){if(!MK.h.length)return`<div class="mk-empty big"><b>Сделок пока нет</b><span>Здесь появятся твои покупки и продажи.</span></div>`;
@@ -4409,8 +4419,9 @@ document.addEventListener("click",e=>{if(!e.target.closest("#mkBox"))return;cons
   if(t.closest("#mkMore")){mkPage++;drawMk();return}
   if(b=t.closest("[data-mks]")){const it=INV.find(x=>x.id===b.dataset.mks);mkSel=it?Object.assign({},it,{p:null}):null;drawMk();return}
   if(b=t.closest("[data-mkq]")){if(mkSel){mkSel.p=Math.max(1,Math.round(mkVal(mkSel)*+b.dataset.mkq));drawMk()}return}
+  if(b=t.closest("[data-mkterm]")){mkTerm=+b.dataset.mkterm;drawMk();return}
   if(t.closest("#mkList")){if(!needLogin()||!mkSel)return;const k=INV.findIndex(x=>x.id===mkSel.id);if(k<0)return;const p=Math.max(1,Math.round(+mkSel.p||0));if(p>mkVal(INV[k])*3){toast("Цена больше чем в 3 раза выше средней. Такой лот не купят");return}
-   const it=INV.splice(k,1)[0];invSave();MK.my.unshift({id:mkId(),it,p,t:Date.now()});mkSave();mkSel=null;mkTab="my";drawMk();try{drawInv()}catch(e){}toast("Лот выставлен. Его уже видят другие игроки");return}
+   const it=INV.splice(k,1)[0];invSave();{const[th,tk]=MK_TERMS[mkTerm];MK.my.unshift({id:mkId(),it,p,t:Date.now(),bh:th,bk:tk,bt:Date.now()+th*36e5})}mkSave();mkSel=null;mkTab="my";drawMk();try{drawInv()}catch(e){}toast("Лот выставлен. Его уже видят другие игроки");return}
   if(b=t.closest("[data-mkx]")){const k=MK.my.findIndex(m=>m.id===b.dataset.mkx);if(k<0)return;const m=MK.my.splice(k,1)[0];INV.push(m.it);invSave();mkSave();drawMk();try{drawInv()}catch(e){}toast("Лот снят, скин вернулся в инвентарь");return}
   if(b=t.closest("[data-mksave]")){const m=MK.my.find(m=>m.id===b.dataset.mksave),inp=document.querySelector(`[data-mkpe="${b.dataset.mksave}"]`);if(!m||!inp)return;const p=Math.max(1,Math.round(+inp.value.replace(/\D/g,"")||0));if(p>mkVal(m.it)*3){toast("Слишком высокая цена");return}m.p=p;m.t=Date.now();mkSave();drawMk();toast("Цена обновлена");return}
 });
