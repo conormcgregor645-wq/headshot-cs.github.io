@@ -1682,7 +1682,7 @@ nav a.on svg{filter:drop-shadow(0 0 6px rgba(245,165,36,.8))}
 .cs-odds span{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;background:var(--panel-2);border-radius:7px;padding:4px 8px}
 .cs-odds i{width:6px;height:6px;border-radius:50%;background:var(--rc)}.cs-odds b{color:var(--rc)}
 .cs-foot{margin-top:auto;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 16px 16px;border-top:1px solid var(--line)}
-.cs-price{font-size:13px;color:var(--muted)}.cs-price b{font-size:18px;font-weight:900;color:#ffd36b;font-variant-numeric:tabular-nums}
+.cs-price{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}.tk-c{font-style:normal;font-size:10px;font-weight:900;letter-spacing:.06em;line-height:1;padding:4px 6px 3px;border-radius:6px;color:#1a1206;background:linear-gradient(135deg,#ffe08a,#f5a524 60%,#ff8a1a);box-shadow:0 0 12px rgba(245,165,36,.35),inset 0 1px 0 rgba(255,255,255,.45)}.cs-price b{font-size:18px;font-weight:900;color:#ffd36b;font-variant-numeric:tabular-nums}
 .cs-foot .steam{padding:10px 20px}.cs-foot .steam:disabled{opacity:.5}
 .cs-inv-tools{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px}
 .cs-inv-tools select{background:var(--panel);border:1px solid var(--line);border-radius:12px;color:var(--fg);font:inherit;font-size:13px;padding:0 14px;height:42px}
@@ -2199,7 +2199,8 @@ select#invSort:focus{outline:none;border-color:#f5a524}
 .iv-acts .iv-sd.ct:hover,.iv-acts .iv-sd.ct.on{color:#5aa9ff;border-color:rgba(90,169,255,.55)}.iv-acts .iv-sd.ct.on{background:rgba(90,169,255,.16);box-shadow:0 0 12px rgba(90,169,255,.25)}
 .iv-acts .iv-sd.t:hover,.iv-acts .iv-sd.t.on{color:#f5c451;border-color:rgba(245,196,81,.55)}.iv-acts .iv-sd.t.on{background:rgba(245,196,81,.16);box-shadow:0 0 12px rgba(245,196,81,.25)}
 .iv-acts .iv-del{flex:1!important;color:#ffd36b}
-@media (max-width:640px){.iv-acts .iv-del{flex:1 1 auto!important}.iv-acts .iv-sd{width:34px}.iv .pic{height:78px}}
+.iv{min-width:0}
+@media (max-width:640px){.cs-inv{grid-template-columns:repeat(2,minmax(0,1fr))!important}.iv{padding:9px 10px 10px}.iv-acts{flex-wrap:wrap!important}.iv-acts .iv-sd,.iv-acts .iv-ic{flex:1 1 0!important;width:auto}.iv-acts .iv-del{flex:1 1 100%!important}.iv .pic{height:78px}}
 /* ===== Торговая площадка ===== */
 .mk-hero{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:14px}
 .mk-st{position:relative;overflow:hidden;padding:14px 16px;border-radius:16px;background:linear-gradient(160deg,rgba(255,255,255,.035),transparent 60%),var(--panel);border:1px solid var(--line)}
@@ -3504,7 +3505,7 @@ CASES.forEach(c=>{if(c.p)tuneCase(c)});
 CASES.sort((a,b)=>(a.p||0)-(b.p||0));
 let INV=[];try{INV=JSON.parse(localStorage.getItem("inv2")||"[]")||[]}catch(e){}INV.forEach(it=>{if(it.sp&&!SP[it.sp])delete it.sp});
 INV=INV.filter(it=>{const w=W.find(x=>x.n===it.w);return w&&w.skins.some(x=>x[0]===it.s)});
-Object.keys(SKST.sets).forEach(k=>{const s=SKST.sets[k],w=W.find(x=>x.n===k);if(!w||(s.name&&!w.skins.some(x=>x[0]===s.name)))delete SKST.sets[k]});
+[SKST.sets,SKST.setsT].forEach(M=>Object.keys(M||{}).forEach(k=>{const s=M[k],w=W.find(x=>x.n===k);if(!w||(s.name&&!w.skins.some(x=>x[0]===s.name))||(s.inv&&!INV.some(x=>x.id===s.inv)))delete M[k]}));
 let csDay="";try{csDay=localStorage.getItem("caseDay")||""}catch(e){}
 const invSave=()=>{try{localStorage.setItem("inv2",JSON.stringify(INV));localStorage.setItem("caseDay",csDay)}catch(e){}};
 let csTab="cases",invF="all",csBusy=false;
@@ -3534,7 +3535,7 @@ const oddsHTML=c=>c.odds.map((o,r)=>o?`<span style="--rc:${RC[r]}"><i></i>${RN[r
 const CSEC=[["tasher","Кейсы Tasher","Наши фирменные кейсы"],["color","Цветная коллекция","Скины, подобранные по цвету"],["prem","Звания","От Silver до Global Elite: чем выше звание, тем дороже скины"],["luxe","Люкс","Ножи и перчатки по рисункам"]];
 function drawCases(){$("csGrid").innerHTML=CSEC.map(([sk,t,sub])=>`<div class="cs-sec"><h2>${t}</h2><span>${sub} · ${CASES.filter(c=>c.sec===sk).length}</span></div>`+CASES.map((c,i)=>{if(c.sec!==sk)return"";const free=!c.p,used=free&&csDay===mskDay();
   return`<article class="cs-card ${c.k==="king"?"king":""}" style="--cc:${c.c}" data-cprev="${i}" tabindex="0" role="button" aria-label="${c.n}: что внутри"><div class="cs-art">${caseArt(c)}</div><div class="cs-body"><h3>${c.n}</h3><small>${c.d}</small></div>
-  <div class="cs-foot"><span class="cs-price">${free?(used?`через <b class="csLeft">${csLeft()}</b>`:"<b>Бесплатно</b>"):`<b>${fmt(c.p)}</b> ТК`}</span><span class="cs-look">Открыть</span></div></article>`}).join("")).join("")}
+  <div class="cs-foot"><span class="cs-price">${free?(used?`через <b class="csLeft">${csLeft()}</b>`:"<b>Бесплатно</b>"):`<b>${fmt(c.p)}</b><i class="tk-c">ТК</i>`}</span><span class="cs-look">Открыть</span></div></article>`}).join("")).join("")}
 setInterval(()=>{document.querySelectorAll(".csLeft").forEach(e=>e.textContent=csLeft());if(curView==="skins"&&csDay&&csDay!==mskDay()&&document.querySelector(".csLeft"))drawCases()},1000);
 // просмотр кейса
 let cpI=0,cpN=1;
@@ -3567,7 +3568,10 @@ function drawSkins(){$("skGate").hidden=logged;$("csBal").textContent=logged?fmt
 $("invF").onclick=e=>{const b=e.target.closest("[data-f]");if(!b)return;invF=b.dataset.f;$("invF").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b));drawInv()};
 $("invSort").onchange=drawInv;
 $("invDall").onclick=()=>{if(!needLogin())return;const free=INV.filter(it=>!isOnIt(it));if(!free.length)return;const n=free.length,sum=dust(free);drawSkins();toast(`Продано ${n} ${plural(n,"предмет","предмета","предметов")}: +${fmt(sum)} ТК. Надетые остались`)};
-function equip(it,on,side){const w=invW(it),sides=side?[side]:w?sidesOf(w):["ct","t"];sides.forEach(sd=>{const m=sideMap(it.w,sd);if(on)m[it.w]={name:it.s,wear:it.wear,seed:it.seed,tag:"",st:it.st,stk:it.stk||null,inv:it.id};else if(m[it.w]&&m[it.w].inv===it.id)delete m[it.w]});syncActive()}
+const slotCls=n=>{const w=W.find(x=>x.n===n);return w&&(w.c==="knife"||w.c==="gloves")?w.c:null};
+function slotClear(m,wn){const c=slotCls(wn);if(!c)return;Object.keys(m).forEach(k=>{if(k!==wn&&slotCls(k)===c)delete m[k]})}
+[SKST.sets,SKST.setsT].forEach(m=>{const seen={};Object.keys(m||{}).forEach(k=>{const c=slotCls(k);if(!c)return;if(seen[c])delete m[k];else seen[c]=1})});
+function equip(it,on,side){const w=invW(it),sides=side?[side]:w?sidesOf(w):["ct","t"];sides.forEach(sd=>{const m=sideMap(it.w,sd);if(on){slotClear(m,it.w);m[it.w]={name:it.s,wear:it.wear,seed:it.seed,tag:"",st:it.st,stk:it.stk||null,inv:it.id}}else if(m[it.w]&&m[it.w].inv===it.id)delete m[it.w]});syncActive()}
 function dust(list){let sum=0;list.forEach(it=>{if(isOnIt(it))equip(it,false);sum+=itDust(it)});const ids=new Set(list.map(x=>x.id));INV=INV.filter(x=>!ids.has(x.id));ME.tk+=sum;walletSave();invSave();drawChip();return sum}
 $("invGrid").addEventListener("click",e=>{const g=e.target.closest("[data-gocases]");if(g){go("skins");return}
   const q=e.target.closest("[data-ieq],[data-istk],[data-idel]");if(!q||!needLogin())return;const id=q.dataset.ieq||q.dataset.istk||q.dataset.idel,it=INV.find(x=>x.id===id);if(!it)return;
@@ -4255,14 +4259,12 @@ function mkSellTab(){const free=INV.filter(it=>!isOnIt(it)&&!it.fx&&invW(it)&&in
   else{const it=mkSel,w=invW(it),sk=invSk(it),v=mkVal(it);if(mkSel.p==null)mkSel.p=v;const p=Math.max(1,Math.round(+mkSel.p||0)),fee=Math.round(p*MK_FEE),sp=mkSpeed(p/v);
    side=`<div class="mk-lot" style="--rc:${RC[it.r]}"><div class="mk-lot-h"><span>Новый лот</span>${itBadge(it,"mk-b")}</div><span class="pic">${art(w,sk,it.wear)}</span><b class="mk-n">${mkName(it)}</b><span class="mk-s">${esc(mkSkN(sk[0]))}</span>${mkFloat(it)}
     <label class="mk-pin"><span>Твоя цена</span><div><input id="mkP" inputmode="numeric" value="${p}" autocomplete="off"><i>ТК</i></div></label>
-    <div class="mk-q"><button type="button" data-mkq=".9">−10%</button><button type="button" data-mkq=".97">−3%</button><button type="button" data-mkq="1">Средняя</button><button type="button" data-mkq="1.05">+5%</button><button type="button" data-mkq="1.1">+10%</button></div>
-    <div class="mk-spd ${sp[1]}"><div><span>${sp[0]}</span><small>средняя ${fmt(v)} ТК</small></div><i style="--w:${sp[2]}%"></i></div>
     <dl class="mk-sum"><dt>Цена лота</dt><dd>${fmt(p)} ТК</dd><dt>Комиссия 5%</dt><dd>−${fmt(fee)} ТК</dd><dt>Ты получишь</dt><dd class="get">${fmt(p-fee)} ТК</dd></dl>
     <button class="steam mk-go" type="button" id="mkList">Выставить на продажу</button><small class="mk-note">Пока скин на площадке, его нет в инвентаре. Снять лот можно в любой момент.</small></div>`}
   return`<div class="mk-sell"><div class="mk-inv"><div class="mk-hd"><b>Твои скины</b><span>${free.length?`${free.length} шт.`:""}</span></div>${free.length?`<div class="mk-igrid">${grid}</div>`:`<div class="mk-empty">${logged?"В инвентаре нет скинов для продажи.":"Войди через Steam, чтобы продавать скины."}</div>`}</div><aside class="mk-side">${side}</aside></div>`}
 function mkMyTab(){if(!MK.my.length)return`<div class="mk-empty big"><b>У тебя нет активных лотов</b><span>Выстави скин во вкладке «Продать».</span></div>`;
   return`<div class="mk-rows">${MK.my.map(m=>{const it=m.it,w=invW(it),sk=invSk(it);if(!w||!sk)return"";const v=mkVal(it),sp=mkSpeed(m.p/v);
-   return`<div class="mk-row" style="--rc:${RC[it.r]}"><span class="pic">${art(w,sk,it.wear)}</span><div class="mk-ri"><b>${mkName(it)} <span class="mk-s">${esc(mkSkN(sk[0]))}</span></b><small>${it.wear>0?wearName(it.wear)+" · ":""}выставлен ${mkAgo2(m.t)}</small><div class="mk-spd sm ${sp[1]}"><div><span>${sp[0]}</span></div><i style="--w:${sp[2]}%"></i></div></div>
+   return`<div class="mk-row" style="--rc:${RC[it.r]}"><span class="pic">${art(w,sk,it.wear)}</span><div class="mk-ri"><b>${mkName(it)} <span class="mk-s">${esc(mkSkN(sk[0]))}</span></b><small>${it.wear>0?wearName(it.wear)+" · ":""}выставлен ${mkAgo2(m.t)}</small></div>
     <div class="mk-rp"><div class="mk-pin sm"><div><input data-mkpe="${m.id}" inputmode="numeric" value="${m.p}"><i>ТК</i></div></div><small>получишь ${fmt(Math.round(m.p*(1-MK_FEE)))} ТК</small></div>
     <div class="mk-ra"><button class="ghost" type="button" data-mksave="${m.id}">Сохранить</button><button class="ghost mk-x" type="button" data-mkx="${m.id}">Снять</button></div></div>`}).join("")}</div>`}
 function mkHistTab(){if(!MK.h.length)return`<div class="mk-empty big"><b>Сделок пока нет</b><span>Здесь появятся твои покупки и продажи.</span></div>`;
