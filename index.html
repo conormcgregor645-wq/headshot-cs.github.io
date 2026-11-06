@@ -2416,6 +2416,43 @@ select.mk-in{appearance:none;-webkit-appearance:none;background:var(--panel) url
 .aw-f{flex-wrap:nowrap}
 @media (max-width:1100px){.ach-who{grid-template-columns:1fr 1fr}.aw-f,.aw-b{grid-column:1/-1}}
 @media (max-width:640px){.ach-who{grid-template-columns:1fr;gap:12px}.aw-f{overflow:hidden}.aw-f button{flex:1 1 auto;min-width:0;white-space:nowrap;padding:8px 8px;font-size:12px}.aw-b .ghost{flex:1;justify-content:center}}
+/* ===== визуальная доработка: тёплое стекло вместо серых плашек ===== */
+:root{--ink:#0a0706;--panel:rgba(18,12,9,.66);--panel-2:rgba(38,26,19,.5);--line:rgba(255,196,128,.075);--muted:#b3a196;--glow:rgba(245,165,36,.14)}
+body{background:radial-gradient(1200px 600px at 70% -10%,rgba(245,140,40,.10),transparent 60%),linear-gradient(180deg,rgba(10,7,6,.38) 0,rgba(10,7,6,.72) 38%,rgba(10,7,6,.94) 100%) fixed,var(--bgimg) center/cover fixed,var(--ink)}
+.rail{background:linear-gradient(180deg,rgba(16,11,8,.82),rgba(9,6,5,.9))!important;backdrop-filter:blur(18px) saturate(1.2)!important;-webkit-backdrop-filter:blur(18px) saturate(1.2)!important;border-right:1px solid var(--line)}
+nav a.on{background:linear-gradient(90deg,rgba(245,165,36,.16),rgba(245,165,36,0) 85%)!important;box-shadow:inset 2px 0 0 var(--accent)!important;border-color:transparent!important}
+nav a:hover:not(.on){background:rgba(255,200,140,.04)!important}
+/* оверлеи остаются плотными */
+.umenu,.ntf,.sheet,.srv-sheet{background:linear-gradient(180deg,#1a120d,#110b08)!important;border-color:rgba(255,196,128,.12)!important;backdrop-filter:none}
+select option{background:#140e0b}
+/* обёртки разделов без плашек */
+.up-list,.up-card,.mk-inv,.mk-feed,.mkd-off,.ctr-stage,.ctr-side{background:none!important;border-color:transparent!important;box-shadow:none!important}
+.up-list,.mk-inv,.mk-feed,.mkd-off{padding-left:0!important;padding-right:0!important}
+.up-card{border:1px solid rgba(255,196,128,.06)!important;background:radial-gradient(90% 70% at 50% 0%,color-mix(in srgb,var(--uc,var(--accent)) 10%,transparent),transparent 70%)!important}
+.ctr-side{border-left:1px solid var(--line)!important;border-radius:0!important;padding-left:20px!important}
+.ctr-stage{border:1px dashed rgba(255,196,128,.1)!important;background:radial-gradient(70% 80% at 50% 50%,rgba(245,165,36,.06),transparent 70%)!important}
+/* плитки со статистикой — без коробок, с разделителями */
+.ach-sum,.pf-stats{gap:0!important}
+.ach-sum>div,.pf-stats>div{background:none!important;border:0!important;border-radius:0!important;border-left:1px solid var(--line)!important;padding:4px 22px!important}
+.ach-sum>div:first-child,.pf-stats>div:first-child{border-left:0!important;padding-left:0!important}
+/* сегменты и поля — тёмное стекло */
+.seg,.mk-tabs,.mkd-var{background:rgba(12,8,6,.55)!important;border-color:var(--line)!important;backdrop-filter:blur(10px)}
+input[type=search],input:not([type]),.mk-in,.mk-srch input,.up-q,select{background-color:rgba(12,8,6,.55)!important;border-color:rgba(255,196,128,.09)!important}
+.ghost{background:rgba(20,14,10,.55)!important;border-color:rgba(255,196,128,.1)!important}
+.ghost:hover{border-color:rgba(245,165,36,.4)!important}
+/* карточки предметов: тёплый тёмный низ вместо серого */
+.iv,.mk-c,.up-it,.cz-it,.cs-bw,.mk-fi,.mkd-r,.mk-row{background-color:rgba(20,13,10,.62)!important}
+.mk-c{background:radial-gradient(100% 60% at 50% 34%,color-mix(in srgb,var(--rc) 18%,transparent),transparent 70%),linear-gradient(180deg,rgba(30,20,15,.7),rgba(14,9,7,.78))!important}
+.mk-cta{border-top-color:rgba(255,196,128,.07)!important}.mk-ic{background:rgba(0,0,0,.25)!important}
+.me-chip,.tb-ic{background:rgba(16,11,8,.6)!important;border-color:rgba(255,196,128,.1)!important;backdrop-filter:blur(12px)}
+.drops{background:rgba(12,8,6,.5)!important;border-color:var(--line)!important;backdrop-filter:blur(10px)}
+.mkd-tb,.mkd-wear{background:rgba(14,9,7,.55)!important}
+.mkd-art{background:radial-gradient(60% 50% at 50% 45%,color-mix(in srgb,var(--rc) 26%,transparent),transparent 70%),radial-gradient(rgba(255,210,160,.06) 1px,transparent 1.4px) 0 0/16px 16px,linear-gradient(180deg,rgba(26,17,12,.7),rgba(10,7,5,.8))!important}
+.steam:disabled{background:rgba(40,28,20,.7)!important;color:rgba(243,234,238,.55)!important}
+.ctag{background:rgba(255,196,128,.08)!important;color:#d9c6b6!important}
+.st-it{background:linear-gradient(180deg,rgba(40,27,20,.85),rgba(18,12,9,.9))!important}
+.up-slot{border-color:rgba(255,196,128,.12)!important;background:rgba(12,8,6,.35)!important}
+.ctr-slot:not(.on){border-color:rgba(255,196,128,.14)!important;background:rgba(12,8,6,.35)!important}
 </style>
 </head>
 <body>
