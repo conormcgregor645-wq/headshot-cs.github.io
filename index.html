@@ -2404,6 +2404,18 @@ select.mk-in{appearance:none;-webkit-appearance:none;background:var(--panel) url
 .ntf-e{display:flex;flex-direction:column;align-items:center;gap:8px;padding:34px 16px;color:var(--muted);font-size:13px}.ntf-e svg{width:30px;height:30px;fill:none;stroke:currentColor;stroke-width:1.6;opacity:.6}
 .tb-ic svg{transform-origin:50% 20%}@media (max-width:480px){.top .now span{display:none}}.tb-wh svg{transform-origin:50% 50%}
 @media (max-width:820px){.top{flex-wrap:nowrap!important;gap:8px}.top .now{min-width:0;flex:0 1 auto}.top .now span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tb-acts{gap:6px}.tb-ic{width:40px;height:40px}.tb-ic svg{width:19px;height:19px}.ntf{position:fixed;right:16px;left:16px;width:auto;max-width:none;top:auto;margin-top:10px}}
+
+/* чьи достижения */
+.ach-who{display:grid;grid-template-columns:auto minmax(180px,1fr) auto auto;align-items:center;gap:16px;margin-bottom:12px;padding:14px 16px;border-radius:18px;background:radial-gradient(120% 160% at 0% 0%,rgba(245,165,36,.14),transparent 55%),var(--panel);border:1px solid rgba(245,165,36,.3)}
+.aw-l{display:flex;align-items:center;gap:12px;min-width:0}
+.aw-av{flex:none;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-weight:900;font-size:19px;color:#1a1206;background:var(--ac);box-shadow:0 0 0 3px rgba(0,0,0,.35),0 0 18px color-mix(in srgb,var(--ac) 40%,transparent)}
+.aw-l small{display:block;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}.aw-l b{display:block;font-size:20px;font-weight:900;font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.aw-p{min-width:0}.aw-p b{font-size:22px;font-weight:900;font-style:italic}.aw-p small{margin-left:6px;font-size:12px;color:var(--muted)}
+.aw-bar{height:6px;border-radius:3px;background:rgba(255,255,255,.07);margin-top:6px;overflow:hidden}.aw-bar span{display:block;height:100%;border-radius:3px;background:linear-gradient(90deg,#f5a524,#ffd36b)}
+.aw-b{display:flex;gap:6px}.aw-b .ghost{padding:9px 14px;font-size:13px;white-space:nowrap}
+.aw-f{flex-wrap:nowrap}
+@media (max-width:1100px){.ach-who{grid-template-columns:1fr 1fr}.aw-f,.aw-b{grid-column:1/-1}}
+@media (max-width:640px){.ach-who{grid-template-columns:1fr;gap:12px}.aw-f{overflow:hidden}.aw-f button{flex:1 1 auto;min-width:0;white-space:nowrap;padding:8px 8px;font-size:12px}.aw-b .ghost{flex:1;justify-content:center}}
 </style>
 </head>
 <body>
@@ -2543,6 +2555,7 @@ select.mk-in{appearance:none;-webkit-appearance:none;background:var(--panel) url
     <!-- ACHIEVEMENTS -->
     <div class="view" id="v-ach" hidden>
       <div class="page-head"><h1>Достижения</h1><p>Выполняй условия на сервере, получай значки в профиль и награды в ТК. Чем реже достижение, тем больше за него дают.</p></div>
+      <div class="ach-who" id="achWho" hidden></div>
       <div class="ach-sum" id="achSum"></div>
       <div class="ach-tools"><div class="seg" id="achFilter" role="group" aria-label="Категория"></div><input type="search" id="achQ" placeholder="Поиск достижения"></div>
       <div class="ach-grid" id="achGrid"></div>
@@ -3184,12 +3197,15 @@ $("achFilter").innerHTML=ACAT.map(c=>`<button data-c="${c}" aria-pressed="${c===
 $("achFilter").onclick=e=>{const b=e.target.closest("button");if(!b)return;achF=b.dataset.c;achShown=24;document.querySelectorAll("#achFilter button").forEach(x=>x.setAttribute("aria-pressed",x===b));drawAch()};
 $("achQ").oninput=e=>{achQ=e.target.value.trim().toLowerCase();achShown=24;drawAch()};
 $("achMore").onclick=()=>{achShown+=24;drawAch()};
-let ACHPR=null;const isLg=()=>{try{return logged}catch(e){return false}};
+let ACHPR=null,ACHFOR=null,ACHFLAG=0,achDone="all";const isLg=()=>{try{return logged}catch(e){return false}};
 function achCard(a){const r=rarity(a[3]);const src=achSrc(a);const col=achColor(a);
   const img=src?`<div class="a3-img" style="background-image:url(${src})">${a[4][0]!=="m"||ACHGOLD[ACHS.indexOf(a)]?svgIco(a,"bi"):""}`:`<div class="a3-img ph" style="--ic:${col}"><svg class="bigi" viewBox="0 0 24 24">${AIC[achIconKey(a)]||AIC.star}</svg>${svgIco(a,"bi")}`;
   const pr=ACHPR?ACHPR[ACHS.indexOf(a)]:null,t=pr?pr.t:targetOf(a),cur=pr?Math.min(pr.cur,t):0,done=pr&&pr.done;
-  return`<article class="a3 ${done?"done":""}" style="--rc:${r[2]}">${img}${a[0]==="Ивент"?'<span class="lim">ИВЕНТ</span>':""}</div><div class="a3-body"><h3>${a[1]}</h3><p>${a[2]}</p><div class="a-prog"><span>${done?"Выполнено":isLg()?"Прогресс":"Войди, чтобы видеть прогресс"}</span><b>${fmt(cur)} / ${fmt(t)}</b></div><div class="a-bar"><span style="width:${t?Math.max(done?100:0,cur/t*100):0}%"></span></div><div class="a-foot"><span><span class="rar">${r[1]}</span> · ${String(a[3]).replace(".",",")}%</span><span class="tkr" title="Награда за достижение">+${fmt(achTK(a))} ТК</span></div></div></article>`}
-function drawAch(){ACHPR=isLg()?achProgress():null;const list=ACHS.filter(a=>(achF==="Все"||a[0]===achF)&&(!achQ||a[1].toLowerCase().includes(achQ)||a[2].toLowerCase().includes(achQ)));
+  return`<article class="a3 ${done?"done":""}" style="--rc:${r[2]}">${img}${a[0]==="Ивент"?'<span class="lim">ИВЕНТ</span>':""}</div><div class="a3-body"><h3>${a[1]}</h3><p>${a[2]}</p><div class="a-prog"><span>${done?"Выполнено":ACHPR?"Прогресс":"Войди, чтобы видеть прогресс"}</span><b>${fmt(cur)} / ${fmt(t)}</b></div><div class="a-bar"><span style="width:${t?Math.max(done?100:0,cur/t*100):0}%"></span></div><div class="a-foot"><span><span class="rar">${r[1]}</span> · ${String(a[3]).replace(".",",")}%</span><span class="tkr" title="Награда за достижение">+${fmt(achTK(a))} ТК</span></div></div></article>`}
+function drawAch(){const P2=ACHFOR&&P(ACHFOR);if(!P2)ACHFOR=null;ACHPR=P2?achProgress(P2):isLg()?achProgress():null;
+  {const b=$("achWho");if(b){if(P2||ACHPR){const dn=ACHPR.filter(x=>x.done).length;b.hidden=false;b.innerHTML=`<div class="aw-l"><i class="aw-av" style="--ac:${(P2||ME).c}">${esc((P2||ME).n[0].toUpperCase())}</i><div><small>${P2?"Достижения игрока":"Твои достижения"}</small><b>${esc((P2||ME).n)}</b></div></div><div class="aw-p"><b>${dn}</b><small>из ${ACHS.length} выполнено</small><div class="aw-bar"><span style="width:${dn/ACHS.length*100}%"></span></div></div><div class="aw-f seg" role="group" aria-label="Показать">${[["all","Все"],["done","Выполненные"],["todo","Не выполненные"]].map(([k,t])=>`<button type="button" data-achd="${k}" aria-pressed="${achDone===k}">${t}</button>`).join("")}</div>${P2?`<div class="aw-b"><button class="ghost" type="button" data-achback>К профилю</button>${isLg()?'<button class="ghost" type="button" data-achmine>Мои достижения</button>':""}</div>`:""}`}else b.hidden=true}}
+  const hd=$("v-ach").querySelector(".page-head h1");if(hd)hd.textContent=P2?`Достижения · ${P2.n}`:"Достижения";
+  const list=ACHS.filter((a,i)=>(achF==="Все"||a[0]===achF)&&(!achQ||a[1].toLowerCase().includes(achQ)||a[2].toLowerCase().includes(achQ))&&(achDone==="all"||!ACHPR||(achDone==="done")===!!ACHPR[i].done));
   $("achGrid").innerHTML=list.slice(0,achShown).map(achCard).join("")||`<div class="note">Ничего не найдено</div>`;
   $("achMore").hidden=list.length<=achShown;$("achMore").textContent=`Показать ещё (${list.length-achShown})`}
 drawAch();
@@ -3292,7 +3308,7 @@ try{const wl=JSON.parse(localStorage.getItem("wallet")||"null");if(wl&&wl.v===2)
 let logged=false;try{logged=localStorage.getItem("demoLogin")==="1"}catch(e){}
 const PURCHASES=[[new Date(2026,9,1),"Приз: 7 место в рейтинге за сентябрь · LEGEND на 30 дней",0],[daysAgo(12),"PREMIUM на 30 дней",199],[daysAgo(43),"VIP на 30 дней",99],[daysAgo(74),"VIP на 30 дней",99]];
 function targetOf(a){let t=a[2].replace(/(\d)\s(\d)/g,"$1$2");let m=t.match(/(\d+) раз(?![а-яё])/);if(m)return+m[1];if(/за (один )?раунд/.test(t))return 1;t=t.replace(/\d\d:\d\d/g,"").replace(/больше \d+ метров/g,"").replace(/\d+ HP/g,"").replace(/\$\d+/g,"");m=t.match(/\d+/);return m?+m[0]:1}
-function achProgress(){const own=new Set(achOf(ME));const rnd=rng(77);
+function achProgress(p){p=p||ME;const own=new Set(achOf(p));let h=77;if(p!==ME)for(const c of p.n)h=(h*31+c.charCodeAt(0))%2147483646+1;const rnd=rng(h);
   return ACHS.map(a=>{const t=targetOf(a);if(own.has(a))return{a,cur:t,t,done:1};const cur=a[1]==="Легенда сервера"?own.size:Math.floor(t*rnd()*0.97);return{a,cur,t:a[1]==="Легенда сервера"?ACHS.length-1:t,done:0}})}
 function meGoal(){const p=ME,v=monthPts(p),pl=placeOf(p),all=board();const goal=pl>10?all[9]:pl>3?all[2]:null;const nt=nextTier(v);
   return`<div class="mrank" style="margin-top:10px;max-width:460px"><div class="row3">${ptsChip(p,1)}<small>место <b>#${pl}</b> в рейтинге месяца</small></div>${goal?`<small>До ${pl>10?"10 места (приз LEGEND)":"3 места (приз KING)"}: <b>${fmt(monthPts(goal)-v+1)}</b> очков</small><div class="bar"><span style="width:${Math.min(100,v/monthPts(goal)*100)}%"></span></div>`:`<span class="przc god" style="align-self:flex-start">Ты в топ-3: приз KING</span>`}</div>`}
@@ -3310,7 +3326,7 @@ const isOn=p=>p===ME||p.id%3===0;
 const two=n=>String(n).padStart(2,"0");
 const dts=(d,t)=>`${two(d.getDate())}.${two(d.getMonth()+1)}.${d.getFullYear()}${t?` ${two(d.getHours())}:${two(d.getMinutes())}`:""}`;
 function lastIn(p){const d=new Date(2026,10,1,15,4);if(!isOn(p))d.setHours(d.getHours()-((p.id*7)%40+1),(p.id*13)%60);return d}
-function pfBadges(p){const a=achOf(p);const md=(MEDALS.get(p)||[]).slice().sort((x,y)=>MEDAL_MONTHS.indexOf(y.month)-MEDAL_MONTHS.indexOf(x.month)).map(m=>`<span class="pf-b md p${m.place<=3?m.place:"x"}" tabindex="0" data-tip="${m.place} место в рейтинге · ${m.month}">${medalSvg(m.place,46)}<small>${mShort(m.month)}</small></span>`);return`<div class="pf-badges">${md.join("")}<a class="pf-b ach" href="#ach" title="Достижения"><b>${a.length}</b><small>из ${ACHS.length}</small></a></div>`}
+function pfBadges(p){const a=achOf(p);const md=(MEDALS.get(p)||[]).slice().sort((x,y)=>MEDAL_MONTHS.indexOf(y.month)-MEDAL_MONTHS.indexOf(x.month)).map(m=>`<span class="pf-b md p${m.place<=3?m.place:"x"}" tabindex="0" data-tip="${m.place} место в рейтинге · ${m.month}">${medalSvg(m.place,46)}<small>${mShort(m.month)}</small></span>`);return`<div class="pf-badges">${md.join("")}<a class="pf-b ach" href="#ach" data-achp="${esc(p.n)}" title="Достижения ${esc(p.n)}"><b>${a.length}</b><small>из ${ACHS.length}</small></a></div>`}
 function pfHTML(p,own){const st=statusOf(p),cl=clanOf(p)||(own?myClan:null),on=isOn(p),pc=ptier(monthPts(p))[1];
   const tabs=own?[["info","Информация","info"],["skins","Надето","gun"],["serv","Услуги","star"],["pay","Пополнения","wallet"],["set","Настройки","gear"]]:[["info","Информация","info"],["skins","Скины","gun"],["serv","Услуги","star"]];
   const cur=own?pfTab:pfTabO;
@@ -4356,6 +4372,11 @@ document.addEventListener("click",e=>{if(!e.target.closest("#ntf,#ntfBtn"))ntfCl
 document.addEventListener("keydown",e=>{if(e.key==="Escape")ntfClose()});
 drawNtfBadge();
 
+document.addEventListener("click",e=>{const a=e.target.closest("[data-achp]");if(a){e.preventDefault();const n=a.dataset.achp;ACHFOR=(logged&&n===ME.n)?null:n;ACHFLAG=1;achDone="all";go("ach");return}
+  const d=e.target.closest("[data-achd]");if(d){achDone=d.dataset.achd;achShown=24;drawAch();return}
+  if(e.target.closest("[data-achback]")){const n=ACHFOR;if(n)openProfile(n);return}
+  if(e.target.closest("[data-achmine]")){ACHFOR=null;achDone="all";drawAch();window.scrollTo(0,0)}},true);
+
 const VIEWS=["play","public","me","player","clan","case","wheel","upgrade","inventory","contract","market","support","tickets","shop","skins","stats","clans","ach","bans","rules","admin","offer","privacy","404"];
 const MORE=["clans","bans","rules"];
 let curView="play";
@@ -4379,7 +4400,7 @@ function route(forced){try{closeProfile()}catch(e){}["modal","srvModal","cmdModa
   if(v==="contract")try{drawCtr()}catch(e){console.error(e)}
   if(v==="market")try{mkArm=null;drawMk()}catch(e){console.error(e)}
   try{drawDrops()}catch(e){}
-  if(v==="ach")try{drawAch()}catch(e){console.error(e)}
+  if(v==="ach")try{if(!ACHFLAG)ACHFOR=null;ACHFLAG=0;drawAch()}catch(e){console.error(e)}
   if(v==="support")try{drawSupport()}catch(e){console.error(e)}
   if(v==="tickets")try{drawTickets()}catch(e){console.error(e)}
   document.querySelector(".rail").classList.remove("open");$("burger").setAttribute("aria-expanded","false");
