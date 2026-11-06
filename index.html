@@ -2093,6 +2093,52 @@ select#invSort:focus{outline:none;border-color:#f5a524}
 .pf-badges{align-items:stretch}
 @media (max-width:640px){.pf-badges{flex-wrap:wrap}.pf-b.md{min-width:40px}}
 #v-clans .podium3{margin-top:12px}.clan-new{flex:none;white-space:nowrap}
+
+/* ===== апгрейд: спецэффекты ===== */
+.up-s-a .up-ring{isolation:isolate;transition:transform .5s cubic-bezier(.2,.8,.2,1),filter .4s}
+.up-s-a .up-ring.spin{transform:scale(1.06)}
+.up-halo{position:absolute;inset:-14%;border-radius:50%;pointer-events:none;z-index:-1;background:radial-gradient(closest-side,rgba(245,165,36,.22),rgba(245,165,36,.06) 60%,transparent 75%);animation:upBreath 3.4s ease-in-out infinite}
+@keyframes upBreath{50%{transform:scale(1.06);opacity:.7}}
+.up-ring.spin .up-halo{animation-duration:.9s;background:radial-gradient(closest-side,rgba(255,200,90,.38),rgba(245,165,36,.1) 60%,transparent 75%)}
+.up-sweep{position:absolute;inset:-4%;border-radius:50%;pointer-events:none;opacity:0;background:conic-gradient(from 0deg,transparent 0 70%,rgba(255,215,120,.0) 70%,rgba(255,215,120,.35) 96%,transparent 100%);-webkit-mask:radial-gradient(closest-side,transparent 86%,#000 88%,#000 98%,transparent 100%);mask:radial-gradient(closest-side,transparent 86%,#000 88%,#000 98%,transparent 100%);transition:opacity .4s}
+.up-ring.spin .up-sweep{opacity:1;animation:ptSpin .7s linear infinite}
+.up-trail{position:absolute;inset:0;border-radius:50%;pointer-events:none;opacity:0;transition:opacity .3s;background:conic-gradient(from -75deg,transparent 0deg,rgba(255,255,255,0) 0deg,rgba(255,230,170,.65) 75deg,transparent 75.5deg);-webkit-mask:radial-gradient(closest-side,transparent 78%,#000 80%,#000 97%,transparent 99%);mask:radial-gradient(closest-side,transparent 78%,#000 80%,#000 97%,transparent 99%)}
+.up-ring.spin .up-trail{opacity:1}
+.up-ring.spin .up-needle::before{border-top-color:#fff;filter:drop-shadow(0 0 10px #ffd36b) drop-shadow(0 0 18px rgba(255,200,90,.8))}
+.up-ring.spin .win{animation:upArcPulse .6s ease-in-out infinite}
+@keyframes upArcPulse{50%{filter:drop-shadow(0 0 16px rgba(255,190,60,.95))}}
+.up-ring.spin .up-c b{animation:upNum .5s ease-in-out infinite}
+@keyframes upNum{50%{transform:scale(1.06);text-shadow:0 0 22px rgba(255,200,90,.7)}}
+.up-ring.upx-tense{animation:upTense .14s linear infinite}
+@keyframes upTense{25%{transform:scale(1.06) translate(1px,-1px)}75%{transform:scale(1.06) translate(-1px,1px)}}
+.up-top.upx-live .up-card{transition:filter .4s,opacity .4s}
+.up-top.upx-live .up-card:first-child{filter:brightness(.55) saturate(.7)}
+.up-target{transition:transform .3s}
+.up-target.upx-tense{animation:upShakeT .18s linear infinite;box-shadow:inset 0 0 40px color-mix(in srgb,var(--rc) 35%,transparent)}
+@keyframes upShakeT{25%{transform:translate(1.5px,0) rotate(.4deg)}75%{transform:translate(-1.5px,0) rotate(-.4deg)}}
+.up-target.upx-won{animation:upWonT .7s cubic-bezier(.2,.8,.2,1)}
+@keyframes upWonT{40%{transform:scale(1.08);filter:brightness(1.5)}}
+.up-target.upx-lost{filter:grayscale(1) brightness(.5);transition:filter .5s;position:relative}
+.upx-crack{position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,transparent 47%,rgba(235,75,75,.9) 47.5%,transparent 48.5%),linear-gradient(60deg,transparent 52%,rgba(235,75,75,.7) 52.4%,transparent 53.2%),linear-gradient(160deg,transparent 40%,rgba(235,75,75,.6) 40.4%,transparent 41.2%);animation:upCrack .3s ease-out}
+@keyframes upCrack{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+.upx-p{position:absolute;border-radius:50%;pointer-events:none;z-index:30;box-shadow:0 0 8px currentColor}
+.upx-wave{position:absolute;left:50%;top:50%;width:100%;height:100%;border-radius:50%;border:3px solid;pointer-events:none;z-index:25;box-shadow:0 0 30px currentColor}
+.upx-flash{position:fixed;inset:0;z-index:70;pointer-events:none;background:radial-gradient(60% 60% at 50% 45%,rgba(255,220,140,.6),transparent 70%)}
+.upx-flash.lose{background:radial-gradient(70% 70% at 50% 45%,transparent 40%,rgba(235,75,75,.45))}
+.upx-cf{position:fixed;z-index:80;pointer-events:none;border-radius:2px}
+.upx-fly{pointer-events:none;box-shadow:0 0 24px rgba(255,200,90,.5)}
+.upx-coin{position:fixed;z-index:60;pointer-events:none;padding:6px 12px;border-radius:99px;background:linear-gradient(180deg,#ffd36b,#f5a524);color:#1a1206;font-weight:900;font-size:13px;box-shadow:0 0 20px rgba(255,200,90,.7)}
+.upx-reveal{position:fixed;inset:0;z-index:75;display:grid;place-items:center;background:rgba(8,6,7,.55);backdrop-filter:blur(3px);animation:upRevIn .35s ease-out;cursor:pointer}
+.upx-reveal.out{animation:upRevOut .35s ease-in forwards}
+@keyframes upRevIn{from{opacity:0}}@keyframes upRevOut{to{opacity:0}}
+.upx-rays{position:absolute;width:780px;height:780px;max-width:160vw;max-height:160vw;border-radius:50%;background:repeating-conic-gradient(from 0deg,color-mix(in srgb,var(--rc) 40%,transparent) 0 6deg,transparent 6deg 18deg);-webkit-mask:radial-gradient(closest-side,#000 10%,transparent 70%);mask:radial-gradient(closest-side,#000 10%,transparent 70%);animation:ptSpin 9s linear infinite;opacity:.9}
+.upx-card{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px;padding:26px 34px 22px;border-radius:22px;background:radial-gradient(80% 70% at 50% 30%,color-mix(in srgb,var(--rc) 30%,transparent),transparent 75%),linear-gradient(180deg,#1f1719,#120d0f);border:1px solid color-mix(in srgb,var(--rc) 60%,transparent);box-shadow:0 0 60px color-mix(in srgb,var(--rc) 45%,transparent),0 30px 60px rgba(0,0,0,.6);animation:upCardIn .7s cubic-bezier(.2,1.3,.3,1);overflow:hidden}
+.upx-card::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.22) 50%,transparent 70%);background-size:250% 100%;animation:dropShine 1.6s ease .4s 1 both}
+@keyframes upCardIn{from{transform:scale(.3) rotateY(160deg);opacity:0}60%{transform:scale(1.08) rotateY(-8deg);opacity:1}}
+.upx-card .pic .skw,.upx-card .pic svg{width:280px;height:190px;max-width:70vw;filter:drop-shadow(0 12px 22px rgba(0,0,0,.6))}
+.upx-card small{font-size:12px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:var(--live)}
+.upx-card b{font-size:22px;font-weight:900;font-style:italic}.upx-card .nm{color:var(--rc);font-weight:800}
+.upx-card em{font-style:normal;font-size:20px;font-weight:900;color:#ffd36b;margin-top:4px}
 </style>
 </head>
 <body>
@@ -3334,6 +3380,35 @@ function upReactor(ch){return`<div class="urc"><div class="urc-tube"><div class=
 function upBurst(host,col){if(!host)return;const r=host.getBoundingClientRect();for(let k=0;k<34;k++){const p=document.createElement("i");p.className="up-pt";p.style.background=col;p.style.left=r.width/2+"px";p.style.top=r.height/2+"px";host.appendChild(p);const a=Math.random()*Math.PI*2,d=90+Math.random()*170,sz=3+Math.random()*6;p.style.width=p.style.height=sz+"px";
   p.animate([{transform:"translate(-50%,-50%) scale(1)",opacity:1},{transform:`translate(calc(-50% + ${Math.cos(a)*d}px),calc(-50% + ${Math.sin(a)*d}px)) scale(.2)`,opacity:0}],{duration:900+Math.random()*700,easing:"cubic-bezier(.1,.8,.2,1)"}).onfinish=()=>p.remove()}}
 function upTicks(n,dur,hi,lo){try{const a=sndCtx();if(!a)return;const bz=(p1,p2,t)=>3*p1*t*(1-t)*(1-t)+3*p2*t*t*(1-t)+t*t*t;let last=0,lt=-1;for(let k=1;k<=900;k++){const t=k/900,x=bz(.12,.12,t),y=bz(.75,1,t),c=Math.floor(n*y);if(c!==last){last=c;const tm=x*dur/1000;if(tm-lt>.045){lt=tm;tone(hi,.03,"square",.008,tm);tone(lo,.045,"sine",.014,tm)}}}}catch(e){}}
+
+// ---------- спецэффекты апгрейда ----------
+const upNA=()=>document.documentElement.classList.contains("no-anim");
+function upPart(host,x,y,col,n,spread,size,dur,grav){for(let k=0;k<n;k++){const p=document.createElement("i");p.className="upx-p";p.style.cssText=`left:${x}px;top:${y}px;background:${col};color:${col};width:${size*(.4+Math.random())}px;height:${size*(.4+Math.random())}px`;host.appendChild(p);
+  const a=Math.random()*Math.PI*2,d=spread*(.35+Math.random()*.75),dx=Math.cos(a)*d,dy=Math.sin(a)*d;p.animate([{transform:"translate(-50%,-50%) scale(1)",opacity:1},{transform:`translate(calc(-50% + ${dx*.7}px),calc(-50% + ${dy*.7}px)) scale(.9)`,opacity:1,offset:.55},{transform:`translate(calc(-50% + ${dx}px),calc(-50% + ${dy+(grav||0)}px)) scale(.2)`,opacity:0}],{duration:dur*(.6+Math.random()*.6),easing:"cubic-bezier(.12,.8,.3,1)"}).onfinish=()=>p.remove()}}
+function upConfetti(cols){const host=document.body,W=innerWidth;for(let k=0;k<90;k++){const p=document.createElement("i");p.className="upx-cf";const c=cols[k%cols.length],x=Math.random()*W,w=5+Math.random()*7;p.style.cssText=`left:${x}px;top:-20px;width:${w}px;height:${w*.45}px;background:${c}`;host.appendChild(p);
+  const dx=(Math.random()-.5)*240,rot=(Math.random()-.5)*1440;p.animate([{transform:"translate(0,0) rotate(0deg)",opacity:1},{transform:`translate(${dx}px,${innerHeight+60}px) rotate(${rot}deg)`,opacity:.9}],{duration:1800+Math.random()*1600,delay:Math.random()*350,easing:"cubic-bezier(.25,.4,.5,1)",fill:"forwards"}).onfinish=()=>p.remove()}}
+function upFxStart(dur,win,t){if(upNA())return;const top=document.querySelector(".up-top"),ring=document.querySelector(".up-ring");if(!top||!ring)return;{const r=top.getBoundingClientRect();if(r.top<0||r.bottom>innerHeight)scrollBy({top:r.top-90,behavior:"instant"})}top.classList.add("upx-live");
+  const rr=ring.getBoundingClientRect();
+  // скины ставки летят в кольцо
+  document.querySelectorAll(".up-stake .up-slot.on").forEach((el,k)=>{const r=el.getBoundingClientRect(),cl=el.cloneNode(true);cl.className="up-slot on upx-fly";cl.style.cssText+=`;position:fixed;left:${r.left}px;top:${r.top}px;width:${r.width}px;height:${r.height}px;margin:0;z-index:60`;document.body.appendChild(cl);el.style.opacity=".15";
+    const dx=rr.left+rr.width/2-(r.left+r.width/2),dy=rr.top+rr.height/2-(r.top+r.height/2);cl.animate([{transform:"none",opacity:1},{transform:`translate(${dx*.3}px,${dy*.3-30}px) scale(1.05) rotate(${k%2?-8:8}deg)`,opacity:1,offset:.4},{transform:`translate(${dx}px,${dy}px) scale(.15) rotate(${k%2?-40:40}deg)`,opacity:0,filter:"brightness(3)"}],{duration:700,delay:k*70,easing:"cubic-bezier(.5,0,.7,.4)",fill:"forwards"}).onfinish=()=>{cl.remove();upPart(ring,rr.width/2,rr.height/2,"#ffd36b",8,60,6,500)}});
+  const tk=document.querySelector(".up-tk input");if(tk&&UP.tk){const r=tk.getBoundingClientRect(),coin=document.createElement("i");coin.className="upx-coin";coin.textContent=fmt(UP.tk)+" ТК";coin.style.cssText=`left:${r.left+20}px;top:${r.top}px`;document.body.appendChild(coin);const dx=rr.left+rr.width/2-r.left-20,dy=rr.top+rr.height/2-r.top;coin.animate([{transform:"none",opacity:1},{transform:`translate(${dx}px,${dy}px) scale(.3)`,opacity:0}],{duration:800,easing:"cubic-bezier(.5,0,.7,.4)",fill:"forwards"}).onfinish=()=>coin.remove()}
+  // напряжение в конце: цель дрожит, сердце бьётся
+  const tg=document.querySelector(".up-target");setTimeout(()=>{if(tg)tg.classList.add("upx-tense");ring.classList.add("upx-tense");try{tone(70,.18,"sine",.05);tone(70,.18,"sine",.04,.28);tone(70,.18,"sine",.05,.9);tone(70,.18,"sine",.04,1.18)}catch(e){}},dur-1500)}
+function upFxEnd(win,t){return new Promise(res=>{const top=document.querySelector(".up-top"),ring=document.querySelector(".up-ring"),tg=document.querySelector(".up-target");if(top)top.classList.remove("upx-live");if(tg)tg.classList.remove("upx-tense");if(ring)ring.classList.remove("upx-tense");
+  if(upNA()||!ring){res();return}const rr=ring.getBoundingClientRect(),cx=rr.width/2,cy=rr.height/2,col=RC[t.sk[5]];
+  // ударная волна
+  for(let k=0;k<3;k++){const w=document.createElement("i");w.className="upx-wave";w.style.borderColor=win?(k===1?col:"#ffd36b"):"#eb4b4b";ring.appendChild(w);w.animate([{transform:"translate(-50%,-50%) scale(.4)",opacity:.9},{transform:"translate(-50%,-50%) scale(2.4)",opacity:0}],{duration:900,delay:k*140,easing:"cubic-bezier(.1,.7,.3,1)"}).onfinish=()=>w.remove()}
+  const fl=document.createElement("i");fl.className="upx-flash"+(win?"":" lose");document.body.appendChild(fl);fl.animate([{opacity:win?.5:.35},{opacity:0}],{duration:win?700:500,easing:"ease-out"}).onfinish=()=>fl.remove();
+  if(win){upPart(ring,cx,cy,"#ffd36b",40,rr.width*1.1,8,1300,40);upPart(ring,cx,cy,col,30,rr.width*.9,7,1200,30);upPart(ring,cx,cy,"#fff",14,rr.width*.6,4,900,0);upConfetti(["#ffd36b","#f5a524",col,"#ffffff","#3ddc97"]);
+    if(tg)tg.classList.add("upx-won");
+    // карточка выигрыша
+    const ov=document.createElement("div");ov.className="upx-reveal";ov.style.setProperty("--rc",col);ov.innerHTML=`<div class="upx-rays"></div><div class="upx-card"><span class="pic">${art(t.w,t.sk,WBR[t.i][0]+.01)}</span><small>Апгрейд удался</small><b>${esc(t.w.n)}</b><span class="nm">${esc(t.sk[0]==="Vanilla"?"Обычный":t.sk[0])}</span><em>${fmt(t.p)} ТК</em></div>`;
+    document.body.appendChild(ov);const close=()=>{if(!ov.isConnected)return;ov.classList.add("out");setTimeout(()=>ov.remove(),350)};ov.onclick=close;setTimeout(close,2600);setTimeout(res,450)}
+  else{upPart(ring,cx,cy,"#eb4b4b",22,rr.width*.7,6,900,60);upPart(ring,cx,cy,"#3a2a2f",16,rr.width*.6,8,1000,80);
+    if(tg){tg.classList.add("upx-lost");const cr=document.createElement("i");cr.className="upx-crack";tg.appendChild(cr)}
+    document.querySelector(".up-top")?.animate([{transform:"translate(0,0)"},{transform:"translate(-7px,2px)"},{transform:"translate(6px,-2px)"},{transform:"translate(-4px,1px)"},{transform:"translate(0,0)"}],{duration:420});
+    setTimeout(res,850)}})}
 // ---------- апгрейд ----------
 const EN_W={"Штык-нож":"bayonet","Штык-нож M9":"m9 bayonet","Керамбит":"karambit","Нож-бабочка":"butterfly","Фальшион":"falchion","Охотничий нож":"huntsman","Нож Боуи":"bowie","Тычковые ножи":"shadow daggers","Складной нож":"flip","Нож с лезвием-крюком":"gut","Классический нож":"classic","Паракорд-нож":"paracord","Нож выживания":"survival","Медвежий нож":"ursus","Наваха":"navaja","Нож «Бродяга»":"nomad","Стилет":"stiletto","Коготь":"talon","Скелетный нож":"skeleton","Нож кукри":"kukri","Спортивные перчатки":"sport gloves","Водительские перчатки":"driver gloves","Обмотки рук":"hand wraps","Мотоциклетные перчатки":"moto gloves","Перчатки специалиста":"specialist gloves","Перчатки «Гидра»":"hydra gloves","Перчатки «Сломанный клык»":"broken fang gloves","Перчатки «Бладхаунд»":"bloodhound gloves"};
 const WSH=["FN","MW","FT","WW","BS"],UP_EDGE=.9,UP_MAX=75;
@@ -3362,7 +3437,7 @@ function drawUp(){UP.sel=UP.sel.filter(id=>{const it=INV.find(x=>x.id===id);retu
    <div class="up-card"><h3>Ставка <b>${fmt(s)} ТК</b></h3><div class="up-stake">${slots}</div>
     <div class="up-tk"><input id="upTk" type="number" min="0" step="1" inputmode="numeric" placeholder="Добавить ТК" value="${UP.tk||""}" ${logged?"":"disabled"}><button type="button" id="upMax">Макс.</button></div>
     <small style="color:var(--muted)">Баланс: <b style="color:var(--accent)">${logged?fmt(ME.tk):"—"} ТК</b></small></div>
-   <div class="up-mid">${UP.st==="e"?upPortal(ch,t):UP.st==="f"?upLane(ch,t,s):UP.st==="g"?upReactor(ch):UP.st==="c"?`<div class="up-x">${t&&s?`×${(t.p/s).toFixed(2)}`:"×—"}</div><div class="up-bar"><div class="up-bar-tr"><i class="up-bar-win" id="upArc" style="width:${ch}%"></i><i class="up-bar-mk" id="upNeedle" style="left:${UP.pos||0}%"></i></div></div>${cen}`:UP.st==="d"?`<div class="up-ring"><div class="up-dial" id="upDial" style="transform:rotate(${UP.dang||0}deg)">${upRing(ch)}</div><div class="up-needle"></div>${cen}</div>`:`<div class="up-ring">${upRing(ch)}<div class="up-needle" id="upNeedle" style="transform:rotate(${UP.ang||0}deg)"></div>${cen}</div>`}
+   <div class="up-mid">${UP.st==="e"?upPortal(ch,t):UP.st==="f"?upLane(ch,t,s):UP.st==="g"?upReactor(ch):UP.st==="c"?`<div class="up-x">${t&&s?`×${(t.p/s).toFixed(2)}`:"×—"}</div><div class="up-bar"><div class="up-bar-tr"><i class="up-bar-win" id="upArc" style="width:${ch}%"></i><i class="up-bar-mk" id="upNeedle" style="left:${UP.pos||0}%"></i></div></div>${cen}`:UP.st==="d"?`<div class="up-ring"><div class="up-dial" id="upDial" style="transform:rotate(${UP.dang||0}deg)">${upRing(ch)}</div><div class="up-needle"></div>${cen}</div>`:`<div class="up-ring">${upRing(ch)}<div class="up-needle" id="upNeedle" style="transform:rotate(${UP.ang||0}deg)"><i class="up-trail"></i></div>${cen}<i class="up-halo"></i><i class="up-sweep"></i></div>`}
     <button class="steam up-go" id="upGo" type="button" ${!t||!s||UP.busy?"disabled":""}>${UP.busy?"Крутим…":!s?"Выбери ставку":!t?"Выбери цель":"Апгрейд"}</button></div>
    <div class="up-card" style="--uc:${t?RC[t.sk[5]]:"var(--accent)"}"><h3>Цель ${t?`<b>${fmt(t.p)} ТК</b>`:""}</h3>${tgt}</div>
   </section>
@@ -3411,9 +3486,10 @@ function upSpin(){if(!needLogin()||UP.busy)return;const s=upStake(),t=UP.t;if(!t
     if(dial){const base=from-(((from%360)+360)%360);end=base-360*6-fin;UP.dang=end%360}else{end=from-from%360+360*6+fin;UP.ang=end%360}
     try{const a=sndCtx();if(a){const bz=(p1,p2,t)=>3*p1*t*(1-t)*(1-t)+3*p2*t*t*(1-t)+t*t*t;let last=0,lt=-1;for(let k=1;k<=800;k++){const t=k/800,x=bz(.12,.12,t),y=bz(.75,1,t),c=Math.floor(Math.abs(end-from)*y/30);if(c!==last){last=c;const tm=x*dur/1000;if(tm-lt>.045){lt=tm;tone(dial?900:1400,.03,"square",.008,tm);tone(dial?380:650,.045,"sine",.014,tm)}}}}}catch(e){}
     fx=el.animate([{transform:`rotate(${from}deg)`},{transform:`rotate(${end}deg)`}],{duration:dur,easing:"cubic-bezier(.12,.75,.12,1)",fill:"forwards"})}
-  ring&&ring.classList.add("spin");
-  fx.onfinish=()=>{ring&&ring.classList.remove("spin");
-    if(win){try{sndWin(t.sk[5])}catch(x){}}else{try{tone(180,.4,"sine",.03)}catch(x){}}
+  ring&&ring.classList.add("spin");if(UP.st==="a")upFxStart(dur,win,t);
+  fx.onfinish=async()=>{ring&&ring.classList.remove("spin");
+    if(win){try{sndWin(t.sk[5])}catch(x){}}else{try{tone(180,.4,"sine",.03);tone(120,.6,"sawtooth",.012,.08)}catch(x){}}
+    if(UP.st==="a")await upFxEnd(win,t);
     UP.busy=false;UP.res={win,t};UP.sel=[];if(UP.tk>ME.tk)UP.tk=0;if(UP.auto&&upStake())upRandom();else UP.t=null;drawUp();const rg=document.querySelector(".up-ring,.up-bar,.upp,.uln,.urc");if(rg&&["e","f","g"].includes(UP.st))upBurst(rg,win?"#ffc24d":"#eb4b4b");if(rg&&win&&UP.st!=="c")upBurst(rg,"#3ddc97");if(rg){rg.classList.add(win?"won":"lost");setTimeout(()=>rg.classList.remove("won","lost"),1600)}
     toast(win?`Апгрейд удался: ${t.w.n} | ${t.sk[0]} (${WSH[t.i]}) в инвентаре`:`Не повезло: шанс был ${ch.toFixed(1)}%`)}}
 
