@@ -3323,7 +3323,8 @@ const stSkin=it=>{const w=invW(it),sk=invSk(it);return`<div class="st-it sk" sty
 let csCur=null;
 // ---------- страница кейса (как на кейс-сайтах) ----------
 var CZ=null,czN=1,czState="idle",czBusy=false;
-function openCasePage(i){CZ=i;czN=1;czState="idle";go("case")}
+let czTok=0;function czCancel(){if(czBusy){czTok++;czBusy=false;czState="idle"}}
+function openCasePage(i){czCancel();CZ=i;czN=1;czState="idle";go("case")}
 function openCase(i,n){openCasePage(i);czN=n||1;czOpen()}
 function czItem([wn,sn,r,,,st,fx],c){const w=W.find(x=>x.n===wn),sk=w&&w.skins.find(x=>x[0]===sn);if(!sk)return"";const a=fx?[fx]:(sk[9]||[]).filter(x=>x),lo=a.length?Math.min(...a):0,hi=a.length?Math.max(...a):0;return`<div class="cz-it" style="--rc:${RC[r]}"><span class="pic">${art(w,sk,0)}</span><b>${st?"StatTrak™ ":""}${wn}</b><span class="nm">${sn==="Vanilla"?"Обычный":sn}</span></div>`}
 const CZBG={};
@@ -3334,7 +3335,7 @@ function drawCasePage(){const c=CASES[CZ];if(!c)return;const free=!c.p,used=free
   $("czBody").innerHTML=`<button class="pf-back" id="czBack">${svgI(PI.back)}Все кейсы</button>
   <section style="--cc:${c.c};${czBg(c)}" id="czTop" class="cz-top${CZBG[c.k]?" full":""}">${czTopHTML(c,free,used)}</section>
   <section class="cz-cont"><div class="hdr"><h2>Содержимое кейса</h2><span>${items.length} ${plural(items.length,"предмет","предмета","предметов")}</span></div><div class="cz-grid">${items.map(x=>czItem(x,c)).join("")}</div></section>`;
-  $("czBack").onclick=()=>{if(!czBusy){csTab="cases";go("skins")}};czBind()}
+  $("czBack").onclick=()=>{czCancel();csTab="cases";go("skins")};czBind()}
 function czTopHTML(c,free,used){
   if(czState==="spin")return`<div class="cz-stage n${czN}">${Array.from({length:czN},()=>`<div class="st cs-st"><div class="st-row"></div><span class="st-mk"></span></div>`).join("")}</div>`;
   if(czState==="res"){const wins=csCur.wins,n=wins.length;return`<div class="cs-big n${n}">${wins.map((it,k)=>{const w=invW(it),sk=invSk(it);return`<div class="cs-bw" style="--rc:${RC[it.r]};--d:${k*90}ms"><span class="pic">${art(w,sk,it.wear)}</span><b>${it.st?"StatTrak™ ":""}${w.n}</b><span class="nm">${sk[0]}</span><span class="val">${fmt(itDust(it))} ТК</span></div>`}).join("")}</div>
@@ -3360,9 +3361,9 @@ function czOpen(){if(!needLogin()||czBusy)return;const c=CASES[CZ],n=c.p?czN:1;
   if(c.p){ME.tk-=c.p*n;walletSave();drawChip()}else csDay=mskDay();
   const wins=Array.from({length:n},()=>rollCase(c));INV.push(...wins);invSave();setTimeout(()=>wins.forEach(it=>myDrop(it,CZ)),5600);csCur={c,wins,i:CZ,n};czBusy=true;czState="spin";czN=n;czRenderTop();
   $("czTop").scrollIntoView({behavior:"smooth",block:"start"});
-  const N=40,rows=[...$("czTop").querySelectorAll(".st-row")];rows.forEach((row,k)=>{const items=Array.from({length:N+6},(_,q)=>q===N?wins[k]:rollCase(c));row.innerHTML=items.map(stSkin).join("")});
+  const tok=++czTok,N=40,rows=[...$("czTop").querySelectorAll(".st-row")];rows.forEach((row,k)=>{const items=Array.from({length:N+6},(_,q)=>q===N?wins[k]:rollCase(c));row.innerHTML=items.map(stSkin).join("")});
   sndStart();requestAnimationFrame(()=>{let left=rows.length;rows.forEach((row,k)=>{const W2=row.children[1].offsetLeft-row.children[0].offsetLeft,IW=row.children[0].offsetWidth,box=row.parentElement.clientWidth,target=N*W2+IW/2-box/2+(Math.random()-.5)*W2*.7;let lastI=-1;
-    tween(5600+k*350,e=>{row.style.transform=`translateX(${-target*e}px)`;if(k===0){const ci=Math.floor((target*e+box/2)/W2);if(ci!==lastI){lastI=ci;sndTick()}}},()=>{row.children[N].classList.add("win");if(--left===0){sndWin(Math.max(...wins.map(w=>w.r)));setTimeout(()=>{czBusy=false;czState="res";czRenderTop();drawSkins()},900)}})})})}
+    tween(5600+k*350,e=>{if(tok!==czTok)return;row.style.transform=`translateX(${-target*e}px)`;if(k===0){const ci=Math.floor((target*e+box/2)/W2);if(ci!==lastI){lastI=ci;sndTick()}}},()=>{if(tok!==czTok)return;row.children[N].classList.add("win");if(--left===0){sndWin(Math.max(...wins.map(w=>w.r)));setTimeout(()=>{if(tok!==czTok)return;czBusy=false;czState="res";if(curView==="case")czRenderTop();drawSkins()},900)}})})})}
 $("csmClose").onclick=()=>{if(!csBusy)$("caseModal").hidden=true};$("caseModal").onclick=e=>{if(e.target.id==="caseModal"&&!csBusy)$("caseModal").hidden=true};
 
 
@@ -3901,6 +3902,7 @@ function route(forced){try{closeProfile()}catch(e){}["modal","srvModal","cmdModa
   if(v==="me")try{drawMe()}catch(e){}
   if(v==="player")try{drawPlayer()}catch(e){console.error(e)}
   if(v==="clan")try{drawClanPage()}catch(e){console.error(e)}
+  if(v!=="case")czCancel();
   if(v==="case")try{if(!czBusy){czState="idle";drawCasePage()}}catch(e){console.error(e)}
   if(v==="wheel")try{drawWheel()}catch(e){console.error(e)}
   if(v==="upgrade")try{drawUp()}catch(e){console.error(e)}
