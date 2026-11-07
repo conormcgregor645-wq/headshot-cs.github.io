@@ -2676,6 +2676,23 @@ nav a.on,nav a.on svg{color:#b5e853!important}
 .mode-card{border-color:rgba(181,232,83,.3)!important}
 .mode-card,.cs-art img,.cz-art img,.pbanner{filter:grayscale(.3) brightness(.85)!important}
 .tk-c{background:#b5e853!important;color:#0b1203!important}
+
+/* ===== левое меню ===== */
+#mainnav{gap:1px}
+#mainnav .nav-h{margin:18px 12px 6px;font-size:10px;letter-spacing:.16em;color:rgba(236,237,234,.38)}
+#mainnav .nav-h:first-child{margin-top:2px}
+#mainnav a{gap:11px;padding:6px 10px 6px 6px;border-radius:12px;color:#a9aca4;font-weight:700;font-size:14px;box-shadow:none!important;background:none!important;transform:none!important}
+#mainnav a .nv-ic{flex:none;width:32px;height:32px;display:grid;place-items:center;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.05);transition:background .2s,border-color .2s}
+#mainnav a svg{width:17px;height:17px;filter:none!important;stroke:currentColor!important;transform:none!important}
+#mainnav a .nv-t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#mainnav a:hover{color:#fff;background:rgba(255,255,255,.035)!important}
+#mainnav a:hover .nv-ic{background:rgba(255,255,255,.07)}
+#mainnav a.on{color:#fff;background:linear-gradient(90deg,rgba(181,232,83,.12),rgba(181,232,83,0) 90%)!important}
+#mainnav a.on .nv-ic{background:linear-gradient(140deg,#c4f064,#8fc433);border-color:transparent;color:#0b1203;box-shadow:0 4px 14px rgba(181,232,83,.25)}
+#mainnav a.on svg{stroke:#0b1203!important}
+#mainnav a[data-v="shop"]:not(.on){color:#a9aca4!important}#mainnav a[data-v="shop"]:not(.on):hover{color:#fff!important}
+.nv-tag{font-style:normal;font-size:9.5px;font-weight:900;letter-spacing:.06em;padding:2px 6px;border-radius:6px;color:#0b1203;background:#b5e853}
+.nv-dot{width:7px;height:7px;border-radius:50%;background:#3ddc97;box-shadow:0 0 0 3px rgba(61,220,151,.18);margin-right:4px}
 </style>
 </head>
 <body>
@@ -2693,21 +2710,22 @@ nav a.on,nav a.on svg{color:#b5e853!important}
     </div>
     <nav aria-label="Основное меню" id="mainnav">
       <span class="nav-h">Игра</span>
-      <a href="#play" data-v="play"><svg viewBox="0 0 24 24"><polygon points="6 4 20 12 6 20 6 4"/></svg>Играть</a>
-      <a href="#stats" data-v="stats"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Рейтинг</a>
-      <a href="#clans" data-v="clans"><svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></svg>Кланы</a>
-      <span class="nav-h">Экономика</span>
-      <a href="#shop" data-v="shop"><svg viewBox="0 0 24 24"><path d="M12 3l3 6 6 .9-4.5 4.3 1 6.3L12 17.6 6.5 20.5l1-6.3L3 9.9 9 9z"/></svg>Магазин</a>
-      <a href="#skins" data-v="skins"><svg viewBox="0 0 24 24"><path d="M4 20l9-9M13 11l7-8-1 7-6 1z"/><path d="M15 15l4 4"/></svg>Кейсы</a>
-      <a href="#inventory" data-v="inventory"><svg viewBox="0 0 24 24"><path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5z"/><path d="M3 7.5 12 12l9-4.5M12 12v9"/></svg>Инвентарь<span id="invCnt" hidden></span></a>
-      <a href="#contract" data-v="contract"><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M9 12h6M9 16h4"/><path d="M14 3v5h5"/></svg>Контракт</a>
-      <a href="#market" data-v="market"><svg viewBox="0 0 24 24"><path d="M3 9l1.6-5h14.8L21 9"/><path d="M4 9v11h16V9"/><path d="M3 9c0 1.7 1.3 3 3 3s3-1.3 3-3c0 1.7 1.3 3 3 3s3-1.3 3-3c0 1.7 1.3 3 3 3s3-1.3 3-3"/><path d="M10 20v-5h4v5"/></svg>Торговля</a>
-      <a href="#jackpot" data-v="jackpot"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v9l6.4 6.4"/><path d="M12 12 3.6 9.2"/></svg>Джекпот</a>
-      <a href="#upgrade" data-v="upgrade"><svg viewBox="0 0 24 24"><path d="M12 20V5M6 11l6-6 6 6"/><path d="M5 20h14"/></svg>Апгрейд</a>
-      <span class="nav-h">Сервер</span>
-      <a href="#rules" data-v="rules"><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M9 11h7M9 15h7"/></svg>Правила</a>
-      <a href="#bans" data-v="bans"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></svg>Баны</a>
-      <a href="#support" data-v="support"><svg viewBox="0 0 24 24"><path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="3" y="13" width="4" height="7" rx="1.5"/><rect x="17" y="13" width="4" height="7" rx="1.5"/><path d="M19 20c0 1.5-2 2-5 2"/></svg>Поддержка</a>
+      <a href="#play" data-v="play"><i class="nv-ic"><svg viewBox="0 0 24 24"><polygon points="6 4 20 12 6 20 6 4"/></svg></i><span class="nv-t">Играть</span></a>
+      <a href="#stats" data-v="stats"><i class="nv-ic"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></i><span class="nv-t">Рейтинг</span></a>
+      <a href="#clans" data-v="clans"><i class="nv-ic"><svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></svg></i><span class="nv-t">Кланы</span></a>
+      <a href="#shop" data-v="shop"><i class="nv-ic"><svg viewBox="0 0 24 24"><path d="M12 3l3 6 6 .9-4.5 4.3 1 6.3L12 17.6 6.5 20.5l1-6.3L3 9.9 9 9z"/></svg></i><span class="nv-t">Магазин</span><em class="nv-tag">VIP</em></a>
+      <span class="nav-h">Скины</span>
+      <a href="#skins" data-v="skins"><i class="nv-ic"><svg viewBox="0 0 24 24"><path d="M4 20l9-9M13 11l7-8-1 7-6 1z"/><path d="M15 15l4 4"/></svg></i><span class="nv-t">Кейсы</span></a>
+      <a href="#upgrade" data-v="upgrade"><i class="nv-ic"><svg viewBox="0 0 24 24"><path d="M12 20V5M6 11l6-6 6 6"/><path d="M5 20h14"/></svg></i><span class="nv-t">Апгрейд</span></a>
+      <a href="#contract" data-v="contract"><i class="nv-ic"><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M9 12h6M9 16h4"/><path d="M14 3v5h5"/></svg></i><span class="nv-t">Контракт</span></a>
+      <a href="#jackpot" data-v="jackpot"><i class="nv-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v9l6.4 6.4"/><path d="M12 12 3.6 9.2"/></svg></i><span class="nv-t">Джекпот</span><em class="nv-dot" title="Идёт раунд"></em></a>
+      <span class="nav-h">Мои предметы</span>
+      <a href="#inventory" data-v="inventory"><i class="nv-ic"><svg viewBox="0 0 24 24"><path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5z"/><path d="M3 7.5 12 12l9-4.5M12 12v9"/></svg></i><span class="nv-t">Инвентарь</span><span id="invCnt" hidden></span></a>
+      <a href="#market" data-v="market"><i class="nv-ic"><svg viewBox="0 0 24 24"><path d="M3 9l1.6-5h14.8L21 9"/><path d="M4 9v11h16V9"/><path d="M3 9c0 1.7 1.3 3 3 3s3-1.3 3-3c0 1.7 1.3 3 3 3s3-1.3 3-3c0 1.7 1.3 3 3 3s3-1.3 3-3"/><path d="M10 20v-5h4v5"/></svg></i><span class="nv-t">Торговля</span></a>
+      <span class="nav-h">Помощь</span>
+      <a href="#rules" data-v="rules"><i class="nv-ic"><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M9 11h7M9 15h7"/></svg></i><span class="nv-t">Правила</span></a>
+      <a href="#bans" data-v="bans"><i class="nv-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></svg></i><span class="nv-t">Баны</span></a>
+      <a href="#support" data-v="support"><i class="nv-ic"><svg viewBox="0 0 24 24"><path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="3" y="13" width="4" height="7" rx="1.5"/><rect x="17" y="13" width="4" height="7" rx="1.5"/><path d="M19 20c0 1.5-2 2-5 2"/></svg></i><span class="nv-t">Поддержка</span></a>
     </nav>
     <div class="rail-foot">
       <a class="adm-link own-link" href="#tickets" data-v="tickets" hidden><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v3a2 2 0 0 0 0 4v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3a2 2 0 0 0 0-4z"/><path d="M14 5v14" stroke-dasharray="2 2"/></svg>Тикеты<span class="cnt" id="tkCnt"></span></a>
