@@ -2462,7 +2462,7 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;ba
  *{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
  .rail{background:#0e0a08!important}
  .seg,.mk-tabs,.mkd-var,.me-chip,.tb-ic,.drops{background:rgba(11,11,13,.9)!important}
- .logo b,.home-head h1,.drop.r5::before,.pd-av::before,.bar span::after,.kb::after,.pf-av,.cz-art,.pd-num,.pts.top,.t6.god,.przc.god,.pd-prize,.upp-skin,.upp-glow{animation:none!important}
+ .logo b,.home-head h1,.drop.r5::before,.pd-av::before,.bar span::after,.kb::after,.pf-av:not(.fr),.cz-art,.pd-num,.pts.top,.t6.god,.przc.god,.pd-prize,.upp-skin,.upp-glow{animation:none!important}
  .logo b{filter:none!important}
  .iv:hover,.mk-c:hover{transform:none!important}
 }
@@ -2845,6 +2845,63 @@ nav a.on,nav a.on svg{color:#b5e853!important}
 .pf-head[class*="pbg-"]::after,.co-pvh[class*="pbg-"]::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.55),rgba(0,0,0,.1) 60%);pointer-events:none}
 .pf-head[class*="pbg-"]>*,.co-pvh[class*="pbg-"]>*{position:relative;z-index:1}
 @media (prefers-reduced-motion:reduce){[class*="pbg-"],.fr{animation:none!important}}
+
+
+.pf-head .pf-av.fr.fr,.rt-who .av.fr.fr,.me-chip .av.fr.fr,.co-pva.fr.fr,.co-avs.fr.fr,.jp-av.fr.fr,.jpw-avi.fr.fr{box-shadow:0 0 0 3px var(--frc,#fff),0 0 14px color-mix(in srgb,var(--frc,#fff) 55%,transparent)}
+.pf-head .pf-av.fr.fr-double,.co-pva.fr.fr-double{box-shadow:0 0 0 2px #e6e6e8,0 0 0 5px #0b0b0c,0 0 0 7px #b5e853,0 0 18px rgba(181,232,83,.4)}
+/* живые фоны профиля из картинок */
+.pbg-img{position:relative;overflow:hidden;background:#050505!important}
+.pbx{position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.pbx>i{position:absolute;display:block}
+.pbx-im{inset:-6%;background-size:cover;background-position:right center;animation:pbxKB 22s ease-in-out infinite alternate;will-change:transform}
+@keyframes pbxKB{from{transform:scale(1.02) translate3d(0,0,0)}to{transform:scale(1.12) translate3d(-2.5%,-1%,0)}}
+.pbx-dragon .pbx-im{background-position:right 22%}.pbx-dust2n .pbx-im{background-position:right 30%}.pbx-cosmos .pbx-im{background-position:right 40%}.pbx-synth80 .pbx-im{background-position:right 45%}
+.pbx-sh{inset:0;background:linear-gradient(90deg,rgba(0,0,0,.72) 0%,rgba(0,0,0,.35) 45%,rgba(0,0,0,.05) 75%)}
+.pbx-a,.pbx-b{inset:0;opacity:0}
+/* Dust2: мерцание фонарей, пыль, лунный свет */
+.pbx-dust2n .pbx-a{opacity:1;background:radial-gradient(14% 30% at 56% 52%,rgba(255,180,80,.35),transparent 70%),radial-gradient(10% 22% at 78% 62%,rgba(255,170,70,.3),transparent 70%);animation:pbxFlick 2.6s steps(6) infinite;mix-blend-mode:screen}
+.pbx-dust2n .pbx-b{opacity:.8;background:radial-gradient(circle,rgba(255,220,170,.8) 0 1px,transparent 1.6px) 0 0/70px 70px,radial-gradient(circle,rgba(255,220,170,.5) 0 .8px,transparent 1.3px) 31px 17px/53px 53px;animation:pbxDust 16s linear infinite}
+@keyframes pbxFlick{0%,100%{opacity:1}20%{opacity:.75}40%{opacity:.95}60%{opacity:.7}80%{opacity:1}}
+@keyframes pbxDust{to{background-position:140px -70px,84px -36px}}
+/* Неон-сити: дождь и мигание неона */
+.pbx-neoncity .pbx-a{opacity:.55;background:repeating-linear-gradient(105deg,transparent 0 14px,rgba(190,220,255,.35) 14px 15px,transparent 15px 31px);background-size:200% 200%;animation:pbxRain .5s linear infinite}
+.pbx-neoncity .pbx-b{opacity:1;background:radial-gradient(18% 40% at 55% 45%,rgba(181,232,83,.25),transparent 70%),radial-gradient(14% 30% at 90% 40%,rgba(56,211,255,.22),transparent 70%);mix-blend-mode:screen;animation:pbxNeon 3.2s steps(2) infinite}
+@keyframes pbxRain{to{background-position:-40px 160px}}
+@keyframes pbxNeon{0%,100%{opacity:1}45%{opacity:1}50%{opacity:.35}55%{opacity:1}72%{opacity:.6}74%{opacity:1}}
+/* Токсичный дым: дым клубится, искры */
+.pbx-toxsmoke .pbx-im{animation:pbxSmoke 14s ease-in-out infinite alternate}
+@keyframes pbxSmoke{0%{transform:scale(1.04) translate3d(0,0,0) rotate(0)}50%{transform:scale(1.14) translate3d(-3%,1.5%,0) rotate(-1.5deg)}100%{transform:scale(1.08) translate3d(-1%,-2%,0) rotate(1deg)}}
+.pbx-toxsmoke .pbx-a{opacity:1;background:radial-gradient(circle,#d4f58a 0 1.4px,transparent 2.2px) 0 0/60px 60px,radial-gradient(circle,#38d3ff 0 1.1px,transparent 1.8px) 23px 31px/47px 47px;animation:pbxSpark 7s linear infinite}
+@keyframes pbxSpark{to{background-position:-120px -60px,-71px -63px}}
+/* Космос: дрейф и мерцание звёзд */
+.pbx-cosmos .pbx-im{animation:pbxDrift 40s ease-in-out infinite alternate}
+@keyframes pbxDrift{to{transform:scale(1.14) translate3d(-4%,1%,0)}}
+.pbx-cosmos .pbx-a{opacity:1;background:radial-gradient(circle,#fff 0 1px,transparent 1.8px) 0 0/90px 90px,radial-gradient(circle,#c4b5fd 0 1px,transparent 1.6px) 41px 57px/73px 73px;animation:pbxTw 3s ease-in-out infinite}
+@keyframes pbxTw{0%,100%{opacity:.25}50%{opacity:1}}
+/* Дракон: глаз и пламя пульсируют, угли летят */
+.pbx-dragon .pbx-a{opacity:1;background:radial-gradient(5% 9% at 64% 21%,rgba(181,232,83,.9),transparent 70%),radial-gradient(30% 50% at 75% 45%,rgba(255,190,60,.25),transparent 70%);mix-blend-mode:screen;animation:pbxPulse 2.4s ease-in-out infinite}
+.pbx-dragon .pbx-b,.pbx-hellfire .pbx-b{opacity:1;background:radial-gradient(circle,#ffb347 0 1.6px,transparent 2.4px) 0 0/55px 55px,radial-gradient(circle,#ff6a1a 0 1.2px,transparent 2px) 19px 27px/41px 41px;animation:pbxEmber 6s linear infinite}
+@keyframes pbxPulse{0%,100%{opacity:.55}50%{opacity:1}}
+@keyframes pbxEmber{to{background-position:30px -110px,-11px -82px}}
+/* Ретро-закат: сетка бежит, солнце дышит, сканлайны */
+.pbx-synth80 .pbx-im{animation:pbxKB 26s ease-in-out infinite alternate}
+.pbx-synth80 .pbx-a{opacity:1;top:62%;background:linear-gradient(rgba(255,62,165,.55) 1px,transparent 1px) 0 0/100% 26px;transform:perspective(220px) rotateX(55deg);transform-origin:top;animation:pbxGrid 1.4s linear infinite;mix-blend-mode:screen}
+.pbx-synth80 .pbx-b{opacity:1;background:radial-gradient(16% 26% at 79% 42%,rgba(255,80,170,.45),transparent 70%),repeating-linear-gradient(0deg,rgba(0,0,0,.18) 0 1px,transparent 1px 3px);mix-blend-mode:screen;animation:pbxPulse 3s ease-in-out infinite}
+@keyframes pbxGrid{to{background-position:0 26px}}
+/* Пламя: колыхание и угли */
+.pbx-hellfire .pbx-im{animation:pbxFire 2.2s ease-in-out infinite alternate}
+@keyframes pbxFire{0%{transform:scale(1.06) translate3d(0,0,0);filter:brightness(1)}50%{transform:scale(1.09) translate3d(-.8%,-1%,0);filter:brightness(1.15)}100%{transform:scale(1.07) translate3d(-.4%,.5%,0);filter:brightness(.95)}}
+.pbx-hellfire .pbx-a{opacity:1;background:radial-gradient(40% 60% at 70% 70%,rgba(255,120,30,.25),transparent 70%);mix-blend-mode:screen;animation:pbxFlick 1.4s steps(5) infinite}
+/* Хранилище: лучи и блеск */
+.pbx-vault .pbx-a{opacity:1;background:linear-gradient(110deg,transparent 40%,rgba(255,226,140,.35) 50%,transparent 60%) 0 0/250% 100%;mix-blend-mode:screen;animation:pbxShine 4s linear infinite}
+.pbx-vault .pbx-b{opacity:1;background:radial-gradient(circle,#fff6c8 0 1.2px,transparent 2px) 0 0/48px 48px,radial-gradient(circle,#ffd36b 0 1px,transparent 1.8px) 17px 29px/37px 37px;animation:pbxTw 2.2s ease-in-out infinite}
+@keyframes pbxShine{from{background-position:130% 0}to{background-position:-130% 0}}
+.pf-head.pbg-img::after,.co-pvh.pbg-img::after{display:none}
+.pf-head.pbg-img>.pbx,.co-pvh.pbg-img>.pbx,.co-bgp>.pbx{position:absolute;inset:0;z-index:0}
+.pf-head.pbg-img>*:not(.pbx),.co-pvh.pbg-img>*:not(.pbx){position:relative;z-index:1}
+.co-bgp.pbg-img .co-bgm{z-index:2}
+@media (prefers-reduced-motion:reduce){.pbx *{animation:none!important}}
+@media (hover:none){.co-bgp .pbx>i{animation-play-state:paused}}
 </style>
 </head>
 <body>
@@ -3762,7 +3819,7 @@ function pfBadges(p){const a=achOf(p);const md=(MEDALS.get(p)||[]).slice().sort(
 function pfHTML(p,own){const st=statusOf(p),cl=clanOf(p)||(own?myClan:null),on=isOn(p),pc=ptier(monthPts(p))[1];
   const tabs=own?[["info","Информация","info"],["skins","Надето","gun"],["serv","Услуги","star"],["pay","Пополнения","wallet"],["set","Настройки","gear"]]:[["info","Информация","info"],["skins","Скины","gun"],["serv","Услуги","star"]];
   const cur=own?pfTab:pfTabO;
-  return`<section class="pf-head${own?cosBgCls(cosEq("bg")):""}" style="${MAPIMG.Dust2?`--pfbg:url(${MAPIMG.Dust2})`:""};${own?cosBg(cosEq("bg")):""}"><div class="pf-av${cosFrame(p.n)}${cosAvInner(p.n)?" hasav":""}" style="--ac:${p.c}">${cosAvInner(p.n)||esc(p.n[0].toUpperCase())}</div>
+  return`<section class="pf-head${own?cosBgCls(cosEq("bg")):""}" style="${MAPIMG.Dust2?`--pfbg:url(${MAPIMG.Dust2})`:""};${own?cosBg(cosEq("bg")):""}">${own?cosLayer(cosEq("bg")):""}<div class="pf-av${cosFrame(p.n)}${cosAvInner(p.n)?" hasav":""}" style="--ac:${p.c}">${cosAvInner(p.n)||esc(p.n[0].toUpperCase())}</div>
   <div class="pf-id"><div class="pf-nm"><h1${cosNick(p.n)}>${esc(p.n)}</h1>${cosBadge(p.n)}<span title="Очки рейтинга за месяц">${rtPts(monthPts(p))}</span></div>
   ${st||cl?`<div class="pf-tags">${st?`<span class="pf-role" style="--tc:${TCOL(st.t)}"><i></i>${st.t}</span>`:""}${cl?`<button class="pf-role" data-clan="${clans.indexOf(cl)}"><i style="background:${cl.c}"></i>[${esc(cl.t)}] ${esc(cl.n)}</button>`:""}</div>`:""}
   <span class="pf-on ${on?"on":""}">${on?"В сети":"Был в сети "+dts(lastIn(p),1)}</span></div>
@@ -4955,15 +5012,15 @@ function keepScroll(f){const y=window.scrollY,m=new Map();document.querySelector
 {const a=drawUp;drawUp=function(){return keepScroll(()=>a.apply(this,arguments))};const b=drawCtr;drawCtr=function(){return keepScroll(()=>b.apply(this,arguments))};const c=drawMk;drawMk=function(){return keepScroll(()=>c.apply(this,arguments))};const d=drawJp;drawJp=function(){return keepScroll(()=>d.apply(this,arguments))}}
 
 // ===== Стиль: косметика за рубли =====
-var COS={own:{},eq:{},tag:""};try{const o=JSON.parse(localStorage.getItem("cos1")||"null");if(o)COS=Object.assign(COS,o);delete COS.eq.ava}catch(e){}
+var COS={own:{},eq:{},tag:""};try{const o=JSON.parse(localStorage.getItem("cos1")||"null");if(o)COS=Object.assign(COS,o);delete COS.eq.ava;if(COS.eq.bg&&!/^bg_i_/.test(COS.eq.bg))delete COS.eq.bg}catch(e){}
 const cosSave=()=>{try{localStorage.setItem("cos1",JSON.stringify(COS))}catch(e){}};
 let cosTab="prof",cosPrev=null;
 var BADGES={skull:'<circle cx="12" cy="10" r="7"/><path d="M8 17v3h8v-3"/><circle cx="9.5" cy="10" r="1.6" fill="currentColor"/><circle cx="14.5" cy="10" r="1.6" fill="currentColor"/>',crown:'<path d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5z"/>',bolt:'<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>',aim:'<circle cx="12" cy="12" r="8"/><path d="M12 2v5M12 17v5M2 12h5M17 12h5"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/>',fire:'<path d="M12 22c4 0 7-3 7-7 0-4-3-6-4-10-2 2-3 4-3 6-1-1-2-2-2-4-2 2-5 5-5 8 0 4 3 7 7 7z"/>',gem:'<path d="M6 3h12l4 6-10 12L2 9z"/><path d="M2 9h20M9 3l3 18 3-18"/>',star:'<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>',wolf:'<path d="M4 3l4 5h8l4-5v9c0 5-4 9-8 9s-8-4-8-9z"/><circle cx="9" cy="12" r="1.2" fill="currentColor"/><circle cx="15" cy="12" r="1.2" fill="currentColor"/>',sword:'<path d="M14.5 3H21v6.5L9 21.5 2.5 15z"/><path d="M5 13l6 6M3 21l3-3"/>',shield:'<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/>',heart:'<path d="M12 20s-7-4.5-9-9c-1.5-3.5 1-7 4.5-7 2 0 3.5 1 4.5 2.5C13 5 14.5 4 16.5 4 20 4 22.5 7.5 21 11c-2 4.5-9 9-9 9z"/>',rocket:'<path d="M12 2c4 2 6 6 6 10l-3 4H9l-3-4c0-4 2-8 6-10z"/><circle cx="12" cy="10" r="2"/><path d="M9 16l-2 5 5-3 5 3-2-5"/>',eye:'<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',flag:'<path d="M5 21V4M5 4h11l-2 4 2 4H5"/>',dragon:'<path d="M4 18c3 0 4-3 4-6s2-6 6-6c3 0 5 2 5 5 0 2-1 3-3 3h-3l3 4"/><path d="M15 6l2-3M18 8l3-1"/><circle cx="15" cy="10" r="1" fill="currentColor"/>'};
 var CI=[
  {id:"fr_steel",cat:"frame",n:"Сталь",p:19,v:"steel"},{id:"fr_lime",cat:"frame",n:"Лаймовый неон",p:49,v:"lime"},{id:"fr_ice",cat:"frame",n:"Лёд",p:79,v:"ice"},{id:"fr_emer",cat:"frame",n:"Изумруд",p:99,v:"emer"},{id:"fr_ruby",cat:"frame",n:"Рубин",p:99,v:"ruby"},{id:"fr_ameth",cat:"frame",n:"Аметист",p:119,v:"ameth"},{id:"fr_double",cat:"frame",n:"Двойное кольцо",p:149,v:"double"},{id:"fr_gold",cat:"frame",n:"Золото",p:199,v:"gold"},
  {id:"fr_pulse",cat:"frame",n:"Пульс",p:179,v:"pulse",anim:1},{id:"fr_toxic",cat:"frame",n:"Токсик",p:199,v:"toxic",anim:1},{id:"fr_fire",cat:"frame",n:"Пламя",p:299,v:"fire",anim:1},{id:"fr_plasma",cat:"frame",n:"Плазма",p:349,v:"plasma",anim:1},{id:"fr_holo",cat:"frame",n:"Голограмма",p:399,v:"holo",anim:1},{id:"fr_rgb",cat:"frame",n:"Радуга",p:449,v:"rgb",anim:1},{id:"fr_winter",cat:"frame",n:"Зима 2026",p:249,v:"winter",anim:1,season:1},{id:"fr_halloween",cat:"frame",n:"Хэллоуин",p:249,v:"hallow",anim:1,season:1},
- {id:"bg_dust2",cat:"bg",n:"Dust2",p:39,v:"map:Dust2"},{id:"bg_mirage",cat:"bg",n:"Mirage",p:39,v:"map:Mirage"},{id:"bg_inferno",cat:"bg",n:"Inferno",p:39,v:"map:Inferno"},{id:"bg_carbon",cat:"bg",n:"Карбон",p:59,v:"carbon"},{id:"bg_camo",cat:"bg",n:"Камуфляж",p:59,v:"camo"},{id:"bg_moon",cat:"bg",n:"Кровавая луна",p:99,v:"moon"},{id:"bg_sunset",cat:"bg",n:"Синтвейв",p:149,v:"synth",anim:1},
- {id:"bg_neon",cat:"bg",n:"Неоновая сетка",p:149,v:"grid",anim:1},{id:"bg_stripes",cat:"bg",n:"Неон-полосы",p:149,v:"stripes",anim:1},{id:"bg_matrix",cat:"bg",n:"Матрица",p:199,v:"matrix",anim:1},{id:"bg_embers",cat:"bg",n:"Угли",p:199,v:"embers",anim:1},{id:"bg_lava",cat:"bg",n:"Лава",p:249,v:"lava",anim:1},{id:"bg_space",cat:"bg",n:"Глубокий космос",p:299,v:"space",anim:1},{id:"bg_aurora",cat:"bg",n:"Северное сияние",p:299,v:"aurora",anim:1},{id:"bg_gold",cat:"bg",n:"Золотой блеск",p:399,v:"goldsh",anim:1},{id:"bg_snow",cat:"bg",n:"Снегопад",p:199,v:"snow",anim:1,season:1},
+ {id:"bg_i_dust2n",cat:"bg",n:"Ночной Dust2",p:79,v:"img:dust2n",anim:1,art:1},{id:"bg_i_neoncity",cat:"bg",n:"Неон-сити",p:99,v:"img:neoncity",anim:1,art:1},{id:"bg_i_toxsmoke",cat:"bg",n:"Токсичный дым",p:69,v:"img:toxsmoke",anim:1,art:1},{id:"bg_i_cosmos",cat:"bg",n:"Кольца Сатурна",p:99,v:"img:cosmos",anim:1,art:1},
+ {id:"bg_i_dragon",cat:"bg",n:"Золотой дракон",p:149,v:"img:dragon",anim:1,art:1},{id:"bg_i_synth80",cat:"bg",n:"Ретро-закат",p:89,v:"img:synth80",anim:1,art:1},{id:"bg_i_hellfire",cat:"bg",n:"Адское пламя",p:79,v:"img:hellfire",anim:1,art:1},{id:"bg_i_vault",cat:"bg",n:"Золотое хранилище",p:129,v:"img:vault",anim:1,art:1},
  ...[["skull","Череп",49,"#e8e8ea"],["aim","Прицел",49,"#b5e853"],["bolt","Молния",79,"#38d3ff"],["fire","Огонь",99,"#ff8a3d"],["wolf","Волк",119,"#eb4b4b"],["gem","Алмаз",179,"#7dd3fc"],["star","Звезда",149,"#f5c451"],["shield","Щит",59,"#5aa9ff"],["sword","Клинок",99,"#d0d3d8"],["heart","Сердце",69,"#ff6b8b"],["eye","Око",119,"#a78bfa"],["rocket","Ракета",149,"#38d3ff"],["flag","Флаг",59,"#3ddc97"],["dragon","Дракон",249,"#3ddc97"],["crown","Корона",299,"#ffcf40"]].map(([v,n,p,c])=>({id:"bd_"+v,cat:"badge",n,p,v,c})),
  ...[["#b5e853","Лайм"],["#38d3ff","Циан"],["#ff6b8b","Розовый"],["#f5c451","Золото"],["#a78bfa","Фиолет"],["#eb4b4b","Красный"]].map(([v,n],i)=>({id:"nk_"+i,cat:"nick",n,p:39,v})),
  {id:"nk_grad1",cat:"nick",n:"Закат",p:119,v:"linear-gradient(90deg,#ff8a3d,#ff6b8b,#a78bfa)",grad:1},{id:"nk_grad2",cat:"nick",n:"Токсик",p:119,v:"linear-gradient(90deg,#b5e853,#38d3ff)",grad:1},
@@ -4982,11 +5039,13 @@ function cosFrame(n){const f=isMe(n)&&cosEq("frame");return f?" fr fr-"+f.v:""}
 function cosBadge(n){const b=isMe(n)&&cosEq("badge");return b?`<span class="cbdg" style="--bc:${b.c}" title="${esc(b.n)}"><svg viewBox="0 0 24 24">${BADGES[b.v]}</svg></span>`:""}
 function cosNick(n){const k=isMe(n)&&cosEq("nick");return k?(k.grad?` style="background:${k.v};-webkit-background-clip:text;background-clip:text;color:transparent"`:` style="color:${k.v}"`):""}
 function cosTagTxt(){return COS.eq.tag&&COS.tag?COS.tag:""}
+const PBGIMG={"dust2n": "img/pbg/dust2n.jpg?v=e4db97cd", "neoncity": "img/pbg/neoncity.jpg?v=c5d8fe7e", "toxsmoke": "img/pbg/toxsmoke.jpg?v=89199f97", "cosmos": "img/pbg/cosmos.jpg?v=0bc54751", "dragon": "img/pbg/dragon.jpg?v=685646da", "synth80": "img/pbg/synth80.jpg?v=a4c1ecfa", "hellfire": "img/pbg/hellfire.jpg?v=dfc8e59b", "vault": "img/pbg/vault.jpg?v=2f6aef1d"};
+function cosLayer(it){if(!it||!it.v.startsWith("img:"))return"";const k=it.v.slice(4);return`<i class="pbx pbx-${k}" aria-hidden="true"><i class="pbx-im" style="background-image:url(${PBGIMG[k]||""})"></i><i class="pbx-a"></i><i class="pbx-b"></i><i class="pbx-sh"></i></i>`}
 function cosBg(it){if(!it)return"";const v=it.v;if(v.startsWith("map:"))return`background-image:linear-gradient(90deg,rgba(10,10,10,.92) 20%,rgba(10,10,10,.55) 65%,rgba(10,10,10,.8)),url(${MAPIMG[v.slice(4)]||""});background-size:cover;background-position:center`;return""}
-function cosBgCls(it){return it&&!it.v.startsWith("map:")?" pbg-"+it.v:""}
+function cosBgCls(it){return!it||it.v.startsWith("map:")?"":it.v.startsWith("img:")?" pbg-img":" pbg-"+it.v}
 function cosSwatch(it){const c=it.cat;
   if(c==="frame")return`<span class="co-sw"><i class="co-avp big fr fr-${it.v}">${jpAvSvg("Demo_7","#2b2f36")}</i></span>`;
-  if(c==="bg")return`<span class="co-sw co-bgp${cosBgCls(it)}" style="${cosBg(it)}"><span class="co-bgm"><i></i><span><b></b><em></em></span></span></span>`;
+  if(c==="bg")return`<span class="co-sw co-bgp${cosBgCls(it)}" style="${cosBg(it)}">${cosLayer(it)}<span class="co-bgm"><i></i><span><b></b><em></em></span></span></span>`;
   if(c==="ava")return`<span class="co-sw"><i class="co-avp">${jpAvSvg(it.v,it.c)}</i></span>`;
   if(c==="badge")return`<span class="co-sw"><span class="cbdg big" style="--bc:${it.c}"><svg viewBox="0 0 24 24">${BADGES[it.v]}</svg></span></span>`;
   if(c==="nick")return`<span class="co-sw"><b class="co-nk" style="${it.grad?`background:${it.v};-webkit-background-clip:text;background-clip:text;color:transparent`:`color:${it.v}`}">${esc(logged?ME.n:"Player")}</b></span>`;
@@ -5003,7 +5062,7 @@ function cosSection(cat){const [t,d]=CCAT[cat],L=CI.filter(x=>x.cat===cat);
 function cosTagBox(){const has=!!COS.tag,on=!!COS.eq.tag;return`<div class="co-tagbox"><div class="co-tagcur"><small>Сейчас</small><b>${has?`<span class="co-tg">[${esc(COS.tag)}]</span> ${esc(logged?ME.n:"Player")}`:"Тега нет"}</b>${has?`<button type="button" class="ghost co-b" data-tagt>${on?"Снять":"Надеть"}</button>`:""}</div>
   <div class="co-tagin"><input id="cosTagIn" maxlength="6" placeholder="${has?esc(COS.tag):"TAG"}" autocomplete="off"><button type="button" class="steam" data-tagbuy>${has?"Сменить":"Купить"} · ${fmt(CI.find(x=>x.id==="tag").p)} ₽</button></div><small class="co-note">Латиница и цифры, до 6 символов. Каждая установка или смена тега стоит 79 ₽.</small></div>`}
 function cosPreview(){const n=logged?ME.n:"Гость",fr=cosEq("frame"),bg=cosEq("bg"),av=null,kl=cosEq("kill"),sm=cosEq("smoke"),tr=cosEq("trail"),tg=cosTagTxt();
-  return`<div class="co-pv"><div class="co-pvh${cosBgCls(bg)}" style="${cosBg(bg)}"><i class="co-pva${fr?" fr fr-"+fr.v:""}" style="--ac:${ME.c}">${av?jpAvSvg(av.v,av.c):esc(n[0].toUpperCase())}</i><div><b class="co-pvn"${cosNick(n)}>${esc(n)}</b>${cosBadge(n)}<small>Так тебя видят в профиле</small></div></div>
+  return`<div class="co-pv"><div class="co-pvh${cosBgCls(bg)}" style="${cosBg(bg)}">${cosLayer(bg)}<i class="co-pva${fr?" fr fr-"+fr.v:""}" style="--ac:${ME.c}">${av?jpAvSvg(av.v,av.c):esc(n[0].toUpperCase())}</i><div><b class="co-pvn"${cosNick(n)}>${esc(n)}</b>${cosBadge(n)}<small>Так тебя видят в профиле</small></div></div>
    <div class="co-pvr"><span class="co-pvl">Рейтинг</span><div class="co-pvrow"><span>#11</span><i class="co-avs${fr?" fr fr-"+fr.v:""}" style="--ac:${ME.c}">${av?jpAvSvg(av.v,av.c):esc(n[0].toUpperCase())}</i><b${cosNick(n)}>${esc(n)}</b>${cosBadge(n)}</div></div>
    <div class="co-pvr"><span class="co-pvl">Чат сервера</span><div class="co-chat"><span class="ct">${tg?`[${esc(tg)}] `:""}</span><b${cosNick(n)}>${esc(n)}</b>: gg wp</div></div>
    <div class="co-pvr"><span class="co-pvl">В игре</span><div class="co-game"><span>Убийство: <b>${kl?kl.n:"стандарт"}</b></span><span>Звук: <b>${cosEq("snd")?cosEq("snd").n:"стандарт"}</b></span><span>Дым: ${sm?`<i class="dot" style="background:${sm.v}"></i>${sm.n}`:"<b>серый</b>"}</span><span>Трейл: ${tr?`<i class="dot" style="background:${tr.v}"></i>${tr.n}`:"<b>нет</b>"}</span></div></div></div>`}
