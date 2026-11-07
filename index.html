@@ -4655,7 +4655,7 @@ document.addEventListener("click",e=>{const a=e.target.closest("[data-achp]");if
 document.addEventListener("click",e=>{if(e.target.closest("[data-mksell]")){e.preventDefault();mkTab="sell";mkDet=null;go("market")}},true);
 
 // ===== Джекпот =====
-const JP_COUNT=35e3,JP_SPIN=8e3,JP_SHOW=5e3,JP_MAXP=20,JP_MAXI=10,JP_COL=["#5aa9ff","#3ddc97","#c084fc","#ff6b8b","#2dd4bf","#f472b6","#a3e635","#60a5fa","#fb923c","#e879f9","#facc15","#38bdf8","#f87171","#34d399","#818cf8","#fbbf24","#22d3ee","#d946ef","#84cc16","#fda4af"];
+const JP_COUNT=35e3,JP_SPIN=8e3,JP_SHOW=5e3,JP_MAXP=10,JP_MAXI=10,JP_COL=["#5aa9ff","#3ddc97","#c084fc","#ff6b8b","#2dd4bf","#f472b6","#a3e635","#60a5fa","#fb923c","#e879f9","#facc15","#38bdf8","#f87171","#34d399","#818cf8","#fbbf24","#22d3ee","#d946ef","#84cc16","#fda4af"];
 let JP={r:null,h:[]},jpSel=[],jpAnim=0,jpSig="";
 try{const o=JSON.parse(localStorage.getItem("jp1")||"null");if(o)JP=Object.assign(JP,o)}catch(e){}
 const jpSave=()=>{try{localStorage.setItem("jp1",JSON.stringify(JP))}catch(e){}};
