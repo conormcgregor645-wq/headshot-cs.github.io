@@ -4595,7 +4595,7 @@ document.addEventListener("click",e=>{const a=e.target.closest("[data-achp]");if
 document.addEventListener("click",e=>{if(e.target.closest("[data-mksell]")){e.preventDefault();mkTab="sell";mkDet=null;go("market")}},true);
 
 // ===== Джекпот =====
-const JP_COUNT=35e3,JP_SPIN=8e3,JP_SHOW=5e3,JP_MAXP=10,JP_MAXI=10,JP_COL=["#5aa9ff","#3ddc97","#c084fc","#ff6b8b","#2dd4bf","#f472b6","#a3e635","#60a5fa","#fb923c","#e879f9","#facc15","#38bdf8"];
+const JP_COUNT=35e3,JP_SPIN=8e3,JP_SHOW=5e3,JP_MAXP=20,JP_MAXI=10,JP_COL=["#5aa9ff","#3ddc97","#c084fc","#ff6b8b","#2dd4bf","#f472b6","#a3e635","#60a5fa","#fb923c","#e879f9","#facc15","#38bdf8","#f87171","#34d399","#818cf8","#fbbf24","#22d3ee","#d946ef","#84cc16","#fda4af"];
 let JP={r:null,h:[]},jpSel=[],jpAnim=0,jpSig="";
 try{const o=JSON.parse(localStorage.getItem("jp1")||"null");if(o)JP=Object.assign(JP,o)}catch(e){}
 const jpSave=()=>{try{localStorage.setItem("jp1",JSON.stringify(JP))}catch(e){}};
@@ -4620,7 +4620,7 @@ function jpTick(){let R=JP.r,ch=0;const now=Date.now(),view=curView==="jackpot";
   if(!view&&!jpMe(R))return;
   if(R.cd&&!R.spin&&now>=R.cd){R.spin=R.cd;[R.win,R.pt]=jpPick(R);ch=1}
   if(R.spin&&now>=R.spin+JP_SPIN&&!R.done){jpFinish(R);ch=1}
-  if(!R.spin&&R.players.length<JP_MAXP&&now>=R.nb&&(!R.cd||R.cd-now>4e3)){jpAddBot(R);R.nb=now+(R.cd?3e3+Math.random()*9e3:1500+Math.random()*4e3);ch=1}
+  if(!R.spin&&R.players.length<JP_MAXP&&now>=R.nb&&(!R.cd||R.cd-now>4e3)){jpAddBot(R);R.nb=now+(R.cd?1500+Math.random()*4500:1500+Math.random()*4e3);ch=1}
   if(!R.cd&&R.players.length>=2){R.cd=now+JP_COUNT;ch=1}
   if(ch){jpSave();if(curView==="jackpot")drawJp()}else if(curView==="jackpot")jpLive()}
 setInterval(()=>{if(!document.hidden)try{jpTick()}catch(e){console.error(e)}},1000);
