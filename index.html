@@ -1116,7 +1116,7 @@ footer{border-top:1px solid color-mix(in srgb,var(--line) 60%,transparent)}
 .steam-acc{display:flex;align-items:center;gap:12px}
 .steam-acc .av{width:44px;height:44px;border-radius:50%;font-size:18px}
 .hp-cta .steam span,.login-gate .steam span,.umenu .steam span{display:inline!important}
-html.no-anim *,html.no-anim *::before,html.no-anim *::after{animation:none!important;transition:none!important}
+html.no-anim *:not(.fr):not(.pbx>i),html.no-anim *::before,html.no-anim *::after{animation:none!important;transition:none!important}
 @media (max-width:820px){.set-grid{grid-template-columns:minmax(0,1fr)}.umenu{position:fixed;right:max(16px,env(safe-area-inset-right,0px));top:auto;margin-top:8px}.me-chip span.nm{display:none}}
 
 
@@ -2844,7 +2844,7 @@ nav a.on,nav a.on svg{color:#b5e853!important}
 @keyframes pbgGold{from{background-position:120% 0,0 0}to{background-position:-120% 0,0 0}}
 .pf-head[class*="pbg-"]::after,.co-pvh[class*="pbg-"]::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.55),rgba(0,0,0,.1) 60%);pointer-events:none}
 .pf-head[class*="pbg-"]>*,.co-pvh[class*="pbg-"]>*{position:relative;z-index:1}
-@media (prefers-reduced-motion:reduce){[class*="pbg-"],.fr{animation:none!important}}
+
 
 
 .pf-head .pf-av.fr.fr,.rt-who .av.fr.fr,.me-chip .av.fr.fr,.co-pva.fr.fr,.co-avs.fr.fr,.jp-av.fr.fr,.jpw-avi.fr.fr{box-shadow:0 0 0 3px var(--frc,#fff),0 0 14px color-mix(in srgb,var(--frc,#fff) 55%,transparent)}
@@ -2906,7 +2906,7 @@ nav a.on,nav a.on svg{color:#b5e853!important}
 .pf-head.pbg-img>.pbx,.co-pvh.pbg-img>.pbx,.co-bgp>.pbx{position:absolute;inset:0;z-index:0}
 .pf-head.pbg-img>*:not(.pbx),.co-pvh.pbg-img>*:not(.pbx){position:relative;z-index:1}
 .co-bgp.pbg-img .co-bgm{z-index:2}
-@media (prefers-reduced-motion:reduce){.pbx *{animation:none!important}}
+
 @media (hover:none){.co-bgp .pbx>i{animation-play-state:paused}}
 </style>
 </head>
