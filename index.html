@@ -2849,6 +2849,12 @@ nav a.on,nav a.on svg{color:#b5e853!important}
 
 .pf-head .pf-av.fr.fr,.rt-who .av.fr.fr,.me-chip .av.fr.fr,.co-pva.fr.fr,.co-avs.fr.fr,.jp-av.fr.fr,.jpw-avi.fr.fr{box-shadow:0 0 0 3px var(--frc,#fff),0 0 14px color-mix(in srgb,var(--frc,#fff) 55%,transparent)}
 .pf-head .pf-av.fr.fr-double,.co-pva.fr.fr-double{box-shadow:0 0 0 2px #e6e6e8,0 0 0 5px #0b0b0c,0 0 0 7px #b5e853,0 0 18px rgba(181,232,83,.4)}
+
+.pf-head{flex-wrap:wrap}
+.pf-head>.pf-stats{flex:1 1 100%;grid-column:1/-1;margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,.08);position:relative;z-index:1}
+.pf-head>.pf-stats>div{background:none!important}
+.pf-head>.pf-stats small{color:rgba(236,237,234,.7)}
+.pf-head>.pf-stats b{text-shadow:0 2px 10px rgba(0,0,0,.7)}
 /* живые фоны профиля из картинок */
 .pbg-img{position:relative;overflow:hidden;background:#050505!important}
 .pbx{position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none}
@@ -3823,8 +3829,8 @@ function pfHTML(p,own){const st=statusOf(p),cl=clanOf(p)||(own?myClan:null),on=i
   <div class="pf-id"><div class="pf-nm"><h1${cosNick(p.n)}>${esc(p.n)}</h1>${cosBadge(p.n)}<span title="Очки рейтинга за месяц">${rtPts(monthPts(p))}</span></div>
   ${st||cl?`<div class="pf-tags">${st?`<span class="pf-role" style="--tc:${TCOL(st.t)}"><i></i>${st.t}</span>`:""}${cl?`<button class="pf-role" data-clan="${clans.indexOf(cl)}"><i style="background:${cl.c}"></i>[${esc(cl.t)}] ${esc(cl.n)}</button>`:""}</div>`:""}
   <span class="pf-on ${on?"on":""}">${on?"В сети":"Был в сети "+dts(lastIn(p),1)}</span></div>
-  ${pfBadges(p)}</section>
-  <div class="pf-stats"><div><small>Тащер Коины</small><b>${svgI(PI.tk)}${fmt(tkOf(p))}</b></div><div><small>Убийств</small><b>${svgI(PI.kill)}${fmt(p.kills)}</b></div><div><small>Смертей</small><b>${svgI(PI.skull)}${fmt(p.deaths)}</b></div><div><small>Хедшотов</small><b>${svgI(PI.hs)}${p.hs}%</b></div><div><small>У/С</small><b>${p.kd.toFixed(2)}</b></div></div>
+  ${pfBadges(p)}
+  <div class="pf-stats"><div><small>Тащер Коины</small><b>${svgI(PI.tk)}${fmt(tkOf(p))}</b></div><div><small>Убийств</small><b>${svgI(PI.kill)}${fmt(p.kills)}</b></div><div><small>Смертей</small><b>${svgI(PI.skull)}${fmt(p.deaths)}</b></div><div><small>Хедшотов</small><b>${svgI(PI.hs)}${p.hs}%</b></div><div><small>У/С</small><b>${p.kd.toFixed(2)}</b></div></div></section>
   <div class="pf-tabs" role="tablist">${tabs.map(([k,n,ic])=>`<button role="tab" data-pft="${k}" aria-selected="${k===cur}">${svgI(PI[ic])}<span>${n}</span></button>`).join("")}</div>
   <section class="pf-panel">${pfPanel(p,own,cur)}</section>`}
 function pfRows(rows){return`<div class="pf-rows">${rows.map(([a,b])=>`<div><span>${a}</span><b>${b}</b></div>`).join("")}</div>`}
