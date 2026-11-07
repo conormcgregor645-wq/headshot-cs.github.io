@@ -3636,18 +3636,18 @@ const CCASES=[{"k":"cblackandwhite","n":"Черно-Белый","sec":"color","i
 // кейсы «на шанс»: мало предметов и фиксированные проценты
 {const K=(n,s,r,k)=>[n,s,r,k||"",-1,0];
  const CH=[
-  {k:"xlotus",n:"Wild Lotus 1%",c:"#4fd18b",d:"1% на AK-47 Wild Lotus, 10% на AK-47 Asiimov",l:[[K("AK-47","Wild Lotus",4),1],[K("AK-47","Asiimov",4),10],[K("AK-47","Slate",2),30],[K("AK-47","Safari Mesh",0),59]]},
-  {k:"xruby",n:"Ruby 1%",c:"#ff2a4a",d:"1% на Керамбит Doppler Ruby, ещё 4% на Керамбит",l:[[K("Керамбит","Doppler Ruby",5,"knife"),1],[K("Керамбит","Safari Mesh",5,"knife"),4],[K("Desert Eagle","Printstream",4),20],[K("P250","Sand Dune",0),75]]},
+  {k:"xlotus",n:"Wild Lotus 2%",c:"#4fd18b",d:"2% на AK-47 Wild Lotus",l:[[K("AK-47","Wild Lotus",4),2],[K("AK-47","Safari Mesh",0),98]]},
+  {k:"xruby",n:"Ruby 2%",c:"#ff2a4a",d:"2% на Керамбит Doppler Ruby",l:[[K("Керамбит","Doppler Ruby",5,"knife"),2],[K("P250","Sand Dune",0),98]]},
   {k:"xknife",n:"Нож или ничего",c:"#c9ced6",d:"5% на нож, внутри есть Ruby",l:[[K("Керамбит","Doppler Ruby",5,"knife"),.05],[K("Нож с лезвием-крюком","Forest DDPAT",5,"knife"),.95],[K("Тычковые ножи","Boreal Forest",5,"knife"),2],[K("Наваха","Forest DDPAT",5,"knife"),2],[K("P250","Sand Dune",0),35],[K("MP9","Sand Dashed",0),30],[K("Nova","Sand Dune",0),30]]},
   {k:"xcoin",n:"Монетка",c:"#d6a542",d:"50 на 50: AWP Asiimov или ничего",l:[[K("AWP","Asiimov",4),50],[K("P250","Sand Dune",0),50]]},
-  {k:"xhowl",n:"Howl 5%",c:"#ff5a36",d:"5% на M4A4 Howl, 15% на M4A4 Asiimov",l:[[K("M4A4","Howl",4),5],[K("M4A4","Asiimov",4),15],[K("M4A4","Mainframe",0),80]]},
-  {k:"xknight",n:"Knight 7%",c:"#e9d27c",d:"7% на M4A1-S Knight, 23% на Nightmare",l:[[K("M4A1-S","Knight",3),7],[K("M4A1-S","Nightmare",3),23],[K("M4A1-S","Boreal Forest",0),70]]},
-  {k:"xblaze",n:"Blaze 20%",c:"#ff9a2e",d:"20% на Desert Eagle Blaze, 20% на Code Red",l:[[K("Desert Eagle","Blaze",2),20],[K("Desert Eagle","Code Red",4),20],[K("Desert Eagle","Mudder",0),60]]},
-  {k:"xserpent",n:"Fire Serpent 15%",c:"#43b46a",d:"15% на AK-47 Fire Serpent, 25% на Redline",l:[[K("AK-47","Fire Serpent",4),15],[K("AK-47","Redline",3),25],[K("AK-47","Safari Mesh",0),60]]},
+  {k:"xhowl",n:"Howl 5%",c:"#ff5a36",d:"5% на M4A4 Howl",l:[[K("M4A4","Howl",4),5],[K("M4A4","Mainframe",0),95]]},
+  {k:"xknight",n:"Knight 10%",c:"#e9d27c",d:"10% на M4A1-S Knight",l:[[K("M4A1-S","Knight",3),10],[K("M4A1-S","Boreal Forest",0),90]]},
+  {k:"xblaze",n:"Blaze 30%",c:"#ff9a2e",d:"30% на Desert Eagle Blaze",l:[[K("Desert Eagle","Blaze",2),30],[K("Desert Eagle","Mudder",0),70]]},
+  {k:"xserpent",n:"Fire Serpent 25%",c:"#43b46a",d:"25% на AK-47 Fire Serpent",l:[[K("AK-47","Fire Serpent",4),25],[K("AK-47","Safari Mesh",0),75]]},
   {k:"xlore",n:"Dragon Lore 10%",c:"#e0a63a",d:"10% на AWP Dragon Lore",l:[[K("AWP","Dragon Lore",4),10],[K("AWP","Safari Mesh",0),90]]}
  ];
  CH.forEach(o=>{const items=o.l.map(x=>x[0]),wt=o.l.map(x=>x[1]);if(items.some(i=>!itemVal(i)))return console.warn("chance case skip",o.k);const ws=wt.reduce((a,b)=>a+b,0),ev=Math.round(items.reduce((s,i,j)=>s+itemVal(i)*wt[j]/ws,0));
-  const best=items[0],w=W.find(x=>x.n===best[0]),sk=w&&w.skins.find(x=>x[0]===best[1]);CASES.push({k:o.k,n:o.n,sec:"chance",img:sk?skImg(sk):"",c:o.c,items,wt,ev,p:niceP(ev/.9),odds:[0,0,0,0,0,100],d:o.d,fixed:1})})}
+  const best=items[0],w=W.find(x=>x.n===best[0]),sk=w&&w.skins.find(x=>x[0]===best[1]);CASES.push({k:o.k,n:o.n,sec:"chance",img:sk?skImg(sk):"",c:o.c,items,wt,ev,p:niceP(ev/.95),odds:[0,0,0,0,0,100],d:o.d,fixed:1})})}
 CASES.forEach(c=>{if(c.p)tuneCase(c)});
 CASES.sort((a,b)=>(a.p||0)-(b.p||0));
 let INV=[];try{INV=JSON.parse(localStorage.getItem("inv2")||"[]")||[]}catch(e){}INV.forEach(it=>{if(it.sp&&!SP[it.sp])delete it.sp});
@@ -3680,7 +3680,7 @@ function caseSvg(c){const col=c.c,id="cs"+(gid++);return`<svg viewBox="0 0 160 1
 const csLeft=()=>{const m=new Date(Date.now()+3*3600e3),l=86400e3-(m.getUTCHours()*3600e3+m.getUTCMinutes()*6e4+m.getUTCSeconds()*1e3);return`${two(Math.floor(l/36e5))}:${two(Math.floor(l%36e5/6e4))}:${two(Math.floor(l%6e4/1e3))}`};
 const effO=(c,o)=>String(+(o*(1-((c.knife||0)+(c.gloves||0))/100)).toFixed(1)).replace(".",",");
 const oddsHTML=c=>c.odds.map((o,r)=>o?`<span style="--rc:${RC[r]}"><i></i>${RN[r]} <b>${effO(c,o)}%</b></span>`:"").join("")+(c.knife?`<span style="--rc:${RC[5]}"><i></i>Нож <b>${c.knife}%</b></span>`:"")+(c.gloves?`<span style="--rc:${RC[5]}"><i></i>Перчатки <b>${c.gloves}%</b></span>`:"");
-const CSEC=[["tasher","Кейсы Tasher","Наши фирменные кейсы"],["chance","На шанс","Пара скинов и честные проценты — всё или почти ничего"],["color","Цветная коллекция","Скины, подобранные по цвету"],["prem","Звания","От Silver до Global Elite: чем выше звание, тем дороже скины"],["luxe","Люкс","Ножи и перчатки по рисункам"]];
+const CSEC=[["tasher","Кейсы Tasher","Наши фирменные кейсы"],["chance","На шанс","Два скина и честные проценты — всё или ничего"],["color","Цветная коллекция","Скины, подобранные по цвету"],["prem","Звания","От Silver до Global Elite: чем выше звание, тем дороже скины"],["luxe","Люкс","Ножи и перчатки по рисункам"]];
 function drawCases(){$("csGrid").innerHTML=CSEC.map(([sk,t,sub])=>`<div class="cs-sec"><h2>${t}</h2><span>${sub} · ${CASES.filter(c=>c.sec===sk).length}</span></div>`+CASES.map((c,i)=>{if(c.sec!==sk)return"";const free=!c.p,used=free&&csDay===mskDay();
   return`<article class="cs-card ${c.k==="king"?"king":""}" style="--cc:${c.c}" data-cprev="${i}" tabindex="0" role="button" aria-label="${c.n}: что внутри"><div class="cs-art">${caseArt(c)}</div><div class="cs-body"><h3>${c.n}</h3><small>${c.d}</small></div>
   <div class="cs-foot"><span class="cs-price">${free?(used?`через <b class="csLeft">${csLeft()}</b>`:"<b>Бесплатно</b>"):`<b>${fmt(c.p)}</b><i class="tk-c">ТК</i>`}</span><span class="cs-look">Открыть</span></div></article>`}).join("")).join("")}
