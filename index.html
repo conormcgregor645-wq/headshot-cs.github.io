@@ -2577,6 +2577,32 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;ba
 .jp-av{overflow:hidden;background:var(--pc);box-shadow:0 0 0 2px var(--pc)}
 .jpc-av{display:block;width:64px;height:64px;border-radius:50%;overflow:hidden;margin-bottom:4px;box-shadow:0 0 0 3px var(--pc),0 0 24px color-mix(in srgb,var(--pc) 60%,transparent)}
 @media (max-width:640px){.jpc-av{width:44px;height:44px}}
+
+.jp-stage{position:relative}
+.jp-hbtn{position:absolute;top:8px;right:8px;z-index:4;display:inline-flex;align-items:center;gap:7px;padding:8px 14px;border-radius:999px;border:1px solid rgba(245,165,36,.3);background:rgba(14,10,8,.75);color:var(--fg);font:inherit;font-size:13px;font-weight:800;cursor:pointer;transition:all .2s}
+.jp-hbtn svg{width:16px;height:16px;fill:none;stroke:var(--accent);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.jp-hbtn:hover{border-color:var(--accent);background:rgba(245,165,36,.12)}
+.jp-hs{width:min(720px,100%)!important;max-height:min(86vh,820px);padding:0!important;gap:0!important;overflow:hidden}
+.jph-top{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 12px}.jph-top b{font-size:22px;font-weight:900;font-style:italic;text-transform:uppercase}
+.jph-x{width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--muted);font-size:14px;cursor:pointer}.jph-x:hover{color:var(--fg)}
+.jph-st{display:grid;grid-template-columns:repeat(4,1fr);gap:0;padding:0 20px 14px}
+.jph-st div{padding:2px 14px;border-left:1px solid var(--line)}.jph-st div:first-child{border-left:0;padding-left:0}
+.jph-st small{display:block;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}.jph-st b{font-size:17px;font-weight:900;font-variant-numeric:tabular-nums}
+.jph-st b.acc{color:var(--accent)}.pl{color:var(--live)!important}.mn{color:#ff7b7b!important}
+.jph-f{margin:0 20px 12px;width:max-content;max-width:calc(100% - 40px)}
+.jph-l{display:flex;flex-direction:column;gap:6px;padding:0 20px 20px;overflow-y:auto;max-height:calc(min(86vh,820px) - 190px)}
+.jph-r{display:grid;grid-template-columns:40px minmax(0,1fr) auto auto;align-items:center;gap:12px;padding:9px 12px 9px 9px;border-radius:14px;background:linear-gradient(90deg,color-mix(in srgb,var(--pc) 12%,transparent),transparent 50%),rgba(255,255,255,.025);border-left:3px solid var(--pc)}
+.jph-r.me{box-shadow:inset 0 0 0 1px rgba(245,165,36,.5)}
+.jph-r .jp-av{width:38px;height:38px}
+.jph-n{min-width:0}.jph-n b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.jph-n b small{font-size:10px;color:var(--accent);text-transform:uppercase;margin-left:4px}.jph-n span{font-size:12px;color:var(--muted)}
+.jph-sk{display:flex;gap:4px}.jph-sk span{width:46px;height:32px;display:grid;place-items:center;border-radius:7px;border-bottom:2px solid var(--rc);background:radial-gradient(70% 70% at 50% 50%,color-mix(in srgb,var(--rc) 22%,transparent),transparent 75%)}
+.jph-sk span .skw,.jph-sk span svg{width:42px;height:28px}
+.jph-v{text-align:right;min-width:110px}.jph-v b{display:block;font-size:15px;font-weight:900;color:var(--accent);font-variant-numeric:tabular-nums}.jph-v span{font-size:11px;color:var(--muted)}.jph-v em{display:block;font-style:normal;font-size:11px;font-weight:800}
+@media (max-width:640px){.jph-st{grid-template-columns:1fr 1fr;row-gap:10px}.jph-st div:nth-child(3){border-left:0;padding-left:0}.jph-r{grid-template-columns:36px minmax(0,1fr) auto}.jph-sk{grid-column:1/-1;grid-row:2}.jph-v{min-width:0}.jph-f{width:auto}.jph-f{display:flex}.jph-f button{flex:1;font-size:11px;padding:8px 4px;min-height:34px;line-height:1.2}.jp-hbtn{font-size:12px;padding:7px 11px}}
+
+.jp-inv .up-it,.up-grid .up-it,.ctr-grid .up-it,.mk-igrid .up-it{content-visibility:visible}
+
+.jph-top,.jph-st,.jph-f{flex-shrink:0}.jph-l{flex:1 1 auto;min-height:0}
 </style>
 </head>
 <body>
@@ -4585,7 +4611,7 @@ function jpColor(R){const used=new Set(R.players.map(p=>p.c));return JP_COL.find
 function jpAddBot(R){const taken=new Set(R.players.map(p=>p.n));let n,g=0;do n=NICKS[Math.floor(Math.random()*NICKS.length)];while(taken.has(n)&&g++<30);if(taken.has(n))return;R.players.push({n,c:jpColor(R),items:jpBotItems(jpTot(R)),t:Date.now()})}
 function jpPick(R){const T=jpTot(R);let x=Math.random()*T,acc=0;for(let i=0;i<R.players.length;i++){const v=jpV(R.players[i]);if(x<acc+v||i===R.players.length-1){const f=Math.min(.94,Math.max(.06,(x-acc)/Math.max(1,v)));return[i,(acc+v*f)/T]}acc+=v}return[0,.5]}
 function jpFinish(R){if(R.done)return;R.done=1;const P=R.players[R.win],T=jpTot(R),ch=jpV(P)/T,all=R.players.flatMap(p=>p.items);
-  JP.h.unshift({n:P.n,c:P.c,me:!!P.me,v:T,ch,t:Date.now(),k:all.length});JP.h=JP.h.slice(0,12);
+  const mm=jpMe(R);JP.h.unshift({n:P.n,c:P.c,me:!!P.me,v:T,ch,t:Date.now(),k:all.length,np:R.players.length,my:mm?jpV(mm):0,top:all.slice().sort((a,b)=>itDust(b)-itDust(a)).slice(0,4).map(it=>({w:it.w,s:it.s,r:it.r,wear:it.wear}))});JP.h=JP.h.slice(0,60);
   if(P.me){const got=all.map(it=>Object.assign({},it,{id:jpId(),t:Date.now()}));INV.push(...got);invSave();try{drawInv()}catch(e){}try{notify("prize","Джекпот твой!",`Ты забрал банк ${fmt(T)} ТК: ${got.length} ${plural(got.length,"скин","скина","скинов")} с шансом ${(ch*100).toFixed(1)}%`)}catch(e){}}
   else if(jpMe(R)){try{notify("info","Джекпот разыгран",`Банк ${fmt(T)} ТК забрал ${P.n}. Твой шанс был ${(jpV(jpMe(R))/T*100).toFixed(1)}%`)}catch(e){}}}
 function jpPhase(R){const now=Date.now();if(!R)return"wait";if(R.spin&&now>=R.spin+JP_SPIN)return"show";if(R.spin&&now>=R.spin)return"spin";if(R.cd)return"count";return"wait"}
@@ -4643,16 +4669,16 @@ function jpBet(R){const ph=jpPhase(R),open=(ph==="wait"||ph==="count"&&R.cd-Date
    <button class="steam jp-go" id="jpGo" type="button" ${open&&jpSel.length?"":"disabled"}>${!open?(ph==="count"?"Ставки закрыты":"Идёт розыгрыш"):left<=0?"Лимит скинов":jpSel.length?`Поставить ${fmt(sv)} ТК`:"Выбери скины"}</button>
    <small class="jp-note">Шанс равен доле твоих скинов в банке. Победитель забирает все скины.</small>`}
 function jpHist(){if(!JP.h.length)return`<div class="jp-empty">Здесь появятся победители</div>`;
-  return JP.h.map(h=>`<div class="jp-h${h.me?" me":""}" style="--pc:${h.c}">${jpAv(h.n,h.c)}<div><b>${esc(h.n)}</b><span>${mkAgo2(h.t)}</span></div><div class="jp-hv"><b>${fmt(h.v)} ТК</b><span>шанс ${(h.ch*100).toFixed(1)}%</span></div></div>`).join("")}
+  return JP.h.slice(0,8).map(h=>`<div class="jp-h${h.me?" me":""}" style="--pc:${h.c}">${jpAv(h.n,h.c)}<div><b>${esc(h.n)}</b><span>${mkAgo2(h.t)}</span></div><div class="jp-hv"><b>${fmt(h.v)} ТК</b><span>шанс ${(h.ch*100).toFixed(1)}%</span></div></div>`).join("")}
 function drawJp(){const box=$("jpBox");if(!box)return;if(!JP.r)JP.r=jpNew();const R=JP.r;
-  box.innerHTML=`<div class="jp-grid"><div class="jp-main"><div class="jp-stage"><div class="jpw" id="jpWheel">${jpWheel(R)}<div class="jpc-wrap" id="jpCenter">${jpCenter(R)}</div></div></div>
+  box.innerHTML=`<div class="jp-grid"><div class="jp-main"><div class="jp-stage"><button class="jp-hbtn" type="button" id="jpHBtn"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/><path d="M12 7v5l3 2"/></svg>История побед</button><div class="jpw" id="jpWheel">${jpWheel(R)}<div class="jpc-wrap" id="jpCenter">${jpCenter(R)}</div></div></div>
    <div class="jp-ph"><b>Участники</b><span id="jpPc">${R.players.length}/${JP_MAXP}</span></div><div class="jp-pls" id="jpPls">${jpPlayers(R)}</div></div>
    <aside class="jp-side"><div class="jp-bet" id="jpBet">${jpBet(R)}</div><div class="jp-ph"><b>Последние победители</b></div><div class="jp-hist">${jpHist()}</div></aside></div>`;
   const g=$("jpRot");if(g){const rr=jpRotAt(R);g.style.transform=`rotate(${rr}deg)`;g.querySelectorAll(".jpw-avi").forEach(a=>a.style.transform=`rotate(${-rr}deg)`)}jpSig=jpPhase(R);if(R.spin&&Date.now()<R.spin+JP_SPIN)jpAnimate()}
 function jpLive(){const R=JP.r,c=$("jpCenter");if(!R||!c)return;const ph=jpPhase(R);if(ph!==jpSig){drawJp();return}if(ph==="show"||ph==="spin")return;const h=jpCenter(R);if(c.innerHTML!==h)c.innerHTML=h;
   if(ph==="count"&&R.cd-Date.now()<=3e3){const g=$("jpGo");if(g&&!g.disabled){$("jpBet").innerHTML=jpBet(R)}}}
 document.addEventListener("click",e=>{if(!e.target.closest("#jpBox"))return;let b;
-  if(b=e.target.closest("[data-jpi]")){if(!needLogin())return;const id=b.dataset.jpi,k=jpSel.indexOf(id);if(k>=0)jpSel.splice(k,1);else{const me=jpMe(JP.r);if(jpSel.length>=JP_MAXI-(me?me.items.length:0)){toast(`Не больше ${JP_MAXI} скинов за раунд`);return}jpSel.push(id)}$("jpBet").innerHTML=jpBet(JP.r);return}
+  if(b=e.target.closest("[data-jpi]")){if(!needLogin())return;const id=b.dataset.jpi,k=jpSel.indexOf(id);if(k>=0)jpSel.splice(k,1);else{const me=jpMe(JP.r);if(jpSel.length>=JP_MAXI-(me?me.items.length:0)){toast(`Не больше ${JP_MAXI} скинов за раунд`);return}jpSel.push(id)}keepScroll(()=>{$("jpBet").innerHTML=jpBet(JP.r)});return}
   if(e.target.closest("#jpGo")){if(!needLogin())return;const R=JP.r,ph=jpPhase(R);if(!(ph==="wait"||ph==="count"&&R.cd-Date.now()>3e3)){toast("Ставки на этот раунд закрыты");return}
     const items=jpSel.map(id=>INV.find(x=>x.id===id)).filter(Boolean);if(!items.length)return;items.forEach(it=>{if(isOnIt(it))equip(it,false)});const ids=new Set(items.map(x=>x.id));INV=INV.filter(x=>!ids.has(x.id));invSave();
     let me=jpMe(R);if(!me){me={n:logged?ME.n:"Ты",c:"#f5a524",me:1,items:[],t:Date.now()};R.players.push(me)}me.items.push(...items);jpSel=[];
@@ -4660,6 +4686,24 @@ document.addEventListener("click",e=>{if(!e.target.closest("#jpBox"))return;let 
     toast(`Ставка принята: ${items.length} ${plural(items.length,"скин","скина","скинов")} на ${fmt(items.reduce((s,it)=>s+itDust(it),0))} ТК`)}});
 // раунд, оставшийся с прошлого визита
 try{const R=JP.r;if(R&&!R.done&&jpMe(R)&&R.cd&&Date.now()>=R.cd+JP_SPIN){if(R.win==null){R.spin=R.cd;[R.win,R.pt]=jpPick(R)}jpFinish(R);jpSave()}}catch(e){}
+
+let jpHF="all";
+function jpHModal(){let m=$("jpHM");if(!m){m=document.createElement("div");m.className="modal";m.id="jpHM";m.innerHTML=`<div class="sheet jp-hs" role="dialog" aria-modal="true" aria-label="История побед"></div>`;document.body.appendChild(m);m.onclick=e=>{if(e.target===m||e.target.closest("[data-jphx]"))m.hidden=true;const f=e.target.closest("[data-jphf]");if(f){jpHF=f.dataset.jphf;jpHDraw()}}}jpHDraw();m.hidden=false}
+function jpHDraw(){const m=$("jpHM");if(!m)return;const L=JP.h.filter(h=>jpHF==="all"||jpHF==="me"&&h.me||jpHF==="part"&&h.my),won=JP.h.filter(h=>h.me),best=JP.h.reduce((a,h)=>h.v>(a?a.v:0)?h:a,null),pr=JP.h.filter(h=>h.my).reduce((s,h)=>s+(h.me?h.v-h.my:-h.my),0);
+  m.querySelector(".jp-hs").innerHTML=`<div class="jph-top"><b>История побед</b><button class="jph-x" type="button" data-jphx aria-label="Закрыть">✕</button></div>
+  <div class="jph-st"><div><small>Раундов</small><b>${JP.h.length}</b></div><div><small>Твоих побед</small><b class="acc">${won.length}</b></div><div><small>Крупнейший банк</small><b>${best?fmt(best.v)+" ТК":"—"}</b></div><div><small>Твой итог</small><b class="${pr>=0?"pl":"mn"}">${pr>=0?"+":"−"}${fmt(Math.abs(pr))} ТК</b></div></div>
+  <div class="seg jph-f" role="group">${[["all","Все"],["part","Где я участвовал"],["me","Мои победы"]].map(([k,t])=>`<button type="button" data-jphf="${k}" aria-pressed="${jpHF===k}">${t}</button>`).join("")}</div>
+  <div class="jph-l">${L.length?L.map(h=>`<div class="jph-r${h.me?" me":""}" style="--pc:${h.c}">${jpAv(h.n,h.c)}<div class="jph-n"><b>${esc(h.n)}${h.me?' <small>ты</small>':""}</b><span>${mkAgo2(h.t)}${h.np?` · ${h.np} ${plural(h.np,"игрок","игрока","игроков")}`:""} · ${h.k} ${plural(h.k,"скин","скина","скинов")}</span></div>
+   <div class="jph-sk">${(h.top||[]).map(it=>{const w=invW(it),sk=invSk(it);return w&&sk?`<span style="--rc:${RC[it.r]}">${art(w,sk,it.wear)}</span>`:""}).join("")}</div>
+   <div class="jph-v"><b>${fmt(h.v)} ТК</b><span>шанс ${(h.ch*100).toFixed(1)}%</span>${h.my&&!h.me?`<em class="mn">твоя ставка −${fmt(h.my)}</em>`:h.me?`<em class="pl">+${fmt(h.v-h.my)}</em>`:""}</div></div>`).join(""):`<div class="jp-empty">${jpHF==="me"?"Побед пока нет — всё впереди!":jpHF==="part"?"Ты ещё не участвовал в розыгрышах":"Раундов пока не было"}</div>`}</div>`}
+document.addEventListener("click",e=>{if(e.target.closest("#jpHBtn"))jpHModal()});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){const m=$("jpHM");if(m)m.hidden=true}});
+
+// перерисовка без сброса прокрутки списков и страницы
+const SCRL=".up-grid,.jp-inv,.mk-igrid,.ctr-grid,.mkd-rows,.mk-fl-l,.jph-l";
+function keepScroll(f){const y=window.scrollY,m=new Map();document.querySelectorAll(SCRL).forEach((e,i)=>{const k=e.className+"|"+i;m.set(k,e.scrollTop)});const r=f();
+  document.querySelectorAll(SCRL).forEach((e,i)=>{const k=e.className+"|"+i;if(m.has(k))e.scrollTop=m.get(k)});if(Math.abs(window.scrollY-y)>1)window.scrollTo(0,y);return r}
+{const a=drawUp;drawUp=function(){return keepScroll(()=>a.apply(this,arguments))};const b=drawCtr;drawCtr=function(){return keepScroll(()=>b.apply(this,arguments))};const c=drawMk;drawMk=function(){return keepScroll(()=>c.apply(this,arguments))};const d=drawJp;drawJp=function(){return keepScroll(()=>d.apply(this,arguments))}}
 
 const VIEWS=["play","public","me","player","clan","case","wheel","upgrade","inventory","contract","market","jackpot","support","tickets","shop","skins","stats","clans","ach","bans","rules","admin","offer","privacy","404"];
 const MORE=["clans","bans","rules"];
