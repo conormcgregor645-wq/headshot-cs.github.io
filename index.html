@@ -2490,6 +2490,17 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;ba
 .mk-term button[aria-pressed="true"]{border-color:var(--accent);background:rgba(245,165,36,.12);box-shadow:0 0 0 1px var(--accent) inset}.mk-term button[aria-pressed="true"] small{color:var(--accent)}
 .mk-term p{margin:8px 0 0;font-size:12px;color:var(--muted);line-height:1.5}.mk-term p b{color:var(--live)}
 .mk-bo{display:inline-block;margin-top:6px;font-size:11px;font-weight:700;color:var(--accent);padding:3px 8px;border-radius:999px;background:rgba(245,165,36,.1)}
+
+.cz-it{position:relative}
+.cz-pc{position:absolute;top:8px;right:8px;font-style:normal;font-size:12px;font-weight:900;padding:3px 8px;border-radius:999px;color:#1a1206;background:linear-gradient(135deg,#ffe08a,#f5a524);box-shadow:0 0 12px rgba(245,165,36,.35);font-variant-numeric:tabular-nums}
+
+.ch-art{position:relative;display:grid;place-items:center;width:100%;height:100%;overflow:hidden;background:radial-gradient(60% 70% at 50% 55%,color-mix(in srgb,var(--cc) 30%,transparent),transparent 70%)}
+.ch-rays{position:absolute;inset:-30%;background:repeating-conic-gradient(from 0deg,color-mix(in srgb,var(--cc) 14%,transparent) 0deg 8deg,transparent 8deg 20deg);-webkit-mask:radial-gradient(closest-side,#000,transparent 75%);mask:radial-gradient(closest-side,#000,transparent 75%)}
+.ch-art img{position:relative;width:82%;height:78%;object-fit:contain;transform:rotate(-12deg) translateY(8%);filter:drop-shadow(0 12px 18px rgba(0,0,0,.7));transition:transform .4s var(--ease)}
+.cs-card:hover .ch-art img{transform:rotate(-8deg) translateY(4%) scale(1.05)}
+.ch-pc{position:absolute;top:12px;left:16px;z-index:2;font-size:44px;font-weight:900;font-style:italic;line-height:1;letter-spacing:-.02em;color:#fff;text-shadow:0 0 22px color-mix(in srgb,var(--cc) 80%,transparent),0 3px 0 rgba(0,0,0,.45)}
+.ch-pc small{font-size:24px;margin-left:2px;color:var(--cc)}
+@media (max-width:640px){.ch-pc{font-size:32px;top:8px;left:10px}.ch-pc small{font-size:17px}}
 </style>
 </head>
 <body>
@@ -3620,6 +3631,21 @@ const CCASES=[{"k":"cblackandwhite","n":"Черно-Белый","sec":"color","i
 {const CC={cblackandwhite:"#d9dde3",cgreen:"#3ddc97",cyellow:"#ffd23f",cblue:"#4b8bff",cred:"#eb4b4b",cpremium1:"#c0c6cf",cpremium2:"#d08a4e",cpremium3:"#f5b82e",cpremium4:"#a855f7",cpremium5:"#ffc83d",cvanilla:"#c9ced6",cdamascussteel:"#aab2bd",cultraviolet:"#9b5cff",clore:"#e0a63a",ccrimsonweb:"#e23b3b",ctigertooth:"#ff8a1f",cdoppler:"#7b6bff",ccasehardened:"#4a7dff",cfade:"#ff5fb0",cluxurygloves:"#e4ae39",csapphire:"#2f6bff",cemerald:"#20c86a",cruby:"#ff2a4a",cblackpearl:"#8e6bff",croyal:"#ffc23d"},DS={color:"Цветная коллекция",luxe:"Люкс · ножи и перчатки",prem:"Звание CS2 · дорогие скины, ножи и перчатки"};
  CCASES.forEach(o=>{let b=null,bv=-1;o.items.forEach(i=>{const v=itemVal(i);if(v>bv){bv=v;b=i}});const w=b&&W.find(x=>x.n===b[0]),sk=w&&w.skins.find(x=>x[0]===b[1]);
   const CUT={cpremium4:.04},vals=o.items.map(itemVal),mx=Math.max(...vals),keep=vals.map(v=>v>0&&v>=mx*(CUT[o.k]||.015)),ok=o.items.filter((_,j)=>keep[j]),vv=vals.filter((_,j)=>keep[j]),wt=vv.map(v=>Math.pow(v,-.6)),ev=Math.round(vv.reduce((s,v,j)=>s+v*wt[j],0)/wt.reduce((a,b)=>a+b,0));CASES.push({k:o.k,n:o.n,sec:o.sec,img:sk?skImg(sk):"",c:CC[o.k]||(o.sec==="luxe"?"#e4ae39":"#b388ff"),items:ok,wt,ev,p:niceP(ev/.8),odds:[0,0,0,0,0,100],d:DS[o.sec]})})}
+
+// кейсы «на шанс»: мало предметов и фиксированные проценты
+{const K=(n,s,r,k)=>[n,s,r,k||"",-1,0];
+ const CH=[
+  {k:"xlotus",n:"Wild Lotus 1%",c:"#4fd18b",d:"1% на AK-47 Wild Lotus",l:[[K("AK-47","Wild Lotus",4),1],[K("AK-47","Safari Mesh",0),99]]},
+  {k:"xruby",n:"Ruby 1%",c:"#ff2a4a",d:"1% на Керамбит Doppler Ruby",l:[[K("Керамбит","Doppler Ruby",5,"knife"),1],[K("P250","Sand Dune",0),99]]},
+  {k:"xknife",n:"Нож или ничего",c:"#c9ced6",d:"5% на нож, внутри есть Ruby",l:[[K("Керамбит","Doppler Ruby",5,"knife"),.05],[K("Нож с лезвием-крюком","Forest DDPAT",5,"knife"),.95],[K("Тычковые ножи","Boreal Forest",5,"knife"),2],[K("Наваха","Forest DDPAT",5,"knife"),2],[K("P250","Sand Dune",0),35],[K("MP9","Sand Dashed",0),30],[K("Nova","Sand Dune",0),30]]},
+  {k:"xcoin",n:"Монетка",c:"#d6a542",d:"50 на 50: AWP Asiimov или ничего",l:[[K("AWP","Asiimov",4),50],[K("P250","Sand Dune",0),50]]},
+  {k:"xhowl",n:"Howl 5%",c:"#ff5a36",d:"5% на M4A4 Howl",l:[[K("M4A4","Howl",4),5],[K("M4A4","Mainframe",0),95]]},
+  {k:"xknight",n:"Knight 7%",c:"#e9d27c",d:"7% на M4A1-S Knight",l:[[K("M4A1-S","Knight",3),7],[K("M4A1-S","Boreal Forest",0),93]]},
+  {k:"xblaze",n:"Blaze 25%",c:"#ff9a2e",d:"Каждый четвёртый — Desert Eagle Blaze",l:[[K("Desert Eagle","Blaze",2),25],[K("Desert Eagle","Mudder",0),75]]},
+  {k:"xserpent",n:"Fire Serpent 20%",c:"#43b46a",d:"20% на AK-47 Fire Serpent",l:[[K("AK-47","Fire Serpent",4),20],[K("AK-47","Safari Mesh",0),80]]},
+  {k:"xlore",n:"Dragon Lore 10%",c:"#e0a63a",d:"10% на AWP Dragon Lore",l:[[K("AWP","Dragon Lore",4),10],[K("AWP","Safari Mesh",0),90]]}];
+ CH.forEach(o=>{const items=o.l.map(x=>x[0]),wt=o.l.map(x=>x[1]);if(items.some(i=>!itemVal(i)))return console.warn("chance case skip",o.k);const ws=wt.reduce((a,b)=>a+b,0),ev=Math.round(items.reduce((s,i,j)=>s+itemVal(i)*wt[j]/ws,0));
+  const best=items[0],w=W.find(x=>x.n===best[0]),sk=w&&w.skins.find(x=>x[0]===best[1]);CASES.push({k:o.k,n:o.n,sec:"chance",img:sk?skImg(sk):"",c:o.c,items,wt,ev,p:niceP(ev/.9),odds:[0,0,0,0,0,100],d:o.d,fixed:1})})}
 CASES.forEach(c=>{if(c.p)tuneCase(c)});
 CASES.sort((a,b)=>(a.p||0)-(b.p||0));
 let INV=[];try{INV=JSON.parse(localStorage.getItem("inv2")||"[]")||[]}catch(e){}INV.forEach(it=>{if(it.sp&&!SP[it.sp])delete it.sp});
@@ -3643,7 +3669,8 @@ const itVal=it=>{if(it.fx)return it.fx;const w=invW(it),sk=invSk(it);return w&&s
 const itDust=it=>itVal(it);
 const invW=it=>W.find(w=>w.n===it.w),invSk=it=>{const w=invW(it);return w&&w.skins.find(x=>x[0]===it.s)};
 const isOnIt=it=>onSide(it,"ct")||onSide(it,"t");
-function caseArt(c){if(CASEIMG[c.k])return`<img src="${CASEIMG[c.k]}" alt="" loading="lazy">`;if(c.img)return`<span class="oc-art">${caseSvg(c)}<img src="${c.img}" alt="" loading="lazy" onload="this.parentNode.classList.add('ok')" onerror="this.remove()"></span>`;if(CASEIMG[c.k])return`<img src="${CASEIMG[c.k]}" alt="" loading="lazy">`;return caseSvg(c)}
+function caseArt(c){if(c.sec==="chance"){const ws=c.wt.reduce((a,b)=>a+b,0),j=c.items.findIndex((x,i,a)=>itemVal(x)===Math.max(...a.map(itemVal))),pc=c.k==="xknife"?5:Math.round(c.wt[j]/ws*1000)/10,best=c.items[j],w=W.find(x=>x.n===best[0]),sk=w&&w.skins.find(x=>x[0]===best[1]);
+  return`<span class="ch-art" style="--cc:${c.c}"><i class="ch-rays"></i><b class="ch-pc">${pc}<small>%</small></b>${sk?`<img src="${skImg(sk)}" data-s="${skSteam(sk)}" alt="" loading="lazy" ${IMGFB}>`:""}</span>`}if(CASEIMG[c.k])return`<img src="${CASEIMG[c.k]}" alt="" loading="lazy">`;if(c.img)return`<span class="oc-art">${caseSvg(c)}<img src="${c.img}" alt="" loading="lazy" onload="this.parentNode.classList.add('ok')" onerror="this.remove()"></span>`;if(CASEIMG[c.k])return`<img src="${CASEIMG[c.k]}" alt="" loading="lazy">`;return caseSvg(c)}
 function caseSvg(c){const col=c.c,id="cs"+(gid++);return`<svg viewBox="0 0 160 110" aria-hidden="true"><defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${col}"/><stop offset="1" stop-color="#1a1416"/></linearGradient><radialGradient id="${id}g" cx=".5" cy=".55" r=".6"><stop offset="0" stop-color="${col}" stop-opacity=".55"/><stop offset="1" stop-color="${col}" stop-opacity="0"/></radialGradient></defs>
   <ellipse cx="80" cy="62" rx="78" ry="46" fill="url(#${id}g)"/><rect x="18" y="38" width="124" height="60" rx="10" fill="url(#${id})" stroke="rgba(255,255,255,.18)"/><rect x="18" y="30" width="124" height="20" rx="8" fill="#211b1e" stroke="${col}" stroke-opacity=".6"/>
   <rect x="34" y="44" width="14" height="18" rx="3" fill="#ffd36b"/><rect x="112" y="44" width="14" height="18" rx="3" fill="#ffd36b"/><rect x="66" y="22" width="28" height="10" rx="4" fill="none" stroke="#ffd36b" stroke-width="3"/>
@@ -3651,7 +3678,7 @@ function caseSvg(c){const col=c.c,id="cs"+(gid++);return`<svg viewBox="0 0 160 1
 const csLeft=()=>{const m=new Date(Date.now()+3*3600e3),l=86400e3-(m.getUTCHours()*3600e3+m.getUTCMinutes()*6e4+m.getUTCSeconds()*1e3);return`${two(Math.floor(l/36e5))}:${two(Math.floor(l%36e5/6e4))}:${two(Math.floor(l%6e4/1e3))}`};
 const effO=(c,o)=>String(+(o*(1-((c.knife||0)+(c.gloves||0))/100)).toFixed(1)).replace(".",",");
 const oddsHTML=c=>c.odds.map((o,r)=>o?`<span style="--rc:${RC[r]}"><i></i>${RN[r]} <b>${effO(c,o)}%</b></span>`:"").join("")+(c.knife?`<span style="--rc:${RC[5]}"><i></i>Нож <b>${c.knife}%</b></span>`:"")+(c.gloves?`<span style="--rc:${RC[5]}"><i></i>Перчатки <b>${c.gloves}%</b></span>`:"");
-const CSEC=[["tasher","Кейсы Tasher","Наши фирменные кейсы"],["color","Цветная коллекция","Скины, подобранные по цвету"],["prem","Звания","От Silver до Global Elite: чем выше звание, тем дороже скины"],["luxe","Люкс","Ножи и перчатки по рисункам"]];
+const CSEC=[["tasher","Кейсы Tasher","Наши фирменные кейсы"],["chance","На шанс","Пара скинов и честные проценты — всё или почти ничего"],["color","Цветная коллекция","Скины, подобранные по цвету"],["prem","Звания","От Silver до Global Elite: чем выше звание, тем дороже скины"],["luxe","Люкс","Ножи и перчатки по рисункам"]];
 function drawCases(){$("csGrid").innerHTML=CSEC.map(([sk,t,sub])=>`<div class="cs-sec"><h2>${t}</h2><span>${sub} · ${CASES.filter(c=>c.sec===sk).length}</span></div>`+CASES.map((c,i)=>{if(c.sec!==sk)return"";const free=!c.p,used=free&&csDay===mskDay();
   return`<article class="cs-card ${c.k==="king"?"king":""}" style="--cc:${c.c}" data-cprev="${i}" tabindex="0" role="button" aria-label="${c.n}: что внутри"><div class="cs-art">${caseArt(c)}</div><div class="cs-body"><h3>${c.n}</h3><small>${c.d}</small></div>
   <div class="cs-foot"><span class="cs-price">${free?(used?`через <b class="csLeft">${csLeft()}</b>`:"<b>Бесплатно</b>"):`<b>${fmt(c.p)}</b><i class="tk-c">ТК</i>`}</span><span class="cs-look">Открыть</span></div></article>`}).join("")).join("")}
@@ -3706,7 +3733,7 @@ var CZ=null,czN=1,czState="idle",czBusy=false;
 let czTok=0;function czCancel(){if(czBusy){czTok++;czBusy=false;czState="idle"}}
 function openCasePage(i){czCancel();CZ=i;czN=1;czState="idle";go("case")}
 function openCase(i,n){openCasePage(i);czN=n||1;czOpen()}
-function czItem([wn,sn,r,,,st,fx],c){const w=W.find(x=>x.n===wn),sk=w&&w.skins.find(x=>x[0]===sn);if(!sk)return"";const a=fx?[fx]:(sk[9]||[]).filter(x=>x),lo=a.length?Math.min(...a):0,hi=a.length?Math.max(...a):0;return`<div class="cz-it" style="--rc:${RC[r]}"><span class="pic">${art(w,sk,0)}</span><b>${st?"StatTrak™ ":""}${wn}</b><span class="nm">${sn==="Vanilla"?"Обычный":sn}</span></div>`}
+function czItem([wn,sn,r,,,st,fx],c,pc){const w=W.find(x=>x.n===wn),sk=w&&w.skins.find(x=>x[0]===sn);if(!sk)return"";const a=fx?[fx]:(sk[9]||[]).filter(x=>x),lo=a.length?Math.min(...a):0,hi=a.length?Math.max(...a):0;return`<div class="cz-it" style="--rc:${RC[r]}"><span class="pic">${art(w,sk,0)}</span>${pc!=null?`<i class="cz-pc">${+(Math.round(pc*100)/100)}%</i>`:""}<b>${st?"StatTrak™ ":""}${wn}</b><span class="nm">${sn==="Vanilla"?"Обычный":sn}</span></div>`}
 const CZBG={};
 const CZMAP={daily:"Mirage",army:"Dust2",sniper:"Mirage",desert:"Dust2",fire:"Inferno",pistol:"Inferno"};
 function czBg(c){return"--czmap:none;--czcase:none"}
@@ -3714,7 +3741,7 @@ function drawCasePage(){const c=CASES[CZ];if(!c)return;const free=!c.p,used=free
   const items=[...c.items].map(i=>[i,itemVal(i)]).sort((a,b)=>b[1]-a[1]).map(x=>x[0]);
   $("czBody").innerHTML=`<button class="pf-back" id="czBack">${svgI(PI.back)}Все кейсы</button>
   <section style="--cc:${c.c};${czBg(c)}" id="czTop" class="cz-top${CZBG[c.k]?" full":""}">${czTopHTML(c,free,used)}</section>
-  <section class="cz-cont"><div class="hdr"><h2>Содержимое кейса</h2><span>${items.length} ${plural(items.length,"предмет","предмета","предметов")}</span></div><div class="cz-grid">${items.map(x=>czItem(x,c)).join("")}</div></section>`;
+  <section class="cz-cont"><div class="hdr"><h2>Содержимое кейса</h2><span>${items.length} ${plural(items.length,"предмет","предмета","предметов")}</span></div><div class="cz-grid">${items.map(x=>czItem(x,c,c.fixed?(()=>{const j=c.items.indexOf(x),ws=c.wt.reduce((a,b)=>a+b,0);return j>=0?c.wt[j]/ws*100:null})():null)).join("")}</div></section>`;
   $("czBack").onclick=()=>{czCancel();csTab="cases";go("skins")};czBind()}
 function czTopHTML(c,free,used){
   if(czState==="spin")return`<div class="cz-stage n${czN}">${Array.from({length:czN},()=>`<div class="st cs-st"><div class="st-row"></div><span class="st-mk"></span></div>`).join("")}</div>`;
