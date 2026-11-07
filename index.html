@@ -2603,6 +2603,26 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;ba
 .jp-inv .up-it,.up-grid .up-it,.ctr-grid .up-it,.mk-igrid .up-it{content-visibility:visible}
 
 .jph-top,.jph-st,.jph-f{flex-shrink:0}.jph-l{flex:1 1 auto;min-height:0}
+
+/* ===== тёмная тема: спокойнее для глаз ===== */
+:root{--ink:#070504;--panel:rgba(13,9,7,.8);--panel-2:rgba(26,18,14,.6);--line:rgba(255,196,128,.06);--fg:#e9e2dc;--muted:#9a8c82;--accent:#e39a2a;--accent-2:#d9701f;--glow:rgba(227,154,42,.10)}
+body::before{background:linear-gradient(180deg,rgba(7,5,4,.72) 0,rgba(7,5,4,.86) 35%,rgba(7,5,4,.97) 100%),var(--bgimg) center/cover no-repeat,var(--ink)!important;filter:saturate(.7)}
+.rail{background:linear-gradient(180deg,rgba(10,7,5,.95),rgba(6,4,3,.97))!important}
+.steam{background-image:linear-gradient(110deg,#d9922a,#c9681c)!important;box-shadow:none!important}
+.steam:hover:not(:disabled){filter:brightness(1.1)}
+nav a.on{background:linear-gradient(90deg,rgba(227,154,42,.11),rgba(227,154,42,0) 85%)!important}
+.page-head h1,.home-head h1{text-shadow:none!important}
+.logo b{filter:none!important}
+.drops,.me-chip,.tb-ic,.seg,.mk-tabs{background:rgba(10,7,5,.85)!important}
+.cs-card,.iv,.mk-c,.up-it,.cz-it,.a3,.jp-pl,.jp-h,.mk-row,.mkd-r{filter:saturate(.88)}
+.tk-c{box-shadow:none!important}
+.jp-stage{background:radial-gradient(50% 55% at 50% 50%,rgba(227,154,42,.06),transparent 70%)!important}
+.mode-card{border-color:rgba(227,154,42,.3)!important;box-shadow:0 30px 80px rgba(0,0,0,.6)!important}
+.mode-card::before,.mode-card::after{opacity:.85}
+.mode-card,.pbanner,.cs-art img,.cz-art img,.ch-art img.ch-full,.a3-img{filter:brightness(.82) saturate(.85)}
+.cs-warn{background:linear-gradient(90deg,rgba(227,154,42,.07),transparent 60%),var(--panel)!important;border-color:rgba(227,154,42,.18)!important}
+.cs-warn b,.cs-warn h3{color:#d9a24a!important}
+.drop{filter:brightness(.85) saturate(.8)}
 </style>
 </head>
 <body>
