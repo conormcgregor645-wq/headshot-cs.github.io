@@ -2740,9 +2740,9 @@ nav a.on,nav a.on svg{color:#b5e853!important}
 .co-trl{width:120px;height:4px;border-radius:2px;background:linear-gradient(90deg,transparent,var(--tc));box-shadow:0 0 12px var(--tc);transform:rotate(-18deg);position:relative}
 .co-trl::after{content:"";position:absolute;right:-6px;top:-4px;width:12px;height:12px;border-radius:50%;background:#555;box-shadow:0 0 8px var(--tc)}
 .kfx{position:absolute;inset:0;z-index:1;pointer-events:none}
-.kfx-spark{background:radial-gradient(circle,#ffd36b 0 3px,transparent 4px) 30% 30%/18px 18px,radial-gradient(circle,#ff8a3d 0 2px,transparent 3px) 60% 70%/22px 22px;opacity:.6}
+.kfx-spark{background:radial-gradient(circle,#ffd36b 0 2.5px,transparent 3.5px) 38% 30%/14px 14px no-repeat,radial-gradient(circle,#ff8a3d 0 2px,transparent 3px) 64% 36%/12px 12px no-repeat,radial-gradient(circle,#ffd36b 0 2px,transparent 3px) 30% 64%/12px 12px no-repeat,radial-gradient(circle,#fff 0 1.5px,transparent 2.5px) 70% 68%/10px 10px no-repeat,radial-gradient(circle,#ff8a3d 0 2px,transparent 3px) 50% 20%/12px 12px no-repeat,radial-gradient(circle,rgba(255,170,60,.35),transparent 55%)}
 .kfx-bolt{background:radial-gradient(circle,rgba(56,211,255,.6),transparent 55%)}
-.kfx-conf{background:linear-gradient(45deg,#ff6b8b 0 4px,transparent 4px) 20% 20%/16px 16px,linear-gradient(-45deg,#b5e853 0 4px,transparent 4px) 70% 60%/20px 20px,linear-gradient(90deg,#38d3ff 0 4px,transparent 4px) 40% 80%/14px 14px;opacity:.7}
+.kfx-conf{background:linear-gradient(30deg,#ff6b8b,#ff6b8b) 34% 28%/8px 4px no-repeat,linear-gradient(#b5e853,#b5e853) 66% 32%/4px 8px no-repeat,linear-gradient(#38d3ff,#38d3ff) 28% 66%/7px 4px no-repeat,linear-gradient(#f5c451,#f5c451) 70% 70%/4px 7px no-repeat,linear-gradient(#a78bfa,#a78bfa) 52% 18%/6px 4px no-repeat,linear-gradient(#ff6b8b,#ff6b8b) 48% 82%/4px 6px no-repeat}
 .kfx-smoke{background:radial-gradient(circle,rgba(0,0,0,.9),rgba(40,40,40,.5) 40%,transparent 65%)}
 .kfx.go{animation:kfxGo .7s ease-out}
 @keyframes kfxGo{0%{transform:scale(.3);opacity:1}100%{transform:scale(1.6);opacity:0}}
@@ -2798,6 +2798,53 @@ nav a.on,nav a.on svg{color:#b5e853!important}
 .shop-tabs button[aria-selected="true"]{background:linear-gradient(135deg,#c4f064,#8fc433);color:#0b1203}
 .shop-sd{color:var(--muted);margin:0 0 16px;max-width:720px}
 @media (max-width:640px){.shop-tabs{width:100%}.shop-tabs button{flex:1;justify-content:center;padding:10px 8px;font-size:14px}.shop-tabs small{display:none}}
+
+.co-grid{align-items:stretch}.co-it{height:100%}.co-in{flex:1}.co-in small{display:block;min-height:15px}.co-b{margin-top:auto}
+.co-tagbox{display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:16px;background:rgba(18,19,17,.85);border:1px solid var(--line);max-width:560px}
+.co-tagcur{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.co-tagcur small{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}.co-tagcur b{font-size:15px;flex:1}.co-tagcur .co-b{width:auto;margin:0;padding:8px 14px!important}
+.co-tagbox .co-tagin{margin:0}.co-tagbox .co-tagin .steam{padding:10px 16px}.co-note{font-size:11px;color:var(--muted)}
+#clanBankBox .co-clan{max-width:none}#clanBankBox .co-cb{border-color:var(--line)}
+.co-sh{margin-bottom:12px}.co-main{gap:26px}
+
+/* больше рамок и фонов */
+.co-grid.wide{grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
+.co-grid.wide .co-sw{height:120px}
+.co-bgp{position:relative}
+.co-bgm{position:absolute;left:12px;bottom:12px;right:12px;display:flex;align-items:center;gap:8px;z-index:2}
+.co-bgm i{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.85);box-shadow:0 0 0 2px rgba(0,0,0,.4)}
+.co-bgm span{display:flex;flex-direction:column;gap:5px}.co-bgm b{width:90px;height:8px;border-radius:4px;background:rgba(255,255,255,.85)}.co-bgm em{width:56px;height:6px;border-radius:3px;background:rgba(255,255,255,.4)}
+.co-avp.big{width:72px;height:72px}
+.fr-emer{--frc:#3ddc97}.fr-ruby{--frc:#ff2a4a}.fr-ameth{--frc:#a78bfa}
+.fr.fr-double{box-shadow:0 0 0 2px #e6e6e8,0 0 0 5px #0b0b0c,0 0 0 7px #b5e853,0 0 18px rgba(181,232,83,.4)}
+.fr-pulse{--frc:#fff;animation:frPulse 1.8s ease-out infinite}
+@keyframes frPulse{0%{box-shadow:0 0 0 3px #fff,0 0 0 3px rgba(255,255,255,.6)}100%{box-shadow:0 0 0 3px #fff,0 0 0 12px rgba(255,255,255,0)}}
+.fr-toxic{--frc:#b5e853;animation:frTox 1.2s ease-in-out infinite}
+@keyframes frTox{50%{box-shadow:0 0 0 3px #d4f58a,0 0 26px #84cc16}}
+.fr-plasma{animation:frPla 3s linear infinite}
+@keyframes frPla{0%{box-shadow:0 0 0 3px #7c3aed,0 0 18px #7c3aed}50%{box-shadow:0 0 0 3px #38d3ff,0 0 24px #38d3ff}100%{box-shadow:0 0 0 3px #7c3aed,0 0 18px #7c3aed}}
+.fr-holo{animation:frHolo 2.4s linear infinite}
+@keyframes frHolo{0%{box-shadow:0 0 0 3px #7dd3fc,-4px 0 14px #f0abfc,4px 0 14px #7dd3fc}50%{box-shadow:0 0 0 3px #f0abfc,4px 0 14px #f0abfc,-4px 0 14px #7dd3fc}100%{box-shadow:0 0 0 3px #7dd3fc,-4px 0 14px #f0abfc,4px 0 14px #7dd3fc}}
+.fr-hallow{--frc:#ff8a1a;animation:frHal 2s ease-in-out infinite}
+@keyframes frHal{50%{box-shadow:0 0 0 3px #a855f7,0 0 22px #ff8a1a}}
+.pbg-camo{background:radial-gradient(30% 40% at 20% 30%,#3d4a2a 60%,transparent 62%),radial-gradient(25% 35% at 70% 60%,#2a2f1e 60%,transparent 62%),radial-gradient(20% 30% at 50% 20%,#4a3f2a 60%,transparent 62%),radial-gradient(28% 30% at 85% 20%,#3d4a2a 60%,transparent 62%),radial-gradient(22% 30% at 30% 80%,#4a3f2a 60%,transparent 62%),#1e2216!important}
+.pbg-moon{background:radial-gradient(circle at 82% 35%,#ff3b3b 0 9%,rgba(255,59,59,.35) 12%,transparent 30%),linear-gradient(180deg,#1a0406,#070203)!important}
+.pbg-synth{background:linear-gradient(transparent 55%,rgba(255,62,165,.18) 55% 56%,transparent 56%) 0 0/100% 18px,linear-gradient(90deg,rgba(255,62,165,.25) 1px,transparent 1px) 0 0/30px 100%,radial-gradient(circle at 75% 45%,#ffb347 0 10%,#ff3ea5 22%,transparent 40%),linear-gradient(180deg,#1b0633,#2d0b4a 55%,#0d0218)!important;animation:pbgSyn 3s linear infinite}
+@keyframes pbgSyn{to{background-position:0 18px,30px 0,0 0,0 0}}
+.pbg-stripes{background:repeating-linear-gradient(115deg,rgba(181,232,83,.0) 0 26px,rgba(181,232,83,.22) 26px 28px,rgba(56,211,255,.0) 28px 54px,rgba(56,211,255,.22) 54px 56px),#06080a!important;background-size:200% 200%!important;animation:pbgStr 6s linear infinite}
+@keyframes pbgStr{to{background-position:112px 0}}
+.pbg-matrix{background:repeating-linear-gradient(90deg,#030a05 0 9px,transparent 9px 16px),repeating-linear-gradient(180deg,rgba(61,220,151,.75) 0 2px,rgba(61,220,151,.15) 2px 6px,transparent 6px 22px),#030a05!important;animation:pbgMx 2.4s linear infinite}
+@keyframes pbgMx{to{background-position:0 0,0 44px}}
+.pbg-embers{background:radial-gradient(circle,#ffb347 0 1.5px,transparent 2.5px) 0 0/46px 46px,radial-gradient(circle,#ff5a1a 0 1.2px,transparent 2px) 20px 14px/34px 34px,radial-gradient(120% 80% at 50% 120%,#5a1404,#120403 60%)!important;animation:pbgEmb 5s linear infinite}
+@keyframes pbgEmb{to{background-position:0 -92px,20px -54px,0 0}}
+.pbg-lava{background:radial-gradient(40% 60% at 20% 80%,rgba(255,90,26,.75),transparent 70%),radial-gradient(35% 55% at 80% 30%,rgba(255,40,40,.6),transparent 70%),radial-gradient(30% 45% at 55% 60%,rgba(255,180,60,.5),transparent 70%),#1a0503!important;background-size:180% 180%!important;animation:pbgLava 9s ease-in-out infinite alternate}
+@keyframes pbgLava{to{background-position:100% 60%}}
+.pbg-space{background:radial-gradient(circle,#fff 0 1px,transparent 1.6px) 0 0/60px 60px,radial-gradient(circle,rgba(255,255,255,.7) 0 .8px,transparent 1.4px) 23px 37px/41px 41px,radial-gradient(50% 70% at 75% 40%,rgba(124,58,237,.45),transparent 70%),radial-gradient(40% 60% at 25% 70%,rgba(56,211,255,.25),transparent 70%),#03040b!important;animation:pbgSp 40s linear infinite}
+@keyframes pbgSp{to{background-position:-600px 0,-410px 37px,0 0,0 0}}
+.pbg-goldsh{background:linear-gradient(110deg,transparent 40%,rgba(255,236,170,.35) 50%,transparent 60%) 0 0/250% 100%,linear-gradient(135deg,#2a1d06,#4a3410 40%,#1a1203)!important;animation:pbgGold 3.5s linear infinite}
+@keyframes pbgGold{from{background-position:120% 0,0 0}to{background-position:-120% 0,0 0}}
+.pf-head[class*="pbg-"]::after,.co-pvh[class*="pbg-"]::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.55),rgba(0,0,0,.1) 60%);pointer-events:none}
+.pf-head[class*="pbg-"]>*,.co-pvh[class*="pbg-"]>*{position:relative;z-index:1}
+@media (prefers-reduced-motion:reduce){[class*="pbg-"],.fr{animation:none!important}}
 </style>
 </head>
 <body>
@@ -2889,19 +2936,14 @@ nav a.on,nav a.on svg{color:#b5e853!important}
 
     <!-- SHOP -->
     <div class="view" id="v-shop" hidden>
-      <section class="pbanner" style="--bimg:var(--bnr-shop);--bpos:right 8%">
-        <div class="pb-text">
-          <h1>Магазин</h1>
-          <p>Поддержи сервер и получи преимущества: больше здоровья, броня, гранаты и деньги каждый раунд. В пистолетных раундах бонусы отключены, чтобы начало каждой половины было честным для всех.</p>
-        </div>
-      </section>
+      <div class="page-head"><h1>Магазин</h1><p>Привилегии на сервере за рубли и косметика за ТК: рамки, фоны, аватарки, цвет ника и эффекты в игре.</p></div>
 
       <div class="shop-tabs" role="tablist"><button type="button" role="tab" data-shopt="tiers" aria-selected="true"><svg viewBox="0 0 24 24"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg>Привилегии <small>за ₽</small></button><button type="button" role="tab" data-shopt="style" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.6-.9 1.2-1.8-.4-.9.2-2.2 1.5-2.2H17a4 4 0 0 0 4-4c0-5-4-10-9-10z"/><circle cx="7.5" cy="11" r="1.3"/><circle cx="10" cy="7" r="1.3"/><circle cx="15" cy="7.5" r="1.3"/></svg>Стиль <small>за ТК</small><em>NEW</em></button></div>
       <section class="shop-pane" data-pane="tiers">
         <div class="ladder6" id="tiers6"></div>
         <p class="note">Все боевые бонусы и бонусы к деньгам работают со второго раунда каждой половины. В пистолетных раундах у всех одинаковые условия.</p>
       </section>
-      <section class="shop-pane" data-pane="style" hidden><p class="shop-sd">Трать ТК на внешний вид: рамки, фоны и аватарки профиля, значок у ника, цвет ника и тег в чате, эффекты в игре. А ещё — пополняй казну своего клана.</p><div id="cosBox"></div></section>
+      <section class="shop-pane" data-pane="style" hidden><p class="shop-sd">Трать ТК на внешний вид: рамки, фоны и аватарки профиля, значок у ника, цвет ника и тег в чате, эффекты в игре. Казна клана — на странице твоего клана.</p><div id="cosBox"></div></section>
 
     </div>
 
@@ -3639,7 +3681,7 @@ function drawClanPage(){const c=clans[CLN];if(!c)return;const lead=c.members[0],
     <p>${esc(c.d)}</p></div>
     ${mine?`<span class="cl-mine">Твой клан</span>`:`<button class="steam" id="joinClan">Подать заявку</button>`}</section>
   <div class="pf-stats"><div><small>Очки за месяц</small><b>${fmt(c.month)}</b></div><div><small>Очки за всё время</small><b>${fmt(c.pts)}</b></div><div><small>Участников</small><b>${svgI('<circle cx="9" cy="8" r="3.5"/><path d="M2 21c0-4 3-7 7-7s7 3 7 7M16 4a3.5 3.5 0 0 1 0 7M18 14c2.4.7 4 3.2 4 7"/>')}${c.members.length}/${c.slots||30}</b></div><div><small>Средний У/С</small><b>${c.members.length?c.kd.toFixed(2):"—"}</b></div><div><small>Побед в месяце</small><b>${c.wins}</b></div></div>
-  <section class="pf-panel"><h2>Участники</h2>${c.members.length?`<div class="cl-mem">${c.members.map((m,n)=>`<button class="cl-row" data-p="${m.n}"><span class="n">${n+1}</span><span class="who"><i class="av" style="background:${m.c}">${m.n[0].toUpperCase()}</i><span>${esc(m.n)}</span>${m===lead?'<span class="lead">Лидер</span>':""}</span><span class="k">У/С ${m.kd.toFixed(2)}</span>${ptsChip(m)}<span class="pt">#${placeOf(m)}</span></button>`).join("")}</div>`:`<div class="pf-empty">Пока никого</div>`}</section>`;
+  ${mine?`<section class="pf-panel"><h2>Казна клана</h2><div id="clanBankBox">${cosClan()}</div></section>`:""}<section class="pf-panel"><h2>Участники</h2>${c.members.length?`<div class="cl-mem">${c.members.map((m,n)=>`<button class="cl-row" data-p="${m.n}"><span class="n">${n+1}</span><span class="who"><i class="av" style="background:${m.c}">${m.n[0].toUpperCase()}</i><span>${esc(m.n)}</span>${m===lead?'<span class="lead">Лидер</span>':""}</span><span class="k">У/С ${m.kd.toFixed(2)}</span>${ptsChip(m)}<span class="pt">#${placeOf(m)}</span></button>`).join("")}</div>`:`<div class="pf-empty">Пока никого</div>`}</section>`;
   $("clBk").onclick=()=>go(clBack&&clBack!=="clan"?clBack:"clans");
   const j=$("joinClan");if(j)j.onclick=()=>{if(!logged){toast("Сначала войди через Steam");return}if(c.members.length>=(c.slots||30)){toast(`В клане нет мест: максимум ${c.slots||30} человек`);return}toast(`Заявка в клан [${c.t}] отправлена лидеру`);j.disabled=true;j.textContent="Заявка отправлена"}}
 document.addEventListener("click",e=>{const c=e.target.closest("[data-clan]");if(c)openClan(+c.dataset.clan)});
@@ -4911,12 +4953,14 @@ function keepScroll(f){const y=window.scrollY,m=new Map();document.querySelector
 var COS={own:{},eq:{},tag:""};try{const o=JSON.parse(localStorage.getItem("cos1")||"null");if(o)COS=Object.assign(COS,o)}catch(e){}
 const cosSave=()=>{try{localStorage.setItem("cos1",JSON.stringify(COS))}catch(e){}};
 let cosTab="prof",cosPrev=null;
-var BADGES={skull:'<circle cx="12" cy="10" r="7"/><path d="M8 17v3h8v-3"/><circle cx="9.5" cy="10" r="1.6" fill="currentColor"/><circle cx="14.5" cy="10" r="1.6" fill="currentColor"/>',crown:'<path d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5z"/>',bolt:'<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>',aim:'<circle cx="12" cy="12" r="8"/><path d="M12 2v5M12 17v5M2 12h5M17 12h5"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/>',fire:'<path d="M12 22c4 0 7-3 7-7 0-4-3-6-4-10-2 2-3 4-3 6-1-1-2-2-2-4-2 2-5 5-5 8 0 4 3 7 7 7z"/>',gem:'<path d="M6 3h12l4 6-10 12L2 9z"/><path d="M2 9h20M9 3l3 18 3-18"/>',star:'<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>',wolf:'<path d="M4 3l4 5h8l4-5v9c0 5-4 9-8 9s-8-4-8-9z"/><circle cx="9" cy="12" r="1.2" fill="currentColor"/><circle cx="15" cy="12" r="1.2" fill="currentColor"/>'};
+var BADGES={skull:'<circle cx="12" cy="10" r="7"/><path d="M8 17v3h8v-3"/><circle cx="9.5" cy="10" r="1.6" fill="currentColor"/><circle cx="14.5" cy="10" r="1.6" fill="currentColor"/>',crown:'<path d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5z"/>',bolt:'<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>',aim:'<circle cx="12" cy="12" r="8"/><path d="M12 2v5M12 17v5M2 12h5M17 12h5"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/>',fire:'<path d="M12 22c4 0 7-3 7-7 0-4-3-6-4-10-2 2-3 4-3 6-1-1-2-2-2-4-2 2-5 5-5 8 0 4 3 7 7 7z"/>',gem:'<path d="M6 3h12l4 6-10 12L2 9z"/><path d="M2 9h20M9 3l3 18 3-18"/>',star:'<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>',wolf:'<path d="M4 3l4 5h8l4-5v9c0 5-4 9-8 9s-8-4-8-9z"/><circle cx="9" cy="12" r="1.2" fill="currentColor"/><circle cx="15" cy="12" r="1.2" fill="currentColor"/>',sword:'<path d="M14.5 3H21v6.5L9 21.5 2.5 15z"/><path d="M5 13l6 6M3 21l3-3"/>',shield:'<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/>',heart:'<path d="M12 20s-7-4.5-9-9c-1.5-3.5 1-7 4.5-7 2 0 3.5 1 4.5 2.5C13 5 14.5 4 16.5 4 20 4 22.5 7.5 21 11c-2 4.5-9 9-9 9z"/>',rocket:'<path d="M12 2c4 2 6 6 6 10l-3 4H9l-3-4c0-4 2-8 6-10z"/><circle cx="12" cy="10" r="2"/><path d="M9 16l-2 5 5-3 5 3-2-5"/>',eye:'<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',flag:'<path d="M5 21V4M5 4h11l-2 4 2 4H5"/>',dragon:'<path d="M4 18c3 0 4-3 4-6s2-6 6-6c3 0 5 2 5 5 0 2-1 3-3 3h-3l3 4"/><path d="M15 6l2-3M18 8l3-1"/><circle cx="15" cy="10" r="1" fill="currentColor"/>'};
 var CI=[
- {id:"fr_steel",cat:"frame",n:"Сталь",p:2000,v:"steel"},{id:"fr_lime",cat:"frame",n:"Лаймовый неон",p:5000,v:"lime"},{id:"fr_ice",cat:"frame",n:"Лёд",p:12000,v:"ice"},{id:"fr_gold",cat:"frame",n:"Золото",p:20000,v:"gold"},{id:"fr_fire",cat:"frame",n:"Пламя",p:30000,v:"fire",anim:1},{id:"fr_rgb",cat:"frame",n:"Радуга",p:45000,v:"rgb",anim:1},{id:"fr_winter",cat:"frame",n:"Зима 2026",p:25000,v:"winter",anim:1,season:1},
- {id:"bg_mirage",cat:"bg",n:"Mirage",p:4000,v:"map:Mirage"},{id:"bg_inferno",cat:"bg",n:"Inferno",p:4000,v:"map:Inferno"},{id:"bg_carbon",cat:"bg",n:"Карбон",p:8000,v:"carbon"},{id:"bg_neon",cat:"bg",n:"Неоновая сетка",p:15000,v:"grid",anim:1},{id:"bg_aurora",cat:"bg",n:"Северное сияние",p:30000,v:"aurora",anim:1},{id:"bg_snow",cat:"bg",n:"Снегопад",p:22000,v:"snow",anim:1,season:1},
- ...["Sniper","Bomber","Ghost","Medic","Raider","Hunter","Viper","Shadow"].map((s,i)=>({id:"av_"+i,cat:"ava",n:["Снайпер","Подрывник","Призрак","Медик","Налётчик","Охотник","Гадюка","Тень"][i],p:3000+i*500,v:s+"_"+(i*7+3),c:["#5aa9ff","#ff8a3d","#a78bfa","#3ddc97","#eb4b4b","#f5c451","#2dd4bf","#9aa0aa"][i]})),
- ...[["skull","Череп",5000,"#e8e8ea"],["aim","Прицел",5000,"#b5e853"],["bolt","Молния",8000,"#38d3ff"],["fire","Огонь",10000,"#ff8a3d"],["wolf","Волк",12000,"#eb4b4b"],["gem","Алмаз",18000,"#7dd3fc"],["star","Звезда",15000,"#f5c451"],["crown","Корона",30000,"#ffcf40"]].map(([v,n,p,c])=>({id:"bd_"+v,cat:"badge",n,p,v,c})),
+ {id:"fr_steel",cat:"frame",n:"Сталь",p:2000,v:"steel"},{id:"fr_lime",cat:"frame",n:"Лаймовый неон",p:5000,v:"lime"},{id:"fr_ice",cat:"frame",n:"Лёд",p:8000,v:"ice"},{id:"fr_emer",cat:"frame",n:"Изумруд",p:10000,v:"emer"},{id:"fr_ruby",cat:"frame",n:"Рубин",p:10000,v:"ruby"},{id:"fr_ameth",cat:"frame",n:"Аметист",p:12000,v:"ameth"},{id:"fr_double",cat:"frame",n:"Двойное кольцо",p:15000,v:"double"},{id:"fr_gold",cat:"frame",n:"Золото",p:20000,v:"gold"},
+ {id:"fr_pulse",cat:"frame",n:"Пульс",p:18000,v:"pulse",anim:1},{id:"fr_toxic",cat:"frame",n:"Токсик",p:22000,v:"toxic",anim:1},{id:"fr_fire",cat:"frame",n:"Пламя",p:30000,v:"fire",anim:1},{id:"fr_plasma",cat:"frame",n:"Плазма",p:35000,v:"plasma",anim:1},{id:"fr_holo",cat:"frame",n:"Голограмма",p:40000,v:"holo",anim:1},{id:"fr_rgb",cat:"frame",n:"Радуга",p:45000,v:"rgb",anim:1},{id:"fr_winter",cat:"frame",n:"Зима 2026",p:25000,v:"winter",anim:1,season:1},{id:"fr_halloween",cat:"frame",n:"Хэллоуин",p:25000,v:"hallow",anim:1,season:1},
+ {id:"bg_dust2",cat:"bg",n:"Dust2",p:4000,v:"map:Dust2"},{id:"bg_mirage",cat:"bg",n:"Mirage",p:4000,v:"map:Mirage"},{id:"bg_inferno",cat:"bg",n:"Inferno",p:4000,v:"map:Inferno"},{id:"bg_carbon",cat:"bg",n:"Карбон",p:6000,v:"carbon"},{id:"bg_camo",cat:"bg",n:"Камуфляж",p:6000,v:"camo"},{id:"bg_moon",cat:"bg",n:"Кровавая луна",p:10000,v:"moon"},{id:"bg_sunset",cat:"bg",n:"Синтвейв",p:14000,v:"synth",anim:1},
+ {id:"bg_neon",cat:"bg",n:"Неоновая сетка",p:15000,v:"grid",anim:1},{id:"bg_stripes",cat:"bg",n:"Неон-полосы",p:16000,v:"stripes",anim:1},{id:"bg_matrix",cat:"bg",n:"Матрица",p:20000,v:"matrix",anim:1},{id:"bg_embers",cat:"bg",n:"Угли",p:22000,v:"embers",anim:1},{id:"bg_lava",cat:"bg",n:"Лава",p:25000,v:"lava",anim:1},{id:"bg_space",cat:"bg",n:"Глубокий космос",p:28000,v:"space",anim:1},{id:"bg_aurora",cat:"bg",n:"Северное сияние",p:30000,v:"aurora",anim:1},{id:"bg_gold",cat:"bg",n:"Золотой блеск",p:40000,v:"goldsh",anim:1},{id:"bg_snow",cat:"bg",n:"Снегопад",p:22000,v:"snow",anim:1,season:1},
+ ...["Sniper","Bomber","Ghost","Medic","Raider","Hunter","Viper","Shadow","Falcon","Tank","Scout","Rogue","Major","Ronin","Storm","Echo"].map((s,i)=>({id:"av_"+i,cat:"ava",n:["Снайпер","Подрывник","Призрак","Медик","Налётчик","Охотник","Гадюка","Тень","Сокол","Танк","Разведчик","Плут","Майор","Ронин","Шторм","Эхо"][i],p:3000+(i%8)*500+(i>=8?2000:0),v:s+"_"+(i*7+3),c:["#5aa9ff","#ff8a3d","#a78bfa","#3ddc97","#eb4b4b","#f5c451","#2dd4bf","#9aa0aa","#60a5fa","#84cc16","#f472b6","#fb923c","#38bdf8","#e879f9","#facc15","#34d399"][i]})),
+ ...[["skull","Череп",5000,"#e8e8ea"],["aim","Прицел",5000,"#b5e853"],["bolt","Молния",8000,"#38d3ff"],["fire","Огонь",10000,"#ff8a3d"],["wolf","Волк",12000,"#eb4b4b"],["gem","Алмаз",18000,"#7dd3fc"],["star","Звезда",15000,"#f5c451"],["shield","Щит",6000,"#5aa9ff"],["sword","Клинок",9000,"#d0d3d8"],["heart","Сердце",7000,"#ff6b8b"],["eye","Око",11000,"#a78bfa"],["rocket","Ракета",14000,"#38d3ff"],["flag","Флаг",6000,"#3ddc97"],["dragon","Дракон",25000,"#3ddc97"],["crown","Корона",30000,"#ffcf40"]].map(([v,n,p,c])=>({id:"bd_"+v,cat:"badge",n,p,v,c})),
  ...[["#b5e853","Лайм"],["#38d3ff","Циан"],["#ff6b8b","Розовый"],["#f5c451","Золото"],["#a78bfa","Фиолет"],["#eb4b4b","Красный"]].map(([v,n],i)=>({id:"nk_"+i,cat:"nick",n,p:4000,v})),
  {id:"nk_grad1",cat:"nick",n:"Закат",p:12000,v:"linear-gradient(90deg,#ff8a3d,#ff6b8b,#a78bfa)",grad:1},{id:"nk_grad2",cat:"nick",n:"Токсик",p:12000,v:"linear-gradient(90deg,#b5e853,#38d3ff)",grad:1},
  {id:"tag",cat:"tag",n:"Свой тег в чате",p:7500,v:"tag"},
@@ -4937,8 +4981,8 @@ function cosTagTxt(){return COS.eq.tag&&COS.tag?COS.tag:""}
 function cosBg(it){if(!it)return"";const v=it.v;if(v.startsWith("map:"))return`background-image:linear-gradient(90deg,rgba(10,10,10,.92) 20%,rgba(10,10,10,.55) 65%,rgba(10,10,10,.8)),url(${MAPIMG[v.slice(4)]||""});background-size:cover;background-position:center`;return""}
 function cosBgCls(it){return it&&!it.v.startsWith("map:")?" pbg-"+it.v:""}
 function cosSwatch(it){const c=it.cat;
-  if(c==="frame")return`<span class="co-sw"><i class="co-avp fr fr-${it.v}">${jpAvSvg("Demo_7","#2b2f36")}</i></span>`;
-  if(c==="bg")return`<span class="co-sw co-bgp${cosBgCls(it)}" style="${cosBg(it)}"></span>`;
+  if(c==="frame")return`<span class="co-sw"><i class="co-avp big fr fr-${it.v}">${jpAvSvg("Demo_7","#2b2f36")}</i></span>`;
+  if(c==="bg")return`<span class="co-sw co-bgp${cosBgCls(it)}" style="${cosBg(it)}"><span class="co-bgm"><i></i><span><b></b><em></em></span></span></span>`;
   if(c==="ava")return`<span class="co-sw"><i class="co-avp">${jpAvSvg(it.v,it.c)}</i></span>`;
   if(c==="badge")return`<span class="co-sw"><span class="cbdg big" style="--bc:${it.c}"><svg viewBox="0 0 24 24">${BADGES[it.v]}</svg></span></span>`;
   if(c==="nick")return`<span class="co-sw"><b class="co-nk" style="${it.grad?`background:${it.v};-webkit-background-clip:text;background-clip:text;color:transparent`:`color:${it.v}`}">${esc(logged?ME.n:"Player")}</b></span>`;
@@ -4948,10 +4992,12 @@ function cosSwatch(it){const c=it.cat;
   if(c==="smoke")return`<span class="co-sw"><i class="co-smk" style="--sc:${it.v}"></i></span>`;
   if(c==="trail")return`<span class="co-sw"><i class="co-trl" style="--tc:${it.v}"></i></span>`;return""}
 function cosItem(it){const own=!!COS.own[it.id],eq=COS.eq[it.cat]===it.id;
-  return`<div class="co-it${eq?" eq":""}${it.season?" season":""}" data-csp="${it.id}">${cosSwatch(it)}<div class="co-in"><b>${esc(it.n)}</b><small>${it.anim?"Анимированная · ":""}${it.season?"Сезонная":own?"Куплено":fmt(it.p)+" ТК"}</small></div>
+  return`<div class="co-it${eq?" eq":""}${it.season?" season":""}" data-csp="${it.id}">${cosSwatch(it)}<div class="co-in"><b>${esc(it.n)}</b><small>${[it.anim?"Анимированная":"",it.season?"Сезонная":"",own?"Куплено":""].filter(Boolean).join(" · ")||"&nbsp;"}</small></div>
    <button type="button" class="${eq?"ghost":own?"ghost on":"steam"} co-b" data-cs="${it.id}">${eq?"Снять":own?"Надеть":`${fmt(it.p)} ТК`}</button></div>`}
 function cosSection(cat){const [t,d]=CCAT[cat],L=CI.filter(x=>x.cat===cat);
-  return`<section class="co-sec"><div class="co-sh"><b>${t}</b><span>${d}</span></div>${cat==="tag"?`<div class="co-tagin"><input id="cosTagIn" maxlength="6" placeholder="TAG" value="${esc(COS.tag||"")}" autocomplete="off"><small>Латиница, цифры, до 6 символов. Менять текст бесплатно после покупки.</small></div>`:""}<div class="co-grid">${L.map(cosItem).join("")}</div></section>`}
+  return`<section class="co-sec"><div class="co-sh"><b>${t}</b><span>${d}</span></div>${cat==="tag"?cosTagBox():`<div class="co-grid${cat==="bg"?" wide":""}">${L.map(cosItem).join("")}</div>`}</section>`}
+function cosTagBox(){const has=!!COS.tag,on=!!COS.eq.tag;return`<div class="co-tagbox"><div class="co-tagcur"><small>Сейчас</small><b>${has?`<span class="co-tg">[${esc(COS.tag)}]</span> ${esc(logged?ME.n:"Player")}`:"Тега нет"}</b>${has?`<button type="button" class="ghost co-b" data-tagt>${on?"Снять":"Надеть"}</button>`:""}</div>
+  <div class="co-tagin"><input id="cosTagIn" maxlength="6" placeholder="${has?esc(COS.tag):"TAG"}" autocomplete="off"><button type="button" class="steam" data-tagbuy>${has?"Сменить":"Купить"} · ${fmt(CI.find(x=>x.id==="tag").p)} ТК</button></div><small class="co-note">Латиница и цифры, до 6 символов. Каждая установка или смена тега стоит 7 500 ТК.</small></div>`}
 function cosPreview(){const n=logged?ME.n:"Гость",fr=cosEq("frame"),bg=cosEq("bg"),av=cosEq("ava"),kl=cosEq("kill"),sm=cosEq("smoke"),tr=cosEq("trail"),tg=cosTagTxt();
   return`<div class="co-pv"><div class="co-pvh${cosBgCls(bg)}" style="${cosBg(bg)}"><i class="co-pva${fr?" fr fr-"+fr.v:""}" style="--ac:${ME.c}">${av?jpAvSvg(av.v,av.c):esc(n[0].toUpperCase())}</i><div><b class="co-pvn"${cosNick(n)}>${esc(n)}</b>${cosBadge(n)}<small>Так тебя видят в профиле</small></div></div>
    <div class="co-pvr"><span class="co-pvl">Рейтинг</span><div class="co-pvrow"><span>#11</span><i class="co-avs${fr?" fr fr-"+fr.v:""}" style="--ac:${ME.c}">${av?jpAvSvg(av.v,av.c):esc(n[0].toUpperCase())}</i><b${cosNick(n)}>${esc(n)}</b>${cosBadge(n)}</div></div>
@@ -4967,7 +5013,7 @@ function clanSaveMe(){try{const o=JSON.parse(localStorage.getItem("myClan")||"{}
 function cosClan(){if(!myClan)return`<div class="co-empty"><b>У тебя пока нет клана</b><span>Создай свой клан или вступи в любой из рейтинга — тогда здесь появится казна.</span><a class="steam" href="#clans">К кланам</a></div>`;
   const c=myClan,sl=c.slots||30;
   return`<div class="co-clan"><div class="co-cb"><span class="ava co-cava" style="${avaStyle(c)}">${avaHTML(c)}</span><div><small>Казна клана</small><b>${fmt(CB.bank)} ТК</b><span>[${esc(c.t)}] ${esc(c.n)} · ${c.members.length}/${sl} мест</span></div></div>
-   <div class="co-dep"><b>Пополнить казну</b><div class="co-dr">${[1000,5000,10000,50000].map(v=>`<button type="button" class="ghost" data-dep="${v}">+${fmt(v)}</button>`).join("")}</div><small>ТК списываются с твоего баланса (${fmt(ME.tk)} ТК). Тратить казну может лидер клана.</small></div>
+   <div class="co-dep"><b>Пополнить казну</b><div class="co-dr">${[1000,5000,10000,50000].map(v=>`<button type="button" class="ghost" data-dep="${v}">+${fmt(v)}</button>`).join("")}</div><small>ТК списываются с твоего баланса (${fmt(ME.tk)} ТК). Казну тратит лидер на улучшения клана.</small></div>
    <section class="co-sec"><div class="co-sh"><b>Цвет клана</b><span>Тег и эмблема в рейтинге · ${fmt(CLAN_UP.col)} ТК из казны</span></div><div class="co-cols">${["#b5e853","#38d3ff","#ff6b8b","#f5c451","#a78bfa","#eb4b4b","#ff8a3d","#3ddc97"].map(v=>`<button type="button" data-ccol="${v}" style="--cc:${v}" aria-pressed="${c.c===v}"></button>`).join("")}</div></section>
    <section class="co-sec"><div class="co-sh"><b>Эмблема</b><span>Символ на щите клана · ${fmt(CLAN_UP.emb)} ТК</span></div><div class="co-embs">${Object.keys(EMBS).map(k=>`<button type="button" data-cemb="${k}" aria-pressed="${c.emb===k}" style="--cc:${c.c}"><svg viewBox="0 0 24 24">${EMBS[k]}</svg></button>`).join("")}<button type="button" data-cemb="" aria-pressed="${!c.emb}" class="txt">TAG</button></div></section>
    <section class="co-sec"><div class="co-sh"><b>Места в клане</b><span>Сейчас ${sl}, максимум 50</span></div><button type="button" class="steam co-slot" data-cslot ${sl>=50?"disabled":""}>${sl>=50?"Максимум мест":`+5 мест · ${fmt(CLAN_UP.slots)} ТК`}</button></section>
@@ -4975,11 +5021,14 @@ function cosClan(){if(!myClan)return`<div class="co-empty"><b>У тебя пок
    ${CB.log.length?`<section class="co-sec"><div class="co-sh"><b>История казны</b></div><div class="co-log">${CB.log.slice(0,10).map(l=>`<div><span>${esc(l.t)}</span><b class="${l.v>0?"pl":"mn"}">${l.v>0?"+":"−"}${fmt(Math.abs(l.v))} ТК</b></div>`).join("")}</div></section>`:""}</div>`}
 function cbSpend(v,what){if(CB.bank<v){toast(`В казне не хватает ${fmt(v-CB.bank)} ТК`);return false}CB.bank-=v;CB.log.unshift({t:what,v:-v,d:Date.now()});CB.log=CB.log.slice(0,40);cbSave();return true}
 function drawCos(){const box=$("cosBox");if(!box)return;
-  box.innerHTML=`<div class="co-tabs" role="tablist">${[["prof","Профиль"],["game","В игре"],["clan","Клан"]].map(([k,t])=>`<button type="button" role="tab" data-cst="${k}" aria-selected="${cosTab===k}">${t}</button>`).join("")}<span class="co-bal">Баланс <b>${fmt(ME.tk)} ТК</b></span></div>
-   ${cosTab==="clan"?cosClan():`<div class="co-wrap"><aside class="co-side">${cosPreview()}</aside><div class="co-main">${CTABS[cosTab].map(cosSection).join("")}</div></div>`}`}
-function cosRefresh(){try{drawChip()}catch(e){}keepScroll(drawCos)}
-document.addEventListener("click",e=>{if(!e.target.closest("#cosBox"))return;let b;
+  box.innerHTML=`<div class="co-tabs" role="tablist">${[["prof","Профиль"],["game","В игре"]].map(([k,t])=>`<button type="button" role="tab" data-cst="${k}" aria-selected="${cosTab===k}">${t}</button>`).join("")}<span class="co-bal">Баланс <b>${fmt(ME.tk)} ТК</b></span></div>
+   ${`<div class="co-wrap"><aside class="co-side">${cosPreview()}</aside><div class="co-main">${CTABS[cosTab].map(cosSection).join("")}</div></div>`}`}
+function cosRefresh(){try{drawChip()}catch(e){}if(curView==="clan")keepScroll(drawClanPage);else keepScroll(drawCos)}
+document.addEventListener("click",e=>{if(!e.target.closest("#cosBox,#clanBankBox"))return;let b;
   if(b=e.target.closest("[data-cst]")){cosTab=b.dataset.cst;drawCos();return}
+  if(e.target.closest("[data-tagt]")){if(!COS.tag)return;if(COS.eq.tag)delete COS.eq.tag;else COS.eq.tag="tag";cosSave();cosRefresh();toast(COS.eq.tag?"Тег надет":"Тег снят");return}
+  if(e.target.closest("[data-tagbuy]")){if(!needLogin())return;const v=(($("cosTagIn")||{}).value||"").toUpperCase(),p=CI.find(x=>x.id==="tag").p;if(!/^[A-Z0-9]{1,6}$/.test(v)){toast("Впиши тег: латиница и цифры, до 6 символов");return}if(v===COS.tag){toast("Такой тег уже стоит");return}if(ME.tk<p){toast(`Не хватает ${fmt(p-ME.tk)} ТК`);return}
+    ME.tk-=p;walletSave();COS.tag=v;COS.own.tag=1;COS.eq.tag="tag";cosSave();try{notify("buy","Новый тег в чате",`[${v}] за ${fmt(p)} ТК`)}catch(_){}cosRefresh();toast(`Тег [${v}] установлен`);return}
   if(b=e.target.closest("[data-cs]")){if(!needLogin())return;const it=cosI(b.dataset.cs);if(!it)return;
     if(COS.eq[it.cat]===it.id){delete COS.eq[it.cat];cosSave();cosRefresh();toast(`${it.n}: снято`);return}
     if(!COS.own[it.id]){if(it.cat==="tag"&&!/^[A-Za-z0-9]{1,6}$/.test(($("cosTagIn")||{}).value||COS.tag||"")){toast("Сначала впиши тег: латиница и цифры, до 6 символов");return}
@@ -4991,7 +5040,7 @@ document.addEventListener("click",e=>{if(!e.target.closest("#cosBox"))return;let
   if(b=e.target.closest("[data-cemb]")){const v=b.dataset.cemb||null;if((myClan.emb||null)===v)return;if(v&&!cbSpend(CLAN_UP.emb,"Новая эмблема"))return;myClan.emb=v;CB.emb=v;cbSave();cosRefresh();toast(v?"Эмблема обновлена":"Вернули тег на щит");return}
   if(e.target.closest("[data-cslot]")){const sl=myClan.slots||30;if(sl>=50)return;if(!cbSpend(CLAN_UP.slots,"+5 мест в клане"))return;myClan.slots=CB.slots=sl+5;cbSave();cosRefresh();toast(`Теперь в клане ${myClan.slots} мест`);return}
   if(e.target.closest("[data-ctag]")){const v=($("clTagIn").value||"").trim().toUpperCase();if(!/^[A-Z0-9А-ЯЁ]{2,5}$/.test(v)){toast("Тег: 2–5 букв или цифр");return}if(!cbSpend(CLAN_UP.tag,`Новый тег [${v}]`))return;myClan.t=v;clanSaveMe();cosRefresh();toast(`Тег клана теперь [${v}]`);return}});
-document.addEventListener("input",e=>{if(e.target.id==="cosTagIn"){e.target.value=e.target.value.replace(/[^A-Za-z0-9]/g,"").toUpperCase();if(COS.own.tag){COS.tag=e.target.value;cosSave();const p=document.querySelector(".co-chat .ct");if(p)p.textContent=COS.tag&&COS.eq.tag?`[${COS.tag}] `:""}}});
+document.addEventListener("input",e=>{if(e.target.id==="cosTagIn")e.target.value=e.target.value.replace(/[^A-Za-z0-9]/g,"").toUpperCase()});
 function cosPlay(it){try{it.v.forEach(([f,d],i)=>tone(f,d,"triangle",.05,i*.08))}catch(e){}}
 
 let shopTab="tiers";
@@ -5022,6 +5071,7 @@ function route(forced){try{closeProfile()}catch(e){}["modal","srvModal","cmdModa
   if(v==="contract")try{drawCtr()}catch(e){console.error(e)}
   if(!STKREADY&&["inventory","market","me","player"].includes(v))try{stkLoad()}catch(e){}
   if(v==="shop")try{setShopTab(shopTab)}catch(e){console.error(e)}
+  if(v==="stats")try{drawStats()}catch(e){console.error(e)}
   if(v==="jackpot")try{jpTick();drawJp()}catch(e){console.error(e)}
   if(v==="market")try{mkArm=null;const el=Date.now()-(MK.t||Date.now());if(el>2e4)mkTick(Math.min(60,Math.floor(el/1e4)));drawMk()}catch(e){console.error(e)}
   try{drawDrops()}catch(e){}
