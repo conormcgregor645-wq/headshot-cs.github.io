@@ -2513,6 +2513,57 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;ba
 .cz-skip{display:flex;justify-content:center;margin-top:12px}
 .cz-skip .ghost{display:inline-flex;align-items:center;gap:8px;padding:9px 18px;font-size:13px}.cz-skip svg{width:15px;height:15px;fill:currentColor}
 @media (max-width:640px){.cz-row{width:100%}.cz-row .cz-go{flex:1;min-width:0}.cz-fast{padding:0 12px}}
+
+/* ===== Джекпот ===== */
+.jp-grid{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:18px;align-items:start}
+.jp-main,.jp-side{min-width:0}
+.jp-stage{position:relative;display:grid;place-items:center;padding:18px 0 26px;border-radius:24px;background:radial-gradient(50% 55% at 50% 50%,rgba(245,165,36,.12),transparent 70%)}
+.jpw{position:relative;width:min(100%,440px);aspect-ratio:1}
+.jpw-svg{width:100%;height:100%;display:block;filter:drop-shadow(0 18px 40px rgba(0,0,0,.6))}
+.jpw-ticks line{stroke:rgba(255,210,150,.28);stroke-width:1.5}
+.jpw-empty{fill:none;stroke:rgba(255,255,255,.06);stroke-width:44;stroke-dasharray:6 8}
+.jpw-in{fill:#0c0806;stroke:rgba(245,165,36,.25);stroke-width:1.5}
+.jpw-ptr{position:absolute;left:50%;top:-6px;width:0;height:0;margin-left:-13px;border:13px solid transparent;border-top:24px solid #ffd36b;border-bottom:0;filter:drop-shadow(0 0 10px rgba(255,200,90,.8)) drop-shadow(0 3px 2px rgba(0,0,0,.6));z-index:2}
+.jpc-wrap{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none}
+.jpc{display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px;max-width:58%}
+.jpc small{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.jpc>b{font-size:clamp(26px,5vw,40px);font-weight:900;font-style:italic;line-height:1.05;font-variant-numeric:tabular-nums;color:#fff}
+.jpc>b i{font-style:normal;font-size:.45em;color:var(--accent);margin-left:4px}
+.jpc span{font-size:13px;color:var(--muted)}
+.jpc-t{margin-top:6px;font-size:22px!important;font-weight:900;color:var(--fg)!important;font-variant-numeric:tabular-nums;padding:3px 14px;border-radius:999px;background:rgba(245,165,36,.12);border:1px solid rgba(245,165,36,.35)}
+.jpc-t.hot{color:#ff6b6b!important;border-color:rgba(255,107,107,.5);background:rgba(255,107,107,.12)}
+.jpc.win{animation:jpPop .5s cubic-bezier(.2,.8,.2,1)}
+.jpc.win small{color:var(--pc)}.jpc-n{font-size:clamp(22px,4vw,32px)!important;color:var(--pc)!important;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.jpc.win span b{color:#fff}.jpc.win em{font-style:normal;font-size:12px;color:var(--muted)}
+@keyframes jpPop{from{transform:scale(.6);opacity:0}}
+.jp-ph{display:flex;align-items:center;justify-content:space-between;margin:6px 0 10px}.jp-ph b{font-size:18px;font-weight:900;font-style:italic;text-transform:uppercase}.jp-ph span{font-size:13px;color:var(--muted);font-weight:700}
+.jp-pls{display:flex;flex-direction:column;gap:6px}
+.jp-pl{display:grid;grid-template-columns:40px minmax(110px,180px) minmax(0,1fr) 64px;align-items:center;gap:12px;padding:8px 12px 8px 8px;border-radius:14px;background:linear-gradient(90deg,color-mix(in srgb,var(--pc) 14%,transparent),transparent 45%),rgba(20,13,10,.6);border-left:3px solid var(--pc);animation:jpIn .4s cubic-bezier(.2,.8,.2,1)}
+@keyframes jpIn{from{opacity:0;transform:translateX(-12px)}}
+.jp-pl.me{box-shadow:inset 0 0 0 1px rgba(245,165,36,.45)}
+.jp-pl.won{box-shadow:inset 0 0 0 2px var(--pc),0 0 24px color-mix(in srgb,var(--pc) 40%,transparent)}
+.jp-av{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-weight:900;font-size:15px;color:#0c0806;background:var(--pc);flex:none}
+.jp-pn{min-width:0}.jp-pn b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.jp-pn b small{font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:.06em;margin-left:4px}.jp-pn span{font-size:12px;color:var(--muted)}
+.jp-sk{display:flex;gap:6px;align-items:center;min-width:0;overflow:hidden}
+.jp-sk span{flex:none;width:58px;height:40px;display:grid;place-items:center;border-radius:8px;background:radial-gradient(70% 70% at 50% 50%,color-mix(in srgb,var(--rc) 22%,transparent),transparent 75%);border-bottom:2px solid var(--rc)}
+.jp-sk span .skw,.jp-sk span svg{width:52px;height:34px}.jp-sk em{font-style:normal;font-size:12px;color:var(--muted);font-weight:700}
+.jp-ch{text-align:right;font-size:17px;font-weight:900;font-style:italic;color:var(--pc);font-variant-numeric:tabular-nums}
+.jp-empty{padding:26px 16px;text-align:center;color:var(--muted);font-size:13px;border:1px dashed var(--line);border-radius:14px}
+.jp-bet{padding:16px;border-radius:20px;border:1px solid rgba(245,165,36,.25);background:radial-gradient(100% 60% at 50% 0%,rgba(245,165,36,.1),transparent 70%),rgba(16,11,8,.7);margin-bottom:16px}
+.jp-bh{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:10px}.jp-bh b{font-size:17px;font-weight:900;font-style:italic;text-transform:uppercase}.jp-bh span{font-size:11px;color:var(--muted);text-align:right}
+.jp-inv{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;max-height:330px;overflow-y:auto;padding-right:2px}
+.jp-inv .up-it{padding:8px 6px 6px}.jp-inv .up-it .pic .skw,.jp-inv .up-it .pic svg{height:46px}.jp-inv .up-it b{font-size:11px}.jp-inv .up-it .nm{font-size:10px}.jp-inv .up-it .pr{font-size:11px}
+.jp-inv .up-it.dis{opacity:.4}
+.jp-sum{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0 10px}.jp-sum div{padding:10px 12px;border-radius:12px;background:rgba(0,0,0,.3)}
+.jp-sum small{display:block;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}.jp-sum b{font-size:16px;font-weight:900;font-variant-numeric:tabular-nums}.jp-sum b.ch{color:var(--accent);font-style:italic;font-size:20px}
+.jp-go{width:100%;justify-content:center;padding:14px;font-size:15px}
+.jp-note{display:block;margin-top:8px;font-size:11px;color:var(--muted);text-align:center;line-height:1.45}
+.jp-hist{display:flex;flex-direction:column;gap:6px}
+.jp-h{display:grid;grid-template-columns:32px minmax(0,1fr) auto;align-items:center;gap:10px;padding:8px 10px;border-radius:12px;background:rgba(20,13,10,.6);border-left:3px solid var(--pc)}
+.jp-h .jp-av{width:30px;height:30px;font-size:13px}.jp-h b{display:block;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.jp-h span{font-size:11px;color:var(--muted)}
+.jp-h.me{box-shadow:inset 0 0 0 1px rgba(245,165,36,.5)}.jp-hv{text-align:right}.jp-hv b{color:var(--accent);font-variant-numeric:tabular-nums}
+@media (max-width:1100px){.jp-grid{grid-template-columns:1fr}.jp-inv{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media (max-width:640px){.jp-pl{grid-template-columns:36px minmax(0,1fr) 54px;gap:8px}.jp-sk{grid-column:1/-1;grid-row:2}.jp-inv{grid-template-columns:repeat(3,minmax(0,1fr))}.jp-stage{padding:10px 0 16px}}
 </style>
 </head>
 <body>
@@ -2539,6 +2590,7 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;ba
       <a href="#inventory" data-v="inventory"><svg viewBox="0 0 24 24"><path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5z"/><path d="M3 7.5 12 12l9-4.5M12 12v9"/></svg>Инвентарь<span id="invCnt" hidden></span></a>
       <a href="#contract" data-v="contract"><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M9 12h6M9 16h4"/><path d="M14 3v5h5"/></svg>Контракт</a>
       <a href="#market" data-v="market"><svg viewBox="0 0 24 24"><path d="M3 9l1.6-5h14.8L21 9"/><path d="M4 9v11h16V9"/><path d="M3 9c0 1.7 1.3 3 3 3s3-1.3 3-3c0 1.7 1.3 3 3 3s3-1.3 3-3c0 1.7 1.3 3 3 3s3-1.3 3-3"/><path d="M10 20v-5h4v5"/></svg>Торговля</a>
+      <a href="#jackpot" data-v="jackpot"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v9l6.4 6.4"/><path d="M12 12 3.6 9.2"/></svg>Джекпот</a>
       <a href="#upgrade" data-v="upgrade"><svg viewBox="0 0 24 24"><path d="M12 20V5M6 11l6-6 6 6"/><path d="M5 20h14"/></svg>Апгрейд</a>
       <span class="nav-h">Сервер</span>
       <a href="#rules" data-v="rules"><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M9 11h7M9 15h7"/></svg>Правила</a>
@@ -2816,6 +2868,11 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;ba
     <div class="view" id="v-market" hidden>
       <div class="page-head"><h1>Торговля</h1><p>Покупай скины у других игроков и продавай свои по своей цене. Комиссия 5%, деньги приходят на баланс сразу после продажи.</p></div>
       <section id="mkBox"></section>
+    </div>
+
+    <div class="view" id="v-jackpot" hidden>
+      <div class="page-head"><h1>Джекпот</h1><p>Ставь свои скины в общий банк. Чем дороже ставка, тем больше твой кусок колеса и шанс на победу. Победитель забирает все скины.</p></div>
+      <section id="jpBox"></section>
     </div>
 
     <div class="view" id="v-contract" hidden>
@@ -4498,7 +4555,80 @@ document.addEventListener("click",e=>{const a=e.target.closest("[data-achp]");if
 
 document.addEventListener("click",e=>{if(e.target.closest("[data-mksell]")){e.preventDefault();mkTab="sell";mkDet=null;go("market")}},true);
 
-const VIEWS=["play","public","me","player","clan","case","wheel","upgrade","inventory","contract","market","support","tickets","shop","skins","stats","clans","ach","bans","rules","admin","offer","privacy","404"];
+// ===== Джекпот =====
+const JP_COUNT=35e3,JP_SPIN=8e3,JP_SHOW=5e3,JP_MAXP=10,JP_MAXI=10,JP_COL=["#5aa9ff","#3ddc97","#c084fc","#ff6b8b","#2dd4bf","#f472b6","#a3e635","#60a5fa","#fb923c","#e879f9","#facc15","#38bdf8"];
+let JP={r:null,h:[]},jpSel=[],jpAnim=0,jpSig="";
+try{const o=JSON.parse(localStorage.getItem("jp1")||"null");if(o)JP=Object.assign(JP,o)}catch(e){}
+const jpSave=()=>{try{localStorage.setItem("jp1",JSON.stringify(JP))}catch(e){}};
+const jpId=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const jpV=p=>p.items.reduce((s,it)=>s+itDust(it),0);
+const jpTot=R=>R.players.reduce((s,p)=>s+jpV(p),0);
+const jpMe=R=>R&&R.players.find(p=>p.me);
+function jpNew(){return{id:jpId(),t0:Date.now(),players:[],cd:0,spin:0,win:null,pt:0,done:0,nb:Date.now()+2500+Math.random()*4e3}}
+function jpBotItems(pot){const U=upAll().filter(x=>!x.sv&&!x.sp),T=pot>2000&&Math.random()<.6?pot*(.15+Math.random()*1.1):Math.exp(Math.log(400)+Math.random()*Math.log(150)),n=1+Math.floor(Math.random()*Math.min(6,1+T/1500)),out=[];
+  for(let k=0;k<n;k++){const t=T/n*(.5+Math.random());let lo=0,hi=U.length-1;while(lo<hi){const m=(lo+hi)>>1;if(U[m].p<t)lo=m+1;else hi=m}const x=U[Math.max(0,Math.min(U.length-1,lo+Math.floor((Math.random()-.5)*16)))];
+    out.push({id:jpId(),w:x.w.n,s:x.sk[0],r:x.sk[5],wear:mkWear(x),st:!!x.st,seed:Math.floor(Math.random()*1000),t:Date.now()})}return out}
+function jpColor(R){const used=new Set(R.players.map(p=>p.c));return JP_COL.find(c=>!used.has(c))||JP_COL[R.players.length%JP_COL.length]}
+function jpAddBot(R){const taken=new Set(R.players.map(p=>p.n));let n,g=0;do n=NICKS[Math.floor(Math.random()*NICKS.length)];while(taken.has(n)&&g++<30);if(taken.has(n))return;R.players.push({n,c:jpColor(R),items:jpBotItems(jpTot(R)),t:Date.now()})}
+function jpPick(R){const T=jpTot(R);let x=Math.random()*T,acc=0;for(let i=0;i<R.players.length;i++){const v=jpV(R.players[i]);if(x<acc+v||i===R.players.length-1){const f=Math.min(.94,Math.max(.06,(x-acc)/Math.max(1,v)));return[i,(acc+v*f)/T]}acc+=v}return[0,.5]}
+function jpFinish(R){if(R.done)return;R.done=1;const P=R.players[R.win],T=jpTot(R),ch=jpV(P)/T,all=R.players.flatMap(p=>p.items);
+  JP.h.unshift({n:P.n,c:P.c,me:!!P.me,v:T,ch,t:Date.now(),k:all.length});JP.h=JP.h.slice(0,12);
+  if(P.me){const got=all.map(it=>Object.assign({},it,{id:jpId(),t:Date.now()}));INV.push(...got);invSave();try{drawInv()}catch(e){}try{notify("prize","Джекпот твой!",`Ты забрал банк ${fmt(T)} ТК: ${got.length} ${plural(got.length,"скин","скина","скинов")} с шансом ${(ch*100).toFixed(1)}%`)}catch(e){}}
+  else if(jpMe(R)){try{notify("info","Джекпот разыгран",`Банк ${fmt(T)} ТК забрал ${P.n}. Твой шанс был ${(jpV(jpMe(R))/T*100).toFixed(1)}%`)}catch(e){}}}
+function jpPhase(R){const now=Date.now();if(!R)return"wait";if(R.spin&&now>=R.spin+JP_SPIN)return"show";if(R.spin&&now>=R.spin)return"spin";if(R.cd)return"count";return"wait"}
+function jpTick(){let R=JP.r,ch=0;const now=Date.now(),view=curView==="jackpot";
+  if(!R||(!view&&!jpMe(R)&&now-R.t0>3e5)||(R.done&&now>=R.spin+JP_SPIN+JP_SHOW)){if(R&&!R.done&&R.spin){if(R.win==null)[R.win,R.pt]=jpPick(R);jpFinish(R)}if(view||!R||R.done){JP.r=R=jpNew();ch=1}else return}
+  if(!view&&!jpMe(R))return;
+  if(R.cd&&!R.spin&&now>=R.cd){R.spin=R.cd;[R.win,R.pt]=jpPick(R);ch=1}
+  if(R.spin&&now>=R.spin+JP_SPIN&&!R.done){jpFinish(R);ch=1}
+  if(!R.spin&&R.players.length<JP_MAXP&&now>=R.nb&&(!R.cd||R.cd-now>4e3)){jpAddBot(R);R.nb=now+(R.cd?3e3+Math.random()*9e3:1500+Math.random()*4e3);ch=1}
+  if(!R.cd&&R.players.length>=2){R.cd=now+JP_COUNT;ch=1}
+  if(ch){jpSave();if(curView==="jackpot")drawJp()}else if(curView==="jackpot")jpLive()}
+setInterval(()=>{if(!document.hidden)try{jpTick()}catch(e){console.error(e)}},1000);
+
+function jpWheel(R){const T=jpTot(R),r=168,C=2*Math.PI*r;let acc=0,segs="",avs="";
+  if(!T)segs=`<circle cx="200" cy="200" r="${r}" class="jpw-empty"/>`;
+  else R.players.forEach(p=>{const f=jpV(p)/T,len=Math.max(0,f*C-(R.players.length>1?2.5:0));segs+=`<circle cx="200" cy="200" r="${r}" fill="none" stroke="${p.c}" stroke-width="44" stroke-dasharray="${len} ${C}" stroke-dashoffset="${-acc*C}" transform="rotate(-90 200 200)"/>`;
+    const mid=(acc+f/2)*2*Math.PI-Math.PI/2;if(f>.05){const x=200+r*Math.cos(mid),y=200+r*Math.sin(mid);avs+=`<g class="jpw-av" data-x="${x.toFixed(1)}" data-y="${y.toFixed(1)}" transform="translate(${x.toFixed(1)} ${y.toFixed(1)})"><circle r="15" fill="#0c0806" stroke="${p.c}" stroke-width="2.5"/><text text-anchor="middle" dy="5" font-size="14" font-weight="900" fill="#fff">${esc(p.n[0].toUpperCase())}</text></g>`}acc+=f});
+  let ticks="";for(let i=0;i<72;i++){const a=i*5*Math.PI/180,r1=196,r2=i%6?191:186;ticks+=`<line x1="${200+r1*Math.sin(a)}" y1="${200-r1*Math.cos(a)}" x2="${200+r2*Math.sin(a)}" y2="${200-r2*Math.cos(a)}"/>`}
+  return`<svg viewBox="0 0 400 400" class="jpw-svg" aria-hidden="true"><g class="jpw-ticks">${ticks}</g><g id="jpRot"><circle cx="200" cy="200" r="${r}" fill="none" stroke="rgba(255,255,255,.04)" stroke-width="44"/>${segs}${avs}</g><circle cx="200" cy="200" r="143" class="jpw-in"/></svg><i class="jpw-ptr"></i>`}
+function jpRotAt(R){if(!R||!R.spin)return 0;const k=Math.min(1,(Date.now()-R.spin)/JP_SPIN),e=1-Math.pow(1-k,4);return(360*7-R.pt*360)*e}
+function jpAnimate(){cancelAnimationFrame(jpAnim);const g=$("jpRot"),R=JP.r;if(!g||!R||!R.spin)return;const f=()=>{const el=$("jpRot");if(!el||curView!=="jackpot")return;const rr=jpRotAt(R);el.setAttribute("transform",`rotate(${rr} 200 200)`);el.querySelectorAll(".jpw-av").forEach(a=>a.setAttribute("transform",`translate(${a.dataset.x} ${a.dataset.y}) rotate(${-rr})`));if(Date.now()<R.spin+JP_SPIN)jpAnim=requestAnimationFrame(f);else jpLive()};f()}
+function jpCenter(R){const ph=jpPhase(R),T=jpTot(R),now=Date.now();
+  if(ph==="show"){const P=R.players[R.win];return`<div class="jpc win" style="--pc:${P.c}"><small>${P.me?"Ты победил!":"Победитель"}</small><b class="jpc-n">${esc(P.n)}</b><span>забирает <b>${fmt(T)} ТК</b></span><em>шанс ${(jpV(P)/T*100).toFixed(1)}%</em></div>`}
+  if(ph==="spin")return`<div class="jpc"><small>Крутим</small><b>${fmt(T)}<i>ТК</i></b><span>${R.players.length} ${plural(R.players.length,"игрок","игрока","игроков")}</span></div>`;
+  if(ph==="count"){const s=Math.max(0,Math.ceil((R.cd-now)/1000));return`<div class="jpc"><small>Банк</small><b>${fmt(T)}<i>ТК</i></b><span class="jpc-t${s<=5?" hot":""}">0:${String(s).padStart(2,"0")}</span></div>`}
+  return`<div class="jpc"><small>${T?"Банк":"Джекпот"}</small><b>${fmt(T)}<i>ТК</i></b><span>Ждём игроков</span></div>`}
+function jpPlayers(R){const T=jpTot(R),ph=jpPhase(R);if(!R.players.length)return`<div class="jp-empty">Пока никто не поставил. Сделай первую ставку!</div>`;
+  return R.players.map((p,i)=>({p,i,v:jpV(p)})).sort((a,b)=>b.v-a.v).map(({p,i,v})=>`<div class="jp-pl${p.me?" me":""}${ph==="show"&&R.win===i?" won":""}" style="--pc:${p.c}"><i class="jp-av">${esc(p.n[0].toUpperCase())}</i><div class="jp-pn"><b>${esc(p.n)}${p.me?" <small>ты</small>":""}</b><span>${p.items.length} ${plural(p.items.length,"скин","скина","скинов")} · ${fmt(v)} ТК</span></div><div class="jp-sk">${p.items.slice().sort((a,b)=>itDust(b)-itDust(a)).slice(0,5).map(it=>{const w=invW(it),sk=invSk(it);return w&&sk?`<span style="--rc:${RC[it.r]}" title="${esc(w.n+" | "+sk[0])} · ${fmt(itDust(it))} ТК">${art(w,sk,it.wear)}</span>`:""}).join("")}${p.items.length>5?`<em>+${p.items.length-5}</em>`:""}</div><b class="jp-ch">${T?(v/T*100).toFixed(1):0}%</b></div>`).join("")}
+function jpBet(R){const ph=jpPhase(R),open=(ph==="wait"||ph==="count"&&R.cd-Date.now()>3e3),me=jpMe(R),myN=me?me.items.length:0,left=JP_MAXI-myN;
+  const free=INV.filter(it=>!isOnIt(it)&&!it.fx&&invW(it)&&invSk(it)&&invW(it).c!=="agent").sort((a,b)=>itDust(b)-itDust(a));jpSel=jpSel.filter(id=>free.some(it=>it.id===id)).slice(0,left);
+  const sv=jpSel.reduce((s,id)=>s+itDust(INV.find(x=>x.id===id)),0),T=jpTot(R),mv=me?jpV(me):0,ch=sv||mv?((mv+sv)/(T+sv)*100):0;
+  return`<div class="jp-bh"><b>Твоя ставка</b><span>${me?`в банке ${fmt(mv)} ТК · `:""}до ${JP_MAXI} скинов</span></div>
+   ${free.length?`<div class="jp-inv">${free.map(it=>{const w=invW(it),sk=invSk(it),on=jpSel.includes(it.id);return`<button class="up-it${!on&&jpSel.length>=left?" dis":""}" type="button" data-jpi="${it.id}" aria-pressed="${on}" style="--rc:${RC[it.r]}">${itBadge(it,"up-stt")}<span class="pic">${art(w,sk,it.wear)}</span><b>${w.n}</b><span class="nm">${sk[0]==="Vanilla"?"Обычный":sk[0]}</span><span class="pr">${fmt(itDust(it))} ТК</span></button>`}).join("")}</div>`:`<div class="jp-empty">${logged?"В инвентаре нет скинов для ставки. Открой кейс!":"Войди через Steam, чтобы делать ставки."}</div>`}
+   <div class="jp-sum"><div><small>Выбрано</small><b>${jpSel.length} · ${fmt(sv)} ТК</b></div><div><small>Твой шанс</small><b class="ch">${ch.toFixed(1)}%</b></div></div>
+   <button class="steam jp-go" id="jpGo" type="button" ${open&&jpSel.length?"":"disabled"}>${!open?(ph==="count"?"Ставки закрыты":"Идёт розыгрыш"):left<=0?"Лимит скинов":jpSel.length?`Поставить ${fmt(sv)} ТК`:"Выбери скины"}</button>
+   <small class="jp-note">Шанс равен доле твоих скинов в банке. Победитель забирает все скины.</small>`}
+function jpHist(){if(!JP.h.length)return`<div class="jp-empty">Здесь появятся победители</div>`;
+  return JP.h.map(h=>`<div class="jp-h${h.me?" me":""}" style="--pc:${h.c}"><i class="jp-av">${esc(h.n[0].toUpperCase())}</i><div><b>${esc(h.n)}</b><span>${mkAgo2(h.t)}</span></div><div class="jp-hv"><b>${fmt(h.v)} ТК</b><span>шанс ${(h.ch*100).toFixed(1)}%</span></div></div>`).join("")}
+function drawJp(){const box=$("jpBox");if(!box)return;if(!JP.r)JP.r=jpNew();const R=JP.r;
+  box.innerHTML=`<div class="jp-grid"><div class="jp-main"><div class="jp-stage"><div class="jpw" id="jpWheel">${jpWheel(R)}<div class="jpc-wrap" id="jpCenter">${jpCenter(R)}</div></div></div>
+   <div class="jp-ph"><b>Участники</b><span id="jpPc">${R.players.length}/${JP_MAXP}</span></div><div class="jp-pls" id="jpPls">${jpPlayers(R)}</div></div>
+   <aside class="jp-side"><div class="jp-bet" id="jpBet">${jpBet(R)}</div><div class="jp-ph"><b>Последние победители</b></div><div class="jp-hist">${jpHist()}</div></aside></div>`;
+  const g=$("jpRot");if(g){const rr=jpRotAt(R);g.setAttribute("transform",`rotate(${rr} 200 200)`);g.querySelectorAll(".jpw-av").forEach(a=>a.setAttribute("transform",`translate(${a.dataset.x} ${a.dataset.y}) rotate(${-rr})`))}jpSig=jpPhase(R);if(R.spin&&Date.now()<R.spin+JP_SPIN)jpAnimate()}
+function jpLive(){const R=JP.r,c=$("jpCenter");if(!R||!c)return;const ph=jpPhase(R);if(ph!==jpSig){drawJp();return}c.innerHTML=jpCenter(R);
+  if(ph==="count"&&R.cd-Date.now()<=3e3){const g=$("jpGo");if(g&&!g.disabled){$("jpBet").innerHTML=jpBet(R)}}}
+document.addEventListener("click",e=>{if(!e.target.closest("#jpBox"))return;let b;
+  if(b=e.target.closest("[data-jpi]")){if(!needLogin())return;const id=b.dataset.jpi,k=jpSel.indexOf(id);if(k>=0)jpSel.splice(k,1);else{const me=jpMe(JP.r);if(jpSel.length>=JP_MAXI-(me?me.items.length:0)){toast(`Не больше ${JP_MAXI} скинов за раунд`);return}jpSel.push(id)}$("jpBet").innerHTML=jpBet(JP.r);return}
+  if(e.target.closest("#jpGo")){if(!needLogin())return;const R=JP.r,ph=jpPhase(R);if(!(ph==="wait"||ph==="count"&&R.cd-Date.now()>3e3)){toast("Ставки на этот раунд закрыты");return}
+    const items=jpSel.map(id=>INV.find(x=>x.id===id)).filter(Boolean);if(!items.length)return;items.forEach(it=>{if(isOnIt(it))equip(it,false)});const ids=new Set(items.map(x=>x.id));INV=INV.filter(x=>!ids.has(x.id));invSave();
+    let me=jpMe(R);if(!me){me={n:logged?ME.n:"Ты",c:"#f5a524",me:1,items:[],t:Date.now()};R.players.push(me)}me.items.push(...items);jpSel=[];
+    if(!R.cd&&R.players.length>=2)R.cd=Date.now()+JP_COUNT;if(R.players.length<2)R.nb=Math.min(R.nb,Date.now()+2500);jpSave();drawJp();try{drawInv()}catch(e){}
+    toast(`Ставка принята: ${items.length} ${plural(items.length,"скин","скина","скинов")} на ${fmt(items.reduce((s,it)=>s+itDust(it),0))} ТК`)}});
+// раунд, оставшийся с прошлого визита
+try{const R=JP.r;if(R&&!R.done&&jpMe(R)&&R.cd&&Date.now()>=R.cd+JP_SPIN){if(R.win==null){R.spin=R.cd;[R.win,R.pt]=jpPick(R)}jpFinish(R);jpSave()}}catch(e){}
+
+const VIEWS=["play","public","me","player","clan","case","wheel","upgrade","inventory","contract","market","jackpot","support","tickets","shop","skins","stats","clans","ach","bans","rules","admin","offer","privacy","404"];
 const MORE=["clans","bans","rules"];
 let curView="play";
 function viewFrom(h){return !h?"play":VIEWS.includes(h)&&h!=="404"?h:"404"}
@@ -4520,13 +4650,14 @@ function route(forced){try{closeProfile()}catch(e){}["modal","srvModal","cmdModa
   if(v==="inventory")try{drawInv()}catch(e){console.error(e)}
   if(v==="contract")try{drawCtr()}catch(e){console.error(e)}
   if(!STKREADY&&["inventory","market","me","player"].includes(v))try{stkLoad()}catch(e){}
+  if(v==="jackpot")try{jpTick();drawJp()}catch(e){console.error(e)}
   if(v==="market")try{mkArm=null;const el=Date.now()-(MK.t||Date.now());if(el>2e4)mkTick(Math.min(60,Math.floor(el/1e4)));drawMk()}catch(e){console.error(e)}
   try{drawDrops()}catch(e){}
   if(v==="ach")try{if(!ACHFLAG)ACHFOR=null;ACHFLAG=0;drawAch()}catch(e){console.error(e)}
   if(v==="support")try{drawSupport()}catch(e){console.error(e)}
   if(v==="tickets")try{drawTickets()}catch(e){console.error(e)}
   document.querySelector(".rail").classList.remove("open");$("burger").setAttribute("aria-expanded","false");
-  {const T={play:"",public:"Public",me:"Мой профиль",player:"Профиль игрока",clan:"Клан",case:"Кейс",wheel:"Фортуна",upgrade:"Апгрейд",inventory:"Инвентарь",contract:"Контракт",market:"Торговля",support:"Поддержка",tickets:"Тикеты",shop:"Магазин",skins:"Кейсы",stats:"Рейтинг",clans:"Кланы",ach:"Достижения",bans:"Банлист",rules:"Правила",admin:"Админ-панель",offer:"Публичная оферта",privacy:"Конфиденциальность","404":"Страница не найдена"};document.title=(T[v]?T[v]+" — ":"")+"Tasher CS2"}
+  {const T={play:"",public:"Public",me:"Мой профиль",player:"Профиль игрока",clan:"Клан",case:"Кейс",wheel:"Фортуна",upgrade:"Апгрейд",inventory:"Инвентарь",contract:"Контракт",market:"Торговля",jackpot:"Джекпот",support:"Поддержка",tickets:"Тикеты",shop:"Магазин",skins:"Кейсы",stats:"Рейтинг",clans:"Кланы",ach:"Достижения",bans:"Банлист",rules:"Правила",admin:"Админ-панель",offer:"Публичная оферта",privacy:"Конфиденциальность","404":"Страница не найдена"};document.title=(T[v]?T[v]+" — ":"")+"Tasher CS2"}
   window.scrollTo(0,0);setTimeout(()=>{try{if(!document.documentElement.classList.contains("no-anim"))countIn(document.getElementById("v-"+v))}catch(e){}},30)}
 // переход по странице: работает и там, где ссылки с # не меняют адрес
 function go(v){route(v);try{if(location.hash!=="#"+v)history.replaceState(null,"","#"+v)}catch(e){}}
