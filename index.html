@@ -2623,6 +2623,46 @@ nav a.on{background:linear-gradient(90deg,rgba(227,154,42,.11),rgba(227,154,42,0
 .cs-warn{background:linear-gradient(90deg,rgba(227,154,42,.07),transparent 60%),var(--panel)!important;border-color:rgba(227,154,42,.18)!important}
 .cs-warn b,.cs-warn h3{color:#d9a24a!important}
 .drop{filter:brightness(.85) saturate(.8)}
+
+/* ===== Джекпот · Арена ===== */
+.jpa{position:relative;padding:18px;border-radius:24px;background:repeating-linear-gradient(90deg,rgba(227,154,42,.028) 0 1px,transparent 1px 56px),repeating-linear-gradient(0deg,rgba(227,154,42,.028) 0 1px,transparent 1px 56px),linear-gradient(180deg,rgba(14,10,8,.9),rgba(6,4,3,.92));border:1px solid rgba(227,154,42,.14);margin-bottom:18px}
+.jpa-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.jpa-cnt{font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}.jpa-cnt b{color:var(--fg);margin-left:4px}
+.jpa .jp-hbtn{position:static}
+.jpa-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,480px) minmax(0,1fr);gap:20px;align-items:center}
+.jpa-mid{display:grid;place-items:center}
+.jpa-col{display:flex;flex-direction:column;gap:8px;min-width:0;max-height:520px;overflow-y:auto;padding:2px}
+.jpa-p{display:grid;grid-template-columns:40px minmax(0,1fr);align-items:center;gap:10px;padding:9px 12px 9px 9px;border-radius:14px;background:rgba(20,14,10,.85);animation:jpIn .4s cubic-bezier(.2,.8,.2,1)}
+.jpa-p.l{border-right:3px solid var(--pc)}.jpa-p.r{border-left:3px solid var(--pc)}
+.jpa-p.me{box-shadow:inset 0 0 0 1px rgba(227,154,42,.5)}
+.jpa-p.won{box-shadow:inset 0 0 0 2px var(--pc),0 0 22px color-mix(in srgb,var(--pc) 40%,transparent)}
+.jpa-p .jp-av{width:38px;height:38px}
+.jpa-pn{min-width:0}.jpa-pn b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.jpa-pn b small{font-size:10px;color:var(--accent);text-transform:uppercase;margin-left:4px}
+.jpa-pn>span{display:block;font-size:12px;color:var(--muted)}.jpa-pn em{font-style:normal;font-weight:900;color:var(--pc)}
+.jpa-sk{display:flex;gap:4px;margin-top:5px;align-items:center}.jpa-sk span{width:40px;height:26px;display:grid;place-items:center;border-radius:6px;border-bottom:2px solid var(--rc);background:radial-gradient(70% 70% at 50% 50%,color-mix(in srgb,var(--rc) 20%,transparent),transparent 75%)}
+.jpa-sk span .skw,.jpa-sk span svg{width:36px;height:22px}.jpa-sk i{font-style:normal;font-size:11px;color:var(--muted);font-weight:700}
+.jpa-p.empty{grid-template-columns:40px 1fr;background:none;border:1px dashed rgba(227,154,42,.14);color:var(--muted);font-size:12px;font-weight:700;animation:none}
+.jpa-e{width:38px;height:38px;border-radius:50%;border:1px dashed rgba(227,154,42,.25)}
+.jpw{width:min(100%,480px)!important}
+.jpw-poly{fill:#100b08;stroke:rgba(227,154,42,.35);stroke-width:2}
+.jpw-frame .jpw-ticks line{stroke:rgba(227,154,42,.45);stroke-width:2}
+.jpw-back{display:none}
+.jpw-in{inset:19.5%!important;background:#0b0806!important;box-shadow:none!important;border:2px dashed rgba(227,154,42,.55)}
+.jpw-ptr{top:-2px!important;border-top-color:#e39a2a!important;filter:drop-shadow(0 3px 2px rgba(0,0,0,.6))!important}
+.jpw-av{width:12%!important}
+.jpc-rn{font-size:10px!important;letter-spacing:.22em!important;color:var(--accent)!important}
+.jpc>b{font-size:clamp(28px,4.6vw,46px)!important}
+.jpc-u{font-size:11px!important;font-weight:800;letter-spacing:.06em;color:var(--muted)}
+.jpc-st{margin-top:8px;font-size:13px!important;font-weight:800;color:var(--fg)!important}
+.jpc-tl{display:inline-flex;gap:5px;margin-top:10px;align-items:center}
+.jpc-tl b{min-width:30px;padding:5px 4px;border-radius:7px;background:#1d1410;border:1px solid #3a2a1c;font-size:21px;font-weight:900;font-style:normal;color:#fff;text-align:center;font-variant-numeric:tabular-nums}
+.jpc-tl i{font-style:normal;font-size:20px;font-weight:900;color:var(--muted)}
+.jpc-tl.hot b{color:#ff7b7b;border-color:rgba(255,107,107,.45)}
+.jpa-bottom{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:18px;align-items:start}
+.jpa-bottom .jp-bet{margin-bottom:0}.jpa-bottom .jp-inv{grid-template-columns:repeat(auto-fill,minmax(110px,1fr))}
+.jpa-hw .jp-ph{margin-top:0}
+@media (max-width:1100px){.jpa-row{grid-template-columns:1fr 1fr}.jpa-mid{grid-column:1/-1;order:-1}.jpa-col{max-height:none}.jpa-bottom{grid-template-columns:1fr}}
+@media (max-width:640px){.jpa{padding:12px}.jpa-row{grid-template-columns:1fr;gap:8px}.jpa-col{gap:6px}.jpa-p.empty{display:none}.jpa-bottom .jp-inv{grid-template-columns:repeat(3,minmax(0,1fr))}.jpc-tl b{min-width:24px;font-size:17px}}
 </style>
 </head>
 <body>
@@ -4623,7 +4663,7 @@ const jpId=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
 const jpV=p=>p.items.reduce((s,it)=>s+itDust(it),0);
 const jpTot=R=>R.players.reduce((s,p)=>s+jpV(p),0);
 const jpMe=R=>R&&R.players.find(p=>p.me);
-function jpNew(){return{id:jpId(),t0:Date.now(),players:[],cd:0,spin:0,win:null,pt:0,done:0,nb:Date.now()+2500+Math.random()*4e3}}
+function jpNew(){JP.rn=(JP.rn||1283)+1;return{id:jpId(),rn:JP.rn,t0:Date.now(),players:[],cd:0,spin:0,win:null,pt:0,done:0,nb:Date.now()+2500+Math.random()*4e3}}
 function jpBotItems(pot){const U=upAll().filter(x=>!x.sv&&!x.sp),T=pot>2000&&Math.random()<.6?pot*(.15+Math.random()*1.1):Math.exp(Math.log(400)+Math.random()*Math.log(150)),n=1+Math.floor(Math.random()*Math.min(6,1+T/1500)),out=[];
   for(let k=0;k<n;k++){const t=T/n*(.5+Math.random());let lo=0,hi=U.length-1;while(lo<hi){const m=(lo+hi)>>1;if(U[m].p<t)lo=m+1;else hi=m}const x=U[Math.max(0,Math.min(U.length-1,lo+Math.floor((Math.random()-.5)*16)))];
     out.push({id:jpId(),w:x.w.n,s:x.sk[0],r:x.sk[5],wear:mkWear(x),st:!!x.st,seed:Math.floor(Math.random()*1000),t:Date.now()})}return out}
@@ -4664,22 +4704,27 @@ function jpAvSvg(n,c){let h=7;for(const ch of n)h=(h*131+ch.charCodeAt(0))>>>0;c
   return o+`</svg>`}
 const jpAv=(n,c,cls)=>`<i class="${cls||"jp-av"}" style="--pc:${c}">${jpAvSvg(n,c)}</i>`;
 function jpFinal(R){return 360*7-R.pt*360}
-function jpWheel(R){const T=jpTot(R),r=168,C=2*Math.PI*r;let acc=0,segs="",avs="";
+function jpWheel(R){const T=jpTot(R),r=150,C=2*Math.PI*r;let acc=0,segs="",avs="";
   if(!T)segs=`<circle cx="200" cy="200" r="${r}" class="jpw-empty"/>`;
-  else R.players.forEach(p=>{const f=jpV(p)/T,len=Math.max(0,f*C-(R.players.length>1?2.5:0));segs+=`<circle cx="200" cy="200" r="${r}" fill="none" stroke="${p.c}" stroke-width="44" stroke-dasharray="${len} ${C}" stroke-dashoffset="${-acc*C}" transform="rotate(-90 200 200)"/>`;
+  else R.players.forEach(p=>{const f=jpV(p)/T,len=Math.max(0,f*C-(R.players.length>1?2:0));segs+=`<circle cx="200" cy="200" r="${r}" fill="none" stroke="${p.c}" stroke-width="46" stroke-dasharray="${len} ${C}" stroke-dashoffset="${-acc*C}" transform="rotate(-90 200 200)"/>`;
     const mid=(acc+f/2)*2*Math.PI-Math.PI/2;if(f>.045){const x=200+r*Math.cos(mid),y=200+r*Math.sin(mid);avs+=`<span class="jpw-av" style="left:${(x/4).toFixed(2)}%;top:${(y/4).toFixed(2)}%">${jpAv(p.n,p.c,"jpw-avi")}</span>`}acc+=f});
-  let ticks="";for(let i=0;i<72;i++){const a=i*5*Math.PI/180,r1=196,r2=i%6?191:186;ticks+=`<line x1="${(200+r1*Math.sin(a)).toFixed(1)}" y1="${(200-r1*Math.cos(a)).toFixed(1)}" x2="${(200+r2*Math.sin(a)).toFixed(1)}" y2="${(200-r2*Math.cos(a)).toFixed(1)}"/>`}
-  return`<svg width="0" height="0" style="position:absolute"><defs><radialGradient id="jpAvG" cx=".5" cy=".3" r=".8"><stop offset=".4" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".45"/></radialGradient></defs></svg><i class="jpw-back"></i><svg viewBox="0 0 400 400" class="jpw-svg jpw-tk" aria-hidden="true"><g class="jpw-ticks">${ticks}</g></svg><div class="jpw-rot" id="jpRot"><svg viewBox="0 0 400 400" class="jpw-svg" aria-hidden="true"><circle cx="200" cy="200" r="${r}" fill="none" stroke="rgba(255,255,255,.04)" stroke-width="44"/>${segs}</svg>${avs}</div><i class="jpw-in"></i><i class="jpw-ptr"></i>`}
+  const poly=Array.from({length:12},(_,i)=>{const a=i/12*2*Math.PI-Math.PI/2;return(200+198*Math.cos(a)).toFixed(1)+","+(200+198*Math.sin(a)).toFixed(1)}).join(" ");
+  let ticks="";for(let i=0;i<60;i++){const a=i/60*2*Math.PI,r2=i%5?183:190;ticks+=`<line x1="${(200+176*Math.cos(a)).toFixed(1)}" y1="${(200+176*Math.sin(a)).toFixed(1)}" x2="${(200+r2*Math.cos(a)).toFixed(1)}" y2="${(200+r2*Math.sin(a)).toFixed(1)}"/>`}
+  return`<svg width="0" height="0" style="position:absolute"><defs><radialGradient id="jpAvG" cx=".5" cy=".3" r=".8"><stop offset=".4" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".45"/></radialGradient></defs></svg><svg viewBox="0 0 400 400" class="jpw-svg jpw-frame" aria-hidden="true"><polygon points="${poly}" class="jpw-poly"/><g class="jpw-ticks">${ticks}</g></svg><div class="jpw-rot" id="jpRot"><svg viewBox="0 0 400 400" class="jpw-svg" aria-hidden="true"><circle cx="200" cy="200" r="${r}" fill="none" stroke="rgba(255,255,255,.035)" stroke-width="46"/>${segs}</svg>${avs}</div><i class="jpw-in"></i><i class="jpw-ptr"></i>`}
 function jpRotAt(R){return R&&R.spin&&Date.now()>=R.spin+JP_SPIN?jpFinal(R):0}
 function jpAnimate(){const g=$("jpRot"),R=JP.r;if(!g||!R||!R.spin)return;const F=jpFinal(R),t=Math.max(0,Date.now()-R.spin),o={duration:JP_SPIN,easing:"cubic-bezier(.12,.72,.1,1)",fill:"forwards"};
   const a=g.animate([{transform:"rotate(0deg)"},{transform:`rotate(${F}deg)`}],o);a.currentTime=t;g.querySelectorAll(".jpw-avi").forEach(v=>{const b=v.animate([{transform:"rotate(0deg)"},{transform:`rotate(${-F}deg)`}],o);b.currentTime=t});a.onfinish=()=>jpLive()}
-function jpCenter(R){const ph=jpPhase(R),T=jpTot(R),now=Date.now();
+function jpTiles(s){return`<span class="jpc-tl${s<=5?" hot":""}">${("0:"+String(s).padStart(2,"0")).split("").map(c=>c===":"?"<i>:</i>":`<b>${c}</b>`).join("")}</span>`}
+function jpCenter(R){const ph=jpPhase(R),T=jpTot(R),now=Date.now(),rn=`<small class="jpc-rn">◆ РАУНД ${fmt(R.rn||1)} ◆</small>`;
   if(ph==="show"){const P=R.players[R.win];return`<div class="jpc win" style="--pc:${P.c}">${jpAv(P.n,P.c,"jpc-av")}<small>${P.me?"Ты победил!":"Победитель"}</small><b class="jpc-n">${esc(P.n)}</b><span>забирает <b>${fmt(T)} ТК</b></span><em>шанс ${(jpV(P)/T*100).toFixed(1)}%</em></div>`}
-  if(ph==="spin")return`<div class="jpc"><small>Крутим</small><b>${fmt(T)}<i>ТК</i></b><span>${R.players.length} ${plural(R.players.length,"игрок","игрока","игроков")}</span></div>`;
-  if(ph==="count"){const s=Math.max(0,Math.ceil((R.cd-now)/1000));return`<div class="jpc"><small>Банк</small><b>${fmt(T)}<i>ТК</i></b><span class="jpc-t${s<=5?" hot":""}">0:${String(s).padStart(2,"0")}</span></div>`}
-  return`<div class="jpc"><small>${T?"Банк":"Джекпот"}</small><b>${fmt(T)}<i>ТК</i></b><span>Ждём игроков</span></div>`}
-function jpPlayers(R){const T=jpTot(R),ph=jpPhase(R);if(!R.players.length)return`<div class="jp-empty">Пока никто не поставил. Сделай первую ставку!</div>`;
-  return R.players.map((p,i)=>({p,i,v:jpV(p)})).sort((a,b)=>b.v-a.v).map(({p,i,v})=>`<div class="jp-pl${p.me?" me":""}${ph==="show"&&R.win===i?" won":""}" style="--pc:${p.c}">${jpAv(p.n,p.c)}<div class="jp-pn"><b>${esc(p.n)}${p.me?" <small>ты</small>":""}</b><span>${p.items.length} ${plural(p.items.length,"скин","скина","скинов")} · ${fmt(v)} ТК</span></div><div class="jp-sk">${p.items.slice().sort((a,b)=>itDust(b)-itDust(a)).slice(0,5).map(it=>{const w=invW(it),sk=invSk(it);return w&&sk?`<span style="--rc:${RC[it.r]}" title="${esc(w.n+" | "+sk[0])} · ${fmt(itDust(it))} ТК">${art(w,sk,it.wear)}</span>`:""}).join("")}${p.items.length>5?`<em>+${p.items.length-5}</em>`:""}</div><b class="jp-ch">${T?(v/T*100).toFixed(1):0}%</b></div>`).join("")}
+  if(ph==="spin")return`<div class="jpc">${rn}<b>${fmt(T)}</b><span class="jpc-u">ТК В БАНКЕ</span><span class="jpc-st">Крутим…</span></div>`;
+  if(ph==="count"){const s=Math.max(0,Math.ceil((R.cd-now)/1000));return`<div class="jpc">${rn}<b>${fmt(T)}</b><span class="jpc-u">ТК В БАНКЕ</span>${jpTiles(s)}</div>`}
+  return`<div class="jpc">${rn}<b>${fmt(T)}</b><span class="jpc-u">ТК В БАНКЕ</span><span class="jpc-st">Ждём игроков</span></div>`}
+function jpPCard(R,p,i,v,T,side){const ph=jpPhase(R);return`<div class="jpa-p ${side}${p.me?" me":""}${ph==="show"&&R.win===i?" won":""}" style="--pc:${p.c}">${jpAv(p.n,p.c)}<div class="jpa-pn"><b>${esc(p.n)}${p.me?" <small>ты</small>":""}</b><span>${fmt(v)} ТК · <em>${T?(v/T*100).toFixed(1):0}%</em></span><div class="jpa-sk">${p.items.slice().sort((a,b)=>itDust(b)-itDust(a)).slice(0,4).map(it=>{const w=invW(it),sk=invSk(it);return w&&sk?`<span style="--rc:${RC[it.r]}" title="${esc(w.n+" | "+sk[0])} · ${fmt(itDust(it))} ТК">${art(w,sk,it.wear)}</span>`:""}).join("")}${p.items.length>4?`<i>+${p.items.length-4}</i>`:""}</div></div></div>`}
+function jpCols(R){const T=jpTot(R),l=R.players.map((p,i)=>({p,i,v:jpV(p)})).sort((a,b)=>b.v-a.v),L=[],Rt=[];l.forEach((x,k)=>(k%2?Rt:L).push(x));
+  const fill=(a,side)=>a.map(x=>jpPCard(R,x.p,x.i,x.v,T,side)).join("")+Array.from({length:Math.max(0,3-a.length)},()=>`<div class="jpa-p empty ${side}"><i class="jpa-e"></i><span>Свободно</span></div>`).join("");
+  return[fill(L,"l"),fill(Rt,"r")]}
+function jpPlayers(R){const[a,b]=jpCols(R);return a+b}
 function jpBet(R){const ph=jpPhase(R),open=(ph==="wait"||ph==="count"&&R.cd-Date.now()>3e3),me=jpMe(R),myN=me?me.items.length:0,left=JP_MAXI-myN;
   const free=INV.filter(it=>!isOnIt(it)&&!it.fx&&invW(it)&&invSk(it)&&invW(it).c!=="agent").sort((a,b)=>itDust(b)-itDust(a));jpSel=jpSel.filter(id=>free.some(it=>it.id===id)).slice(0,left);
   const sv=jpSel.reduce((s,id)=>s+itDust(INV.find(x=>x.id===id)),0),T=jpTot(R),mv=me?jpV(me):0,ch=sv||mv?((mv+sv)/(T+sv)*100):0;
@@ -4690,10 +4735,10 @@ function jpBet(R){const ph=jpPhase(R),open=(ph==="wait"||ph==="count"&&R.cd-Date
    <small class="jp-note">Шанс равен доле твоих скинов в банке. Победитель забирает все скины.</small>`}
 function jpHist(){if(!JP.h.length)return`<div class="jp-empty">Здесь появятся победители</div>`;
   return JP.h.slice(0,8).map(h=>`<div class="jp-h${h.me?" me":""}" style="--pc:${h.c}">${jpAv(h.n,h.c)}<div><b>${esc(h.n)}</b><span>${mkAgo2(h.t)}</span></div><div class="jp-hv"><b>${fmt(h.v)} ТК</b><span>шанс ${(h.ch*100).toFixed(1)}%</span></div></div>`).join("")}
-function drawJp(){const box=$("jpBox");if(!box)return;if(!JP.r)JP.r=jpNew();const R=JP.r;
-  box.innerHTML=`<div class="jp-grid"><div class="jp-main"><div class="jp-stage"><button class="jp-hbtn" type="button" id="jpHBtn"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/><path d="M12 7v5l3 2"/></svg>История побед</button><div class="jpw" id="jpWheel">${jpWheel(R)}<div class="jpc-wrap" id="jpCenter">${jpCenter(R)}</div></div></div>
-   <div class="jp-ph"><b>Участники</b><span id="jpPc">${R.players.length}/${JP_MAXP}</span></div><div class="jp-pls" id="jpPls">${jpPlayers(R)}</div></div>
-   <aside class="jp-side"><div class="jp-bet" id="jpBet">${jpBet(R)}</div><div class="jp-ph"><b>Последние победители</b></div><div class="jp-hist">${jpHist()}</div></aside></div>`;
+function drawJp(){const box=$("jpBox");if(!box)return;if(!JP.r)JP.r=jpNew();const R=JP.r,[cl,cr]=jpCols(R);
+  box.innerHTML=`<div class="jpa"><div class="jpa-top"><span class="jpa-cnt">Участники <b>${R.players.length}/${JP_MAXP}</b></span><button class="jp-hbtn" type="button" id="jpHBtn"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/><path d="M12 7v5l3 2"/></svg>История побед</button></div>
+   <div class="jpa-row"><div class="jpa-col l">${cl}</div><div class="jpa-mid"><div class="jpw" id="jpWheel">${jpWheel(R)}<div class="jpc-wrap" id="jpCenter">${jpCenter(R)}</div></div></div><div class="jpa-col r">${cr}</div></div></div>
+   <div class="jpa-bottom"><div class="jp-bet" id="jpBet">${jpBet(R)}</div><div class="jpa-hw"><div class="jp-ph"><b>Последние победители</b></div><div class="jp-hist">${jpHist()}</div></div></div>`;
   const g=$("jpRot");if(g){const rr=jpRotAt(R);g.style.transform=`rotate(${rr}deg)`;g.querySelectorAll(".jpw-avi").forEach(a=>a.style.transform=`rotate(${-rr}deg)`)}jpSig=jpPhase(R);if(R.spin&&Date.now()<R.spin+JP_SPIN)jpAnimate()}
 function jpLive(){const R=JP.r,c=$("jpCenter");if(!R||!c)return;const ph=jpPhase(R);if(ph!==jpSig){drawJp();return}if(ph==="show"||ph==="spin")return;const h=jpCenter(R);if(c.innerHTML!==h)c.innerHTML=h;
   if(ph==="count"&&R.cd-Date.now()<=3e3){const g=$("jpGo");if(g&&!g.disabled){$("jpBet").innerHTML=jpBet(R)}}}
