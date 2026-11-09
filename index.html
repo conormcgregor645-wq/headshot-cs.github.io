@@ -1116,7 +1116,7 @@ footer{border-top:1px solid color-mix(in srgb,var(--line) 60%,transparent)}
 .steam-acc{display:flex;align-items:center;gap:12px}
 .steam-acc .av{width:44px;height:44px;border-radius:50%;font-size:18px}
 .hp-cta .steam span,.login-gate .steam span,.umenu .steam span{display:inline!important}
-html.no-anim *:not(.fr):not(.pbx>i),html.no-anim *::before,html.no-anim *::after{animation:none!important;transition:none!important}
+html.no-anim *:not(.fr):not(.pbx>i):not([data-nkg]),html.no-anim *::before,html.no-anim *::after{animation:none!important;transition:none!important}
 @media (max-width:820px){.set-grid{grid-template-columns:minmax(0,1fr)}.umenu{position:fixed;right:max(16px,env(safe-area-inset-right,0px));top:auto;margin-top:8px}.me-chip span.nm{display:none}}
 
 
@@ -2868,6 +2868,10 @@ nav a.on,nav a.on svg{color:#b5e853!important}
 .co-more.open i{width:30px;height:30px;font-size:20px}
 .pf-cos{display:flex;flex-direction:column;gap:22px}
 .pf-cos .co-tagcur{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+
+/* переливающийся ник */
+[data-nkg]{animation:nkFlow 3.2s linear infinite!important}
+@keyframes nkFlow{from{background-position:0% 0}to{background-position:200% 0}}
 /* фон на весь профиль на вкладке «Информация» */
 #meBody{position:relative}
 .pf-big .pbx{position:absolute;left:0;right:0;top:0;bottom:auto;aspect-ratio:3/2;-webkit-mask:linear-gradient(180deg,#000 60%,transparent);mask:linear-gradient(180deg,#000 60%,transparent)}
@@ -5072,7 +5076,8 @@ function isMe(n){try{return n===ME.n}catch(e){return false}}
 function cosAvInner(n,c){return""}
 function cosFrame(n){const f=isMe(n)&&cosEq("frame");return f?" fr fr-"+f.v:""}
 function cosBadge(n){const b=isMe(n)&&cosEq("badge");return b?`<span class="cbdg" style="--bc:${b.c}" title="${esc(b.n)}"><svg viewBox="0 0 24 24">${BADGES[b.v]}</svg></span>`:""}
-function cosNick(n){const k=isMe(n)&&cosEq("nick");return k?(k.grad?` style="background:${k.v};-webkit-background-clip:text;background-clip:text;color:transparent"`:` style="color:${k.v}"`):""}
+function nkGrad(v){const c=v.match(/#[0-9a-fA-F]{3,8}/g)||[];return`background:linear-gradient(90deg,${c.join(",")},${c[0]}) 0 0/200% 100% repeat-x;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent`}
+function cosNick(n){const k=isMe(n)&&cosEq("nick");return k?(k.grad?` data-nkg style="${nkGrad(k.v)}"`:` style="color:${k.v}"`):""}
 function cosTagTxt(){return COS.eq.tag&&COS.tag?COS.tag:""}
 const PBGIMG={"dust2n": "img/pbg/dust2n.jpg?v=d817f712", "neoncity": "img/pbg/neoncity.jpg?v=dff7db84", "toxsmoke": "img/pbg/toxsmoke.jpg?v=9c92f111", "cosmos": "img/pbg/cosmos.jpg?v=0b273689", "dragon": "img/pbg/dragon.jpg?v=242e4cb0", "synth80": "img/pbg/synth80.jpg?v=08551e90", "hellfire": "img/pbg/hellfire.jpg?v=fc587fe0", "vault": "img/pbg/vault.jpg?v=96b3b3e2"};
 function cosLayer(it){if(!it||!it.v.startsWith("img:"))return"";const k=it.v.slice(4);return`<i class="pbx pbx-${k}" aria-hidden="true"><i class="pbx-im" style="background-image:url(${PBGIMG[k]||""})"></i></i>`}
@@ -5085,7 +5090,7 @@ function cosSwatch(it){const c=it.cat;
   if(c==="bg")return`<span class="co-sw co-bgp${cosBgCls(it)}" style="${cosBg(it)}">${cosLayer(it)}<span class="co-bgm"><i></i><span><b></b><em></em></span></span></span>`;
   if(c==="ava")return`<span class="co-sw"><i class="co-avp">${jpAvSvg(it.v,it.c)}</i></span>`;
   if(c==="badge")return`<span class="co-sw"><span class="cbdg big" style="--bc:${it.c}"><svg viewBox="0 0 24 24">${BADGES[it.v]}</svg></span></span>`;
-  if(c==="nick")return`<span class="co-sw"><b class="co-nk" style="${it.grad?`background:${it.v};-webkit-background-clip:text;background-clip:text;color:transparent`:`color:${it.v}`}">${esc(logged?ME.n:"Player")}</b></span>`;
+  if(c==="nick")return`<span class="co-sw"><b class="co-nk"${it.grad?" data-nkg":""} style="${it.grad?nkGrad(it.v):`color:${it.v}`}">${esc(logged?ME.n:"Player")}</b></span>`;
   if(c==="tag")return`<span class="co-sw"><b class="co-nk"><span class="co-tg">[${esc(COS.tag||"TAG")}]</span> ${esc(logged?ME.n:"Player")}</b></span>`;
   if(c==="kill")return`<span class="co-sw co-kl" data-kl="${it.v}"><i class="kfx kfx-${it.v}"></i><svg viewBox="0 0 24 24" class="co-skull">${BADGES.skull}</svg></span>`;
   if(c==="snd")return`<span class="co-sw"><svg viewBox="0 0 24 24" class="co-spk"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/></svg></span>`;
