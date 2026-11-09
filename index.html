@@ -1116,7 +1116,7 @@ footer{border-top:1px solid color-mix(in srgb,var(--line) 60%,transparent)}
 .steam-acc{display:flex;align-items:center;gap:12px}
 .steam-acc .av{width:44px;height:44px;border-radius:50%;font-size:18px}
 .hp-cta .steam span,.login-gate .steam span,.umenu .steam span{display:inline!important}
-html.no-anim *:not(.fr):not(.pbx>i):not([data-nkg]),html.no-anim *::before,html.no-anim *::after{animation:none!important;transition:none!important}
+html.no-anim *:not(.fr):not(.pbx>i):not([data-nkg]):not(.nyb path),html.no-anim *::before,html.no-anim *::after{animation:none!important;transition:none!important}
 @media (max-width:820px){.set-grid{grid-template-columns:minmax(0,1fr)}.umenu{position:fixed;right:max(16px,env(safe-area-inset-right,0px));top:auto;margin-top:8px}.me-chip span.nm{display:none}}
 
 
@@ -2872,6 +2872,60 @@ nav a.on,nav a.on svg{color:#b5e853!important}
 /* переливающийся ник */
 [data-nkg]{animation:nkFlow 3.2s linear infinite!important}
 @keyframes nkFlow{from{background-position:0% 0}to{background-position:200% 0}}
+
+/* ===== Новогоднее оформление ===== */
+#snow{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:45}
+html.no-snow #snow{display:none}
+html.ny body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(900px 500px at 15% -5%,rgba(125,211,252,.10),transparent 65%),radial-gradient(800px 520px at 100% 105%,rgba(232,57,77,.08),transparent 65%),radial-gradient(700px 400px at 60% 0%,rgba(255,211,107,.05),transparent 70%)}
+/* гирлянда */
+main{position:relative}
+.ny-garland{position:absolute;left:0;right:0;top:0;height:34px;pointer-events:none;z-index:2;overflow:hidden}
+.ny-garland svg{display:block}
+.nyb path{fill:var(--bc);filter:drop-shadow(0 0 5px var(--bc));animation:nyBlink 1.8s ease-in-out infinite}
+.nyb{animation:none}
+.nyb path{animation-delay:inherit}
+@keyframes nyBlink{0%,100%{opacity:1}50%{opacity:.35;filter:none}}
+html.ny main>header.top{margin-top:14px}
+/* шапка Деда Мороза на логотипе */
+.logo-t{position:relative}
+.ny-hat{position:absolute;left:-13px;top:-17px;width:34px;height:26px;transform:rotate(-18deg);pointer-events:none;filter:drop-shadow(0 2px 3px rgba(0,0,0,.5))}
+/* снег на сайдбаре */
+html.ny .rail::before{content:"";position:absolute;left:0;right:0;top:auto;bottom:0;height:46px;pointer-events:none;z-index:-1;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 46' preserveAspectRatio='none'%3E%3Cpath d='M0 26C30 10 55 30 85 20S140 6 170 18 220 28 240 14V46H0Z' fill='%23eef4fb' fill-opacity='.10'/%3E%3Cpath d='M0 34C40 22 70 38 110 30S180 22 240 32V46H0Z' fill='%23eef4fb' fill-opacity='.14'/%3E%3C/svg%3E") bottom/100% 100% no-repeat}
+/* праздничный баннер на главной */
+.ny-banner{position:relative;display:flex;flex-direction:column;align-items:center;gap:12px;width:min(720px,100%);padding:22px 20px 20px;border-radius:22px;overflow:hidden;
+  background:radial-gradient(120% 140% at 50% -40%,rgba(232,57,77,.22),transparent 60%),radial-gradient(60% 90% at 0% 100%,rgba(125,211,252,.12),transparent 70%),linear-gradient(180deg,rgba(20,14,16,.9),rgba(12,13,12,.85));
+  border:1px solid rgba(255,211,107,.22);box-shadow:0 20px 60px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.06)}
+.ny-banner::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle,rgba(255,255,255,.5) 0 1px,transparent 1.6px) 0 0/34px 34px,radial-gradient(circle,rgba(255,255,255,.3) 0 .8px,transparent 1.4px) 17px 19px/26px 26px;opacity:.35;-webkit-mask:linear-gradient(180deg,#000,transparent 85%);mask:linear-gradient(180deg,#000,transparent 85%)}
+.ny-eyebrow{position:relative;display:inline-flex;align-items:center;gap:8px;font-family:var(--f-display);font-size:clamp(20px,2.6vw,28px);font-weight:900;font-style:italic;text-transform:uppercase;letter-spacing:-.01em;
+  background:linear-gradient(90deg,#ffe7a3,#ffd36b,#fff3cf,#ffd36b,#ffe7a3) 0 0/200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:nyShine 5s linear infinite}
+.ny-eyebrow svg{width:24px;height:24px;flex:none;stroke:#bfe6ff;fill:none;stroke-width:1.6;stroke-linecap:round;filter:drop-shadow(0 0 6px rgba(125,211,252,.6));animation:nySpin 12s linear infinite}
+@keyframes nyShine{to{background-position:200% 0}}
+@keyframes nySpin{to{transform:rotate(360deg)}}
+.ny-cd{position:relative;display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.ny-cd div{min-width:72px;padding:10px 10px 8px;border-radius:14px;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.08);text-align:center}
+.ny-cd b{display:block;font-size:26px;font-weight:900;font-variant-numeric:tabular-nums;line-height:1.05;color:#fff}
+.ny-cd small{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.ny-done{font-weight:800;color:var(--accent)}
+.ny-ball{position:absolute;top:0;width:30px;height:52px;color:rgba(255,255,255,.25);transform-origin:50% 0;animation:nySwing 4s ease-in-out infinite alternate;pointer-events:none}
+.ny-ball circle:first-of-type{}
+.ny-ball.b1{left:6%;fill:#e8394d}.ny-ball.b1 circle{fill:#e8394d}
+.ny-ball.b2{right:7%;height:62px;width:34px;animation-delay:-1.5s}.ny-ball.b2 circle{fill:#d9b25a}
+.ny-ball.b3{left:17%;width:22px;height:40px;animation-delay:-.8s}.ny-ball.b3 circle{fill:#5fb2e8}
+.ny-ball circle[r="4"]{fill:rgba(255,255,255,.35)!important}
+@keyframes nySwing{from{transform:rotate(-6deg)}to{transform:rotate(6deg)}}
+@media (max-width:640px){.ny-ball.b3{display:none}.ny-ball.b1{left:3%}.ny-ball.b2{right:3%}.ny-cd div{min-width:60px;padding:8px 6px}.ny-cd b{font-size:21px}.ny-banner{padding:50px 12px 16px}.ny-ball{width:24px!important;height:42px!important}.ny-eyebrow{font-size:19px}}
+/* снежная шапка на карточке режима */
+.ny-cap{position:absolute;left:-2px;right:-2px;top:-2px;height:26px;z-index:3;pointer-events:none;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 340 26' preserveAspectRatio='none'%3E%3Cpath d='M0 0H340V10C330 16 322 9 312 14S296 22 288 15 270 9 260 16 238 20 230 12 210 8 198 15 176 21 166 13 146 8 134 15 112 22 100 14 80 8 68 15 46 21 36 13 16 9 0 14Z' fill='%23f4f8fc'/%3E%3C/svg%3E") top/100% 100% no-repeat;filter:drop-shadow(0 3px 4px rgba(0,0,0,.35))}
+/* подвал */
+.ny-foot{color:#ffd36b;font-weight:700}
+footer{flex-wrap:wrap}
+/* праздничные акценты в заголовках разделов */
+html.ny .page-head h1::after{content:"❄";display:inline-block;margin-left:.35em;font-size:.55em;font-style:normal;color:#bfe6ff;vertical-align:.35em;text-shadow:0 0 12px rgba(125,211,252,.7)}
+html.ny .home-head h1::after{content:none}
+.cs-card{position:relative}
+.ny-cap.sm{height:16px;left:-1px;right:-1px;top:-1px;filter:drop-shadow(0 2px 3px rgba(0,0,0,.35))}
+html.ny .cs-sec h2::after,html.ny .co-sh>b::after{content:" ❄";font-style:normal;font-size:.7em;color:#bfe6ff;text-shadow:0 0 10px rgba(125,211,252,.7)}
+html:not(.ny) .ny-cap,html:not(.ny) .ny-garland,html:not(.ny) .ny-banner,html:not(.ny) .ny-hat,html:not(.ny) .ny-foot{display:none}
 /* фон на весь профиль на вкладке «Информация» */
 #meBody{position:relative}
 .pf-big .pbx{position:absolute;left:0;right:0;top:0;bottom:auto;aspect-ratio:3/2;-webkit-mask:linear-gradient(180deg,#000 60%,transparent);mask:linear-gradient(180deg,#000 60%,transparent)}
@@ -2946,12 +3000,13 @@ nav a.on,nav a.on svg{color:#b5e853!important}
 
 
 <canvas id="fx" aria-hidden="true"></canvas>
+<canvas id="snow" aria-hidden="true"></canvas>
 <div class="app">
   <aside class="rail">
     <div class="rail-top">
       <a class="logo" href="#play">
 
-      <div><b>TASHER</b><small>CS2 · PUBLIC</small></div>
+      <div class="logo-t"><b>TASHER</b><svg class="ny-hat" viewBox="0 0 64 48" aria-hidden="true"><path d="M6 38 C14 18 30 4 50 10 C44 16 42 26 46 34 Z" fill="#e8394d"/><path d="M50 10 C44 16 42 26 46 34" fill="none" stroke="#b81f33" stroke-width="2"/><rect x="2" y="34" width="50" height="11" rx="5.5" fill="#f4f7fb"/><circle cx="54" cy="36" r="7" fill="#f4f7fb"/></svg><small>CS2 · PUBLIC</small></div>
     </a>
       <button class="burger" id="burger" aria-label="Меню" aria-expanded="false"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
     </div>
@@ -2982,6 +3037,7 @@ nav a.on,nav a.on svg{color:#b5e853!important}
   </aside>
 
   <main>
+    <div class="ny-garland" id="nyGarland" aria-hidden="true"></div>
     <header class="top">
       <div class="now"><div class="pulse" aria-hidden="true"></div><span>Сейчас играют</span><b id="online">0</b></div>
       <div class="spacer"></div>
@@ -2994,9 +3050,16 @@ nav a.on,nav a.on svg{color:#b5e853!important}
     <!-- PLAY -->
     <div class="view" id="v-play">
       <div class="home-hero">
+      <div class="ny-banner" id="nyBanner">
+        <svg class="ny-ball b1" viewBox="0 0 40 70" aria-hidden="true"><path d="M20 0v22" stroke="currentColor" stroke-width="1.2"/><rect x="15" y="20" width="10" height="7" rx="2" fill="#d9b25a"/><circle cx="20" cy="46" r="18"/><path d="M5 42c10 5 20 5 30 0" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="2"/><circle cx="13" cy="39" r="4" fill="rgba(255,255,255,.35)"/></svg>
+        <svg class="ny-ball b2" viewBox="0 0 40 70" aria-hidden="true"><path d="M20 0v22" stroke="currentColor" stroke-width="1.2"/><rect x="15" y="20" width="10" height="7" rx="2" fill="#d9b25a"/><circle cx="20" cy="46" r="18"/><path d="M5 50c10-5 20-5 30 0" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="2"/><circle cx="13" cy="39" r="4" fill="rgba(255,255,255,.35)"/></svg>
+        <svg class="ny-ball b3" viewBox="0 0 40 70" aria-hidden="true"><path d="M20 0v22" stroke="currentColor" stroke-width="1.2"/><rect x="15" y="20" width="10" height="7" rx="2" fill="#d9b25a"/><circle cx="20" cy="46" r="18"/><circle cx="13" cy="39" r="4" fill="rgba(255,255,255,.35)"/></svg>
+        <span class="ny-eyebrow"><svg viewBox="0 0 24 24"><path d="M12 2v20M3.3 7l17.4 10M3.3 17 20.7 7M9 4l3 2 3-2M9 20l3-2 3 2M4 10.5l3.5-.3L6 7M20 10.5l-3.5-.3L18 7M4 13.5l3.5.3L6 17M20 13.5l-3.5.3L18 17"/></svg><span id="nyTitle">С наступающим 2027!</span></span>
+        <div class="ny-cd" id="nyCd"></div>
+      </div>
       <div class="page-head home-head"><span class="eyebrow"><i class="dot"></i> Сервер онлайн</span><h1>Заходи играть</h1><p>Нажми на карточку, чтобы выбрать сервер и подключиться.</p></div>
       <div class="modes-grid">
-        <a class="mode-card" href="#public">
+        <a class="mode-card" href="#public"><i class="ny-cap" aria-hidden="true"></i>
           <div class="mc-head"><b>PUBLIC</b><span><i class="dot"></i><span id="pubOnline">0</span></span></div>
           <span class="mc-foot"><span id="pubCount">0 серверов</span><span class="go">Открыть</span></span>
         </a>
@@ -3348,6 +3411,7 @@ nav a.on,nav a.on svg{color:#b5e853!important}
         <section class="box set-sec">
           <h2>Интерфейс</h2>
           <div class="set-row"><div><b>Анимации</b><small>Плавные переходы и эффекты</small></div><label class="switch"><input type="checkbox" data-set="anim"><span></span></label></div>
+          <div class="set-row"><div><b>Снегопад</b><small>Новогодний снег поверх сайта</small></div><label class="switch"><input type="checkbox" data-set="snow"><span></span></label></div>
           <div class="set-row"><div><b>Фоновая картинка</b><small>Арт карты вверху страницы</small></div><label class="switch"><input type="checkbox" data-set="bg"><span></span></label></div>
           <div class="set-row"><div><b>Звук открытия кейсов</b><small>Тихие щелчки прокрутки и мелодия выигрыша</small></div><label class="switch"><input type="checkbox" data-set="caseSound"><span></span></label></div>
         </section>
@@ -3383,7 +3447,7 @@ nav a.on,nav a.on svg{color:#b5e853!important}
     </div>
 
     <footer>
-      <span>© 2026 Tasher · tashercs.ru. Проект не связан с Valve Corporation.</span>
+      <span>© 2026 Tasher · tashercs.ru. Проект не связан с Valve Corporation.</span><span class="ny-foot">С Новым годом, бойцы! ❄</span>
       <nav><a href="#rules">Правила</a><a href="#offer">Договор оферты</a><a href="#privacy">Конфиденциальность</a></nav>
     </footer>
   </main>
@@ -4125,7 +4189,7 @@ const effO=(c,o)=>String(+(o*(1-((c.knife||0)+(c.gloves||0))/100)).toFixed(1)).r
 const oddsHTML=c=>c.odds.map((o,r)=>o?`<span style="--rc:${RC[r]}"><i></i>${RN[r]} <b>${effO(c,o)}%</b></span>`:"").join("")+(c.knife?`<span style="--rc:${RC[5]}"><i></i>Нож <b>${c.knife}%</b></span>`:"")+(c.gloves?`<span style="--rc:${RC[5]}"><i></i>Перчатки <b>${c.gloves}%</b></span>`:"");
 const CSEC=[["tasher","Кейсы Tasher","Наши фирменные кейсы"],["chance","На шанс","Два скина и честные проценты — всё или ничего"],["color","Цветная коллекция","Скины, подобранные по цвету"],["prem","Звания","От Silver до Global Elite: чем выше звание, тем дороже скины"],["luxe","Люкс","Ножи и перчатки по рисункам"]];
 function drawCases(){$("csGrid").innerHTML=CSEC.map(([sk,t,sub])=>`<div class="cs-sec"><h2>${t}</h2><span>${sub} · ${CASES.filter(c=>c.sec===sk).length}</span></div>`+CASES.map((c,i)=>{if(c.sec!==sk)return"";const free=!c.p,used=free&&csDay===mskDay();
-  return`<article class="cs-card ${c.k==="king"?"king":""}" style="--cc:${c.c}" data-cprev="${i}" tabindex="0" role="button" aria-label="${c.n}: что внутри"><div class="cs-art">${caseArt(c)}</div><div class="cs-body"><h3>${c.n}</h3><small>${c.d}</small></div>
+  return`<article class="cs-card ${c.k==="king"?"king":""}" style="--cc:${c.c}" data-cprev="${i}" tabindex="0" role="button" aria-label="${c.n}: что внутри"><i class="ny-cap sm" aria-hidden="true"></i><div class="cs-art">${caseArt(c)}</div><div class="cs-body"><h3>${c.n}</h3><small>${c.d}</small></div>
   <div class="cs-foot"><span class="cs-price">${free?(used?`через <b class="csLeft">${csLeft()}</b>`:"<b>Бесплатно</b>"):`<b>${fmt(c.p)}</b><i class="tk-c">ТК</i>`}</span><span class="cs-look">Открыть</span></div></article>`}).join("")).join("")}
 setInterval(()=>{document.querySelectorAll(".csLeft").forEach(e=>e.textContent=csLeft());if(curView==="skins"&&csDay&&csDay!==mskDay()&&document.querySelector(".csLeft"))drawCases()},1000);
 // просмотр кейса
@@ -5204,10 +5268,10 @@ document.addEventListener("click",e=>{const a=e.target.closest('a[href^="#"]');i
 // ---------- меню профиля и настройки ----------
 const UI={u:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/>',set:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M2 12h3M19 12h3M4.9 19.1L7 17M17 7l2.1-2.1"/>',task:'<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 9l2 2 4-4M8 15h8"/>',ach:'<circle cx="12" cy="9" r="6"/><path d="M8.5 14L7 22l5-3 5 3-1.5-8"/>',news:'<path d="M4 5h13v14a2 2 0 0 0 2 2H6a2 2 0 0 1-2-2z"/><path d="M17 9h3v10a2 2 0 0 1-2 2M8 9h5M8 13h5M8 17h3"/>',shop:'<path d="M12 3l3 6 6 .9-4.5 4.3 1 6.3L12 17.6 6.5 20.5l1-6.3L3 9.9 9 9z"/>',out:'<path d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10"/>',steam:'<circle cx="16" cy="8" r="4"/><circle cx="8" cy="16" r="3"/><path d="M10.5 14.2 13 11"/>'};
 const ico=k=>`<svg viewBox="0 0 24 24">${UI[k]}</svg>`;
-let SET={publicProfile:true,showRating:true,clanTag:true,newsNotify:true,vipNotify:true,monthNotify:true,anim:true,bg:true,caseSound:true,mail:""};
+let SET={publicProfile:true,showRating:true,clanTag:true,newsNotify:true,vipNotify:true,monthNotify:true,anim:true,bg:true,caseSound:true,snow:true,mail:""};
 try{Object.assign(SET,JSON.parse(localStorage.getItem("settings")||"{}"))}catch(e){}
 const saveSet=()=>{try{localStorage.setItem("settings",JSON.stringify(SET))}catch(e){}};
-function applySet(){document.documentElement.classList.toggle("no-anim",!SET.anim);document.body.style.backgroundImage=SET.bg?"":"none"}
+function applySet(){document.documentElement.classList.toggle("no-anim",!SET.anim);document.documentElement.classList.toggle("no-snow",SET.snow===false);document.body.style.backgroundImage=SET.bg?"":"none"}
 let newsSeen=0;try{newsSeen=+localStorage.getItem("newsSeen")||0}catch(e){}
 function newsUnread(){return 0}
 function drawChip(){
@@ -5234,6 +5298,39 @@ applySet();
 // волна при нажатии
 document.addEventListener("pointerdown",e=>{const b=e.target.closest(".steam,.tm-buy .primary,.ghost,.sheet .row button,.t6 .more2,.icon-btn");if(!b)return;const r=b.getBoundingClientRect(),d=Math.max(r.width,r.height),sp=document.createElement("span");sp.className="ripple";sp.style.cssText=`width:${d}px;height:${d}px;left:${e.clientX-r.left-d/2}px;top:${e.clientY-r.top-d/2}px`;b.appendChild(sp);setTimeout(()=>sp.remove(),650)});
 
+
+// ===== Новый год: снег, гирлянда, отсчёт =====
+(function(){
+  document.documentElement.classList.add("ny");
+  // снег
+  const cv=document.getElementById("snow");if(cv){const cx=cv.getContext("2d");let W=0,H=0,F=[],last=0;
+    const N=()=>Math.round(Math.min(110,Math.max(35,innerWidth*innerHeight/16000)));
+    const mk=t=>({x:Math.random()*W,y:t?Math.random()*H:-8,r:Math.random()*2.3+.7,v:Math.random()*.6+.35,s:Math.random()*.8+.2,p:Math.random()*6.28,a:Math.random()*.45+.35});
+    const size=()=>{const d=Math.min(1.5,devicePixelRatio||1);W=innerWidth;H=innerHeight;cv.width=W*d;cv.height=H*d;cx.setTransform(d,0,0,d,0,0);const n=N();while(F.length<n)F.push(mk(1));F.length=n};
+    size();addEventListener("resize",size);
+    const off=()=>document.documentElement.classList.contains("no-snow")||document.hidden;
+    function loop(t){requestAnimationFrame(loop);if(off()){if(last){cx.clearRect(0,0,W,H);last=0}return}
+      const dt=last?Math.min(3,(t-last)/16.7):1;last=t;cx.clearRect(0,0,W,H);cx.fillStyle="#fff";
+      for(const f of F){f.p+=.012*dt;f.y+=f.v*dt*(.6+f.r*.25);f.x+=Math.sin(f.p)*f.s*.5*dt;if(f.y>H+8||f.x<-10||f.x>W+10)Object.assign(f,mk(0));
+        cx.globalAlpha=f.a;cx.beginPath();cx.arc(f.x,f.y,f.r,0,6.283);cx.fill()}cx.globalAlpha=1}
+    requestAnimationFrame(loop)}
+  // гирлянда
+  const g=document.getElementById("nyGarland");
+  function garland(){if(!g)return;const w=g.clientWidth||innerWidth,n=Math.max(8,Math.round(w/52)),seg=w/n;let d=`M0 4`,b="";
+    const cols=["#ff4d5e","#ffd36b","#b5e853","#7dd3fc"];
+    for(let i=0;i<n;i++){const x0=i*seg,x1=x0+seg;d+=` Q${x0+seg/2} 22 ${x1} 4`;const bx=x0+seg/2,by=13;b+=`<g class="nyb" style="--bc:${cols[i%4]};animation-delay:${(i%4)*.45}s" transform="translate(${bx.toFixed(1)} ${by})"><rect x="-2.6" y="-1" width="5.2" height="4" rx="1" fill="#3a3f36"/><path d="M0 2.5c4 0 5.5 4 5.5 8 0 4-2.5 7-5.5 7s-5.5-3-5.5-7c0-4 1.5-8 5.5-8z"/></g>`}
+    g.innerHTML=`<svg width="${w}" height="34" viewBox="0 0 ${w} 34"><path d="${d}" fill="none" stroke="#2b3027" stroke-width="1.6"/>${b}</svg>`}
+  garland();let gt;addEventListener("resize",()=>{clearTimeout(gt);gt=setTimeout(garland,150)});
+  if(window.ResizeObserver&&g)new ResizeObserver(()=>{clearTimeout(gt);gt=setTimeout(garland,80)}).observe(g);
+  // отсчёт до Нового года (МСК)
+  const NY=Date.UTC(2026,11,31,21,0,0),cd=document.getElementById("nyCd"),tt=document.getElementById("nyTitle");
+  const two=n=>String(n).padStart(2,"0");
+  function tick(){if(!cd)return;let ms=NY-Date.now();
+    if(ms<=0){tt.textContent="С Новым 2027 годом!";cd.innerHTML=`<span class="ny-done">Праздничная неделя на серверах TASHER</span>`;return}
+    const d=Math.floor(ms/864e5),h=Math.floor(ms/36e5)%24,m=Math.floor(ms/6e4)%60,sc=Math.floor(ms/1e3)%60;
+    cd.innerHTML=[[d,plural(d,"день","дня","дней")],[two(h),"час."],[two(m),"мин."],[two(sc),"сек."]].map(([v,l])=>`<div><b>${v}</b><small>${l}</small></div>`).join("")}
+  tick();setInterval(tick,1000);
+})();
 // ---------- FX: частицы, прожектор, появление, счётчики ----------
 (function(){
   const cv=$("fx"),cx=cv.getContext("2d");let W=0,H=0,P=[],run=true;
