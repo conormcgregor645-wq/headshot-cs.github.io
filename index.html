@@ -2858,7 +2858,8 @@ nav a.on,nav a.on svg{color:#b5e853!important}
 
 /* фон на весь профиль на вкладке «Информация» */
 #meBody{position:relative}
-.pf-big{display:none;position:absolute;left:0;right:0;top:0;aspect-ratio:3/2;z-index:0;border-radius:18px;overflow:hidden;-webkit-mask:linear-gradient(180deg,#000 55%,transparent 100%);mask:linear-gradient(180deg,#000 55%,transparent 100%);pointer-events:none}
+.pf-big .pbx{position:absolute;left:0;right:0;top:0;bottom:auto;aspect-ratio:3/2;-webkit-mask:linear-gradient(180deg,#000 60%,transparent);mask:linear-gradient(180deg,#000 60%,transparent)}
+.pf-big{display:none;position:absolute;left:0;right:0;top:0;bottom:0;z-index:0;border-radius:18px;overflow:hidden;-webkit-mask:linear-gradient(180deg,#000 55%,transparent 100%);mask:linear-gradient(180deg,#000 55%,transparent 100%);pointer-events:none}
 .pf-big .pbx-im{background-position:center top!important;animation:none!important;transform:none!important}
 .pf-big .pbx-sh{background:linear-gradient(90deg,rgba(0,0,0,.55),rgba(0,0,0,.1) 55%,transparent),linear-gradient(180deg,transparent 30%,rgba(0,0,0,.35))}
 #meBody.pfbig .pf-big{display:block}
@@ -5062,7 +5063,7 @@ function cosTagTxt(){return COS.eq.tag&&COS.tag?COS.tag:""}
 const PBGIMG={"dust2n": "img/pbg/dust2n.jpg?v=d817f712", "neoncity": "img/pbg/neoncity.jpg?v=dff7db84", "toxsmoke": "img/pbg/toxsmoke.jpg?v=9c92f111", "cosmos": "img/pbg/cosmos.jpg?v=0b273689", "dragon": "img/pbg/dragon.jpg?v=242e4cb0", "synth80": "img/pbg/synth80.jpg?v=08551e90", "hellfire": "img/pbg/hellfire.jpg?v=fc587fe0", "vault": "img/pbg/vault.jpg?v=96b3b3e2"};
 function cosLayer(it){if(!it||!it.v.startsWith("img:"))return"";const k=it.v.slice(4);return`<i class="pbx pbx-${k}" aria-hidden="true"><i class="pbx-im" style="background-image:url(${PBGIMG[k]||""})"></i><i class="pbx-a"></i><i class="pbx-b"></i><i class="pbx-sh"></i></i>`}
 function pfBigLayer(){const it=cosEq("bg");return it&&it.v.startsWith("img:")?`<div class="pf-big">${cosLayer(it)}</div>`:""}
-function pfBigSet(){const m=$("meBody");if(m)m.classList.toggle("pfbig",!!m.querySelector(".pf-big")&&pfTab==="info")}
+function pfBigSet(){const m=$("meBody");if(m)m.classList.toggle("pfbig",!!m.querySelector(".pf-big"))}
 function cosBg(it){if(!it)return"";const v=it.v;if(v.startsWith("map:"))return`background-image:linear-gradient(90deg,rgba(10,10,10,.92) 20%,rgba(10,10,10,.55) 65%,rgba(10,10,10,.8)),url(${MAPIMG[v.slice(4)]||""});background-size:cover;background-position:center`;return""}
 function cosBgCls(it){return!it||it.v.startsWith("map:")?"":it.v.startsWith("img:")?" pbg-img":" pbg-"+it.v}
 function cosSwatch(it){const c=it.cat;
