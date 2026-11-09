@@ -2923,6 +2923,7 @@ nav a.on,nav a.on svg{color:#b5e853!important}
 .co-bgp.pbg-img .co-bgm{z-index:2}
 
 @media (hover:none){.co-bgp .pbx>i{animation-play-state:paused}}
+.pbx .pbx-im{animation:none!important;transform:none!important;filter:none!important;will-change:auto}
 </style>
 </head>
 <body>
@@ -5061,7 +5062,7 @@ function cosBadge(n){const b=isMe(n)&&cosEq("badge");return b?`<span class="cbdg
 function cosNick(n){const k=isMe(n)&&cosEq("nick");return k?(k.grad?` style="background:${k.v};-webkit-background-clip:text;background-clip:text;color:transparent"`:` style="color:${k.v}"`):""}
 function cosTagTxt(){return COS.eq.tag&&COS.tag?COS.tag:""}
 const PBGIMG={"dust2n": "img/pbg/dust2n.jpg?v=d817f712", "neoncity": "img/pbg/neoncity.jpg?v=dff7db84", "toxsmoke": "img/pbg/toxsmoke.jpg?v=9c92f111", "cosmos": "img/pbg/cosmos.jpg?v=0b273689", "dragon": "img/pbg/dragon.jpg?v=242e4cb0", "synth80": "img/pbg/synth80.jpg?v=08551e90", "hellfire": "img/pbg/hellfire.jpg?v=fc587fe0", "vault": "img/pbg/vault.jpg?v=96b3b3e2"};
-function cosLayer(it){if(!it||!it.v.startsWith("img:"))return"";const k=it.v.slice(4);return`<i class="pbx pbx-${k}" aria-hidden="true"><i class="pbx-im" style="background-image:url(${PBGIMG[k]||""})"></i><i class="pbx-a"></i><i class="pbx-b"></i><i class="pbx-sh"></i></i>`}
+function cosLayer(it){if(!it||!it.v.startsWith("img:"))return"";const k=it.v.slice(4);return`<i class="pbx pbx-${k}" aria-hidden="true"><i class="pbx-im" style="background-image:url(${PBGIMG[k]||""})"></i></i>`}
 function pfBigLayer(){const it=cosEq("bg");return it&&it.v.startsWith("img:")?`<div class="pf-big">${cosLayer(it)}</div>`:""}
 function pfBigSet(){const m=$("meBody");if(m)m.classList.toggle("pfbig",!!m.querySelector(".pf-big"))}
 function cosBg(it){if(!it)return"";const v=it.v;if(v.startsWith("map:"))return`background-image:linear-gradient(90deg,rgba(10,10,10,.92) 20%,rgba(10,10,10,.55) 65%,rgba(10,10,10,.8)),url(${MAPIMG[v.slice(4)]||""});background-size:cover;background-position:center`;return""}
