@@ -4025,7 +4025,7 @@ const WBR=[[0,.07],[.07,.15],[.15,.38],[.38,.45],[.45,1]];
 function wearOpts(sk,st){const lo=sk[7]||0,hi=sk[8]==null?1:(sk[8]||1),a=skArr(sk,st);const l=[];WBR.forEach(([a0,a1],i)=>{if(a1>lo&&a0<hi)l.push(i)});const p=l.filter(i=>a[i]);return p.length?p:l.length?l:[2]}
 function wearRange(sk,i){const lo=Math.max(sk[7]||0,WBR[i][0]),hi=Math.min(sk[8]==null?1:(sk[8]||1),WBR[i][1]);return hi>lo?[lo,hi]:WBR[i]}
 // особые версии: редкие паттерны и флоаты
-const SP={bg:{n:"Синий паттерн",ok:(w,sk)=>sk[0]==="Case Hardened",m:w=>w.c==="knife"?10:(w.n==="AK-47"||w.n==="Five-SeveN")?8:4},
+const SP={bg:{n:"Blue Gem",ok:(w,sk)=>sk[0]==="Case Hardened",m:w=>w.c==="knife"?10:(w.n==="AK-47"||w.n==="Five-SeveN")?8:4},
   f100:{n:"Fade 100%",ok:(w,sk)=>sk[0]==="Fade",m:()=>1.6}};
 const spList=(w,sk,i)=>Object.keys(SP).filter(k=>SP[k].ok(w,sk,i));
 function spWear(sk,i,sp){const[lo,hi]=wearRange(sk,i);if(sp==="lf"){const a=lo,b=Math.min(hi,lo+.005);return Math.floor((a+Math.random()*(b-a))*10000)/10000}return Math.floor((lo+Math.random()*(hi-lo))*1000)/1000}
