@@ -4,10 +4,19 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Tasher CS2</title>
-<meta name="description" content="Tasher — сервера CS2 Public: ежемесячный рейтинг с призами, 148 достижений, кланы, своя валюта ТК и бесплатные скины.">
+<meta name="description" content="Tasher — сервера CS2 Public: ежемесячный рейтинг с призами, достижения, кланы, кейсы, апгрейд и джекпот за ТК.">
 <meta property="og:title" content="Tasher — сервера CS2">
 <meta property="og:description" content="Public 5x5 с рейтингом, кланами, достижениями и бесплатными скинами. Заходи играть.">
 <meta property="og:type" content="website">
+<meta property="og:url" content="https://tashercs.ru/">
+<meta property="og:site_name" content="Tasher">
+<meta property="og:locale" content="ru_RU">
+<meta property="og:image" content="https://tashercs.ru/img/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://tashercs.ru/">
+<link rel="apple-touch-icon" href="img/favicon.png?v=19a3cfed">
 <meta name="theme-color" content="#0d090b">
 <link rel="icon" type="image/png" href="img/favicon.png?v=19a3cfed">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -197,7 +206,7 @@ footer nav{flex-direction:row;gap:16px;flex-wrap:wrap}
   .steam span,.ip code{display:none}
 }
 /* modes */
-:root{--railimg:none;--bnr-rating:url(img/banner-rating.jpg?v=19d45884);--bnr-skins:url(img/banner-skins.jpg?v=aa8b622e);--bnr-clans:url(img/banner-clans.jpg?v=e833a368);--bnr-bans:url(img/banner-bans.jpg?v=d6d4509d);--bnr-rules:url(img/banner-rules.jpg?v=543828b4);--bnr-shop:url(img/banner-shop.jpg?v=f25ed758);--bgimg:url(img/bg.jpg?v=58a08ffe);--photo:url(img/public.jpg?v=3cc58889);--card:url(img/card-public.jpg?v=66d41f36)}
+:root{--railimg:none;--bnr-rating:url(img/banner-rating.jpg?v=19d45884);--bgimg:url(img/bg.jpg?v=58a08ffe);--photo:url(img/public.jpg?v=3cc58889);--card:url(img/card-public.jpg?v=66d41f36)}
 .modes-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,250px));gap:14px}
 .mode-card{position:relative;aspect-ratio:483/696;border-radius:18px;overflow:hidden;border:1px solid color-mix(in srgb,var(--accent) 55%,var(--line));background:var(--panel-2) var(--card) center/cover;padding:18px 16px;display:flex;flex-direction:column;justify-content:space-between;transition:transform .2s,box-shadow .2s;max-width:100%;box-shadow:0 0 0 0 var(--glow)}
 .mode-card::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.55),transparent 30%,transparent 70%,rgba(0,0,0,.7))}
@@ -2043,42 +2052,6 @@ select#invSort:focus{outline:none;border-color:#b5e853}
 .drop.r5::before{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(181,232,83,0.180) 50%,transparent 70%);background-size:220% 100%;animation:dropShine 2.8s linear infinite}
 @keyframes dropShine{from{background-position:120% 0}to{background-position:-120% 0}}
 @media (max-width:640px){.drops{margin:0 0 12px;padding:4px}.drops-h{padding:0 8px}.drops-h small{display:none}.drop{width:126px;height:64px;grid-template-columns:50px 1fr}.drop .pic .skw,.drop .pic svg{width:50px;height:38px}.drop .dr-n{left:58px}}
-/* ===== контракт ===== */
-.ctr-top{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:16px;margin-bottom:18px}
-.ctr-stage{position:relative;padding:14px;border-radius:20px;background:radial-gradient(70% 80% at 50% 50%,rgba(181,232,83,0.090),transparent 70%),var(--panel);border:1px solid var(--line);overflow:hidden;isolation:isolate}
-.ctr-slots{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;position:relative;z-index:2}
-.ctr-slot{aspect-ratio:1.1;border-radius:12px;border:1px dashed var(--line);display:grid;place-items:center;position:relative;overflow:hidden;color:var(--muted);font-weight:800;background:none;font:inherit;padding:0}
-.ctr-slot.req{border-color:rgba(181,232,83,0.350)}
-.ctr-slot.on{border:1px solid color-mix(in srgb,var(--rc) 55%,transparent);background:radial-gradient(70% 70% at 50% 40%,color-mix(in srgb,var(--rc) 22%,transparent),transparent 75%),var(--panel-2);cursor:pointer;animation:ctrIn .35s cubic-bezier(.2,.8,.2,1)}
-.ctr-slot.on:hover::after{content:"✕";position:absolute;top:4px;right:6px;font-size:11px;color:var(--fg)}
-@keyframes ctrIn{from{transform:scale(.6);opacity:0}}
-.ctr-slot .skw,.ctr-slot svg{width:90%;height:62%}
-.ctr-slot small{position:absolute;bottom:4px;left:0;right:0;text-align:center;font-size:10px;font-weight:800;color:var(--fg)}
-.ctr-core{position:absolute;left:50%;top:50%;width:20px;height:20px;margin:-10px 0 0 -10px;border-radius:50%;z-index:3;pointer-events:none;opacity:0}
-.ctr-core.charge{opacity:1;background:radial-gradient(circle,#fff,var(--rc) 45%,transparent 70%);animation:ctrCharge 1.5s cubic-bezier(.5,0,.8,.4) forwards;box-shadow:0 0 40px 10px var(--rc)}
-@keyframes ctrCharge{0%{transform:scale(.2)}70%{transform:scale(3.2)}100%{transform:scale(4.2)}}
-.ctr-core.boom{opacity:1;background:radial-gradient(circle,#fff,var(--rc) 35%,transparent 70%);animation:ctrBoom .6s ease-out forwards}
-@keyframes ctrBoom{0%{transform:scale(4);opacity:1}100%{transform:scale(28);opacity:0}}
-.ctr-stage.busy::before{content:"";position:absolute;inset:-40%;z-index:1;background:conic-gradient(from 0deg,transparent,rgba(181,232,83,0.250),transparent 25%,transparent 50%,rgba(181,232,83,0.200),transparent 75%);animation:ptSpin 1.1s linear infinite}
-.ctr-side{display:flex;flex-direction:column;gap:12px;padding:16px;border-radius:20px;background:var(--panel);border:1px solid var(--line)}
-.ctr-hint{color:var(--muted);font-size:14px;margin:0}
-.ctr-stat{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.ctr-stat div{background:var(--panel-2);border-radius:12px;padding:10px}.ctr-stat .wide{grid-column:span 1}
-.ctr-stat small{display:block;font-size:11px;color:var(--muted);margin-bottom:2px}
-.ctr-stat b{font-size:14px;font-weight:900}
-.ctr-bar{height:6px;border-radius:3px;background:var(--panel-2);overflow:hidden}.ctr-bar i{display:block;height:100%;border-radius:3px;background:linear-gradient(90deg,#c6f06e,#b5e853);transition:width .35s var(--ease)}
-.ctr-go{justify-content:center;margin-top:auto}.ctr-go[disabled]{background:var(--panel-2);color:var(--muted);box-shadow:none;border:1px solid var(--line);cursor:not-allowed}
-.ctr-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
-.ctr-res{position:relative;display:flex;align-items:center;gap:12px;padding:14px;border-radius:16px;background:radial-gradient(80% 90% at 15% 50%,color-mix(in srgb,var(--rc) 28%,transparent),transparent 75%),var(--panel-2);border:1px solid color-mix(in srgb,var(--rc) 55%,transparent);overflow:hidden}
-.ctr-res.glow{box-shadow:0 0 30px color-mix(in srgb,var(--rc) 35%,transparent)}
-.ctr-res.glow::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.18) 50%,transparent 70%);background-size:220% 100%;animation:dropShine 2.4s linear 2}
-.ctr-res .pic .skw,.ctr-res .pic svg{width:120px;height:82px}
-.ctr-res small{display:block;font-size:11px;color:var(--live);font-weight:800;text-transform:uppercase;letter-spacing:.08em}
-.ctr-res b{display:block;font-size:15px}.ctr-res span{display:block;font-size:12px;color:var(--rc);font-weight:700}.ctr-res em{font-style:normal;font-weight:900;font-size:16px}
-.ctr-grid{max-height:560px}
-@media (max-width:900px){.ctr-top{grid-template-columns:1fr}}
-@media (max-width:640px){.ctr-slots{gap:6px}.ctr-stage{padding:10px}.ctr-res .pic .skw,.ctr-res .pic svg{width:90px;height:62px}}
-
 /* медали */
 .pf-b.md{width:auto;height:auto;min-width:46px;padding:6px 6px 5px;display:flex;flex-direction:column;align-items:center;gap:2px;overflow:visible;position:relative;cursor:default;background:radial-gradient(70% 60% at 50% 35%,rgba(181,232,83,0.120),transparent 75%),var(--panel-2);transition:transform .2s var(--ease)}
 .pf-b.md.p1{background:radial-gradient(70% 60% at 50% 35%,rgba(242,194,52,.28),transparent 75%),var(--panel-2)}
@@ -2130,47 +2103,6 @@ select#invSort:focus{outline:none;border-color:#b5e853}
 .upx-card small{font-size:12px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:var(--live)}
 .upx-card b{font-size:22px;font-weight:900;font-style:italic}.upx-card .nm{color:var(--rc);font-weight:800}
 .upx-card em{font-style:normal;font-size:20px;font-weight:900;color:#d4f58a;margin-top:4px}
-
-/* контракт: документ */
-.ctr-side.cd{position:relative;gap:14px;padding:0 0 16px;overflow:hidden;background:linear-gradient(180deg,rgba(181,232,83,0.070),transparent 140px),repeating-linear-gradient(0deg,rgba(255,255,255,.018) 0 1px,transparent 1px 26px),var(--panel);border:1px solid color-mix(in srgb,var(--accent) 22%,var(--line))}
-.ctr-side.cd>*:not(.cd-h){margin-inline:16px}
-.cd-h{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px dashed color-mix(in srgb,var(--accent) 30%,var(--line));background:linear-gradient(90deg,rgba(181,232,83,0.120),transparent)}
-.cd-h span{display:flex;align-items:center;gap:8px;font-weight:900;font-style:italic;text-transform:uppercase;letter-spacing:.04em;font-size:14px}
-.cd-h svg{width:18px;height:18px;fill:none;stroke:var(--accent);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.cd-h i{font-style:normal;font-size:11px;color:var(--muted);font-family:ui-monospace,Menlo,monospace;letter-spacing:.08em}
-.cd-main{display:flex;align-items:center;gap:16px}
-.cd-gw{position:relative;flex:none;width:112px;height:112px}
-.cd-g{width:100%;height:100%}
-.cd-g path{fill:none;stroke:rgba(255,255,255,.07);stroke-width:9;stroke-linecap:round;transition:stroke .3s}
-.cd-g path.req{stroke:rgba(181,232,83,0.220)}
-.cd-g path.on{filter:drop-shadow(0 0 5px currentColor)}
-.cd-gc{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.cd-gc b{font-size:30px;font-weight:900;font-style:italic;line-height:1}
-.cd-gc small{font-size:11px;color:var(--muted)}
-.cd-sum{min-width:0;display:flex;flex-direction:column;gap:3px}
-.cd-sum small{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;font-weight:800}
-.cd-sum b{font-size:26px;font-weight:900;line-height:1.1;background:linear-gradient(180deg,#fff,#d4f58a);-webkit-background-clip:text;background-clip:text;color:transparent}
-.cd-sum b i{font-style:normal;font-size:14px}
-.cd-sum span{font-size:13px;color:var(--muted)}
-.cd-range{padding:12px;border-radius:14px;background:rgba(0,0,0,.25);border:1px solid var(--line)}
-.cd-range.ph small{color:var(--muted);font-size:12px}
-.cd-rh{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
-.cd-rh small{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;font-weight:800}
-.cd-up{font-size:12px;color:var(--muted)}.cd-up b{color:var(--live);font-size:15px}
-.cd-track{position:relative;height:8px;border-radius:4px;background:rgba(255,255,255,.06)}
-.cd-lose{position:absolute;left:0;top:0;bottom:0;border-radius:4px 0 0 4px;background:linear-gradient(90deg,rgba(235,75,75,.25),rgba(235,75,75,.6))}
-.cd-win{position:absolute;right:0;top:0;bottom:0;border-radius:0 4px 4px 0;background:linear-gradient(90deg,rgba(61,220,151,.6),rgba(61,220,151,.25));box-shadow:0 0 12px rgba(61,220,151,.35)}
-.cd-mark{position:absolute;top:-6px;bottom:-6px;width:3px;margin-left:-1.5px;border-radius:2px;background:#fff;box-shadow:0 0 10px #fff}
-.cd-mark em{position:absolute;bottom:calc(100% + 3px);left:50%;transform:translateX(-50%);font-style:normal;font-size:10px;font-weight:800;color:var(--fg);white-space:nowrap;text-transform:uppercase;letter-spacing:.06em}
-.cd-rl{display:flex;justify-content:space-between;margin-top:8px;font-size:12px;font-weight:800}
-.cd-rl span:first-child{color:#eb8a8a}.cd-rl span:last-child{color:#7ee2b4}
-.ctr-go svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;margin-right:6px}
-.ctr-go:not([disabled]){box-shadow:0 0 0 1px rgba(255,210,110,.4),0 10px 30px rgba(181,232,83,0.350);animation:cdReady 2.2s ease-in-out infinite}
-@keyframes cdReady{50%{box-shadow:0 0 0 1px rgba(255,210,110,.6),0 10px 40px rgba(181,232,83,0.550)}}
-.cd-lnk{background:none;border:0;color:var(--muted);font:inherit;font-size:13px;font-weight:700;cursor:pointer;padding:4px 6px;border-radius:6px}
-.cd-lnk:hover{color:var(--accent)}
-.ctr-side.cd .ctr-res{margin-top:0}
-@media (max-width:640px){.cd-gw{width:92px;height:92px}.cd-sum b{font-size:22px}}
 
 /* сувенирные и особые версии */
 .up-stt.sv,.st-badge.sv{color:#ffd54a!important;border-color:#ffd54a!important}
@@ -2256,11 +2188,9 @@ nav a:hover:not(.on){background:rgba(255,255,255,0.030)!important}
 .umenu,.ntf,.sheet,.srv-sheet{background:linear-gradient(180deg,#1a120d,#110b08)!important;border-color:rgba(255,255,255,0.090)!important;backdrop-filter:none}
 select option{background:#140e0b}
 /* обёртки разделов без плашек */
-.up-list,.up-card,.ctr-stage,.ctr-side{background:none!important;border-color:transparent!important;box-shadow:none!important}
+.up-list,.up-card{background:none!important;border-color:transparent!important;box-shadow:none!important}
 .up-list{padding-left:0!important;padding-right:0!important}
 .up-card{border:1px solid rgba(255,255,255,0.045)!important;background:radial-gradient(90% 70% at 50% 0%,color-mix(in srgb,var(--uc,var(--accent)) 10%,transparent),transparent 70%)!important}
-.ctr-side{border-left:1px solid var(--line)!important;border-radius:0!important;padding-left:20px!important}
-.ctr-stage{border:1px dashed rgba(255,255,255,0.075)!important;background:radial-gradient(70% 80% at 50% 50%,rgba(181,232,83,0.060),transparent 70%)!important}
 /* плитки со статистикой — без коробок, с разделителями */
 .ach-sum,.pf-stats{gap:0!important}
 .ach-sum>div,.pf-stats>div{background:none!important;border:0!important;border-radius:0!important;border-left:1px solid var(--line)!important;padding:4px 22px!important}
@@ -2278,7 +2208,6 @@ input[type=search],input:not([type]),.up-q,select{background-color:rgba(9,9,11,.
 .ctag{background:rgba(255,255,255,0.060)!important;color:#d9c6b6!important}
 .st-it{background:linear-gradient(180deg,rgba(29,29,31,.85),rgba(13,13,15,.9))!important}
 .up-slot{border-color:rgba(255,255,255,0.090)!important;background:rgba(9,9,11,.35)!important}
-.ctr-slot:not(.on){border-color:rgba(255,255,255,0.105)!important;background:rgba(9,9,11,.35)!important}
 
 /* ===== производительность ===== */
 body{background:var(--ink)!important}
@@ -2418,7 +2347,7 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;ba
 .jph-v{text-align:right;min-width:110px}.jph-v b{display:block;font-size:15px;font-weight:900;color:var(--accent);font-variant-numeric:tabular-nums}.jph-v span{font-size:11px;color:var(--muted)}.jph-v em{display:block;font-style:normal;font-size:11px;font-weight:800}
 @media (max-width:640px){.jph-st{grid-template-columns:1fr 1fr;row-gap:10px}.jph-st div:nth-child(3){border-left:0;padding-left:0}.jph-r{grid-template-columns:36px minmax(0,1fr) auto}.jph-sk{grid-column:1/-1;grid-row:2}.jph-v{min-width:0}.jph-f{width:auto}.jph-f{display:flex}.jph-f button{flex:1;font-size:11px;padding:8px 4px;min-height:34px;line-height:1.2}.jp-hbtn{font-size:12px;padding:7px 11px}}
 
-.jp-inv .up-it,.up-grid .up-it,.ctr-grid .up-it{content-visibility:visible}
+.jp-inv .up-it,.up-grid .up-it{content-visibility:visible}
 
 .jph-top,.jph-st,.jph-f{flex-shrink:0}.jph-l{flex:1 1 auto;min-height:0}
 
@@ -2819,7 +2748,6 @@ body *:not(.modal):not(.sheet):not(.ntf){-webkit-backdrop-filter:none!important;
       <span class="nav-h">Скины</span>
       <a href="#skins" data-v="skins"><i class="nv-ic"><svg viewBox="0 0 24 24"><path d="M4 20l9-9M13 11l7-8-1 7-6 1z"/><path d="M15 15l4 4"/></svg></i><span class="nv-t">Кейсы</span></a>
       <a href="#upgrade" data-v="upgrade"><i class="nv-ic"><svg viewBox="0 0 24 24"><path d="M12 20V5M6 11l6-6 6 6"/><path d="M5 20h14"/></svg></i><span class="nv-t">Апгрейд</span></a>
-      <a href="#contract" data-v="contract"><i class="nv-ic"><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M9 12h6M9 16h4"/><path d="M14 3v5h5"/></svg></i><span class="nv-t">Контракт</span></a>
       <a href="#jackpot" data-v="jackpot"><i class="nv-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v9l6.4 6.4"/><path d="M12 12 3.6 9.2"/></svg></i><span class="nv-t">Джекпот</span><em class="nv-dot" title="Идёт раунд"></em></a>
       <span class="nav-h">Мои предметы</span>
       <a href="#inventory" data-v="inventory"><i class="nv-ic"><svg viewBox="0 0 24 24"><path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5z"/><path d="M3 7.5 12 12l9-4.5M12 12v9"/></svg></i><span class="nv-t">Инвентарь</span><span id="invCnt" hidden></span></a>
@@ -2925,7 +2853,7 @@ body *:not(.modal):not(.sheet):not(.ntf){-webkit-backdrop-filter:none!important;
       </div>
       <div id="clanMine"></div>
       <div class="rt-wrap"><div class="rt rt-clan" id="clanGrid"></div></div>
-      <p class="note">Призы получают участники клана, которые сыграли за месяц не меньше 10 часов. Итоги подводятся 1-го числа в 00:00 МСК.</p>
+      <p class="note">Кланы с 1 по 5 место получают призовой фонд в ТК: 120 000, 80 000, 50 000, 30 000 и 20 000. Фонд делится поровну между участниками клана, которые сыграли за месяц не меньше 10 часов. Итоги подводятся 1-го числа в 00:00 МСК.</p>
     </div>
 
     <!-- ACHIEVEMENTS -->
@@ -3100,10 +3028,6 @@ body *:not(.modal):not(.sheet):not(.ntf){-webkit-backdrop-filter:none!important;
       <section id="jpBox"></section>
     </div>
 
-    <div class="view" id="v-contract" hidden>
-      <div class="page-head"><h1>Контракт</h1><p>Сложи от 3 до 10 любых скинов: разные оружия, качества и редкости. Взамен получишь один случайный скин, в среднем он стоит почти столько же, сколько всё вложенное, а иногда намного больше.</p></div>
-      <section id="ctrBox"></section>
-    </div>
 
     <!-- OFFER -->
     <div class="view" id="v-offer" hidden>
@@ -3208,12 +3132,7 @@ body *:not(.modal):not(.sheet):not(.ntf){-webkit-backdrop-filter:none!important;
 
     <!-- BANS -->
     <div class="view" id="v-bans" hidden>
-      <section class="pbanner" style="--bimg:var(--bnr-bans);--bpos:right 12%">
-        <div class="pb-text">
-          <h1>Банлист</h1>
-          <p>Все наказания на сервере: кто, за что и на какой срок. Список обновляется автоматически.</p>
-        </div>
-      </section>
+      <div class="page-head"><h1>Банлист</h1><p>Все наказания на сервере: кто, за что и на какой срок. Список обновляется автоматически.</p></div>
       <div class="tools">
         <input type="search" id="q-bans" placeholder="Ник или SteamID">
         <div class="seg" id="f-bans" role="group" aria-label="Фильтр">
@@ -3225,12 +3144,7 @@ body *:not(.modal):not(.sheet):not(.ntf){-webkit-backdrop-filter:none!important;
 
     <!-- RULES -->
     <div class="view" id="v-rules" hidden>
-      <section class="pbanner" style="--bimg:var(--bnr-rules);--bpos:right 45%">
-        <div class="pb-text">
-          <h1>Правила сервера</h1>
-          <p>Заходя на сервер, ты соглашаешься с правилами. Незнание не освобождает от наказания.</p>
-        </div>
-      </section>
+      <div class="page-head"><h1>Правила сервера</h1><p>Заходя на сервер, ты соглашаешься с правилами. Незнание не освобождает от наказания.</p></div>
       <div class="rules" id="rules"></div>
     </div>
 
@@ -3606,13 +3520,14 @@ let period="month",myClan=null;
 const score=c=>period==="month"?c.month:c.pts;
 const ICO_USERS='<svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2 21c0-4 3-7 7-7s7 3 7 7M16 4a3.5 3.5 0 0 1 0 7M18 14c2.4.7 4 3.2 4 7"/></svg>',ICO_CROWN='<svg viewBox="0 0 24 24"><path d="M3 8l4 4 5-7 5 7 4-4-2 11H5z"/></svg>';
 function ranked(){return[...clans].sort((a,b)=>score(b)-score(a))}
-const CPRZ=[["PREMIUM на 30 дней + 3 000 ТК","PREMIUM + 3 000 ТК"],["VIP на 30 дней + 2 000 ТК","VIP + 2 000 ТК"],["1 000 ТК каждому","1 000 ТК"]];
+const CPRZ=[120000,80000,50000,30000,20000];
+const clanEach=(c,k)=>Math.floor(CPRZ[k]/Math.max(1,c.members.length));
 const clanKills=c=>c.members.reduce((s,m)=>s+m.kills,0);
 function drawClans(){const list=ranked();const q=$("clanQ").value.trim().toLowerCase();
-  $("clanPodium").innerHTML=[1,0,2].map(k=>{const c=list[k];if(!c)return"<div></div>";const i=clans.indexOf(c);return`<button class="pod p${k+1}" data-clan="${i}" style="--pc:${PLACE[k][0]};--pg:${PLACE[k][1]}"><span class="num">#${k+1}</span><span class="ava" style="${avaStyle(c)}">${avaHTML(c)}</span><span class="pl">#${k+1}</span><b>${c.n}</b><small>${fmt(score(c))} ${plural(score(c),"очко","очка","очков")}</small><span class="pod-meta"><span>${c.members.length}/${c.slots||30} игроков</span><span>У/С ${c.kd.toFixed(2)}</span></span><span class="pd-prize">${CPRZ[k][0]}</span></button>`}).join("");
+  $("clanPodium").innerHTML=[1,0,2].map(k=>{const c=list[k];if(!c)return"<div></div>";const i=clans.indexOf(c);return`<button class="pod p${k+1}" data-clan="${i}" style="--pc:${PLACE[k][0]};--pg:${PLACE[k][1]}"><span class="num">#${k+1}</span><span class="ava" style="${avaStyle(c)}">${avaHTML(c)}</span><span class="pl">#${k+1}</span><b>${c.n}</b><small>${fmt(score(c))} ${plural(score(c),"очко","очка","очков")}</small><span class="pod-meta"><span>${c.members.length}/${c.slots||30} игроков</span><span>У/С ${c.kd.toFixed(2)}</span></span><span class="pd-prize">${fmt(CPRZ[k])} ТК · ≈${fmt(clanEach(c,k))} каждому</span></button>`}).join("");
   $("clanMine").innerHTML=myClan?"":`<div class="cl-cta"><div><b>У тебя нет клана</b><span>Создай свой за 50 000 ТК или подай заявку в любой клан из рейтинга.</span></div><button class="steam" id="newClanBtn">Создать клан</button></div>`;
   const rows=list.map((c,k)=>[c,k]).filter(([c])=>!q||c.n.toLowerCase().includes(q)||c.t.toLowerCase().includes(q));
-  $("clanGrid").innerHTML=rtHead(["Место","Клан","Рейтинг","Игроков","Убийств","Средний У/С","Побед","Приз"])+(rows.length?rows.map(([c,k])=>`<div class="rt-row ${k<3?"top t"+(k+1):""} ${c===myClan?"me":""}" data-clan="${clans.indexOf(c)}" tabindex="0" role="button"><span class="rt-pl">${k+1}</span><span class="rt-who"><span class="cl-av" style="${avaStyle(c)}">${avaHTML(c)}</span><span class="nm">${esc(c.n)}</span><span class="ctag">${esc(c.t)}</span></span><span>${rtPts(score(c))}</span>${rc("users",c.members.length+"/"+(c.slots||30))}${rc("kill",fmt(clanKills(c)))}${rc("kd",c.members.length?c.kd.toFixed(2):"—")}${rc("win",c.wins)}<span>${k<3?`<span class="przc ${k===0?"god":k===1?"leg":"tk"}">${CPRZ[k][1]}</span>`:""}</span></div>`).join(""):`<div class="rt-empty">Клан «${esc(q)}» не найден</div>`);
+  $("clanGrid").innerHTML=rtHead(["Место","Клан","Рейтинг","Игроков","Убийств","Средний У/С","Побед","Приз"])+(rows.length?rows.map(([c,k])=>`<div class="rt-row ${k<3?"top t"+(k+1):""} ${c===myClan?"me":""}" data-clan="${clans.indexOf(c)}" tabindex="0" role="button"><span class="rt-pl">${k+1}</span><span class="rt-who"><span class="cl-av" style="${avaStyle(c)}">${avaHTML(c)}</span><span class="nm">${esc(c.n)}</span><span class="ctag">${esc(c.t)}</span></span><span>${rtPts(score(c))}</span>${rc("users",c.members.length+"/"+(c.slots||30))}${rc("kill",fmt(clanKills(c)))}${rc("kd",c.members.length?c.kd.toFixed(2):"—")}${rc("win",c.wins)}<span>${k<5?`<span class="przc ${k===0?"god":k===1?"leg":"tk"}" title="≈${fmt(clanEach(c,k))} ТК каждому из ${c.members.length}">${fmt(CPRZ[k])} ТК</span>`:""}</span></div>`).join(""):`<div class="rt-empty">Клан «${esc(q)}» не найден</div>`);
   const nb=$("newClanBtn");if(nb)nb.onclick=tryNewClan}
 function clanCard(c,k,preview){const pc=k<3?PLACE[k][0]:c.c;return`<div class="ccard" ${preview?"":`data-clan="${clans.indexOf(c)}" tabindex="0" role="button"`} style="--pc:${pc}"><span class="cov ${c.cover?"":"gen"}" style="${c.cover?`background-image:url(${c.cover})`:`--cc:${c.c}`}"></span><span class="ava" style="${avaStyle(c)}">${avaHTML(c)}</span><span class="pl">#${k+1}</span><span class="cn"><span>${c.n}</span><span class="tagchip">${c.t}</span></span><span class="crow">Игроков<b>${ICO_USERS}${c.members.length}/${c.slots||30}</b></span><span class="crow">Рейтинг<b>${ICO_CROWN}${fmt(score(c))}</b></span></div>`}
 document.querySelectorAll("#clanPeriod button").forEach(b=>b.onclick=()=>{period=b.dataset.p;document.querySelectorAll("#clanPeriod button").forEach(x=>x.setAttribute("aria-pressed",x===b));drawClans()});
@@ -4202,7 +4117,7 @@ function upSpin(){if(!needLogin()||UP.busy)return;const s=upStake(),t=UP.t;if(!t
     toast(win?`Апгрейд удался: ${t.w.n} | ${t.sk[0]} (${WSH[t.i]}) в инвентаре`:`Не повезло: шанс был ${ch.toFixed(1)}%`)}}
 
 // ---------- живая лента выпадений ----------
-const DROPS_V=["play","skins","case","upgrade","inventory","contract","wheel"];let DROPS=[],dropT=0;
+const DROPS_V=["play","skins","case","upgrade","inventory","wheel"];let DROPS=[],dropT=0;
 function dropCard(d){const w=W.find(x=>x.n===d.w),sk=w&&w.skins.find(x=>x[0]===d.s);if(!sk)return"";const c=CASES[d.c];
   return`<a class="drop r${d.r}" href="#skins" ${d.c!=null?`data-cprev="${d.c}"`:""} style="--rc:${RC[d.r]}" title="${esc(d.n)} · ${esc(w.n)} | ${esc(sk[0])}${c?` · ${esc(c.n)}`:d.src?` · ${d.src}`:""}"><span class="pic">${art(w,sk,d.wear||.1)}</span><span class="dr-t"><b>${esc(w.n)}</b><small>${esc(sk[0]==="Vanilla"?"Обычный":sk[0])}</small></span><span class="dr-n">${esc(d.n)}</span></a>`}
 function drawDrops(){const box=$("drops");if(!box)return;const on=DROPS_V.includes(curView);box.hidden=!on;if(!on)return;$("dropsTr").innerHTML=DROPS.map(dropCard).join("")}
@@ -4215,59 +4130,6 @@ for(let k=0;k<16;k++)DROPS.push(fakeDrop());
 function dropLoop(){clearTimeout(dropT);dropT=setTimeout(()=>{if(!document.hidden)pushDrop(fakeDrop());dropLoop()},(matchMedia("(hover:none)").matches?2.2:1)*(2600+Math.random()*4200))}dropLoop();
 function myDrop(it,ci,src){if(!it||it.fx)return;pushDrop({n:logged?ME.n:"Гость",w:it.w,s:it.s,r:it.r,wear:it.wear,c:ci,src,me:1})}
 $("dropsTr").addEventListener("click",e=>{const a=e.target.closest("[data-cprev]");if(!a)return;e.preventDefault();openCasePage(+a.dataset.cprev)});
-
-// ---------- контракт ----------
-let CTR=[],ctrBusy=false,ctrRes=null,ctrF="all";const CTR_MIN=3,CTR_MAX=10,CTR_RET=.95;
-const ctrOk=it=>{const w=invW(it);return w&&!isOnIt(it)&&!["agent","item"].includes(w.c)};
-const CTRPOOL={};function ctrAll(st){st=!!st;if(CTRPOOL[st])return CTRPOOL[st];const L=[];W.forEach(w=>{if(["agent","item"].includes(w.c))return;const s2=st&&w.c!=="gloves";w.skins.forEach(sk=>{if(s2&&!(sk[10]&&sk[10].some(x=>x)))return;
-  const add=(v2,sv)=>wearOpts(sk,v2).forEach(i=>{const[lo,hi]=wearRange(sk,i),v=skPrice(w,sk,(lo+hi)/2,v2);if(!(v>0))return;L.push([w,sk,v,i,sv?false:v2,sv,null]);if(sk[0]!=="Vanilla")spList(w,sk,i).forEach(sp=>L.push([w,sk,Math.round(v*SP[sp].m(w)),i,sv?false:v2,sv,sp]))});
-  add(s2,false);if(!st&&sk[12]&&sk[12].some(Boolean))add("sv",true)})});L.sort((a,b)=>a[2]-b[2]);return CTRPOOL[st]=L}
-function ctrPlan(){const items=CTR.map(id=>INV.find(x=>x.id===id)).filter(Boolean);if(!items.length)return null;const S=items.reduce((s,it)=>s+itDust(it),0);
-  if(items.length<CTR_MIN)return{S,items,ready:false};const all=ctrAll(items.every(it=>it.st));if(all[all.length-1][2]<S)return{S,items,ready:false,big:all[all.length-1][2]};let L=all.filter(x=>x[2]>=S*.3&&x[2]<=S*4);
-  if(L.length<8){L=all.slice().sort((a,b)=>Math.abs(Math.log(a[2]/S))-Math.abs(Math.log(b[2]/S))).slice(0,30)}
-  if(L.length>160){const st=L.length/160;L=Array.from({length:160},(_,k)=>L[Math.floor(k*st)])}
-  const El=a=>{const w=L.map(x=>Math.pow(x[2],-a)),T=w.reduce((p,q)=>p+q,0);return L.reduce((s,x,j)=>s+x[2]*w[j],0)/T};let lo=-6,hi=12;for(let k=0;k<50;k++){const m=(lo+hi)/2;if(El(m)>S*CTR_RET)lo=m;else hi=m}
-  const wt=L.map(x=>Math.pow(x[2],-(lo+hi)/2)),T=wt.reduce((p,q)=>p+q,0),P=wt.map(x=>x/T);const up=L.reduce((s,x,j)=>s+(x[2]>=S?P[j]:0),0);
-  return{S,items,ready:true,L,wt:P,min:L[0][2],max:L[L.length-1][2],up}}
-function ctrCard(it,on,dis){const w=invW(it),sk=invSk(it);return`<button class="up-it${dis?" dis":""}" type="button" data-ctri="${it.id}" aria-pressed="${on}" style="--rc:${RC[it.r]}">${itBadge(it,"up-stt")}<span class="pic">${art(w,sk,it.wear)}</span><b>${w.n}</b><span class="nm">${sk[0]==="Vanilla"?"Обычный":sk[0]}</span><em>${RN[it.r]}${it.fx?"":" · "+WSH[wIdx(it.wear)]}</em><span class="pr">${fmt(itDust(it))} ТК</span></button>`}
-function drawCtr(){const box=$("ctrBox");if(!box)return;CTR=CTR.filter(id=>{const it=INV.find(x=>x.id===id);return it&&ctrOk(it)});const P=ctrPlan();
-  const slots=Array.from({length:CTR_MAX},(_,k)=>{const it=P&&P.items[k];if(!it)return`<div class="ctr-slot${k<CTR_MIN?" req":""}"><span>${k+1}</span></div>`;const w=invW(it),sk=invSk(it);return`<button type="button" class="ctr-slot on" data-ctri="${it.id}" style="--rc:${RC[it.r]};--d:${k}" title="Убрать">${art(w,sk,it.wear)}<small>${fmt(itDust(it))}</small></button>`}).join("");
-  const n=P?P.items.length:0;
-  const SEG=CTR_MAX,gauge=`<svg viewBox="0 0 120 120" class="cd-g">${Array.from({length:SEG},(_,k)=>{const a0=(-90+k*36+3)*Math.PI/180,a1=(-90+(k+1)*36-3)*Math.PI/180,r=52,x0=60+r*Math.cos(a0),y0=60+r*Math.sin(a0),x1=60+r*Math.cos(a1),y1=60+r*Math.sin(a1),on=k<n,req=k<CTR_MIN;return`<path d="M${x0.toFixed(2)} ${y0.toFixed(2)} A${r} ${r} 0 0 1 ${x1.toFixed(2)} ${y1.toFixed(2)}" class="${on?"on":req?"req":""}" style="${on?`stroke:${RC[P.items[k].r]}`:""}"/>`}).join("")}</svg>`;
-  const pos=v=>P&&P.ready?Math.max(0,Math.min(100,Math.log(v/P.min)/Math.log(P.max/P.min)*100)):0;
-  const info=`<div class="cd-main"><div class="cd-gw">${gauge}<div class="cd-gc"><b>${n}</b><small>из ${CTR_MAX}</small></div></div>
-    <div class="cd-sum"><small>Твой вклад</small><b>${P?fmt(Math.round(P.S)):"0"} <i>ТК</i></b><span>${!P?`Положи от ${CTR_MIN} до ${CTR_MAX} любых скинов`:P.ready?"Контракт готов к подписи":P.big?`Слишком дорого: максимум ${fmt(P.big)} ТК`:`Добавь ещё ${CTR_MIN-n} ${plural(CTR_MIN-n,"скин","скина","скинов")}`}</span></div></div>
-   ${P&&P.ready?`<div class="cd-range"><div class="cd-rh"><small>Можешь получить</small><span class="cd-up">в плюс <b>${Math.round(P.up*100)}%</b></span></div>
-     <div class="cd-track"><i class="cd-lose" style="width:${pos(P.S)}%"></i><i class="cd-win" style="left:${pos(P.S)}%"></i><i class="cd-mark" style="left:${pos(P.S)}%"><em>вклад</em></i></div>
-     <div class="cd-rl"><span>${fmt(Math.round(P.min))} ТК</span><span>${fmt(Math.round(P.max))} ТК</span></div></div>`:`<div class="cd-range ph"><small>Диапазон результата появится, когда положишь ${CTR_MIN} скина</small></div>`}`;
-  const all=INV.filter(ctrOk),list=all.filter(it=>ctrF==="all"||String(it.r)===ctrF).sort((a,b)=>itDust(a)-itDust(b));
-  const rs=[...new Set(all.map(it=>it.r))].sort();
-  box.innerHTML=`<div class="ctr-top"><div class="ctr-stage ${ctrBusy?"busy":""}" id="ctrStage"><div class="ctr-slots">${slots}</div><div class="ctr-core" id="ctrCore"></div></div>
-   <div class="ctr-side cd"><div class="cd-h"><span><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/></svg>Контракт обмена</span><i>№ ${String(9000+INV.length*37%1000).padStart(4,"0")}</i></div>${ctrRes?`<div class="ctr-res" style="--rc:${RC[ctrRes.r]}"><span class="pic">${art(invW(ctrRes),invSk(ctrRes),ctrRes.wear)}</span><div><small>Контракт выполнен</small><b>${itPre(ctrRes)}${esc(ctrRes.w)} | ${esc(ctrRes.s==="Vanilla"?"Обычный":ctrRes.s)}</b><span>${RN[ctrRes.r]} · ${wearName(ctrRes.wear)}${ctrRes.sp&&SP[ctrRes.sp]?` · ✦ ${SP[ctrRes.sp].n}`:""}</span><em>${fmt(itDust(ctrRes))} ТК</em></div></div>`:""}${info}
-    <button class="steam ctr-go" id="ctrGo" type="button" ${P&&P.ready&&!ctrBusy?"":"disabled"}><svg viewBox="0 0 24 24"><path d="M4 20c3-1 5-4 7-4s2 3 4 3 3-2 5-3"/><path d="M14 4l6 6-8 8H6v-6z"/></svg>${ctrBusy?"Подписываем…":P&&P.ready?"Подписать контракт":"Подписать"}</button>${P&&!ctrBusy?`<div class="ctr-row"><button class="cd-lnk" id="ctrAuto" type="button">+ Добавить дешёвые</button><button class="cd-lnk" id="ctrClr" type="button">Очистить</button></div>`:!ctrBusy&&all.length?`<div class="ctr-row"><button class="cd-lnk" id="ctrAuto" type="button">+ Добавить ${Math.min(CTR_MAX,all.length)} самых дешёвых</button></div>`:""}</div></div>
-   <div class="up-lh"><h3>Мои скины</h3><span style="color:var(--muted);font-size:13px">надетые скины и агенты не участвуют</span></div>
-   ${rs.length>1?`<div class="up-flt" id="ctrFlt">${[["all","Все"],...rs.map(r=>[String(r),RN[r]])].map(([k,t])=>`<button type="button" data-ctrf="${k}" aria-pressed="${ctrF===k}">${t}</button>`).join("")}</div>`:""}
-   <div class="up-grid ctr-grid">${list.length?list.map(it=>{const on=CTR.includes(it.id);return ctrCard(it,on,!on&&n>=CTR_MAX)}).join(""):`<div class="up-empty">${logged?"Нет свободных скинов. Открой пару кейсов.":"Войди через Steam, чтобы заключать контракты."}</div>`}</div>`;
-  const g=$("ctrGo");if(g)g.onclick=ctrSign;const cl=$("ctrClr");if(cl)cl.onclick=()=>{CTR=[];ctrRes=null;drawCtr()};
-  const au=$("ctrAuto");if(au)au.onclick=()=>{if(!needLogin())return;const free=INV.filter(it=>ctrOk(it)&&!CTR.includes(it.id)).sort((a,b)=>itDust(a)-itDust(b));while(CTR.length<CTR_MAX&&free.length)CTR.push(free.shift().id);ctrRes=null;drawCtr()}}
-function ctrBurst(host,col,n){if(!host)return;const r=host.getBoundingClientRect();for(let k=0;k<n;k++){const p=document.createElement("i");p.className="up-pt";p.style.background=col;p.style.color=col;p.style.left=r.width/2+"px";p.style.top=r.height/2+"px";host.appendChild(p);const a=Math.random()*Math.PI*2,d=80+Math.random()*Math.max(r.width,r.height)*.55,sz=3+Math.random()*7;p.style.width=p.style.height=sz+"px";
-  p.animate([{transform:"translate(-50%,-50%) scale(1)",opacity:1},{transform:`translate(calc(-50% + ${Math.cos(a)*d}px),calc(-50% + ${Math.sin(a)*d}px)) scale(.15)`,opacity:0}],{duration:900+Math.random()*900,easing:"cubic-bezier(.1,.8,.2,1)"}).onfinish=()=>p.remove()}}
-function ctrSign(){if(!needLogin()||ctrBusy)return;const P=ctrPlan();if(!P||!P.ready)return;let x=Math.random(),q=0;for(;q<P.wt.length-1;q++){if(x<P.wt[q])break;x-=P.wt[q]}const[w,sk,,wi,st,sv,sp]=P.L[q];
-  const got={id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),w:w.n,s:sk[0],r:sk[5],wear:spWear(sk,wi,sp),sv,sp,st,seed:Math.floor(Math.random()*1000),t:Date.now()};
-  const ids=new Set(P.items.map(it=>it.id));INV=INV.filter(it=>!ids.has(it.id));INV.push(got);invSave();
-  ctrBusy=true;ctrRes=null;const stage=$("ctrStage"),core=$("ctrCore"),na=document.documentElement.classList.contains("no-anim");
-  const sr=stage.getBoundingClientRect(),cx=sr.width/2,cy=sr.height/2;stage.classList.add("busy");$("ctrGo").disabled=true;$("ctrGo").textContent="Подписываем…";
-  try{sndStart()}catch(e){}
-  // скины слетаются в центр
-  [...stage.querySelectorAll(".ctr-slot.on")].forEach((el,k)=>{const r=el.getBoundingClientRect(),dx=cx-(r.left-sr.left+r.width/2),dy=cy-(r.top-sr.top+r.height/2);
-    el.animate([{transform:"none",filter:"none"},{transform:`translate(${dx*.15}px,${dy*.15}px) scale(1.08)`,filter:"brightness(1.4)",offset:.25},{transform:`translate(${dx}px,${dy}px) scale(.2) rotate(${k%2?20:-20}deg)`,filter:"brightness(3) blur(1px)",opacity:.2}],{duration:na?10:1100,delay:na?0:k*55,easing:"cubic-bezier(.6,0,.85,.3)",fill:"forwards"});
-    if(!na)setTimeout(()=>{try{tone(500+k*70,.08,"sine",.012)}catch(e){}},k*55+700)});
-  if(!na){core.classList.add("charge");core.style.setProperty("--rc",RC[got.r])}
-  setTimeout(()=>{core.classList.remove("charge");core.classList.add("boom");ctrBurst(stage,RC[got.r],na?0:48);ctrBurst(stage,"#d4f58a",na?0:24);try{sndWin(got.r)}catch(e){}
-    setTimeout(()=>{ctrBusy=false;ctrRes=got;CTR=[];drawCtr();drawInv();const c=document.querySelector(".ctr-res");if(c&&!na){c.animate([{transform:"rotateY(90deg) scale(.7)",opacity:0},{transform:"rotateY(-10deg) scale(1.04)",opacity:1,offset:.7},{transform:"none",opacity:1}],{duration:700,easing:"cubic-bezier(.2,.8,.2,1)"});c.classList.add("glow")}
-      myDrop(got,null,"контракт");toast(`Контракт: ${got.w} | ${got.s} — ${fmt(itDust(got))} ТК`)},na?0:550)},na?0:1500)}
-document.addEventListener("click",e=>{const f=e.target.closest("[data-ctrf]");if(f){ctrF=f.dataset.ctrf;drawCtr();return}
-  const c=e.target.closest("[data-ctri]");if(c&&!ctrBusy){if(!needLogin())return;const id=c.dataset.ctri,k=CTR.indexOf(id);if(k>=0)CTR.splice(k,1);else{if(CTR.length>=CTR_MAX){toast(`В контракт помещается до ${CTR_MAX} скинов`);return}CTR.push(id)}ctrRes=null;drawCtr()}});
 
 // окно наклеек
 let stw=null,sts=null,ssel=0,sVar=-1,sTy=-1,sLim=120,stkIt=null;
@@ -4301,8 +4163,9 @@ $("stkSave").onclick=()=>{if(!needLogin())return;if(stkIt){const it=stkIt;it.stk
 
 // ---------- меню: бургер, «Ещё», соцсети ----------
 $("burger").onclick=()=>{const r=document.querySelector(".rail");const o=r.classList.toggle("open");$("burger").setAttribute("aria-expanded",o)};
-const SOCIAL={DS:"",VK:"",TG:""}; // сюда вставишь ссылки, когда создашь группы
-document.querySelectorAll(".socials button").forEach(b=>b.onclick=()=>{const u=SOCIAL[b.dataset.s];if(u)window.open(u,"_blank");else toast(`Ссылка на ${b.dataset.n} появится, когда создашь группу`)});
+const SOCIAL={DS:"",VK:"",TG:""}; // ссылки на сообщества; пустые кнопки скрываются
+document.querySelectorAll(".socials button").forEach(b=>{const u=SOCIAL[b.dataset.s];if(!u){b.hidden=true;return}b.onclick=()=>window.open(u,"_blank","noopener")});
+{const sc=document.querySelector(".socials");if(sc&&![...sc.querySelectorAll("button")].some(b=>!b.hidden))sc.hidden=true}
 
 // ---------- прогресс на главной ----------
 function drawHomeProgress(){}
@@ -4742,10 +4605,10 @@ document.addEventListener("click",e=>{if(e.target.closest("#jpHBtn"))jpHModal()}
 document.addEventListener("keydown",e=>{if(e.key==="Escape"){const m=$("jpHM");if(m)m.hidden=true}});
 
 // перерисовка без сброса прокрутки списков и страницы
-const SCRL=".up-grid,.jp-inv,.ctr-grid,.jph-l";
+const SCRL=".up-grid,.jp-inv,.jph-l";
 function keepScroll(f){const y=window.scrollY,m=new Map();document.querySelectorAll(SCRL).forEach((e,i)=>{const k=e.className+"|"+i;m.set(k,e.scrollTop)});const r=f();
   document.querySelectorAll(SCRL).forEach((e,i)=>{const k=e.className+"|"+i;if(m.has(k))e.scrollTop=m.get(k)});if(Math.abs(window.scrollY-y)>1)window.scrollTo(0,y);return r}
-{const a=drawUp;drawUp=function(){return keepScroll(()=>a.apply(this,arguments))};const b=drawCtr;drawCtr=function(){return keepScroll(()=>b.apply(this,arguments))};const d=drawJp;drawJp=function(){return keepScroll(()=>d.apply(this,arguments))}}
+{const a=drawUp;drawUp=function(){return keepScroll(()=>a.apply(this,arguments))};const d=drawJp;drawJp=function(){return keepScroll(()=>d.apply(this,arguments))}}
 
 // ===== Стиль: косметика за рубли =====
 var COS={own:{},eq:{},tag:""};try{const o=JSON.parse(localStorage.getItem("cos1")||"null");if(o)COS=Object.assign(COS,o);delete COS.eq.ava;if(COS.eq.bg&&!/^bg_i_/.test(COS.eq.bg))delete COS.eq.bg}catch(e){}
@@ -4861,7 +4724,7 @@ let shopTab="tiers";
 function setShopTab(t){shopTab=t;document.querySelectorAll("[data-shopt]").forEach(b=>b.setAttribute("aria-selected",b.dataset.shopt===t));document.querySelectorAll('#v-shop .shop-pane').forEach(p=>p.hidden=p.dataset.pane!==t);if(t==="style")drawCos()}
 document.addEventListener("click",e=>{const b=e.target.closest("[data-shopt]");if(b)setShopTab(b.dataset.shopt)});
 
-const VIEWS=["play","public","me","player","clan","case","wheel","upgrade","inventory","contract","jackpot","support","tickets","shop","skins","stats","clans","ach","bans","rules","admin","offer","privacy","404"];
+const VIEWS=["play","public","me","player","clan","case","wheel","upgrade","inventory","jackpot","support","tickets","shop","skins","stats","clans","ach","bans","rules","admin","offer","privacy","404"];
 const MORE=["clans","bans","rules"];
 let curView="play";
 function viewFrom(h){return !h?"play":VIEWS.includes(h)&&h!=="404"?h:"404"}
@@ -4882,7 +4745,6 @@ function route(forced){try{closeProfile()}catch(e){}["modal","srvModal","cmdModa
   if(v==="wheel")try{drawWheel()}catch(e){console.error(e)}
   if(v==="upgrade")try{drawUp()}catch(e){console.error(e)}
   if(v==="inventory")try{drawInv()}catch(e){console.error(e)}
-  if(v==="contract")try{drawCtr()}catch(e){console.error(e)}
   if(!STKREADY&&["inventory","me","player"].includes(v))try{stkLoad()}catch(e){}
   if(v==="shop")try{setShopTab(shopTab)}catch(e){console.error(e)}
   if(v==="stats")try{drawStats()}catch(e){console.error(e)}
@@ -4892,7 +4754,7 @@ function route(forced){try{closeProfile()}catch(e){}["modal","srvModal","cmdModa
   if(v==="support")try{drawSupport()}catch(e){console.error(e)}
   if(v==="tickets")try{drawTickets()}catch(e){console.error(e)}
   document.querySelector(".rail").classList.remove("open");$("burger").setAttribute("aria-expanded","false");
-  {const T={play:"",public:"Public",me:"Мой профиль",player:"Профиль игрока",clan:"Клан",case:"Кейс",wheel:"Фортуна",upgrade:"Апгрейд",inventory:"Инвентарь",contract:"Контракт",jackpot:"Джекпот",support:"Поддержка",tickets:"Тикеты",shop:"Магазин",skins:"Кейсы",stats:"Рейтинг",clans:"Кланы",ach:"Достижения",bans:"Банлист",rules:"Правила",admin:"Админ-панель",offer:"Публичная оферта",privacy:"Конфиденциальность","404":"Страница не найдена"};document.title=(T[v]?T[v]+" — ":"")+"Tasher CS2"}
+  {const T={play:"",public:"Public",me:"Мой профиль",player:"Профиль игрока",clan:"Клан",case:"Кейс",wheel:"Фортуна",upgrade:"Апгрейд",inventory:"Инвентарь",jackpot:"Джекпот",support:"Поддержка",tickets:"Тикеты",shop:"Магазин",skins:"Кейсы",stats:"Рейтинг",clans:"Кланы",ach:"Достижения",bans:"Банлист",rules:"Правила",admin:"Админ-панель",offer:"Публичная оферта",privacy:"Конфиденциальность","404":"Страница не найдена"};document.title=(T[v]?T[v]+" — ":"")+"Tasher CS2"}
   window.scrollTo(0,0);setTimeout(()=>{try{if(!document.documentElement.classList.contains("no-anim"))countIn(document.getElementById("v-"+v))}catch(e){}},30)}
 // переход по странице: работает и там, где ссылки с # не меняют адрес
 function go(v){route(v);try{if(location.hash!=="#"+v)history.replaceState(null,"","#"+v)}catch(e){}}
