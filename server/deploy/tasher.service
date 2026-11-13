@@ -1,0 +1,22 @@
+[Unit]
+Description=TASHER site server
+After=network.target
+
+[Service]
+User=tasher
+Group=tasher
+EnvironmentFile=/etc/tasher.env
+WorkingDirectory=/opt/tasher/server
+ExecStart=/usr/bin/node /opt/tasher/server/app.js
+Restart=always
+RestartSec=2
+# защита: служба видит только свою базу
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/tasher
+MemoryMax=512M
+
+[Install]
+WantedBy=multi-user.target

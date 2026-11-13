@@ -2655,6 +2655,16 @@ body *:not(.modal):not(.sheet):not(.ntf){-webkit-backdrop-filter:none!important;
 .rail{background:linear-gradient(180deg,#121510 0%,#0d0f0c 100%)}
 .tb-ic,.me-chip{background:rgba(16,18,15,.92)}
 .drops{background:rgba(12,13,11,.9)}
+
+/* режим работы с сервером */
+html.srv .demo-only{display:none!important}
+html.srv #admTiles{display:none}
+.me-chip .av img,.pf-av img,.rt-who .av img{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block}
+html.srv #v-jackpot,html.srv #v-wheel{position:relative}
+.srv-soon{position:sticky;top:90px;z-index:5;margin:0 auto 18px;max-width:560px;padding:18px 20px;border-radius:18px;text-align:center;background:rgba(14,16,12,.96);border:1px solid rgba(181,232,83,.35);box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.srv-soon b{display:block;font-family:var(--f-display);font-size:20px;font-weight:900;font-style:italic;text-transform:uppercase;margin-bottom:6px}
+.srv-soon span{font-size:14px;color:var(--muted);line-height:1.5}
+html.srv #v-jackpot>*:not(.srv-soon):not(.page-head),html.srv #v-wheel>*:not(.srv-soon):not(.page-head){opacity:.28;pointer-events:none;filter:grayscale(.6)}
 /* фон на весь профиль на вкладке «Информация» */
 #meBody{position:relative}
 .pf-big .pbx{position:absolute;left:0;right:0;top:0;bottom:auto;aspect-ratio:3/2;-webkit-mask:linear-gradient(180deg,#000 60%,transparent);mask:linear-gradient(180deg,#000 60%,transparent)}
@@ -2873,7 +2883,7 @@ body *:not(.modal):not(.sheet):not(.ntf){-webkit-backdrop-filter:none!important;
         <b>Войди, чтобы увидеть свой профиль</b>
         <p>Статистика, прогресс достижений, привилегии и покупки привязаны к твоему Steam-аккаунту.</p>
         <button class="steam" data-login><span>Войти через Steam</span></button>
-        <small>Сейчас вход демонстрационный: покажет пример профиля.</small>
+        <small class="demo-only">Сейчас вход демонстрационный: покажет пример профиля.</small>
       </div>
       <div id="meBody" hidden></div>
     </div>
@@ -2942,7 +2952,7 @@ body *:not(.modal):not(.sheet):not(.ntf){-webkit-backdrop-filter:none!important;
     <!-- ADMIN -->
     <div class="view" id="v-admin" hidden>
       <div class="page-head"><h1>Админ-панель</h1><p>Управление сервером без программиста: баны, статусы, ТК и правила.</p></div>
-      <div class="note warn">Демо-версия. На настоящем сайте сюда попадут только администраторы: роль проверяется после входа через Steam. Изменения сейчас сразу видны на сайте, но пропадут после перезагрузки страницы.</div>
+      <div class="note warn demo-only">Демо-версия. На настоящем сайте сюда попадут только администраторы: роль проверяется после входа через Steam. Изменения сейчас сразу видны на сайте, но пропадут после перезагрузки страницы.</div>
       <div class="adm-tiles" id="admTiles"></div>
       <div class="seg" id="admTabs" role="group" aria-label="Раздел">
         <button data-t="bans" aria-pressed="true">Баны</button><button data-t="vip">Статусы</button><button data-t="tk">Баланс</button><button data-t="rules">Правила</button>
@@ -3504,7 +3514,7 @@ function drawAch(){const P2=ACHFOR&&P(ACHFOR);if(!P2)ACHFOR=null;ACHPR=P2?achPro
 drawAch();
 const rarest=[...ACHS].sort((a,b)=>a[3]-b[3])[0];
 $("achSum").innerHTML=`<div><b>${ACHS.length}</b>достижений</div><div><b>${ACAT.length-1}</b>категорий</div><div><b>${fmt(ACHS.reduce((s,a)=>s+achTK(a),0))} ТК</b>награда за все достижения</div><div><b>${rarest[1]}</b>самое редкое · ${String(rarest[3]).replace(".",",")}%</div>`;
-const achOf=p=>ACHS.filter((a,i)=>a[1]!=="Легенда сервера"&&(a[3]>45||((p.pts/37+i*13)%100)<a[3]*1.6+p.hrs/15));
+const achOf=p=>(SRV&&p===ME)?[]:ACHS.filter((a,i)=>a[1]!=="Легенда сервера"&&(a[3]>45||((p.pts/37+i*13)%100)<a[3]*1.6+p.hrs/15));
 
 // ---------- кланы ----------
 const CL=[["Волки Севера","WOLF","#5aa9ff","Играем каждый вечер, ищем тех, кто держит позицию и не уходит в AFK."],["Бетонщики","BETON","#a8a29e","Стоим насмерть на B. Микрофон обязателен."],["Headhunters","HH","#b5e853","Только хедшоты. Средний HS% клана выше 50."],["Сибирские Валенки","VLNK","#3ddc97","Из Новосибирска с любовью. Пинг не помеха."],["Пельменная","PLMN","#f5c451","Весело играем, вкусно едим. Новички приветствуются."],["Dust Kings","DK","#ff8a3d","Короли Даста. Знаем каждый пиксель карты."],["Дымовая Завеса","SMOK","#a78bfa","Раскидки, тактика и командная игра."],["Тихий Час","ZZZ","#fbbf24","Играем тихо, побеждаем громко."]];
@@ -3564,7 +3574,7 @@ $("ncColors").onclick=e=>{const b=e.target.closest("button");if(!b)return;draft.
 $("ncNameIn").oninput=ncPrev;$("ncTagIn").oninput=ncPrev;
 const CLAN_COST=50000;
 let clanMade=false;try{clanMade=localStorage.getItem("clanMade")==="1"}catch(e){}
-function tryNewClan(){if(!logged){toast("Сначала войди через Steam");return}
+function tryNewClan(){if(!logged){toast("Сначала войди через Steam");return}if(srvSoon("Создание кланов"))return;
   if(myClan){toast("У тебя уже есть клан");return}
   if(clanMade){toast("Клан можно создать только один раз");return}
   if(ME.tk<CLAN_COST){toast(`Не хватает ${fmt(CLAN_COST-ME.tk)} ТК. ТК начисляются за игру на сервере`);return}
@@ -3600,6 +3610,14 @@ try{const wl=JSON.parse(localStorage.getItem("wallet")||"null");if(wl&&wl.v===2)
   clans.forEach(c=>{const k=c.members.indexOf(ME);if(k>=0)c.members.splice(k,1)});
   myClan={...mc,d:"Новый клан. Описание можно будет добавить в настройках.",members:[ME],pts:ME.pts,month:0,wins:0,kd:ME.kd,cover:im.cover||null,ava:im.ava||null};clans.push(myClan)}}catch(e){}
 let logged=false;try{logged=localStorage.getItem("demoLogin")==="1"}catch(e){}
+// ===== режим работы с сервером: данные приходят в window.TSRV, который сервер вписывает в страницу =====
+const SRV=(typeof window.TSRV==="object"&&window.TSRV)||null;
+async function api(p,body){let r;try{r=await fetch(p,body?{method:"POST",headers:{"content-type":"application/json","x-tasher":"1"},body:JSON.stringify(body),credentials:"same-origin"}:{credentials:"same-origin"})}catch(e){throw new Error("Нет связи с сервером, проверь интернет")}
+  let j=null;try{j=await r.json()}catch(e){}if(!r.ok){if(r.status===401){toast("Сессия закончилась, войди заново");setTimeout(()=>location.reload(),1200)}throw new Error(j&&j.error||"Сервер не отвечает, попробуй позже")}return j}
+function srvUser(u){Object.assign(ME,{id:u.id,n:u.n,steamid:u.steamid,av:u.av||"",role:u.role,tk:u.tk,balance:u.balance,kills:0,deaths:0,kd:0,hs:0,hrs:0,pts:0,mvp:0,w:[],r:rankIdx(0),vip:null,c:"#b5e853",m:0,created:u.created})}
+function srvSoon(what){if(!SRV)return false;toast((what||"Этот раздел")+" скоро заработает, подключаем к серверу");return true}
+async function srvSync(){try{const d=await api("/api/me");if(d.user){ME.tk=d.user.tk;ME.balance=d.user.balance;INV=d.items||[];drawChip();try{drawSkins()}catch(e){}}}catch(e){}}
+if(SRV){document.documentElement.classList.add("srv");logged=!!SRV.user;if(SRV.user)srvUser(SRV.user)}
 const PURCHASES=[[new Date(2026,9,1),"Приз: 7 место в рейтинге за сентябрь · LEGEND на 30 дней",0],[daysAgo(12),"PREMIUM на 30 дней",199],[daysAgo(43),"VIP на 30 дней",99],[daysAgo(74),"VIP на 30 дней",99]];
 function targetOf(a){let t=a[2].replace(/(\d)\s(\d)/g,"$1$2");let m=t.match(/(\d+) раз(?![а-яё])/);if(m)return+m[1];if(/за (один )?раунд/.test(t))return 1;t=t.replace(/\d\d:\d\d/g,"").replace(/больше \d+ метров/g,"").replace(/\d+ HP/g,"").replace(/\$\d+/g,"");m=t.match(/\d+/);return m?+m[0]:1}
 function achProgress(p){p=p||ME;const own=new Set(achOf(p));let h=77;if(p!==ME)for(const c of p.n)h=(h*31+c.charCodeAt(0))%2147483646+1;const rnd=rng(h);
@@ -3638,6 +3656,7 @@ function pfLoadout(p,own){if(own)return Object.entries(SKST.sets).map(([n,s])=>{
   return["knife","gloves","rifle","rifle","sniper","pistol","pistol","smg"].map(pick).filter((w,i,a)=>a.indexOf(w)===i).map(w=>{const skin=w.skins[Math.floor(r()*w.skins.length)];const hasStk=STK_OK(w)&&r()<.6;return{w,skin,wear:+(r()*.4).toFixed(3),st:r()<.3,tag:"",stk:hasStk?[0,1,2,3,4].map(()=>r()<.45?{i:Math.floor(r()*STK.length),wear:0}:null):null}})}
 function pfPanel(p,own,tab){
   if(tab==="info"){const reg=daysAgo(40+(p.id*53)%690),on=isOn(p),cl=clanOf(p)||(own?myClan:null);
+    if(SRV&&p===ME)return`<h2>Информация</h2>`+pfRows([["ID",String(ME.id)],["SteamID",esc(ME.steamid||"")],["Роль",ME.role==="owner"?"Владелец":ME.role==="admin"?"Администратор":"Игрок"],["Дата регистрации",dts(new Date(ME.created||Date.now()))],["Часов на проекте","Появится после запуска игрового сервера"],["Клан","Нет"]]);
     let h=`<h2>Информация</h2>`+pfRows([["ID",String(790000+((p.id*7919)%9000))],["Роль","Игрок"],["Дата регистрации",dts(reg)],["Место в рейтинге месяца","#"+placeOf(p)],["Часов на проекте",fmt(p.hrs)+" ч"],["Клан",cl?esc(cl.n):"Нет"],["Последний сервер",on?SERVERS[p.id%SERVERS.length].name:"Неизвестно"],["Последний вход",dts(lastIn(p),1)]]);
     return h}
   if(tab==="skins"){const l=pfLoadout(p,own);
@@ -3656,12 +3675,12 @@ document.addEventListener("click",e=>{const b=e.target.closest("[data-pft]");if(
   rescueSet();box.querySelectorAll("[data-pft]").forEach(x=>x.setAttribute("aria-selected",x===b));box.querySelector(".pf-panel").innerHTML=pfPanel(p,own,k);if(own)pfBigSet();pfAfter()});
 function drawPlayer(){rescueSet();const p=P(PFN);if(!p)return;PF={p,own:false};
   $("plBody").innerHTML=`<button class="pf-back" id="pfBack">${svgI(PI.back)}Назад</button>`+pfHTML(p,false);$("pfBack").onclick=()=>go(pfBack&&pfBack!=="player"?pfBack:"stats");pfAfter()}
-function setLogin(v){logged=v;setTimeout(()=>{try{drawOwnLink();if(curView==="support")drawSupport();if(curView==="tickets"&&!v)go("play")}catch(e){}},0);try{localStorage.setItem("demoLogin",v?"1":"0")}catch(e){}drawMe();if(typeof drawSkins==="function")drawSkins();if(typeof drawHomeProgress==="function")drawHomeProgress();if(typeof drawTiers==="function")drawTiers();if(typeof drawStats==="function")drawStats();if(v){if(curView!=="skins")go("me");toast("Вход выполнен (демо)")}else toast("Ты вышел из аккаунта")}
+function setLogin(v){if(SRV){if(v)location.href="/auth/steam?ret="+encodeURIComponent("/"+location.hash);else api("/auth/logout",{}).catch(()=>{}).then(()=>location.reload());return}logged=v;setTimeout(()=>{try{drawOwnLink();if(curView==="support")drawSupport();if(curView==="tickets"&&!v)go("play")}catch(e){}},0);try{localStorage.setItem("demoLogin",v?"1":"0")}catch(e){}drawMe();if(typeof drawSkins==="function")drawSkins();if(typeof drawHomeProgress==="function")drawHomeProgress();if(typeof drawTiers==="function")drawTiers();if(typeof drawStats==="function")drawStats();if(v){if(curView!=="skins")go("me");toast("Вход выполнен (демо)")}else toast("Ты вышел из аккаунта")}
 document.addEventListener("click",e=>{if(e.target.closest("[data-login]"))setLogin(true);if(e.target.closest('a[href="#me"]'))pfTab="info"});
 
 // ---------- админ-панель ----------
 REASONS.forEach(([r])=>$("bReason").insertAdjacentHTML("beforeend",`<option>${r}</option>`));
-const VIPS=[["Kotleta","STEAM_1:0:58213411","LEGEND",daysFwd(24)],["Vortex","STEAM_1:1:30944120","PREMIUM",daysFwd(9)],["Lenka","STEAM_1:0:77120456","VIP",daysFwd(3)],["Bober","STEAM_1:1:12099877","PREMIUM",daysFwd(17)],[ME.n,"STEAM_1:1:48102377",ME.vip.tier,ME.vip.until]];
+const VIPS=[["Kotleta","STEAM_1:0:58213411","LEGEND",daysFwd(24)],["Vortex","STEAM_1:1:30944120","PREMIUM",daysFwd(9)],["Lenka","STEAM_1:0:77120456","VIP",daysFwd(3)],["Bober","STEAM_1:1:12099877","PREMIUM",daysFwd(17)],...(ME.vip?[[ME.n,"STEAM_1:1:48102377",ME.vip.tier,ME.vip.until]]:[])];
 function drawAdmin(){const act=bans.filter(b=>b.active);
   $("admTiles").innerHTML=`<div><small>Онлайн сейчас</small><b>${fmt(totalOnline)}</b></div><div><small>Активные баны</small><b>${act.length}</b></div><div><small>Действующие статусы</small><b>${VIPS.length}</b></div><div><small>Правил</small><b>${RULES.reduce((n,r)=>n+r[1].length,0)}</b></div>`;
   $("aBans").innerHTML=act.map(b=>`<div class="ai"><div><b>${esc(b.n)} · ${b.reason}</b><small>${b.sid} · ${b.perm?"навсегда":"до "+new Date(b.d.getTime()+b.days*864e5).toLocaleDateString("ru-RU")}</small></div><button data-unban="${bans.indexOf(b)}">Разбанить</button></div>`).join("")||'<div class="note">Активных банов нет</div>';
@@ -3864,6 +3883,7 @@ let INV=[];try{INV=JSON.parse(localStorage.getItem("inv2")||"[]")||[]}catch(e){}
 INV=INV.filter(it=>{const w=W.find(x=>x.n===it.w);return w&&w.skins.some(x=>x[0]===it.s)});
 [SKST.sets,SKST.setsT].forEach(M=>Object.keys(M||{}).forEach(k=>{const s=M[k],w=W.find(x=>x.n===k);if(!w||(s.name&&!w.skins.some(x=>x[0]===s.name))||(s.inv&&!INV.some(x=>x.id===s.inv)))delete M[k]}));
 let csDay="";try{csDay=localStorage.getItem("caseDay")||""}catch(e){}
+if(SRV){INV=(SRV.items||[]).filter(it=>{const w=W.find(x=>x.n===it.w);return w&&w.skins.some(x=>x[0]===it.s)});csDay=SRV.user&&SRV.user.dailyUsed?new Date(Date.now()+3*3600e3).toISOString().slice(0,10):""}
 const invSave=()=>{try{localStorage.setItem("inv2",JSON.stringify(INV));localStorage.setItem("caseDay",csDay)}catch(e){}};
 let csTab="cases",invF="all",csBusy=false;
 const WB=[[0,.07],[.07,.15],[.15,.38],[.38,.45],[.45,1]];
@@ -3931,7 +3951,8 @@ function slotClear(m,wn){const c=slotCls(wn);if(!c)return;Object.keys(m).forEach
 [SKST.sets,SKST.setsT].forEach(m=>{const seen={};Object.keys(m||{}).forEach(k=>{const c=slotCls(k);if(!c)return;if(seen[c])delete m[k];else seen[c]=1})});
 function equip(it,on,side){const w=invW(it),sides=side?[side]:w?sidesOf(w):["ct","t"];sides.forEach(sd=>{const m=sideMap(it.w,sd);if(on){slotClear(m,it.w);m[it.w]={name:it.s,wear:it.wear,seed:it.seed,tag:"",st:it.st,stk:it.stk||null,inv:it.id}}else if(m[it.w]&&m[it.w].inv===it.id)delete m[it.w]});syncActive()}
 const SELL_R=[1,1,1,1,1,1],sellK=it=>SELL_R[Math.max(0,Math.min(5,it.r|0))],itSell=it=>Math.max(1,Math.floor(itDust(it)*sellK(it)));
-function dust(list){let sum=0;list.forEach(it=>{if(isOnIt(it))equip(it,false);sum+=itSell(it)});const ids=new Set(list.map(x=>x.id));INV=INV.filter(x=>!ids.has(x.id));ME.tk+=sum;walletSave();invSave();drawChip();return sum}
+function dust(list){let sum=0;list.forEach(it=>{if(isOnIt(it))equip(it,false);sum+=itSell(it)});const ids=new Set(list.map(x=>x.id));INV=INV.filter(x=>!ids.has(x.id));ME.tk+=sum;walletSave();invSave();drawChip();
+  if(SRV&&list.length)api("/api/items/sell",{ids:[...ids]}).then(r=>{ME.tk=r.tk;drawChip()}).catch(e=>{toast("Продажа не прошла: "+e.message);srvSync()});return sum}
 $("invGrid").addEventListener("click",e=>{const g=e.target.closest("[data-gocases]");if(g){go("skins");return}
   const q=e.target.closest("[data-ieq],[data-istk],[data-idel]");if(!q||!needLogin())return;const id=q.dataset.ieq||q.dataset.istk||q.dataset.idel,it=INV.find(x=>x.id===id);if(!it)return;
   if(q.dataset.ieq){const sd=q.dataset.side,on=!onSide(it,sd);equip(it,on,sd);drawInv();const tn=sd==="ct"?"за спецназ (CT)":"за террористов (T)";toast(on?`${it.w} | ${it.s}: надето ${tn}`:`${it.w}: снято ${tn}`)}
@@ -3976,11 +3997,13 @@ const sndStart=()=>{tone(220,.25,"sine",.03);tone(330,.3,"sine",.02,.05)};
 const sndWin=r=>{const base=r>=5?[523,659,784,1047,1319]:r>=4?[523,659,784,1047]:r>=3?[440,554,659]:[392,494];base.forEach((f,i)=>{tone(f,.5,"triangle",.035,i*.09);tone(f*2,.3,"sine",.012,i*.09)})};
 let czFast=false;try{czFast=localStorage.getItem("czFast")==="1"}catch(e){}
 function czSkip(){if(czState!=="spin"||!csCur)return;czTok++;sndWin(Math.max(...csCur.wins.map(w=>w.r)));czBusy=false;czState="res";if(curView==="case")czRenderTop();drawSkins()}
-function czOpen(){if(!needLogin()||czBusy)return;const D=czFast?1500:5600;const c=CASES[CZ],n=c.p?czN:1;
+async function czOpen(){if(!needLogin()||czBusy)return;const D=czFast?1500:5600;const c=CASES[CZ],n=c.p?czN:1;
   if(!c.p&&csDay===mskDay()){toast("Бесплатный кейс уже открыт сегодня");return}
   if(c.p&&ME.tk<c.p*n){toast(`Не хватает ${fmt(c.p*n-ME.tk)} ТК. Их можно заработать в игре: за убийства, часы на сервере, достижения и Фортуну`);return}
-  if(c.p){ME.tk-=c.p*n;walletSave();drawChip()}else csDay=mskDay();
-  const wins=Array.from({length:n},()=>rollCase(c));INV.push(...wins);invSave();setTimeout(()=>wins.forEach(it=>myDrop(it,CZ)),D);csCur={c,wins,i:CZ,n};czBusy=true;czState="spin";czN=n;czRenderTop();
+  let wins;
+  if(SRV){czBusy=true;try{const r=await api("/api/cases/open",{k:c.k,n});ME.tk=r.tk;if(!c.p)csDay=mskDay();drawChip();wins=r.items;czBusy=false}catch(e){czBusy=false;if(/уже открыт/.test(e.message)){csDay=mskDay();czRenderTop()}toast(e.message);return}}
+  else{if(c.p){ME.tk-=c.p*n;walletSave();drawChip()}else csDay=mskDay();wins=Array.from({length:n},()=>rollCase(c))}
+  INV.push(...wins);invSave();setTimeout(()=>wins.forEach(it=>myDrop(it,CZ)),D);csCur={c,wins,i:CZ,n};czBusy=true;czState="spin";czN=n;czRenderTop();
   $("czTop").scrollIntoView({behavior:"smooth",block:"start"});
   const tok=++czTok,N=matchMedia("(hover:none)").matches?28:34,rows=[...$("czTop").querySelectorAll(".st-row")];rows.forEach((row,k)=>{const items=Array.from({length:N+6},(_,q)=>q===N?wins[k]:rollCase(c));row.innerHTML=items.map(stSkin).join("")});
   sndStart();requestAnimationFrame(()=>{let left=rows.length;rows.forEach((row,k)=>{const W2=row.children[1].offsetLeft-row.children[0].offsetLeft,IW=row.children[0].offsetWidth,box=row.parentElement.clientWidth,target=N*W2+IW/2-box/2+(Math.random()-.5)*W2*.7;let lastI=-1;
@@ -4089,9 +4112,11 @@ document.addEventListener("click",e=>{if(curView!=="upgrade"||UP.busy)return;
   const us=e.target.closest("[data-ups]");if(us){UP.st=us.dataset.ups;try{localStorage.setItem("upStyle",UP.st)}catch(x){}UP.res=null;drawUp();return}
   if(e.target.closest("[data-upmore]")){UP.lim=(UP.lim||60)+120;$("upTg").innerHTML=upTargetsHTML();return}
   const f=e.target.closest("[data-upf]");if(f){UP.f=f.dataset.upf;UP.auto=true;if(!upStake()){document.querySelectorAll("[data-upf]").forEach(b=>b.setAttribute("aria-pressed",b===f));$("upTg").innerHTML=upTargetsHTML();toast("Сначала выбери скины или ТК для ставки");return}upRandom();UP.res=null;drawUp();upFlash()}});
-function upSpin(){if(!needLogin()||UP.busy)return;const s=upStake(),t=UP.t;if(!t||!s)return;if(t.p<=s*(UP.fix&&UP.fixK===t.k?1.05:1.2)){toast("Цель должна стоить хотя бы в 1,2 раза дороже ставки");return}if(UP.tk>ME.tk){toast("Не хватает ТК");return}
-  const ch=upChance(),win=Math.random()*100<ch;if(win){const[lo,hi]=wearRange(t.sk,t.i);const _g={id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),w:t.w.n,s:t.sk[0],r:t.sk[5],wear:spWear(t.sk,t.i,t.sp),st:!!t.st,sv:!!t.sv,sp:t.sp,seed:Math.floor(Math.random()*1000),t:Date.now()};INV.push(_g);setTimeout(()=>myDrop(_g,null,"апгрейд"),5600)}
-  const stake=UP.sel.map(id=>INV.find(x=>x.id===id)).filter(Boolean);stake.forEach(it=>{if(isOnIt(it))equip(it,false)});const ids=new Set(stake.map(x=>x.id));INV=INV.filter(x=>!ids.has(x.id));ME.tk-=UP.tk;walletSave();invSave();drawChip();
+async function upSpin(){if(!needLogin()||UP.busy)return;const s=upStake(),t=UP.t;if(!t||!s)return;if(t.p<=s*(UP.fix&&UP.fixK===t.k?1.05:1.2)){toast("Цель должна стоить хотя бы в 1,2 раза дороже ставки");return}if(UP.tk>ME.tk){toast("Не хватает ТК");return}
+  let ch=upChance(),win=Math.random()*100<ch,_srv=null;
+  if(SRV){UP.busy=true;try{_srv=await api("/api/upgrade",{ids:UP.sel.slice(),tk:UP.tk,target:t.k});ch=_srv.chance;win=_srv.win}catch(e){UP.busy=false;toast(e.message);srvSync();return}UP.busy=false}
+  if(_srv){if(_srv.item){INV.push(_srv.item);setTimeout(()=>myDrop(_srv.item,null,"апгрейд"),5600)}}else if(win){const[lo,hi]=wearRange(t.sk,t.i);const _g={id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),w:t.w.n,s:t.sk[0],r:t.sk[5],wear:spWear(t.sk,t.i,t.sp),st:!!t.st,sv:!!t.sv,sp:t.sp,seed:Math.floor(Math.random()*1000),t:Date.now()};INV.push(_g);setTimeout(()=>myDrop(_g,null,"апгрейд"),5600)}
+  const stake=UP.sel.map(id=>INV.find(x=>x.id===id)).filter(Boolean);stake.forEach(it=>{if(isOnIt(it))equip(it,false)});const ids=new Set(stake.map(x=>x.id));INV=INV.filter(x=>!ids.has(x.id));if(_srv)ME.tk=_srv.tk;else ME.tk-=UP.tk;walletSave();invSave();drawChip();
   UP.busy=true;UP.res=null;const btn=$("upGo");btn.disabled=true;btn.textContent="Крутим…";const c=document.querySelector(".up-c");if(c)c.innerHTML=`<b>${ch.toFixed(ch<10?2:1)}%</b><small>Шанс</small>`;
   const arc=ch*3.6,m=Math.min(6,arc/4),fin=win?m+Math.random()*(arc-2*m):arc+m+Math.random()*(360-arc-2*m),tot=360*5+fin,nd=$("upNeedle");let lastS=-1;
   try{sndStart()}catch(e){}
@@ -4126,8 +4151,10 @@ function pushDrop(d){DROPS.unshift(d);if(DROPS.length>24)DROPS.length=24;const t
   while(tr.children.length>24)tr.lastElementChild.remove()}
 function fakeDrop(){const pc=CASES.filter(c=>c.p),wt=pc.map(c=>1/Math.sqrt(c.p));let x=Math.random()*wt.reduce((a,b)=>a+b,0),i=0;for(;i<pc.length-1;i++){if(x<wt[i])break;x-=wt[i]}
   const c=pc[i],it=rollCase(c);return{n:NICKS[Math.floor(Math.random()*NICKS.length)],w:it.w,s:it.s,r:it.r,wear:it.wear,c:CASES.indexOf(c)}}
-for(let k=0;k<16;k++)DROPS.push(fakeDrop());
-function dropLoop(){clearTimeout(dropT);dropT=setTimeout(()=>{if(!document.hidden)pushDrop(fakeDrop());dropLoop()},(matchMedia("(hover:none)").matches?2.2:1)*(2600+Math.random()*4200))}dropLoop();
+if(!SRV)for(let k=0;k<16;k++)DROPS.push(fakeDrop());
+let srvDropT=0;async function srvDrops(first){try{const d=(await api("/api/drops")).drops||[];const fresh=d.filter(x=>x.t>srvDropT&&W.some(w=>w.n===x.w)).reverse();if(d.length)srvDropT=Math.max(srvDropT,d[0].t);
+  fresh.forEach(x=>{const o={n:x.n,w:x.w,s:x.s,r:x.r,wear:x.wear,c:x.c?CASES.findIndex(c=>c.k===x.c):null,src:x.src==="upgrade"?"апгрейд":undefined};if(o.c<0)o.c=null;if(first)DROPS.unshift(o);else if(!(logged&&x.n===ME.n))pushDrop(o)});if(first){DROPS.length=Math.min(DROPS.length,24);try{drawDrops()}catch(e){}}}catch(e){}}
+function dropLoop(){if(SRV){clearTimeout(dropT);dropT=setTimeout(()=>{(document.hidden?Promise.resolve():srvDrops(false)).then(dropLoop)},8000);return}clearTimeout(dropT);dropT=setTimeout(()=>{if(!document.hidden)pushDrop(fakeDrop());dropLoop()},(matchMedia("(hover:none)").matches?2.2:1)*(2600+Math.random()*4200))}dropLoop();
 function myDrop(it,ci,src){if(!it||it.fx)return;pushDrop({n:logged?ME.n:"Гость",w:it.w,s:it.s,r:it.r,wear:it.wear,c:ci,src,me:1})}
 $("dropsTr").addEventListener("click",e=>{const a=e.target.closest("[data-cprev]");if(!a)return;e.preventDefault();openCasePage(+a.dataset.cprev)});
 
@@ -4210,7 +4237,7 @@ function whPrize(i){const [r,t,sub]=WSEG[i];return`<small style="color:${WR[r][1
 const ease=k=>1-Math.pow(1-k,4);
 function tween(ms,f,done){const t0=performance.now();const step=t=>{const k=Math.min(1,(t-t0)/ms);f(ease(k));if(k<1)requestAnimationFrame(step);else done()};requestAnimationFrame(step)}
 function setSweep(a){const g=$("rdSweep");if(g)g.setAttribute("transform",`rotate(${a} 200 200)`);document.querySelectorAll(".rb").forEach(b=>{const p=RPOS[+b.dataset.b],d=((a-p.a)%360+360)%360;b.style.setProperty("--glow",d<60?(1-d/60).toFixed(2):0)})}
-function spinWheel(){if(!logged){toast("Сначала войди через Steam");return}if(whBusy||WH.last===mskDay())return;
+function spinWheel(){if(!logged){toast("Сначала войди через Steam");return}if(srvSoon("Фортуна"))return;if(whBusy||WH.last===mskDay())return;
   const r=pickR(),i=pickSeg(r);whBusy=true;const AG=whApply(i,r);const b=$("whSpin");b.disabled=true;b.textContent=WH.mode==="strip"?"Открываем…":"Сканируем…";
   document.querySelectorAll(".rb.hit,.st-it.win").forEach(e=>e.classList.remove("hit","win"));
   if(WH.mode==="strip"){const N=58;STRIP=Array.from({length:N+6},(_,k)=>k===N?i:pickSeg(pickR()));
@@ -4231,12 +4258,23 @@ function finish(i,r,again){whBusy=false;drawChip();try{const g=WSEG[i];notify("p
 let TKLOG=[];try{TKLOG=JSON.parse(localStorage.getItem("tkLog")||"[]")||[]}catch(e){}
 if(!TKLOG.length)TKLOG=[{n:"Kotleta",a:25000,why:"Компенсация: не выдался LEGEND",by:"Admin_Max",d:daysAgo(1).toISOString()},{n:"Bober",a:-5000,why:"Списание за багоюз",by:"Holodok",d:daysAgo(3).toISOString()},{n:"Lenka",a:10000,why:"Победа в турнире выходного дня",by:"Sanya",d:daysAgo(5).toISOString()}];
 const tkLogSave=()=>{try{localStorage.setItem("tkLog",JSON.stringify(TKLOG))}catch(e){}};
-function drawTkAdm(){$("tkNicks").innerHTML=[...players,...guests].filter((p,i,a)=>a.indexOf(p)===i).map(p=>`<option value="${esc(p.n)}">`).join("");
+async function srvTkAdm(){try{const [u,l]=await Promise.all([api("/api/admin/users"),api("/api/admin/ledger")]);SRVU=u.users;$("tkNicks").innerHTML=SRVU.map(p=>`<option value="${esc(p.n)}">${esc(p.steamid)}</option>`).join("");
+  const nm=id=>{const p=SRVU.find(x=>x.id===id);return p?p.n:"#"+id};
+  $("aTk").innerHTML=l.ledger.filter(x=>x.kind==="admin").map(x=>{let m={};try{m=JSON.parse(x.meta||"{}")}catch(e){}return`<div class="ai"><div><b>${esc(nm(x.user_id))} · <span style="color:${x.delta>0?"var(--live)":"var(--accent)"}">${x.delta>0?"+":"−"}${fmt(Math.abs(x.delta))} ${x.cur==="rub"?"₽":"ТК"}</span></b><small>${esc(m.reason||"Без причины")} · ${esc(m.byName||"")} · ${new Date(x.created_at).toLocaleString("ru-RU")}</small></div></div>`}).join("")||'<div class="note">Операций пока не было</div>'}catch(e){$("aTk").innerHTML=`<div class="note warn">${esc(e.message)}</div>`}}
+var SRVU=[];
+function drawTkAdm(){if(SRV){srvTkAdm();return}$("tkNicks").innerHTML=[...players,...guests].filter((p,i,a)=>a.indexOf(p)===i).map(p=>`<option value="${esc(p.n)}">`).join("");
   $("aTk").innerHTML=TKLOG.map(l=>`<div class="ai"><div><b>${esc(l.n)} · <span style="color:${l.a>0?"var(--live)":"var(--accent)"}">${l.a>0?"+":"−"}${fmt(Math.abs(l.a))} ${l.cur==="rub"?"₽":"ТК"}</span></b><small>${esc(l.why||"Без причины")} · ${esc(l.by)} · ${new Date(l.d).toLocaleDateString("ru-RU")}</small></div></div>`).join("")||'<div class="note">Операций пока не было</div>'}
 function tkQuickDraw(){const r=$("tkCur").value==="rub",L=r?[50,100,500,1000]:[1000,10000,50000,100000];$("tkQuick").innerHTML=`<span>Быстро:</span>`+L.map(v=>`<button type="button" data-q="${v}">${fmt(v)} ${r?"₽":"ТК"}</button>`).join("");$("tkAmt").placeholder=r?"100":"500"}
 tkQuickDraw();$("tkCur").onchange=tkQuickDraw;
 $("tkQuick").onclick=e=>{const b=e.target.closest("[data-q]");if(b)$("tkAmt").value=b.dataset.q};
-$("fTk").onsubmit=e=>{e.preventDefault();const n=$("tkNick").value.trim(),a=Math.floor(+$("tkAmt").value),op=+$("tkOp").value,p=P(n),m=$("tkAMsg");
+$("fTk").onsubmit=e=>{e.preventDefault();const n=$("tkNick").value.trim(),a=Math.floor(+$("tkAmt").value),op=+$("tkOp").value,m=$("tkAMsg");
+  if(SRV){(async()=>{try{if(!(a>0))throw new Error("Укажи сумму больше нуля");const why=$("tkWhy").value.trim();if(!why)throw new Error("Укажи причину: она останется в журнале");
+    let c=SRVU.filter(x=>x.n===n||x.steamid===n||String(x.id)===n);if(!c.length)c=(await api("/api/admin/users?q="+encodeURIComponent(n))).users.filter(x=>x.n===n||x.steamid===n||String(x.id)===n);
+    if(!c.length)throw new Error("Игрок не найден. Впиши ник точно или SteamID64");if(c.length>1)throw new Error("Несколько игроков с таким ником, впиши SteamID64");
+    const cur=$("tkCur").value==="rub"?"rub":"tk",r=await api("/api/admin/balance",{user:c[0].id,cur,delta:a*op,reason:why});
+    if(c[0].id===ME.id){ME.tk=r.user.tk;ME.balance=r.user.balance;drawChip()}
+    m.textContent=`${op>0?"Начислено":"Списано"} ${fmt(a)} ${cur==="rub"?"₽":"ТК"} игроку ${c[0].n}`;m.className="fmsg ok";$("fTk").reset();tkQuickDraw();drawTkAdm();toast(m.textContent)}catch(x){m.textContent=x.message;m.className="fmsg err"}})();return}
+  const p=P(n);
   if(!p){m.textContent="Игрок с таким ником не найден";m.className="fmsg err";return}
   if(!(a>0)){m.textContent="Укажи сумму больше нуля";m.className="fmsg err";return}
   const d=a*op,rub=$("tkCur").value==="rub",U=rub?"₽":"ТК",why=$("tkWhy").value.trim();
@@ -4249,6 +4287,7 @@ const TR=[["ban","Бан или мут","Бан или мут выдан по о
 const TRn=k=>(TR.find(r=>r[0]===k)||TR[4]);
 const TST={wait:["Ждёт ответа","#ffb547"],answered:["Есть ответ","#3ddc97"],closed:["Закрыт","#8b93a1"]};
 const isOwner=()=>logged&&ME.role==="owner";
+const isStaff=()=>logged&&(ME.role==="owner"||ME.role==="admin");
 const hAgo=h=>{const d=new Date(Date.now()-h*36e5);return d.toISOString()};
 let TICKETS=null;try{TICKETS=JSON.parse(localStorage.getItem("tickets")||"null")}catch(e){}
 if(!Array.isArray(TICKETS))TICKETS=[
@@ -4317,7 +4356,7 @@ $("tkActs").onclick=e=>{const b=e.target.closest("[data-ta]");if(!b||!tkCur)retu
 document.addEventListener("click",e=>{const c=e.target.closest("[data-tk]");if(c)openTicket(+c.dataset.tk)});
 $("tkmClose").onclick=()=>$("tkModal").hidden=true;$("tkModal").onclick=e=>{if(e.target.id==="tkModal")$("tkModal").hidden=true};
 document.addEventListener("keydown",e=>{if(e.key==="Escape")$("tkModal").hidden=true});
-function drawOwnLink(){const l=document.querySelector(".own-link");if(!l)return;l.hidden=!isOwner();const n=TICKETS.filter(t=>t.st==="wait").length;$("tkCnt").textContent=n||"";$("tkCnt").hidden=!n}
+function drawOwnLink(){const al=document.querySelector('.adm-link[data-v="admin"]');if(al&&SRV)al.hidden=!isStaff();const l=document.querySelector(".own-link");if(!l)return;l.hidden=SRV?true:!isOwner();const n=TICKETS.filter(t=>t.st==="wait").length;$("tkCnt").textContent=n||"";$("tkCnt").hidden=!n}
 // ---------- магазин ----------
 const TIERIMG={"VIP": "img/tier/vip.jpg?v=6c7e2367", "PREMIUM": "img/tier/premium.jpg?v=aa901830", "LEGEND": "img/tier/legend.jpg?v=58f3fea4", "ELITE": "img/tier/elite.jpg?v=9ac26fd5", "TITAN": "img/tier/titan.jpg?v=56d95929", "GOD": "img/tier/god.jpg?v=7d1fccc4"};
 const CREST={
@@ -4405,14 +4444,14 @@ let buyHow="card";
 document.querySelectorAll("#buyHow button").forEach(b=>b.onclick=()=>{if(b.disabled)return;buyHow=b.dataset.h;document.querySelectorAll("#buyHow button").forEach(x=>x.setAttribute("aria-pressed",x===b));const bal=buyHow==="bal";$("buyMail").closest("label").hidden=bal;$("buyMail").required=!bal});
 $("buyClose").onclick=()=>$("buyModal").hidden=true;
 $("buyModal").onclick=e=>{if(e.target.id==="buyModal")$("buyModal").hidden=true};
-$("buyForm").onsubmit=e=>{e.preventDefault();$("buyModal").hidden=true;if(buyHow==="bal"){ME.balance-=order.p;PURCHASES.unshift([new Date(today),order.t+" ("+order.s+")",order.p]);drawMe();try{notify("pay","Покупка оплачена",`${order.t} (${order.s}) за ${fmt(order.p)} ₽ с баланса`)}catch(e){}toast(`Оплачено с баланса: ${order.t}. Осталось ${fmt(ME.balance)} ₽`)}else toast(`Демо: здесь откроется оплата ${fmt(order.p)} ₽. Платёжная система ещё не подключена`)};
+$("buyForm").onsubmit=e=>{e.preventDefault();if(srvSoon("Оплата")){$("buyModal").hidden=true;return}$("buyModal").hidden=true;if(buyHow==="bal"){ME.balance-=order.p;PURCHASES.unshift([new Date(today),order.t+" ("+order.s+")",order.p]);drawMe();try{notify("pay","Покупка оплачена",`${order.t} (${order.s}) за ${fmt(order.p)} ₽ с баланса`)}catch(e){}toast(`Оплачено с баланса: ${order.t}. Осталось ${fmt(ME.balance)} ₽`)}else toast(`Демо: здесь откроется оплата ${fmt(order.p)} ₽. Платёжная система ещё не подключена`)};
 drawTiers();
 
 // ---------- медали за топ-10 месяца ----------
 const MEDAL_MONTHS=["май 2026","июнь 2026","июль 2026","август 2026","сентябрь 2026","октябрь 2026"];
 const MEDALS=new Map();
 (function(){const all=[...players,...guests];MEDAL_MONTHS.forEach((mo,k)=>{const r=rng(900+k*31);all.map(p=>[p,p.pts*(0.3+r()*1.6)]).sort((a,b)=>b[1]-a[1]).slice(0,10).forEach(([p],i)=>{if(p===ME)return;if(!MEDALS.has(p))MEDALS.set(p,[]);MEDALS.get(p).push({place:i+1,month:mo})})});
-  MEDALS.set(ME,[{place:7,month:"октябрь 2026"},{place:7,month:"июль 2026"},{place:9,month:"май 2026"}])})();
+  if(!SRV)MEDALS.set(ME,[{place:7,month:"октябрь 2026"},{place:7,month:"июль 2026"},{place:9,month:"май 2026"}])})();
 const MCOL=p=>p===1?["#fff1b8","#f2c234","#9a6b00","#5a3c00"]:p===2?["#ffffff","#cfd6df","#7c8794","#3f4650"]:p===3?["#ffd9b8","#d88a4b","#8a4a1c","#4a240a"]:["#ffd27a","#e39b2a","#7a4a0a","#3a2208"];
 const MRIB=p=>p===1?["#eb4b4b","#d4f58a"]:p===2?["#4b69ff","#e8edf3"]:p===3?["#2fb36a","#f3c9a5"]:["#2a1d22","#b5e853"];
 let mdN=0;
@@ -4462,7 +4501,7 @@ function tickMonth(){const now=new Date(),msk=new Date(now.getTime()+3*3600e3);c
   const d=Math.floor(left/864e5),h=Math.floor(left%864e5/36e5),m=Math.floor(left%36e5/6e4),s=Math.floor(left%6e4/1e3);
   $("tD").textContent=d;$("tH").textContent=String(h).padStart(2,"0");$("tM").textContent=String(m).padStart(2,"0");$("tS").textContent=String(s).padStart(2,"0");$("mName").textContent=`Итоги подведём 1-го числа в 00:00 МСК. Места 1–3 получают KING, места 4–10 — LEGEND, весь топ-10 — медаль в профиль.`}
 tickMonth();setInterval(tickMonth,1000);
-{const b=board().filter(p=>p!==ME);ME.m=monthPts(b[9])-137}
+if(!SRV){const b=board().filter(p=>p!==ME);ME.m=monthPts(b[9])-137}
 document.documentElement.style.setProperty("--god",`url(${TIERIMG.GOD})`);
 
 drawStats();
@@ -4584,7 +4623,7 @@ function jpLive(){const R=JP.r,c=$("jpCenter");if(!R||!c)return;const ph=jpPhase
   if(ph==="count"&&R.cd-Date.now()<=3e3){const g=$("jpGo");if(g&&!g.disabled){$("jpBet").innerHTML=jpBet(R)}}}
 document.addEventListener("click",e=>{if(!e.target.closest("#jpBox"))return;let b;
   if(b=e.target.closest("[data-jpi]")){if(!needLogin())return;const id=b.dataset.jpi,k=jpSel.indexOf(id);if(k>=0)jpSel.splice(k,1);else{const me=jpMe(JP.r);if(jpSel.length>=JP_MAXI-(me?me.items.length:0)){toast(`Не больше ${JP_MAXI} скинов за раунд`);return}jpSel.push(id)}keepScroll(()=>{$("jpBet").innerHTML=jpBet(JP.r)});return}
-  if(e.target.closest("#jpGo")){if(!needLogin())return;const R=JP.r,ph=jpPhase(R);if(!(ph==="wait"||ph==="count"&&R.cd-Date.now()>3e3)){toast("Ставки на этот раунд закрыты");return}
+  if(e.target.closest("#jpGo")){if(!needLogin())return;if(srvSoon("Джекпот"))return;const R=JP.r,ph=jpPhase(R);if(!(ph==="wait"||ph==="count"&&R.cd-Date.now()>3e3)){toast("Ставки на этот раунд закрыты");return}
     const items=jpSel.map(id=>INV.find(x=>x.id===id)).filter(Boolean);if(!items.length)return;items.forEach(it=>{if(isOnIt(it))equip(it,false)});const ids=new Set(items.map(x=>x.id));INV=INV.filter(x=>!ids.has(x.id));invSave();
     let me=jpMe(R);if(!me){me={n:logged?ME.n:"Ты",c:"#b5e853",me:1,items:[],t:Date.now()};R.players.push(me)}me.items.push(...items);jpSel=[];
     if(!R.cd&&R.players.length>=2)R.cd=Date.now()+JP_COUNT;if(R.players.length<2)R.nb=Math.min(R.nb,Date.now()+2500);jpSave();drawJp();try{drawInv()}catch(e){}
@@ -4633,7 +4672,7 @@ const CCAT={frame:["Рамки аватара","Обводка аватарки 
 const CTABS={prof:["frame","bg","badge"],game:["nick","tag","kill","snd","smoke","trail"]};
 function cosI(id){return CI?CI.find(x=>x.id===id):null}function cosEq(cat){if(!CI||!COS)return null;const id=COS.eq[cat];return id?cosI(id):null}
 function isMe(n){try{return n===ME.n}catch(e){return false}}
-function cosAvInner(n,c){return""}
+function cosAvInner(n,c){return SRV&&ME.av&&isMe(n)?`<img src="${esc(ME.av)}" alt="" referrerpolicy="no-referrer">`:""}
 function cosFrame(n){const f=isMe(n)&&cosEq("frame");return f?" fr fr-"+f.v:""}
 function cosBadge(n){const b=isMe(n)&&cosEq("badge");return b?`<span class="cbdg" style="--bc:${b.c}" title="${esc(b.n)}"><svg viewBox="0 0 24 24">${BADGES[b.v]}</svg></span>`:""}
 function nkGrad(v){const c=v.match(/#[0-9a-fA-F]{3,8}/g)||[];return`background:linear-gradient(90deg,${c.join(",")},${c[0]}) 0 0/200% 100% repeat-x;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent`}
@@ -4704,15 +4743,15 @@ document.addEventListener("click",e=>{if(!e.target.closest("#cosBox,#clanBankBox
   if(b=e.target.closest("[data-cmore]")){const c=b.dataset.cmore;COSX[c]=!COSX[c];cosClamp();return}
   if(b=e.target.closest("[data-cst]")){cosTab=b.dataset.cst;drawCos();return}
   if(e.target.closest("[data-tagt]")){if(!COS.tag)return;if(COS.eq.tag)delete COS.eq.tag;else COS.eq.tag="tag";cosSave();cosRefresh();toast(COS.eq.tag?"Тег надет":"Тег снят");return}
-  if(e.target.closest("[data-tagbuy]")){if(!needLogin())return;const v=(($("cosTagIn")||{}).value||"").toUpperCase(),p=CI.find(x=>x.id==="tag").p;if(!/^[A-Z0-9]{1,6}$/.test(v)){toast("Впиши тег: латиница и цифры, до 6 символов");return}if(v===COS.tag){toast("Такой тег уже стоит");return}if(ME.balance<p){toast(`Не хватает ${fmt(p-ME.balance)} ₽`);return}
+  if(e.target.closest("[data-tagbuy]")){if(!needLogin())return;if(srvSoon("Покупки в магазине"))return;const v=(($("cosTagIn")||{}).value||"").toUpperCase(),p=CI.find(x=>x.id==="tag").p;if(!/^[A-Z0-9]{1,6}$/.test(v)){toast("Впиши тег: латиница и цифры, до 6 символов");return}if(v===COS.tag){toast("Такой тег уже стоит");return}if(ME.balance<p){toast(`Не хватает ${fmt(p-ME.balance)} ₽`);return}
     ME.balance-=p;walletSave();COS.tag=v;COS.own.tag=1;COS.eq.tag="tag";cosSave();try{notify("buy","Новый тег в чате",`[${v}] за ${fmt(p)} ₽`)}catch(_){}cosRefresh();toast(`Тег [${v}] установлен`);return}
   if(b=e.target.closest("[data-cs]")){if(!needLogin())return;const it=cosI(b.dataset.cs);if(!it)return;
     if(COS.eq[it.cat]===it.id){delete COS.eq[it.cat];cosSave();cosRefresh();toast(`${it.n}: снято`);return}
     if(!COS.own[it.id]){if(it.cat==="tag"&&!/^[A-Za-z0-9]{1,6}$/.test(($("cosTagIn")||{}).value||COS.tag||"")){toast("Сначала впиши тег: латиница и цифры, до 6 символов");return}
-      if(ME.balance<it.p){toast(`Не хватает ${fmt(it.p-ME.balance)} ₽`);return}ME.balance-=it.p;walletSave();COS.own[it.id]=1;if(it.cat==="tag")COS.tag=$("cosTagIn").value.toUpperCase();try{notify("buy","Покупка в Стиле",`${CCAT[it.cat][0]}: ${it.n} за ${fmt(it.p)} ₽`)}catch(_){}}
+      if(srvSoon("Покупки в магазине"))return;if(ME.balance<it.p){toast(`Не хватает ${fmt(it.p-ME.balance)} ₽`);return}ME.balance-=it.p;walletSave();COS.own[it.id]=1;if(it.cat==="tag")COS.tag=$("cosTagIn").value.toUpperCase();try{notify("buy","Покупка в Стиле",`${CCAT[it.cat][0]}: ${it.n} за ${fmt(it.p)} ₽`)}catch(_){}}
     COS.eq[it.cat]=it.id;cosSave();cosRefresh();toast(`${it.n}: надето`);if(it.cat==="snd")cosPlay(it);return}
   if(b=e.target.closest("[data-csp]")){const it=cosI(b.dataset.csp);if(it&&it.cat==="snd")cosPlay(it);if(it&&it.cat==="kill"){const k=b.querySelector(".kfx");if(k){k.classList.remove("go");void k.offsetWidth;k.classList.add("go")}}return}
-  if(b=e.target.closest("[data-dep]")){if(!needLogin()||!myClan)return;const v=+b.dataset.dep;if(ME.balance<v){toast(`Не хватает ${fmt(v-ME.balance)} ₽`);return}ME.balance-=v;walletSave();CB.bank+=v;CB.log.unshift({t:`${ME.n} пополнил казну`,v,d:Date.now()});cbSave();cosRefresh();toast(`В казну клана +${fmt(v)} ₽`);return}
+  if(b=e.target.closest("[data-dep]")){if(!needLogin()||!myClan)return;if(srvSoon("Казна клана"))return;const v=+b.dataset.dep;if(ME.balance<v){toast(`Не хватает ${fmt(v-ME.balance)} ₽`);return}ME.balance-=v;walletSave();CB.bank+=v;CB.log.unshift({t:`${ME.n} пополнил казну`,v,d:Date.now()});cbSave();cosRefresh();toast(`В казну клана +${fmt(v)} ₽`);return}
   if(b=e.target.closest("[data-ccol]")){const v=b.dataset.ccol;if(myClan.c===v)return;if(!cbSpend(CLAN_UP.col,"Новый цвет клана"))return;myClan.c=v;clanSaveMe();cosRefresh();toast("Цвет клана обновлён");return}
   if(b=e.target.closest("[data-cemb]")){const v=b.dataset.cemb||null;if((myClan.emb||null)===v)return;if(v&&!cbSpend(CLAN_UP.emb,"Новая эмблема"))return;myClan.emb=v;CB.emb=v;cbSave();cosRefresh();toast(v?"Эмблема обновлена":"Вернули тег на щит");return}
   if(e.target.closest("[data-cslot]")){const sl=myClan.slots||30;if(sl>=50)return;if(!cbSpend(CLAN_UP.slots,"+5 мест в клане"))return;myClan.slots=CB.slots=sl+5;cbSave();cosRefresh();toast(`Теперь в клане ${myClan.slots} мест`);return}
@@ -4731,6 +4770,7 @@ function viewFrom(h){return !h?"play":VIEWS.includes(h)&&h!=="404"?h:"404"}
 function route(forced){try{closeProfile()}catch(e){}["modal","srvModal","cmdModal","clanModal","skModal","stkModal","cpModal","caseModal","tkModal","buyModal","tierModal"].forEach(id=>{const m=$(id);if(m)m.hidden=true});
   let h="";if(typeof forced==="string")h=forced;else{try{h=location.hash.slice(1)}catch(e){h=curView}}
   if(h==="settings"){h="me";pfTab="set"}
+  if(SRV&&h==="admin"&&!isStaff())h="play";
   if(h==="style"){h="shop";shopTab="style"}
   let v=viewFrom(h);if(v==="player"&&!PFN)v="stats";if(v==="clan"&&CLN==null)v="clans";if(v==="case"&&CZ==null)v="skins";if(v==="tickets"&&!isOwner())v="404";curView=v;
   VIEWS.forEach(x=>$("v-"+x).hidden=x!==v);
@@ -4770,7 +4810,7 @@ let newsSeen=0;try{newsSeen=+localStorage.getItem("newsSeen")||0}catch(e){}
 function newsUnread(){return 0}
 function drawChip(){
   const chev='<svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>';
-  const chip=logged?`<button class="me-chip" id="meBtn" aria-haspopup="menu" aria-expanded="false"><i class="av${cosFrame(ME.n)}${cosAvInner(ME.n)?" hasav":""}" style="background:${ME.c}">${cosAvInner(ME.n)||ME.n[0]}</i><span class="nm">${ME.n}<small>${ME.vip.tier} · <span class="bal">${fmt(ME.tk)} ТК</span></small></span>${chev}</button>`
+  const chip=logged?`<button class="me-chip" id="meBtn" aria-haspopup="menu" aria-expanded="false"><i class="av${cosFrame(ME.n)}${cosAvInner(ME.n)?" hasav":""}" style="background:${ME.c}">${cosAvInner(ME.n)||ME.n[0]}</i><span class="nm">${ME.n}<small>${ME.vip?ME.vip.tier:"Игрок"} · <span class="bal">${fmt(ME.tk)} ТК</span></small></span>${chev}</button>`
     :`<button class="me-chip guest" id="meBtn" aria-haspopup="menu" aria-expanded="false"><i class="av">?</i><span class="nm">Гость<small>Войди через Steam</small></span>${chev}</button>`;
   const items=(logged?`<div class="bal-row"><span>Баланс</span><b>${fmt(ME.balance)} ₽</b></div><div class="bal-row"><span>Тащер Коины</span><b class="tkc">${fmt(ME.tk)} ТК</b></div><a href="#me">${ico("u")}Мой профиль</a>`:`<button class="login" data-login>${ico("steam")}Войти через Steam</button><div class="sep"></div>`)
     +`<a href="#ach">${ico("ach")}Достижения</a><a href="#settings" data-pfset>${ico("set")}Настройки</a>`
@@ -4841,6 +4881,15 @@ document.addEventListener("pointerdown",e=>{const b=e.target.closest(".steam,.tm
 // стартовая отрисовка: только после того, как весь код загружен
 [drawMe,drawTiers,drawStats,drawClans,drawOwnLink,drawSkins,drawTkAdm].forEach(f=>{try{f()}catch(e){console.error(e)}});
 addEventListener("hashchange",()=>{let h="";try{h=location.hash.slice(1)}catch(e){}if(viewFrom(h)!==curView)route()});route();
+
+// ===== серверный режим: то, что ещё не перенесено на сервер =====
+if(SRV){try{PURCHASES.length=0}catch(e){}
+  [["v-jackpot","Джекпот скоро откроется","Ставки между игроками подключаем к серверу. Пока можно открывать кейсы и делать апгрейды."],["v-wheel","Фортуна скоро откроется","Ежедневные призы подключаем к серверу."]].forEach(([id,t,d])=>{const v=$(id);if(!v)return;const el=document.createElement("div");el.className="srv-soon";el.innerHTML=`<b>${t}</b><span>${d}</span>`;const ph=v.querySelector(".page-head");if(ph)ph.after(el);else v.prepend(el)});
+  // в админке на сервере пока работает только «Баланс»
+  document.querySelectorAll("#admTabs button").forEach(b=>{if(b.dataset.t!=="tk")b.hidden=true;else b.click()});
+  try{drawOwnLink()}catch(e){}
+  srvDrops(true);
+  document.addEventListener("visibilitychange",()=>{if(!document.hidden&&logged)srvSync()})}
 </script>
 
 </body>
