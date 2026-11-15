@@ -65,6 +65,24 @@ function open(file) {
        value INTEGER NOT NULL, created_at INTEGER NOT NULL
      );
      CREATE INDEX case_opens_user ON case_opens(user_id, id);`,
+    // 2: обращения в поддержку
+    `CREATE TABLE tickets(
+       id INTEGER PRIMARY KEY,
+       user_id INTEGER NOT NULL REFERENCES users(id),
+       topic TEXT NOT NULL, subj TEXT NOT NULL,
+       state TEXT NOT NULL DEFAULT 'wait',
+       created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL
+     );
+     CREATE INDEX tickets_user ON tickets(user_id, updated_at);
+     CREATE INDEX tickets_upd ON tickets(updated_at);
+     CREATE TABLE ticket_msgs(
+       id INTEGER PRIMARY KEY,
+       ticket_id INTEGER NOT NULL REFERENCES tickets(id) ON DELETE CASCADE,
+       user_id INTEGER NOT NULL REFERENCES users(id),
+       staff INTEGER NOT NULL DEFAULT 0,
+       body TEXT NOT NULL, created_at INTEGER NOT NULL
+     );
+     CREATE INDEX ticket_msgs_ticket ON ticket_msgs(ticket_id, id);`,
   ];
   for (let v = ver; v < MIG.length; v++) {
     db.exec("BEGIN");

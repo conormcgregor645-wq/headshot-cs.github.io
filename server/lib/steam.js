@@ -24,6 +24,10 @@ async function verify(siteUrl, query, fetchImpl = fetch) {
   const claimed = query.get("openid.claimed_id") || "";
   const m = claimed.match(/^https:\/\/steamcommunity\.com\/openid\/id\/(\d{17})$/);
   if (!m) return null;
+  if (query.get("openid.identity") !== claimed) return null;
+  // подпись Steam должна покрывать все значимые поля, иначе их можно подменить
+  const signed = (query.get("openid.signed") || "").split(",");
+  if (!["op_endpoint", "claimed_id", "identity", "return_to", "response_nonce", "assoc_handle"].every(f => signed.includes(f))) return null;
   const body = new URLSearchParams();
   for (const [k, v] of query) if (k.startsWith("openid.")) body.set(k, v);
   body.set("openid.mode", "check_authentication");

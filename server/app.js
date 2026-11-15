@@ -30,6 +30,12 @@ const SECURE = CFG.site.startsWith("https://");
 if (CFG.devLogin && SECURE) { console.error("DEV_LOGIN нельзя включать на боевом сайте (SITE_URL https)."); process.exit(1); }
 
 const db = open(CFG.db);
+// владельцы задаются только в настройках (OWNER_STEAMIDS): при запуске роли приводятся в соответствие с ними
+{
+  const own = [...CFG.owners].filter(s => /^\d{17}$/.test(s)), ph = own.map(() => "?").join(",");
+  db.prepare("UPDATE users SET role='player' WHERE role='owner'" + (own.length ? ` AND steamid NOT IN (${ph})` : "")).run(...own);
+  if (own.length) db.prepare(`UPDATE users SET role='owner' WHERE steamid IN (${ph})`).run(...own);
+}
 const now = () => Date.now();
 const mskDay = (t = now()) => new Date(t + 3 * 3600e3).toISOString().slice(0, 10);
 const sha = s => crypto.createHash("sha256").update(s).digest("hex");
@@ -54,7 +60,8 @@ function readBody(req, limit = 32 * 1024) {
   });
 }
 function cookies(req) {
-  const o = {}; (req.headers.cookie || "").split(";").forEach(p => { const i = p.indexOf("="); if (i > 0) o[p.slice(0, i).trim()] = decodeURIComponent(p.slice(i + 1).trim()); });
+  // чужие cookie с битой кодировкой не должны ронять запрос
+  const o = {}; (req.headers.cookie || "").split(";").forEach(p => { const i = p.indexOf("="); if (i > 0) { const v = p.slice(i + 1).trim(); try { o[p.slice(0, i).trim()] = decodeURIComponent(v); } catch (e) { o[p.slice(0, i).trim()] = v; } } });
   return o;
 }
 function clientIp(req) {
@@ -183,10 +190,66 @@ post("/api/upgrade", ctx => {
 });
 
 // лента последних выпадений (для блока Live)
+let DROPS_CACHE = { t: 0, v: null };
 get("/api/drops", () => {
+  if (DROPS_CACHE.v && now() - DROPS_CACHE.t < 2000) return DROPS_CACHE.v;
   const rows = db.prepare(`SELECT i.w,i.s,i.r,i.wear,i.st,i.sv,i.sp,i.src,i.src_ref,i.created_at,u.name,u.id uid FROM items i JOIN users u ON u.id=i.user_id
     WHERE i.src IN ('case','upgrade') ORDER BY i.created_at DESC LIMIT 30`).all();
-  return { drops: rows.map(r => ({ n: r.name || ("Player" + r.uid), w: r.w, s: r.s, r: r.r, wear: r.wear, st: !!r.st, sv: !!r.sv, sp: r.sp || undefined, src: r.src, c: r.src === "case" ? r.src_ref : null, t: r.created_at })) };
+  DROPS_CACHE = { t: now(), v: { drops: rows.map(r => ({ n: r.name || ("Player" + r.uid), w: r.w, s: r.s, r: r.r, wear: r.wear, st: !!r.st, sv: !!r.sv, sp: r.sp || undefined, src: r.src, c: r.src === "case" ? r.src_ref : null, t: r.created_at })) } };
+  return DROPS_CACHE.v;
+});
+
+// ---------- поддержка ----------
+const TOPICS = ["ban", "pay", "bug", "admin", "other"];
+const cleanText = (v, max) => String(v == null ? "" : v).replace(/\r\n?/g, "\n").replace(/[\u0000-\u0009\u000b-\u001f\u007f\u2028\u2029]/g, "").replace(/\n{4,}/g, "\n\n\n").trim().slice(0, max);
+function ticketsOut(rows, withSid) {
+  const q = db.prepare("SELECT staff, body, created_at FROM ticket_msgs WHERE ticket_id=? ORDER BY id");
+  return rows.map(t => ({ id: t.id, uid: t.user_id, n: t.name || ("Player" + t.user_id), sid: withSid ? t.steamid : undefined, r: t.topic, subj: t.subj, st: t.state,
+    msgs: q.all(t.id).map(m => ({ a: m.staff ? 1 : 0, t: m.body, d: new Date(m.created_at).toISOString() })) }));
+}
+get("/api/tickets", ctx => {
+  const u = needUser(ctx); const all = ctx.query.get("all") === "1";
+  if (all && u.role !== "owner") bad("Нет доступа", 403);
+  const rows = all ? db.prepare("SELECT t.*, u.name, u.steamid FROM tickets t JOIN users u ON u.id=t.user_id ORDER BY t.updated_at DESC LIMIT 300").all()
+    : db.prepare("SELECT t.*, u.name, u.steamid FROM tickets t JOIN users u ON u.id=t.user_id WHERE t.user_id=? ORDER BY t.updated_at DESC LIMIT 50").all(u.id);
+  return { tickets: ticketsOut(rows, all) };
+});
+post("/api/tickets", ctx => {
+  const u = needUser(ctx);
+  const topic = TOPICS.includes(ctx.body.r) ? ctx.body.r : bad("Выбери тему обращения");
+  const subj = cleanText(ctx.body.subj, 100).replace(/\n/g, " "); if (subj.length < 3) bad("Коротко напиши, что случилось: хотя бы 3 символа");
+  const text = cleanText(ctx.body.text, 2500); if (text.length < 10) bad("Опиши проблему подробнее: хотя бы 10 символов");
+  rateLimit("tk:" + u.id, 3, 600e3);
+  return tx(db, () => {
+    const open = db.prepare("SELECT COUNT(*) c FROM tickets WHERE user_id=? AND state<>'closed'").get(u.id).c;
+    if (open >= 5) bad("У тебя уже 5 открытых обращений. Дождись ответа или дополни одно из них", 409);
+    const id = db.prepare("SELECT COALESCE(MAX(id),1000)+1 v FROM tickets").get().v, t = now();
+    db.prepare("INSERT INTO tickets(id,user_id,topic,subj,state,created_at,updated_at) VALUES(?,?,?,?,'wait',?,?)").run(id, u.id, topic, subj, t, t);
+    db.prepare("INSERT INTO ticket_msgs(ticket_id,user_id,staff,body,created_at) VALUES(?,?,0,?,?)").run(id, u.id, text, t);
+    return { id };
+  });
+});
+post("/api/tickets/reply", ctx => {
+  const u = needUser(ctx); rateLimit("tkr:" + u.id, 10, 60e3);
+  const text = cleanText(ctx.body.text, 1000); if (text.length < 2) bad("Напиши сообщение");
+  const staff = ctx.body.staff === true;
+  if (staff && u.role !== "owner") bad("Нет доступа", 403);
+  return tx(db, () => {
+    const t = db.prepare("SELECT * FROM tickets WHERE id=?").get(Number.isInteger(ctx.body.id) ? ctx.body.id : -1);
+    if (!t || (!staff && t.user_id !== u.id)) bad("Обращение не найдено", 404);
+    if (t.state === "closed") bad("Тикет закрыт", 409);
+    const n = db.prepare("SELECT COUNT(*) c FROM ticket_msgs WHERE ticket_id=?").get(t.id).c; if (n >= 200) bad("В этом обращении слишком много сообщений, создай новое", 409);
+    db.prepare("INSERT INTO ticket_msgs(ticket_id,user_id,staff,body,created_at) VALUES(?,?,?,?,?)").run(t.id, u.id, staff ? 1 : 0, text, now());
+    db.prepare("UPDATE tickets SET state=?, updated_at=? WHERE id=?").run(staff ? "answered" : "wait", now(), t.id);
+    return { ok: true };
+  });
+});
+post("/api/tickets/state", ctx => {
+  const u = needUser(ctx); if (u.role !== "owner") bad("Нет доступа", 403);
+  const state = ["closed", "wait"].includes(ctx.body.state) ? ctx.body.state : bad("Состояние: closed или wait");
+  const r = db.prepare("UPDATE tickets SET state=?, updated_at=? WHERE id=?").run(state, now(), Number.isInteger(ctx.body.id) ? ctx.body.id : -1);
+  if (!r.changes) bad("Обращение не найдено", 404);
+  return { ok: true };
 });
 
 // ---------- админка ----------
@@ -239,7 +302,10 @@ async function loginUser(req, res, steamid, ret) {
   let u = db.prepare("SELECT * FROM users WHERE steamid=?").get(steamid);
   if (u && u.banned) return send(res, 403, "Аккаунт заблокирован");
   const prof = await steam.profile(CFG.steamKey, steamid);
+  let banned = false;
   tx(db, () => {
+    u = db.prepare("SELECT * FROM users WHERE steamid=?").get(steamid);
+    if (u && u.banned) { banned = true; return; }
     if (!u) {
       db.prepare("INSERT INTO users(steamid,name,avatar,role,created_at,last_login) VALUES(?,?,?,?,?,?)").run(steamid, prof ? prof.name : "", prof ? prof.avatar : "", CFG.owners.has(steamid) ? "owner" : "player", t, t);
       u = db.prepare("SELECT * FROM users WHERE steamid=?").get(steamid);
@@ -249,6 +315,7 @@ async function loginUser(req, res, steamid, ret) {
         .run(t, prof ? prof.name : null, prof ? prof.avatar : null, CFG.owners.has(steamid) ? 1 : 0, u.id);
     }
   });
+  if (banned) return send(res, 403, "Аккаунт заблокирован");
   res.writeHead(302, { location: safeRet(ret), "set-cookie": startSession(res, req, u.id), "cache-control": "no-store" }); res.end();
 }
 async function authRoutes(req, res, url) {
@@ -275,6 +342,14 @@ async function authRoutes(req, res, url) {
 // ---------- статика сайта ----------
 const MIME = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8", ".json": "application/json", ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp", ".svg": "image/svg+xml", ".ico": "image/x-icon", ".txt": "text/plain; charset=utf-8", ".woff2": "font/woff2" };
 const DENY = /^\/(server|tools|\.git|\.github|node_modules)(\/|$)|\/\.[^/]/;
+// несуществующий адрес: людям показываем страницу 404 (она же перенаправляет /shop на /#shop), программам — короткий текст
+function notFound(req, res) {
+  if (!String(req.headers.accept || "").includes("text/html")) return send(res, 404, "Not found");
+  fs.readFile(path.join(CFG.staticDir, "404.html"), (e, buf) => {
+    if (e) return send(res, 404, "Not found");
+    res.writeHead(404, { "content-type": "text/html; charset=utf-8", "cache-control": "no-cache", "content-length": buf.length }); res.end(req.method === "HEAD" ? undefined : buf);
+  });
+}
 function serveStatic(req, res, url) {
   let p; try { p = decodeURIComponent(url.pathname); } catch (e) { return send(res, 400, "bad path"); }
   if (DENY.test(p) || p.includes("\0")) return send(res, 404, "Not found");
@@ -283,12 +358,15 @@ function serveStatic(req, res, url) {
   const file = path.join(CFG.staticDir, p);
   if (!file.startsWith(CFG.staticDir + path.sep)) return send(res, 404, "Not found");
   fs.stat(file, (err, st) => {
-    if (err || !st.isFile()) return send(res, 404, "Not found");
+    if (err || !st.isFile()) return notFound(req, res);
     const ext = path.extname(file).toLowerCase();
     const longCache = url.search.includes("v=") || p.startsWith("/img/sk/");
-    res.writeHead(200, { "content-type": MIME[ext] || "application/octet-stream", "content-length": st.size, "cache-control": ext === ".html" ? "no-cache" : longCache ? "public, max-age=31536000, immutable" : "public, max-age=3600", "last-modified": st.mtime.toUTCString() });
+    const head = { "content-type": MIME[ext] || "application/octet-stream", "cache-control": ext === ".html" ? "no-cache" : longCache ? "public, max-age=31536000, immutable" : "public, max-age=3600", "last-modified": st.mtime.toUTCString() };
+    const since = Date.parse(req.headers["if-modified-since"] || "");
+    if (since && Math.floor(st.mtimeMs / 1000) * 1000 <= since) { res.writeHead(304, head); return res.end(); }
+    res.writeHead(200, { ...head, "content-length": st.size });
     if (req.method === "HEAD") return res.end();
-    fs.createReadStream(file).pipe(res);
+    fs.createReadStream(file).on("error", () => res.destroy()).pipe(res);
   });
 }
 
@@ -299,13 +377,17 @@ function serveIndex(req, res) {
   let st; try { st = fs.statSync(file); } catch (e) { return send(res, 404, "Not found"); }
   if (st.mtimeMs !== INDEX.mtime) {
     const html = fs.readFileSync(file, "utf8"); const i = html.indexOf("<head>") + 6;
-    INDEX = { mtime: st.mtimeMs, a: html.slice(0, i), b: html.slice(i) };
+    INDEX = { mtime: st.mtimeMs, a: html.slice(0, i), b: html.slice(i), tag: sha(html).slice(0, 16) };
   }
   const u = sessionUser(req);
   const data = u ? { user: pubUser(u), items: userItems(u.id) } : { user: null };
   const js = JSON.stringify(data).replace(/</g, "\\u003c").replace(/\u2028|\u2029/g, "");
+  // страница личная: браузер каждый раз сверяется с сервером и не качает её заново, если ничего не изменилось
+  const etag = '"' + INDEX.tag + "-" + sha(js).slice(0, 16) + '"';
+  const head = { "content-type": "text/html; charset=utf-8", "cache-control": "private, no-cache", vary: "Cookie", etag };
+  if (req.headers["if-none-match"] === etag) { res.writeHead(304, head); return res.end(); }
   const body = INDEX.a + "<script>window.TSRV=" + js + "</script>" + INDEX.b;
-  res.writeHead(200, { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "content-length": Buffer.byteLength(body) });
+  res.writeHead(200, { ...head, "content-length": Buffer.byteLength(body) });
   res.end(req.method === "HEAD" ? undefined : body);
 }
 
