@@ -11,6 +11,7 @@ const crypto = require("node:crypto");
 const { open, tx } = require("./lib/db");
 const steam = require("./lib/steam");
 const G = require("./lib/game");
+const WP = require("./lib/wp");
 
 // ---------- настройки ----------
 const ENV = process.env;
@@ -25,6 +26,10 @@ const CFG = {
   startTk: Math.max(0, +(ENV.START_TK || 0)),
   sessionDays: +(ENV.SESSION_DAYS || 30),
   devLogin: ENV.DEV_LOGIN === "1",
+  // связь с WeaponPaints: файл настроек mysql (пусто — выключено) и файл номеров раскрасок
+  wpCnf: ENV.WP_MYSQL_CNF || "",
+  wpPaints: ENV.WP_PAINTS || "/var/lib/tasher/paints.json",
+  mysqlBin: ENV.MYSQL_BIN || "mysql",
 };
 const SECURE = CFG.site.startsWith("https://");
 if (CFG.devLogin && SECURE) { console.error("DEV_LOGIN нельзя включать на боевом сайте (SITE_URL https)."); process.exit(1); }
@@ -37,6 +42,8 @@ const db = open(CFG.db);
   if (own.length) db.prepare(`UPDATE users SET role='owner' WHERE steamid IN (${ph})`).run(...own);
 }
 const now = () => Date.now();
+const PAINTS_N = WP.loadPaints(CFG.wpPaints);
+const wpSync = WP.makeSync({ cnf: CFG.wpCnf, bin: CFG.mysqlBin });
 const mskDay = (t = now()) => new Date(t + 3 * 3600e3).toISOString().slice(0, 10);
 const sha = s => crypto.createHash("sha256").update(s).digest("hex");
 
@@ -118,8 +125,19 @@ function takeItems(uid, ids, state) {
     if (!r) bad("Предмет не найден или уже использован", 409);
     rows.push(r);
   }
-  const t = now(); for (const r of rows) db.prepare("UPDATE items SET state=?, closed_at=? WHERE id=?").run(state, t, r.id);
+  const t = now(); for (const r of rows) { db.prepare("UPDATE items SET state=?, closed_at=? WHERE id=?").run(state, t, r.id); db.prepare("DELETE FROM loadout WHERE item_id=?").run(r.id); }
   return rows;
+}
+// ---------- надетые скины ----------
+const T_ONLY = new Set(["AK-47", "Galil AR", "SG 553", "G3SG1", "Glock-18", "Tec-9", "MAC-10", "Sawed-Off", "Агент T"]);
+const CT_ONLY = new Set(["M4A4", "M4A1-S", "FAMAS", "AUG", "SCAR-20", "USP-S", "P2000", "Five-SeveN", "MP9", "MAG-7", "Агент CT"]);
+const W_CAT = new Map(G.W.map(w => [w.n, w.c]));
+const slotOf = w => { const c = W_CAT.get(w); return c === "knife" || c === "gloves" ? c : w; };
+const teamsOf = w => T_ONLY.has(w) ? ["t"] : CT_ONLY.has(w) ? ["ct"] : ["ct", "t"];
+const userLoadout = uid => db.prepare("SELECT team, item_id id FROM loadout WHERE user_id=? ORDER BY team, slot").all(uid).map(r => ({ team: r.team, id: r.id }));
+function syncGame(u) {
+  wpSync(u.steamid, () => db.prepare("SELECT l.team, i.w, i.s, i.wear, i.seed, i.st FROM loadout l JOIN items i ON i.id=l.item_id WHERE l.user_id=? AND i.state='inv'").all(u.id)
+    .map(r => ({ team: r.team, it: { w: r.w, s: r.s, wear: r.wear, seed: r.seed, st: !!r.st } })));
 }
 const pubUser = u => ({ id: u.id, steamid: u.steamid, n: u.name || ("Player" + u.id), av: u.avatar, role: u.role, tk: u.tk, balance: u.rub, created: u.created_at, dailyUsed: u.daily_day === mskDay() });
 const isAdmin = u => u && (u.role === "admin" || u.role === "owner");
@@ -134,7 +152,25 @@ get("/api/health", () => ({ ok: true, t: now() }));
 
 get("/api/me", ctx => {
   if (!ctx.user) return { user: null };
-  return { user: pubUser(ctx.user), items: userItems(ctx.user.id) };
+  return { user: pubUser(ctx.user), items: userItems(ctx.user.id), loadout: userLoadout(ctx.user.id) };
+});
+
+// надеть / снять предмет за сторону (ct или t)
+post("/api/equip", ctx => {
+  const u = needUser(ctx); rateLimit("eq:" + u.id, 30, 10e3);
+  const id = typeof ctx.body.id === "string" && ctx.body.id.length <= 40 ? ctx.body.id : bad("Неверный предмет");
+  const team = ["ct", "t"].includes(ctx.body.team) ? ctx.body.team : bad("Сторона: ct или t");
+  const on = ctx.body.on !== false;
+  const out = tx(db, () => {
+    const it = db.prepare("SELECT * FROM items WHERE id=? AND user_id=? AND state='inv'").get(id, u.id);
+    if (!it) bad("Предмет не найден", 404);
+    if (!teamsOf(it.w).includes(team)) bad(team === "ct" ? "Этот предмет только для террористов" : "Этот предмет только для спецназа");
+    if (on) db.prepare("INSERT OR REPLACE INTO loadout(user_id,team,slot,item_id) VALUES(?,?,?,?)").run(u.id, team, slotOf(it.w), id);
+    else db.prepare("DELETE FROM loadout WHERE user_id=? AND team=? AND item_id=?").run(u.id, team, id);
+    return { loadout: userLoadout(u.id) };
+  });
+  syncGame(u);
+  return out;
 });
 
 get("/api/cases", () => ({ cases: Object.fromEntries(G.CASES.map(c => [c.k, c.p])) }));
@@ -163,12 +199,13 @@ post("/api/cases/open", ctx => {
 
 post("/api/items/sell", ctx => {
   const u = needUser(ctx); rateLimit("sell:" + u.id, 20, 10e3);
-  return tx(db, () => {
+  const out = tx(db, () => {
     const rows = takeItems(u.id, ctx.body.ids, "sold");
     const sum = rows.reduce((s, r) => s + Math.max(1, G.itemValue(r)), 0);
     const tk = addMoney(u.id, "tk", sum, "sell", null, { ids: rows.map(r => r.id) });
     return { sold: rows.map(r => r.id), sum, tk };
   });
+  syncGame(u); return out;
 });
 
 post("/api/upgrade", ctx => {
@@ -176,7 +213,7 @@ post("/api/upgrade", ctx => {
   const t = G.upTarget(ctx.body.target); if (!t) bad("Цель апгрейда не найдена");
   const tkStake = Math.floor(+ctx.body.tk || 0); if (!(tkStake >= 0 && tkStake <= 1e9)) bad("Неверная ставка ТК");
   const ids = Array.isArray(ctx.body.ids) ? ctx.body.ids : []; if (ids.length > 6) bad("Можно поставить до 6 скинов");
-  return tx(db, () => {
+  const out = tx(db, () => {
     const rows = ids.length ? takeItems(u.id, ids, "upgraded") : [];
     const stake = rows.reduce((s, r) => s + G.itemValue(r), 0) + tkStake;
     if (stake <= 0) bad("Выбери ставку");
@@ -187,6 +224,8 @@ post("/api/upgrade", ctx => {
     const tk = db.prepare("SELECT tk FROM users WHERE id=?").get(u.id).tk;
     return { win, chance, roll, item: item && { ...item, t: now() }, tk, stake, price: t.p };
   });
+  if (ids.length) syncGame(u);
+  return out;
 });
 
 // лента последних выпадений (для блока Live)
@@ -316,6 +355,7 @@ async function loginUser(req, res, steamid, ret) {
     }
   });
   if (banned) return send(res, 403, "Аккаунт заблокирован");
+  syncGame(u); // при входе обновляем скины в игре (на случай, если база скинов была очищена)
   res.writeHead(302, { location: safeRet(ret), "set-cookie": startSession(res, req, u.id), "cache-control": "no-store" }); res.end();
 }
 async function authRoutes(req, res, url) {
@@ -380,7 +420,7 @@ function serveIndex(req, res) {
     INDEX = { mtime: st.mtimeMs, a: html.slice(0, i), b: html.slice(i), tag: sha(html).slice(0, 16) };
   }
   const u = sessionUser(req);
-  const data = u ? { user: pubUser(u), items: userItems(u.id) } : { user: null };
+  const data = u ? { user: pubUser(u), items: userItems(u.id), loadout: userLoadout(u.id) } : { user: null };
   const js = JSON.stringify(data).replace(/</g, "\\u003c").replace(/\u2028|\u2029/g, "");
   // страница личная: браузер каждый раз сверяется с сервером и не качает её заново, если ничего не изменилось
   const etag = '"' + INDEX.tag + "-" + sha(js).slice(0, 16) + '"';
@@ -420,8 +460,8 @@ const server = http.createServer(async (req, res) => {
 });
 server.headersTimeout = 15e3; server.requestTimeout = 30e3;
 if (require.main === module) {
-  server.listen(CFG.port, CFG.host, () => console.log(`TASHER server: ${CFG.site} (слушает ${CFG.host}:${CFG.port}), база ${CFG.db}, сайт из ${CFG.staticDir}, кейсов ${G.CASES.length}`));
+  server.listen(CFG.port, CFG.host, () => console.log(`TASHER server: ${CFG.site} (слушает ${CFG.host}:${CFG.port}), база ${CFG.db}, сайт из ${CFG.staticDir}, кейсов ${G.CASES.length}, скины в игру: ${CFG.wpCnf ? "включено, раскрасок " + PAINTS_N : "выключено"}`));
   const stop = () => { server.close(() => { try { db.close(); } catch (e) {} process.exit(0); }); setTimeout(() => process.exit(0), 5000).unref(); };
   process.on("SIGTERM", stop); process.on("SIGINT", stop);
 }
-module.exports = { server, db, CFG };
+module.exports = { server, db, CFG, WP };

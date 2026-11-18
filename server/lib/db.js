@@ -83,6 +83,15 @@ function open(file) {
        body TEXT NOT NULL, created_at INTEGER NOT NULL
      );
      CREATE INDEX ticket_msgs_ticket ON ticket_msgs(ticket_id, id);`,
+    // 3: надетые скины (по сторонам CT/T); отсюда они уходят в WeaponPaints на игровом сервере
+    `CREATE TABLE loadout(
+       user_id INTEGER NOT NULL REFERENCES users(id),
+       team TEXT NOT NULL CHECK(team IN ('ct','t')),
+       slot TEXT NOT NULL,
+       item_id TEXT NOT NULL REFERENCES items(id),
+       PRIMARY KEY(user_id, team, slot)
+     );
+     CREATE INDEX loadout_item ON loadout(item_id);`,
   ];
   for (let v = ver; v < MIG.length; v++) {
     db.exec("BEGIN");

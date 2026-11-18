@@ -3566,7 +3566,7 @@ async function api(p,body){let r;try{r=await fetch(p,body?{method:"POST",headers
   let j=null;try{j=await r.json()}catch(e){}if(!r.ok){if(r.status===401&&logged&&!api.out){api.out=1;toast("Сессия закончилась, войди заново");setTimeout(()=>location.reload(),1200)}throw new Error(j&&j.error||"Сервер не отвечает, попробуй позже")}return j}
 function srvUser(u){Object.assign(ME,{id:u.id,n:u.n,steamid:u.steamid,av:u.av||"",role:u.role,tk:u.tk,balance:u.balance,kills:0,deaths:0,kd:0,hs:0,hrs:0,pts:0,mvp:0,w:[],r:rankIdx(0),vip:null,c:"#b5e853",m:0,created:u.created})}
 function srvSoon(what){if(!SRV)return false;toast((what||"Этот раздел")+" скоро заработает, подключаем к серверу");return true}
-async function srvSync(){try{const d=await api("/api/me");if(d.user){ME.tk=d.user.tk;ME.balance=d.user.balance;INV=srvItems(d.items);invSave();drawChip();try{drawSkins();if(curView==="upgrade"&&!UP.busy)drawUp();if(curView==="me")drawMe()}catch(e){}}else if(logged)location.reload()}catch(e){}}
+async function srvSync(){try{const d=await api("/api/me");if(d.user){ME.tk=d.user.tk;ME.balance=d.user.balance;INV=srvItems(d.items);invSave();srvLoadout(d.loadout);drawChip();try{drawSkins();if(curView==="upgrade"&&!UP.busy)drawUp();if(curView==="me")drawMe()}catch(e){}}else if(logged)location.reload()}catch(e){}}
 if(SRV){document.documentElement.classList.add("on-server");logged=!!SRV.user;if(SRV.user)srvUser(SRV.user)}
 const PURCHASES=[[new Date(today.getFullYear(),today.getMonth(),1),`Приз: 7 место в рейтинге за ${LAST_MONTH.split(" ")[0]} · LEGEND на 30 дней`,0],[daysAgo(12),"PREMIUM на 30 дней",199],[daysAgo(43),"VIP на 30 дней",99],[daysAgo(74),"VIP на 30 дней",99]].sort((a,b)=>b[0]-a[0]);
 function targetOf(a){let t=a[2].replace(/(\d)\s(\d)/g,"$1$2");let m=t.match(/(\d+) раз(?![а-яё])/);if(m)return+m[1];if(/за (один )?раунд/.test(t))return 1;t=t.replace(/\d\d:\d\d/g,"").replace(/больше \d+ метров/g,"").replace(/\d+ HP/g,"").replace(/\$\d+/g,"");m=t.match(/\d+/);return m?+m[0]:1}
@@ -3825,7 +3825,7 @@ let INV=lsGet("inv2","arr")||[];
   if(!(okNum(it.wear)&&it.wear>=0&&it.wear<=1))it.wear=.2;if(!RC[it.r])it.r=RC[sk[5]]?sk[5]:0;if(it.sp&&!SP[it.sp])delete it.sp;if(it.stk!=null&&!Array.isArray(it.stk))delete it.stk;if(it.fx!=null&&!(okNum(it.fx)&&it.fx>0))delete it.fx;return true})}
 let csDay="";try{csDay=localStorage.getItem("caseDay")||""}catch(e){}
 function srvItems(l){const loc=new Map(INV.map(x=>[x.id,x]));return(l||[]).filter(it=>{const w=W.find(x=>x.n===it.w);return w&&w.skins.some(x=>x[0]===it.s)}).map(it=>{const o=loc.get(it.id);if(o&&o.stk)it.stk=o.stk;return it})}
-if(SRV){INV=SRV.user?srvItems(SRV.items):[];csDay=SRV.user&&SRV.user.dailyUsed?new Date(Date.now()+3*3600e3).toISOString().slice(0,10):""}
+if(SRV){INV=SRV.user?srvItems(SRV.items):[];if(SRV.user)srvLoadout(SRV.loadout);csDay=SRV.user&&SRV.user.dailyUsed?new Date(Date.now()+3*3600e3).toISOString().slice(0,10):""}
 if(!SRV||SRV.user)[SKST.sets,SKST.setsT].forEach(M=>Object.keys(M||{}).forEach(k=>{const s=M[k],w=W.find(x=>x.n===k);if(!w||(s.name&&!w.skins.some(x=>x[0]===s.name))||(s.inv&&!INV.some(x=>x.id===s.inv)))delete M[k]}));
 const invSave=()=>{try{localStorage.setItem("inv2",JSON.stringify(INV));localStorage.setItem("caseDay",csDay)}catch(e){}};
 let csTab="cases",invF="all";
@@ -3875,13 +3875,17 @@ $("invDall").onclick=()=>{if(!needLogin())return;const free=INV.filter(it=>!isOn
 const slotCls=n=>{const w=W.find(x=>x.n===n);return w&&(w.c==="knife"||w.c==="gloves")?w.c:null};
 function slotClear(m,wn){const c=slotCls(wn);if(!c)return;Object.keys(m).forEach(k=>{if(k!==wn&&slotCls(k)===c)delete m[k]})}
 [SKST.sets,SKST.setsT].forEach(m=>{const seen={};Object.keys(m||{}).forEach(k=>{const c=slotCls(k);if(!c)return;if(seen[c])delete m[k];else seen[c]=1})});
-function equip(it,on,side){const w=invW(it),sides=side?[side]:w?sidesOf(w):["ct","t"];sides.forEach(sd=>{const m=sideMap(it.w,sd);if(on){slotClear(m,it.w);m[it.w]={name:it.s,wear:it.wear,seed:it.seed,tag:"",st:it.st,stk:it.stk||null,inv:it.id}}else if(m[it.w]&&m[it.w].inv===it.id)delete m[it.w]});syncActive()}
+function equip(it,on,side){const w=invW(it),sides=side?[side]:w?sidesOf(w):["ct","t"];sides.forEach(sd=>{const m=sideMap(it.w,sd);if(on){slotClear(m,it.w);m[it.w]={name:it.s,wear:it.wear,seed:it.seed,tag:"",st:it.st,stk:it.stk||null,inv:it.id}}else if(m[it.w]&&m[it.w].inv===it.id)delete m[it.w]});syncActive();
+  // на сервере надетое хранится у нас и сразу уходит в игру; при продаже и ставках сервер снимает предмет сам
+  if(SRV&&side)api("/api/equip",{id:it.id,team:side,on}).then(d=>{srvLoadout(d.loadout);drawInv()}).catch(e=>{toast("Не сохранилось: "+e.message);srvSync()})}
+// надетое с сервера: [{team:"ct"|"t", id}]
+function srvLoadout(l){if(!Array.isArray(l))return;SKST.sets={};SKST.setsT={};l.forEach(x=>{const it=INV.find(i=>i.id===x.id);if(!it||(x.team!=="ct"&&x.team!=="t"))return;const m=sideMap(it.w,x.team);m[it.w]={name:it.s,wear:it.wear,seed:it.seed,tag:"",st:it.st,stk:it.stk||null,inv:it.id}});syncActive()}
 const SELL_R=[1,1,1,1,1,1],sellK=it=>SELL_R[Math.max(0,Math.min(5,it.r|0))],itSell=it=>Math.max(1,Math.floor(itDust(it)*sellK(it)));
 function dust(list){let sum=0;list.forEach(it=>{if(isOnIt(it))equip(it,false);sum+=itSell(it)});const ids=new Set(list.map(x=>x.id));INV=INV.filter(x=>!ids.has(x.id));ME.tk+=sum;walletSave();invSave();drawChip();
   if(SRV&&list.length){const all=[...ids];(async()=>{try{let r;for(let i=0;i<all.length;i+=200)r=await api("/api/items/sell",{ids:all.slice(i,i+200)});ME.tk=r.tk;INV=INV.filter(x=>!ids.has(x.id));invSave();drawChip()}catch(e){toast("Продажа не прошла: "+e.message);srvSync()}})()}return sum}
 $("invGrid").addEventListener("click",e=>{const g=e.target.closest("[data-gocases]");if(g){go("skins");return}
   const q=e.target.closest("[data-ieq],[data-istk],[data-idel]");if(!q||!needLogin())return;const id=q.dataset.ieq||q.dataset.istk||q.dataset.idel,it=INV.find(x=>x.id===id);if(!it)return;
-  if(q.dataset.ieq){const sd=q.dataset.side,on=!onSide(it,sd);equip(it,on,sd);drawInv();const tn=sd==="ct"?"за спецназ (CT)":"за террористов (T)";toast(on?`${it.w} | ${it.s}: надето ${tn}`:`${it.w}: снято ${tn}`)}
+  if(q.dataset.ieq){const sd=q.dataset.side,on=!onSide(it,sd);equip(it,on,sd);drawInv();const tn=sd==="ct"?"за спецназ (CT)":"за террористов (T)";toast(on?`${it.w} | ${it.s}: надето ${tn}${SRV?". В игре напиши !wp":""}`:`${it.w}: снято ${tn}`)}
   else if(q.dataset.istk)openStkItem(it);
   else{const sum=dust([it]);drawSkins();toast(`Продано сайту: +${fmt(sum)} ТК`)}});
 // открытие ×1–×5

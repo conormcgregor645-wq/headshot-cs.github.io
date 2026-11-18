@@ -5,9 +5,14 @@ const fs = require("node:fs"), os = require("node:os"), path = require("node:pat
 const PORT = 8191, B = "http://localhost:" + PORT;
 const dir = fs.mkdtempSync(path.join(os.tmpdir(), "tasher-test-"));
 fs.writeFileSync(path.join(dir, "index.html"), "<!doctype html><html><head><title>t</title></head><body></body></html>");
+// поддельный клиент mysql: сохраняет присланный SQL в файл, чтобы проверить запись скинов в игру
+const SQLLOG = path.join(dir, "sql.log"), FAKE = path.join(dir, "mysql"), PAINTS = path.join(dir, "paints.json");
+fs.writeFileSync(FAKE, `#!/bin/sh\ncat >> "${SQLLOG}"\necho "-- END" >> "${SQLLOG}"\n`); fs.chmodSync(FAKE, 0o755);
+fs.writeFileSync(path.join(dir, "wp.cnf"), "[client]\n");
+fs.writeFileSync(PAINTS, JSON.stringify(Object.fromEntries(require("../data/wdata.json").flatMap(w => w.skins.map((sk, i) => [(require("../lib/wp").defOf(w.n)) + "|" + sk[0], [1000 + i]])))));
 fs.writeFileSync(path.join(dir, "404.html"), "<!doctype html><title>404</title>нет такой страницы");
 let log = "";
-function start(owners) { const p = spawn(process.execPath, [path.join(__dirname, "..", "app.js")], { env: { ...process.env, PORT, SITE_URL: B, DB_PATH: path.join(dir, "t.db"), STATIC_DIR: dir, DEV_LOGIN: "1", START_TK: "50000", OWNER_STEAMIDS: owners }, stdio: ["ignore", "pipe", "pipe"] }); p.stdout.on("data", d => log += d); p.stderr.on("data", d => log += d); return p; }
+function start(owners) { const p = spawn(process.execPath, [path.join(__dirname, "..", "app.js")], { env: { ...process.env, PORT, SITE_URL: B, DB_PATH: path.join(dir, "t.db"), STATIC_DIR: dir, DEV_LOGIN: "1", START_TK: "50000", OWNER_STEAMIDS: owners, WP_MYSQL_CNF: path.join(dir, "wp.cnf"), WP_PAINTS: PAINTS, MYSQL_BIN: FAKE }, stdio: ["ignore", "pipe", "pipe"] }); p.stdout.on("data", d => log += d); p.stderr.on("data", d => log += d); return p; }
 async function up() { for (let i = 0; i < 50; i++) { try { await fetch(B + "/api/health"); return; } catch (e) { await new Promise(r => setTimeout(r, 100)); } } }
 let srv = start("76561190000000001");
 let fails = 0; const ok = (c, name, extra) => { if (!c) fails++; console.log((c ? "  ok  " : "FAIL  ") + name + (c ? "" : " " + JSON.stringify(extra))); };
@@ -115,6 +120,36 @@ const call = async (cookie, p, body, h = {}) => { const r = await fetch(B + p, b
     ok(await steam.verify(SITE, mkq({ "openid.claimed_id": "https://steamcommunity.com.evil.example/openid/id/76561190000000042", "openid.identity": "https://steamcommunity.com.evil.example/openid/id/76561190000000042" }), yes) === null, "Steam: поддельный адрес профиля отклонён");
     ok(await steam.verify(SITE, mkq({ "openid.mode": "cancel" }), yes) === null, "Steam: отменённый вход не принимается");
     const lu = new URL(steam.loginUrl(SITE, "/#shop")); ok(lu.origin + lu.pathname === "https://steamcommunity.com/openid/login" && lu.searchParams.get("openid.realm") === SITE && lu.searchParams.get("openid.return_to") === SITE + "/auth/steam/return?ret=" + encodeURIComponent("/#shop"), "Steam: ссылка на вход ведёт на steamcommunity.com и возвращает на свой сайт", String(lu));
+  }
+  // надеть / снять скин: хранится на сервере и уходит в базу WeaponPaints
+  {
+    const C = await login("76561190000000009"); await call(C, "/api/me");
+    await call(A, "/api/me");
+    let me = (await call(C, "/api/me")).j; let tries = 0;
+    while (me.items.length < 6 && tries++ < 6) { await call(C, "/api/cases/open", { k: "daily" }); me = (await call(C, "/api/me")).j; if (me.items.length < 6) { const own = A; await call(own, "/api/admin/balance", { user: me.user.id, cur: "tk", delta: 200000, reason: "тест" }); const cs = (await call(C, "/api/cases")).j.cases; const k = Object.keys(cs).filter(k => cs[k] > 0).sort((a, b) => cs[a] - cs[b])[0]; await call(C, "/api/cases/open", { k, n: 5 }); me = (await call(C, "/api/me")).j; } }
+    ok(Array.isArray(me.loadout) && me.loadout.length === 0, "новый игрок: ничего не надето", me.loadout);
+    const both = me.items.find(i => !["AK-47", "Galil AR", "SG 553", "G3SG1", "Glock-18", "Tec-9", "MAC-10", "Sawed-Off", "M4A4", "M4A1-S", "FAMAS", "AUG", "SCAR-20", "USP-S", "P2000", "Five-SeveN", "MP9", "MAG-7"].includes(i.w) && !/Агент/.test(i.w));
+    if (both) {
+      fs.writeFileSync(SQLLOG, "");
+      r = await call(C, "/api/equip", { id: both.id, team: "ct", on: true }); ok(r.s === 200 && r.j.loadout.some(x => x.id === both.id && x.team === "ct"), "скин надет за CT", r);
+      r = await call(C, "/api/equip", { id: both.id, team: "t", on: true }); ok(r.s === 200 && r.j.loadout.length === 2, "тот же скин надет и за T", r.j);
+      await new Promise(z => setTimeout(z, 700));
+      const sql = fs.readFileSync(SQLLOG, "utf8"); const last = sql.split("-- END").filter(x => x.trim()).pop() || "";
+      ok(/wp_player_skins/.test(last) && /'76561190000000009',2,/.test(last + sql) && /'76561190000000009',3,/.test(last), "скин записан в базу игры для обеих сторон", last.slice(0, 400));
+      r = (await call(C, "/api/me")).j; ok(r.loadout.length === 2, "надетое сохраняется на сервере", r.loadout);
+      r = await call(C, "/api/equip", { id: both.id, team: "ct", on: false }); ok(r.s === 200 && r.j.loadout.length === 1 && r.j.loadout[0].team === "t", "снят за CT, за T остался", r.j);
+      // продажа надетого снимает его и обновляет игру
+      fs.writeFileSync(SQLLOG, "");
+      r = await call(C, "/api/items/sell", { ids: [both.id] }); ok(r.s === 200, "надетый предмет продан", r);
+      await new Promise(z => setTimeout(z, 700));
+      r = (await call(C, "/api/me")).j; ok(r.loadout.length === 0, "проданный предмет снят", r.loadout);
+      ok(/DELETE FROM wp_player_skins WHERE steamid='76561190000000009';/.test(fs.readFileSync(SQLLOG, "utf8")), "после продажи скин убран из игры", fs.readFileSync(SQLLOG, "utf8").slice(0, 300));
+    } else ok(false, "нет подходящего предмета для проверки надевания", me.items.map(i => i.w));
+    const tOnly = me.items.find(i => i.w === "AK-47" || i.w === "Glock-18");
+    if (tOnly) { r = await call(C, "/api/equip", { id: tOnly.id, team: "ct", on: true }); ok(r.s === 400, "оружие террористов нельзя надеть за CT", r); }
+    r = await call(C, "/api/equip", { id: "nope", team: "ct", on: true }); ok(r.s === 404, "чужой или несуществующий предмет не надевается", r);
+    r = await call(C, "/api/equip", { id: me.items[0].id, team: "x", on: true }); ok(r.s === 400, "неверная сторона", r);
+    const other = (await call(A, "/api/me")).j; if (other.items && other.items.length) { r = await call(C, "/api/equip", { id: other.items[0].id, team: "ct", on: true }); ok(r.s === 404, "чужой предмет не надеть", r); }
   }
   // журнал сходится с балансом
   const lg = (await call(P, "/api/admin/ledger?user=2")).j.ledger; const u2 = (await call(P, "/api/me")).j.user;
