@@ -120,6 +120,10 @@ rcon_password "$RCON_PASS"
 sv_hibernate_when_empty 1
 // список игроков для сайта (запрос Steam A2S_PLAYER)
 host_players_show 2
+// журнал матча в консоль: из него сайт считает статистику игроков
+log on
+mp_logdetail 3
+sv_logfile 1
 CFG
 chmod 640 "$CSGO/cfg/server.cfg"
 

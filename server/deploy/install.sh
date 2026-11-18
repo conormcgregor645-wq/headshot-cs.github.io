@@ -84,6 +84,14 @@ if [ -z "$(getenv GAME_RCON_PASS)" ] && [ -f "$CFGF" ]; then
   systemctl restart cs2 2>/dev/null || true
   echo "пароль RCON заменён на новый, игровой сервер перезапущен"
 fi
+# статистика игроков: сайт читает журнал матча CS2 из консоли сервера
+if [ -f "$CFGF" ]; then
+  [ -n "$(getenv GAME_LOG_UNIT)" ] || setenv GAME_LOG_UNIT cs2.service
+  ADDED=0
+  for l in "log on" "mp_logdetail 3" "sv_logfile 1"; do grep -q "^${l%% *} " "$CFGF" || { echo "$l" >>"$CFGF"; ADDED=1; }; done
+  [ "$ADDED" = 1 ] && systemctl restart cs2 2>/dev/null || true
+  echo "статистика игроков: включена (журнал службы cs2)"
+fi
 # RCON работает по TCP: снаружи он не нужен, игре хватает UDP
 if command -v ufw >/dev/null && ufw status | grep -q "^27015 "; then ufw delete allow 27015 >/dev/null; ufw allow 27015/udp >/dev/null; echo "порт 27015: открыт только UDP (RCON снаружи закрыт)"; fi
 echo "владелец: $(getenv OWNER_STEAMIDS), ключ Steam: сохранён"

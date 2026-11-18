@@ -13,6 +13,8 @@ const steam = require("./lib/steam");
 const G = require("./lib/game");
 const WP = require("./lib/wp");
 const A2S = require("./lib/a2s");
+const GL = require("./lib/gamelog");
+const JOURNAL = require("./lib/journal");
 
 // ---------- настройки ----------
 const ENV = process.env;
@@ -34,6 +36,10 @@ const CFG = {
   // игровые серверы для списка на сайте: "Название|адрес для игроков|адрес для опроса;..."
   gameServers: A2S.parse(ENV.GAME_SERVERS),
   gameRcon: ENV.GAME_RCON_PASS || "",
+  // статистика: служба игрового сервера, консоль которой читаем из системного журнала (пусто — выключено)
+  gameLogUnit: ENV.GAME_LOG_UNIT || "",
+  journalBin: ENV.JOURNALCTL_BIN || "journalctl",
+  statsBots: ENV.GAME_STATS_BOTS !== "0",
 };
 const SECURE = CFG.site.startsWith("https://");
 if (CFG.devLogin && SECURE) { console.error("DEV_LOGIN нельзя включать на боевом сайте (SITE_URL https)."); process.exit(1); }
@@ -48,6 +54,7 @@ const db = open(CFG.db);
 const now = () => Date.now();
 const PAINTS_N = WP.loadPaints(CFG.wpPaints);
 const wpSync = WP.makeSync({ cnf: CFG.wpCnf, bin: CFG.mysqlBin });
+const STATS = GL.makeStats(db, { bots: CFG.statsBots });
 const mskDay = (t = now()) => new Date(t + 3 * 3600e3).toISOString().slice(0, 10);
 const sha = s => crypto.createHash("sha256").update(s).digest("hex");
 
@@ -234,9 +241,43 @@ post("/api/upgrade", ctx => {
 
 // игровые серверы: опрашиваем раз в 10 секунд, сайту отдаём последний результат
 let GS = null;
-async function pollServers() { if (!CFG.gameServers.length) return; try { GS = await A2S.poll(CFG.gameServers, 1500, CFG.gameRcon); } catch (e) {} }
+async function pollServers() {
+  if (!CFG.gameServers.length) return;
+  try {
+    const r = await A2S.poll(CFG.gameServers, 1500, CFG.gameRcon);
+    for (const s of r) for (const p of s.list) { const x = STATS.liveScore(p.n); if (x) { p.k = x.k; p.d = x.d; } } // счёт на текущей карте из журнала
+    GS = r;
+  } catch (e) {}
+}
 if (CFG.gameServers.length && require.main === module) { pollServers(); setInterval(pollServers, 10e3).unref(); }
 get("/api/servers", async () => { if (!GS && CFG.gameServers.length) await pollServers(); return { servers: GS || [] }; });
+
+// ---------- статистика игроков ----------
+let TOP_CACHE = { t: 0, period: "", v: null };
+function statsTop(period) {
+  if (TOP_CACHE.v && TOP_CACHE.period === period && now() - TOP_CACHE.t < 5000) return TOP_CACHE.v;
+  const online = new Set((GS || []).flatMap(s => s.list.map(p => p.n)));
+  const v = STATS.top(period, 200).map(p => ({ ...p, on: online.has(p.n) }));
+  TOP_CACHE = { t: now(), period, v }; return v;
+}
+get("/api/stats", ctx => {
+  const q = String(ctx.query.get("period") || ""); const period = /^\d{4}-\d{2}$/.test(q) || q === "all" ? q : GL.month(now());
+  return { period, players: statsTop(period) };
+});
+get("/api/stats/player", ctx => {
+  const sid = String(ctx.query.get("sid") || ""); if (!/^\d{17}$/.test(sid)) bad("Неверный SteamID");
+  const p = STATS.player(sid); if (!p) bad("Игрок ещё не играл на сервере", 404);
+  return { player: p };
+});
+if (CFG.gameLogUnit && require.main === module) {
+  const curRow = db.prepare("SELECT v FROM meta WHERE k='jcursor'").get();
+  const saveCur = db.prepare("INSERT OR REPLACE INTO meta(k,v) VALUES('jcursor',?)");
+  JOURNAL.follow({ unit: CFG.gameLogUnit, bin: CFG.journalBin, cursor: curRow ? curRow.v : "", onCursor: c => saveCur.run(c),
+    onLine: (msg, t, sys) => {
+      if (sys) { if (/^(Stopped|Stopping|Started|Starting) |Main process exited|Failed with result/.test(msg)) STATS.serverStop(t); return; }
+      if (msg.charCodeAt(0) === 76 /* L */) STATS.apply(GL.parseLine(msg));
+    } });
+}
 
 // лента последних выпадений (для блока Live)
 let DROPS_CACHE = { t: 0, v: null };
@@ -432,6 +473,7 @@ function serveIndex(req, res) {
   const u = sessionUser(req);
   const data = u ? { user: pubUser(u), items: userItems(u.id), loadout: userLoadout(u.id) } : { user: null };
   if (GS) data.servers = GS;
+  if (CFG.gameLogUnit) { data.stats = { period: GL.month(now()), players: statsTop(GL.month(now())).slice(0, 100) }; if (u) data.myStats = STATS.player(u.steamid); }
   const js = JSON.stringify(data).replace(/</g, "\\u003c").replace(/\u2028|\u2029/g, "");
   // страница личная: браузер каждый раз сверяется с сервером и не качает её заново, если ничего не изменилось
   const etag = '"' + INDEX.tag + "-" + sha(js).slice(0, 16) + '"';
@@ -471,7 +513,7 @@ const server = http.createServer(async (req, res) => {
 });
 server.headersTimeout = 15e3; server.requestTimeout = 30e3;
 if (require.main === module) {
-  server.listen(CFG.port, CFG.host, () => console.log(`TASHER server: ${CFG.site} (слушает ${CFG.host}:${CFG.port}), база ${CFG.db}, сайт из ${CFG.staticDir}, кейсов ${G.CASES.length}, скины в игру: ${CFG.wpCnf ? "включено, раскрасок " + PAINTS_N : "выключено"}, игровых серверов: ${CFG.gameServers.length}`));
+  server.listen(CFG.port, CFG.host, () => console.log(`TASHER server: ${CFG.site} (слушает ${CFG.host}:${CFG.port}), база ${CFG.db}, сайт из ${CFG.staticDir}, кейсов ${G.CASES.length}, скины в игру: ${CFG.wpCnf ? "включено, раскрасок " + PAINTS_N : "выключено"}, игровых серверов: ${CFG.gameServers.length}, статистика: ${CFG.gameLogUnit ? "из журнала " + CFG.gameLogUnit : "выключена"}`));
   const stop = () => { server.close(() => { try { db.close(); } catch (e) {} process.exit(0); }); setTimeout(() => process.exit(0), 5000).unref(); };
   process.on("SIGTERM", stop); process.on("SIGINT", stop);
 }

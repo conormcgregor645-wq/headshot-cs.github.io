@@ -10,9 +10,16 @@ const SQLLOG = path.join(dir, "sql.log"), FAKE = path.join(dir, "mysql"), PAINTS
 fs.writeFileSync(FAKE, `#!/bin/sh\ncat >> "${SQLLOG}"\necho "-- END" >> "${SQLLOG}"\n`); fs.chmodSync(FAKE, 0o755);
 fs.writeFileSync(path.join(dir, "wp.cnf"), "[client]\n");
 fs.writeFileSync(PAINTS, JSON.stringify(Object.fromEntries(require("../data/wdata.json").flatMap(w => w.skins.map((sk, i) => [(require("../lib/wp").defOf(w.n)) + "|" + sk[0], [1000 + i]])))));
+// поддельный journalctl: отдаёт строки журнала CS2 в формате JSON и «ждёт новых», как journalctl -f
+const JFAKE = path.join(dir, "journalctl"), JLINES = path.join(dir, "j.jsonl");
+const jl = [["L 11/18/2026 - 23:52:29: \"-NaiFF1337<2><[U:1:1618774009]><>\" entered the game", "cs2.sh"],
+  ["L 11/18/2026 - 23:53:20: \"-NaiFF1337<2><[U:1:1618774009]><TERRORIST>\" [1 2 3] killed \"Aspirant<1><BOT><CT>\" [4 5 6] with \"glock\" (headshot)", "cs2.sh"],
+  ["L 11/18/2026 - 23:53:20: Team \"TERRORIST\" triggered \"SFUI_Notice_Terrorists_Win\" (CT \"0\") (T \"1\")", "cs2.sh"],
+  ["Stopped cs2.service - TASHER CS2 server.", "systemd"]].map(([m, id], i) => JSON.stringify({ __CURSOR: "c" + i, __REALTIME_TIMESTAMP: String((Date.now() - 1000 + i) * 1000), MESSAGE: m, SYSLOG_IDENTIFIER: id })).join("\n") + "\n";
+fs.writeFileSync(JLINES, jl); fs.writeFileSync(JFAKE, `#!/bin/sh\ncat "${JLINES}"\nexec sleep 600\n`); fs.chmodSync(JFAKE, 0o755);
 fs.writeFileSync(path.join(dir, "404.html"), "<!doctype html><title>404</title>нет такой страницы");
 let log = "";
-function start(owners) { const p = spawn(process.execPath, [path.join(__dirname, "..", "app.js")], { env: { ...process.env, PORT, SITE_URL: B, DB_PATH: path.join(dir, "t.db"), STATIC_DIR: dir, DEV_LOGIN: "1", START_TK: "50000", OWNER_STEAMIDS: owners, WP_MYSQL_CNF: path.join(dir, "wp.cnf"), WP_PAINTS: PAINTS, MYSQL_BIN: FAKE }, stdio: ["ignore", "pipe", "pipe"] }); p.stdout.on("data", d => log += d); p.stderr.on("data", d => log += d); return p; }
+function start(owners) { const p = spawn(process.execPath, [path.join(__dirname, "..", "app.js")], { env: { ...process.env, PORT, SITE_URL: B, DB_PATH: path.join(dir, "t.db"), STATIC_DIR: dir, DEV_LOGIN: "1", START_TK: "50000", OWNER_STEAMIDS: owners, WP_MYSQL_CNF: path.join(dir, "wp.cnf"), WP_PAINTS: PAINTS, MYSQL_BIN: FAKE, GAME_LOG_UNIT: "cs2.service", JOURNALCTL_BIN: JFAKE }, stdio: ["ignore", "pipe", "pipe"] }); p.stdout.on("data", d => log += d); p.stderr.on("data", d => log += d); return p; }
 async function up() { for (let i = 0; i < 50; i++) { try { await fetch(B + "/api/health"); return; } catch (e) { await new Promise(r => setTimeout(r, 100)); } } }
 let srv = start("76561190000000001");
 let fails = 0; const ok = (c, name, extra) => { if (!c) fails++; console.log((c ? "  ok  " : "FAIL  ") + name + (c ? "" : " " + JSON.stringify(extra))); };
@@ -70,7 +77,7 @@ const call = async (cookie, p, body, h = {}) => { const r = await fetch(B + p, b
   // статика
   for (const p of ["/server/app.js", "/.env", "/..%2f..%2fetc/passwd", "/%2e%2e/%2e%2e/etc/passwd", "/tools/x"]) { const x = await fetch(B + p); ok(x.status === 404 || x.status === 400, "закрыт путь " + p, x.status); }
   let x = await fetch(B + "/", { headers: { cookie: A } }); let t = await x.text(); ok(/window\.TSRV=\{"user":\{/.test(t), "данные игрока вписаны в страницу");
-  x = await fetch(B + "/"); t = await x.text(); ok(t.includes('window.TSRV={"user":null}'), "гостю данные не отдаются");
+  x = await fetch(B + "/"); t = await x.text(); ok(t.includes('window.TSRV={"user":null') && !/"items"|"loadout"|"myStats"/.test(t.slice(t.indexOf('window.TSRV'), t.indexOf('</script>', t.indexOf('window.TSRV')))), "гостю личные данные не отдаются");
   // повторная загрузка: страница и файлы не качаются заново, если не менялись
   x = await fetch(B + "/", { headers: { cookie: A } }); const et = x.headers.get("etag"); await x.text();
   x = await fetch(B + "/", { headers: { cookie: A, "if-none-match": et } }); ok(x.status === 304 && /private/.test(x.headers.get("cache-control")), "главная: 304, если данные не менялись", x.status);
@@ -150,6 +157,15 @@ const call = async (cookie, p, body, h = {}) => { const r = await fetch(B + p, b
     r = await call(C, "/api/equip", { id: "nope", team: "ct", on: true }); ok(r.s === 404, "чужой или несуществующий предмет не надевается", r);
     r = await call(C, "/api/equip", { id: me.items[0].id, team: "x", on: true }); ok(r.s === 400, "неверная сторона", r);
     const other = (await call(A, "/api/me")).j; if (other.items && other.items.length) { r = await call(C, "/api/equip", { id: other.items[0].id, team: "ct", on: true }); ok(r.s === 404, "чужой предмет не надеть", r); }
+  }
+  // статистика из журнала игрового сервера
+  {
+    const st = (await call("", "/api/stats")).j; const me = st.players.find(p => p.sid === "76561199579039737");
+    ok(me && me.n === "-NaiFF1337" && me.k === 1 && me.hs === 1 && me.rw === 1 && me.pts === 4, "статистика: убийство, хедшот и победа из журнала", st);
+    const pl = await call("", "/api/stats/player?sid=76561199579039737"); ok(pl.s === 200 && pl.j.player.k === 1 && pl.j.player.w[0][0] === "Glock-18", "профиль игрока со статистикой", pl.j);
+    r = await call("", "/api/stats/player?sid=123"); ok(r.s === 400, "неверный SteamID", r.s);
+    r = await call("", "/api/stats/player?sid=76561190000000077"); ok(r.s === 404, "не игравший игрок", r.s);
+    const html = await (await fetch(B + "/")).text(); ok(/"stats":\{"period":"\d{4}-\d{2}","players":\[\{"sid":"76561199579039737"/.test(html), "рейтинг вписан в страницу");
   }
   // журнал сходится с балансом
   const lg = (await call(P, "/api/admin/ledger?user=2")).j.ledger; const u2 = (await call(P, "/api/me")).j.user;

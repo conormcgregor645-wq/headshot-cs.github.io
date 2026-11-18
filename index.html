@@ -3386,8 +3386,8 @@ function openServer(i,keep){const s=SERVERS[i];if(!s)return;const sm=$("srvModal
 // настоящий сервер: игроки из опроса (ник, счёт, время); стороны CT/T запрос Steam не сообщает
 function openRealServer(s,i,keep){const sm=$("srvModal");sm.style.setProperty("--mc",MAPC[s.map]||"var(--accent)");sm.style.setProperty("--mimg",MAPIMG[s.map]?`url(${MAPIMG[s.map]})`:"none");
   $("smTop").innerHTML=`<small>${esc(s.mapId)}</small><h3 id="smName">${esc(s.name)}</h3><div class="srv-sub">${s.on?`${s.cur}/${s.max} игроков`:"Сервер сейчас не отвечает"}</div><div class="ipbar"><code>${esc(s.ip)}</code><button class="icon-btn" data-copy="${i}" title="Скопировать IP" aria-label="Скопировать IP">${ICON_COPY}</button><button class="icon-btn play" data-connect="${i}" title="Подключиться" aria-label="Подключиться">${ICON_PLAY}</button></div>`;
-  const L=[...s.list].sort((a,b)=>(b.s|0)-(a.s|0)||(b.t|0)-(a.t|0)),mins=t=>{const m=Math.floor((t|0)/60);return m<60?m+" мин":Math.floor(m/60)+" ч "+(m%60)+" мин"};
-  $("smTeams").innerHTML=`<div class="team" style="grid-column:1/-1"><div class="team-h"><span>Игроки</span><small>${s.cur}/${s.max}</small></div><div class="plist">${L.map(p=>`<div class="prow"><span>${esc(p.n)}</span><span class="tm">${p.s!=null?(p.s|0)+" очк. · ":""}${mins(p.t)}</span></div>`).join("")||`<div class="note">${s.on?"Сейчас никого нет — заходи первым":"Сервер не отвечает, попробуй позже"}</div>`}</div></div>`;
+  const L=[...s.list].sort((a,b)=>(b.k|0)-(a.k|0)||(b.s|0)-(a.s|0)||(b.t|0)-(a.t|0)),mins=t=>{const m=Math.floor((t|0)/60);return m<60?m+" мин":Math.floor(m/60)+" ч "+(m%60)+" мин"};
+  $("smTeams").innerHTML=`<div class="team" style="grid-column:1/-1"><div class="team-h"><span>Игроки</span><small>${s.cur}/${s.max}</small></div><div class="plist">${L.map(p=>{const kd=p.k!=null?`${p.k|0} / ${p.d|0} · `:"",pr=P(p.n);return pr?`<button class="prow" data-p="${esc(p.n)}"><span>${esc(p.n)}</span><span class="tm">${kd}${mins(p.t)}</span></button>`:`<div class="prow"><span>${esc(p.n)}</span><span class="tm">${kd}${mins(p.t)}</span></div>`}).join("")||`<div class="note">${s.on?"Сейчас никого нет — заходи первым":"Сервер не отвечает, попробуй позже"}</div>`}</div></div>`;
   $("smSpecs").hidden=true;sm.hidden=false;if(!keep)$("smClose").focus()}
 $("smClose").onclick=()=>$("srvModal").hidden=true;
 $("srvModal").onclick=e=>{if(e.target.id==="srvModal")$("srvModal").hidden=true};
@@ -3470,7 +3470,7 @@ function drawAch(){const P2=ACHFOR&&P(ACHFOR);if(!P2)ACHFOR=null;ACHPR=P2?achPro
 drawAch();
 const rarest=[...ACHS].sort((a,b)=>a[3]-b[3])[0];
 $("achSum").innerHTML=`<div><b>${ACHS.length}</b>достижений</div><div><b>${ACAT.length-1}</b>категорий</div><div><b>${fmt(ACHS.reduce((s,a)=>s+achTK(a),0))} ТК</b>награда за все достижения</div><div><b>${rarest[1]}</b>самое редкое · ${String(rarest[3]).replace(".",",")}%</div>`;
-const achOf=p=>(SRV&&p===ME)?[]:ACHS.filter((a,i)=>a[1]!=="Легенда сервера"&&(a[3]>45||((p.pts/37+i*13)%100)<a[3]*1.6+p.hrs/15));
+const achOf=p=>(SRV&&(p===ME||p.real))?[]:ACHS.filter((a,i)=>a[1]!=="Легенда сервера"&&(a[3]>45||((p.pts/37+i*13)%100)<a[3]*1.6+p.hrs/15));
 
 // ---------- кланы ----------
 const CL=[["Волки Севера","WOLF","#5aa9ff","Играем каждый вечер, ищем тех, кто держит позицию и не уходит в AFK."],["Бетонщики","BETON","#a8a29e","Стоим насмерть на B. Микрофон обязателен."],["Headhunters","HH","#b5e853","Только хедшоты. Средний HS% клана выше 50."],["Сибирские Валенки","VLNK","#3ddc97","Из Новосибирска с любовью. Пинг не помеха."],["Пельменная","PLMN","#f5c451","Весело играем, вкусно едим. Новички приветствуются."],["Dust Kings","DK","#ff8a3d","Короли Даста. Знаем каждый пиксель карты."],["Дымовая Завеса","SMOK","#a78bfa","Раскидки, тактика и командная игра."],["Тихий Час","ZZZ","#fbbf24","Играем тихо, побеждаем громко."]];
@@ -3584,6 +3584,19 @@ function srvUser(u){Object.assign(ME,{id:u.id,n:u.n,steamid:u.steamid,av:u.av||"
 function srvSoon(what){if(!SRV)return false;toast((what||"Этот раздел")+" скоро заработает, подключаем к серверу");return true}
 async function srvSync(){try{const d=await api("/api/me");if(d.user){ME.tk=d.user.tk;ME.balance=d.user.balance;INV=srvItems(d.items);invSave();srvLoadout(d.loadout);drawChip();try{drawSkins();if(curView==="upgrade"&&!UP.busy)drawUp();if(curView==="me")drawMe()}catch(e){}}else if(logged)location.reload()}catch(e){}}
 if(SRV){document.documentElement.classList.add("on-server");logged=!!SRV.user;if(SRV.user)srvUser(SRV.user)}
+// настоящая статистика с игрового сервера: заменяет примерных игроков (рейтинг месяца, профили)
+const REAL_STATS=!!(SRV&&SRV.stats&&Array.isArray(SRV.stats.players));
+function statP(x,i){const k=x.k|0,d=x.d|0,pt=x.pt|0,w=Array.isArray(x.w)?x.w:[],tot=w.reduce((s,y)=>s+(y[1]|0),0);
+  return{id:1000+i,n:String(x.n||"Игрок").slice(0,32),sid:String(x.sid||""),real:1,kills:k,deaths:d,kd:+(d?k/d:k).toFixed(2),hs:k?Math.round((x.hs|0)/k*100):0,hsN:x.hs|0,as:x.a|0,
+    hrs:Math.floor(pt/3600),pt,pts:x.pts|0,m:x.pts|0,mk:x.mk|0,md:x.md|0,mhs:x.mhs|0,ma:x.ma|0,mpt:x.mpt|0,rw:x.rw|0,rp:x.rp|0,mvp:0,c:AVC[i%AVC.length],r:rankIdx(x.pts|0),
+    w:tot?w.map(([n,v])=>[String(n),Math.round((v|0)/tot*100)]):[],last:+x.last||0,online:!!x.on}}
+function srvStatsApply(st,my){if(!st||!Array.isArray(st.players))return;
+  players.length=0;guests.length=0;
+  st.players.forEach((x,i)=>{const p=statP(x,i);if(SRV.user&&p.sid===ME.steamid){Object.assign(ME,p,{id:ME.id,n:ME.n,c:ME.c});players.push(ME)}else players.push(p)});
+  if(SRV.user&&my&&!players.includes(ME))Object.assign(ME,statP(my,999),{id:ME.id,n:ME.n,c:ME.c,m:0})}
+if(REAL_STATS){srvStatsApply(SRV.stats,SRV.myStats);
+  setInterval(()=>{if(document.hidden||curView!=="stats")return;fetch("/api/stats",{credentials:"same-origin"}).then(r=>r.json()).then(d=>{if(!Array.isArray(d.players))return;srvStatsApply(d,null);drawStats()}).catch(()=>{})},30e3)}
+const ptStr=s=>{s=s|0;const h=Math.floor(s/3600),m=Math.floor(s%3600/60);return h?`${h} ч ${m} мин`:`${m} мин`};
 const PURCHASES=[[new Date(today.getFullYear(),today.getMonth(),1),`Приз: 7 место в рейтинге за ${LAST_MONTH.split(" ")[0]} · LEGEND на 30 дней`,0],[daysAgo(12),"PREMIUM на 30 дней",199],[daysAgo(43),"VIP на 30 дней",99],[daysAgo(74),"VIP на 30 дней",99]].sort((a,b)=>b[0]-a[0]);
 function targetOf(a){let t=a[2].replace(/(\d)\s(\d)/g,"$1$2");let m=t.match(/(\d+) раз(?![а-яё])/);if(m)return+m[1];if(/за (один )?раунд/.test(t))return 1;t=t.replace(/\d\d:\d\d/g,"").replace(/больше \d+ метров/g,"").replace(/\d+ HP/g,"").replace(/\$\d+/g,"");m=t.match(/\d+/);return m?+m[0]:1}
 function achProgress(p){p=p||ME;const own=new Set(achOf(p));let h=77;if(p!==ME)for(const c of p.n)h=(h*31+c.charCodeAt(0))%2147483646+1;const rnd=rng(h);
@@ -3593,15 +3606,15 @@ function drawMe(){rescueSet();$("meGate").hidden=logged;$("meBody").hidden=!logg
   PF={p:ME,own:true};$("meBody").innerHTML=pfBigLayer()+pfHTML(ME,true);pfBigSet();pfAfter()}
 // ---------- профиль (свой и чужой) ----------
 let PFN=null,pfTab="info",pfTabO="info",pfBack="stats",PF=null;
-const tkOf=p=>p===ME?ME.tk:Math.max(0,Math.round(p.kills*2+p.hrs*50+p.hs*13)+(p.tkAdj||0));
+const tkOf=p=>p===ME?ME.tk:p.real?null:Math.max(0,Math.round(p.kills*2+p.hrs*50+p.hs*13)+(p.tkAdj||0));
 const svgI=(d,c="")=>`<svg class="${c}" viewBox="0 0 24 24" aria-hidden="true">${d}</svg>`;
 const PI={brush:'<path d="M14 4l6 6-9 9H5v-6z"/><path d="M12.5 5.5l6 6"/>',box:'<path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5z"/><path d="M3 7.5 12 12l9-4.5M12 12v9"/>',tk:'<circle cx="12" cy="12" r="9"/><path d="M8.5 8.5h7M12 8.5v8"/>',kill:'<circle cx="12" cy="12" r="7"/><path d="M12 2v5M12 17v5M2 12h5M17 12h5"/>',skull:'<path d="M12 3a8 8 0 0 0-8 8c0 3 1.6 5 3.5 6v3h9v-3c1.9-1 3.5-3 3.5-6a8 8 0 0 0-8-8z"/><circle cx="9" cy="11.5" r="1.6"/><circle cx="15" cy="11.5" r="1.6"/>',hs:'<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/>',info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/>',gun:'<path d="M3 9h16l2 2v2h-7l-2 2h-2l-1 5H5l1.5-6H3z"/>',star:'<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/>',wallet:'<rect x="3" y="6" width="18" height="14" rx="2"/><path d="M3 10h18M16 15h2"/>',gear:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M2 12h3M19 12h3M4.9 19.1L7 17M17 7l2.1-2.1"/>',back:'<path d="M15 6l-6 6 6 6"/>'};
 const TCOL=t=>(T6.find(x=>x.n===t)||{c:"#9aa3ad"}).c;
 function statusOf(p){if(p===ME)return ME.vip?{t:ME.vip.tier,u:ME.vip.until,f:ME.vip.from}:null;const v=VIPS.find(x=>x[0]===p.n);if(v)return{t:v[2],u:v[3],f:daysAgo(30-Math.round((v[3]-today)/864e5))};if(isKing(p)){const f=new Date(today.getFullYear(),today.getMonth(),1);return{t:"KING",u:new Date(f.getTime()+30*864e5),f}}return null}
-const isOn=p=>p===ME||p.id%3===0;
+const isOn=p=>p===ME||(p.real?!!p.online:p.id%3===0);
 const two=n=>String(n).padStart(2,"0");
 const dts=(d,t)=>`${two(d.getDate())}.${two(d.getMonth()+1)}.${d.getFullYear()}${t?` ${two(d.getHours())}:${two(d.getMinutes())}`:""}`;
-function lastIn(p){const d=new Date(Date.now()-(4+(p.id*3)%50)*6e4);if(!isOn(p))d.setHours(d.getHours()-((p.id*7)%40+1),(p.id*13)%60);return d}
+function lastIn(p){if(p.real&&p!==ME)return new Date(p.last||Date.now());const d=new Date(Date.now()-(4+(p.id*3)%50)*6e4);if(!isOn(p))d.setHours(d.getHours()-((p.id*7)%40+1),(p.id*13)%60);return d}
 function pfBadges(p){const a=achOf(p);const md=(MEDALS.get(p)||[]).slice().sort((x,y)=>MEDAL_MONTHS.indexOf(y.month)-MEDAL_MONTHS.indexOf(x.month)).map(m=>`<span class="pf-b md p${m.place<=3?m.place:"x"}" tabindex="0" data-tip="${m.place} место в рейтинге · ${m.month}">${medalSvg(m.place,46)}<small>${mShort(m.month)}</small></span>`);return`<div class="pf-badges">${md.join("")}<a class="pf-b ach" href="#ach" data-achp="${esc(p.n)}" title="Достижения ${esc(p.n)}"><b>${a.length}</b><small>из ${ACHS.length}</small></a></div>`}
 function pfHTML(p,own){const st=statusOf(p),cl=clanOf(p)||(own?myClan:null),on=isOn(p),pc=ptier(monthPts(p))[1];
   const tabs=own?[["info","Информация","info"],["skins","Надето","gun"],["mine","Мои вещи","brush"],["serv","Услуги","star"],["pay","Пополнения","wallet"],["set","Настройки","gear"]]:[["info","Информация","info"],["skins","Скины","gun"],["serv","Услуги","star"]];
@@ -3611,16 +3624,18 @@ function pfHTML(p,own){const st=statusOf(p),cl=clanOf(p)||(own?myClan:null),on=i
   ${st||cl?`<div class="pf-tags">${st?`<span class="pf-role" style="--tc:${TCOL(st.t)}"><i></i>${st.t}</span>`:""}${cl?`<button class="pf-role" data-clan="${clans.indexOf(cl)}"><i style="background:${cl.c}"></i>[${esc(cl.t)}] ${esc(cl.n)}</button>`:""}</div>`:""}
   <span class="pf-on ${on?"on":""}">${on?"В сети":"Был в сети "+dts(lastIn(p),1)}</span></div>
   ${pfBadges(p)}
-  <div class="pf-stats"><div><small>Тащер Коины</small><b>${svgI(PI.tk)}${fmt(tkOf(p))}</b></div><div><small>Убийств</small><b>${svgI(PI.kill)}${fmt(p.kills)}</b></div><div><small>Смертей</small><b>${svgI(PI.skull)}${fmt(p.deaths)}</b></div><div><small>Хедшотов</small><b>${svgI(PI.hs)}${p.hs}%</b></div><div><small>У/С</small><b>${p.kd.toFixed(2)}</b></div></div></section>
+  <div class="pf-stats">${tkOf(p)==null?`<div><small>В игре</small><b>${svgI(PI.info)}<span>${ptStr(p.pt).replace(/ /g,"\u00a0")}</span></b></div>`:`<div><small>Тащер Коины</small><b>${svgI(PI.tk)}${fmt(tkOf(p))}</b></div>`}<div><small>Убийств</small><b>${svgI(PI.kill)}${fmt(p.kills)}</b></div><div><small>Смертей</small><b>${svgI(PI.skull)}${fmt(p.deaths)}</b></div><div><small>Хедшотов</small><b>${svgI(PI.hs)}${p.hs}%</b></div><div><small>У/С</small><b>${p.kd.toFixed(2)}</b></div></div></section>
   <div class="pf-tabs" role="tablist">${tabs.map(([k,n,ic])=>`<button role="tab" data-pft="${k}" aria-selected="${k===cur}">${svgI(PI[ic])}<span>${n}</span></button>`).join("")}</div>
   <section class="pf-panel">${pfPanel(p,own,cur)}</section>`}
 function pfRows(rows){return`<div class="pf-rows">${rows.map(([a,b])=>`<div><span>${a}</span><b>${b}</b></div>`).join("")}</div>`}
-function pfLoadout(p,own){if(own)return Object.entries(SKST.sets).map(([n,s])=>{const w=W.find(x=>x.n===n);return w?{w,skin:w.skins.find(x=>x[0]===s.name),wear:s.wear,st:s.st,tag:s.tag,stk:s.stk}:null}).filter(Boolean);
+function pfLoadout(p,own){if(p.real&&!own)return[];if(own)return Object.entries(SKST.sets).map(([n,s])=>{const w=W.find(x=>x.n===n);return w?{w,skin:w.skins.find(x=>x[0]===s.name),wear:s.wear,st:s.st,tag:s.tag,stk:s.stk}:null}).filter(Boolean);
   const r=rng(p.id*31+7);const pick=c=>{const l=W.filter(w=>w.c===c);return l[Math.floor(r()*l.length)]};
   return["knife","gloves","rifle","rifle","sniper","pistol","pistol","smg"].map(pick).filter((w,i,a)=>a.indexOf(w)===i).map(w=>{const skin=w.skins[Math.floor(r()*w.skins.length)];const hasStk=STK_OK(w)&&r()<.6;return{w,skin,wear:+(r()*.4).toFixed(3),st:r()<.3,tag:"",stk:hasStk?[0,1,2,3,4].map(()=>r()<.45?{i:Math.floor(r()*STK.length),wear:0}:null):null}})}
 function pfPanel(p,own,tab){
   if(tab==="info"){const reg=daysAgo(40+(p.id*53)%690),on=isOn(p),cl=clanOf(p)||(own?myClan:null);
-    if(SRV&&p===ME)return`<h2>Информация</h2>`+pfRows([["ID",String(ME.id)],["SteamID",esc(ME.steamid||"")],["Роль",ME.role==="owner"?"Владелец":ME.role==="admin"?"Администратор":"Игрок"],["Дата регистрации",dts(new Date(ME.created||Date.now()))],["Часов на проекте","Появится после запуска игрового сервера"],["Клан","Нет"]]);
+    const rk=p.real?placeOf(p):0,wr=p.rp?Math.round(p.rw/p.rp*100)+"%":"—";
+    if(SRV&&p===ME)return`<h2>Информация</h2>`+pfRows([["ID",String(ME.id)],["SteamID",esc(ME.steamid||"")],["Роль",ME.role==="owner"?"Владелец":ME.role==="admin"?"Администратор":"Игрок"],["Дата регистрации",dts(new Date(ME.created||Date.now()))],["Место в рейтинге месяца",rk?"#"+rk:"Пока нет — сыграй на сервере"],["Время в игре",ptStr(ME.pt)],["Помощей",fmt(ME.as|0)],["Выиграно раундов",ME.rp?`${fmt(ME.rw)} из ${fmt(ME.rp)} (${wr})`:"—"],["Клан","Нет"]]);
+    if(p.real)return`<h2>Информация</h2>`+pfRows([["SteamID",esc(p.sid)],["Место в рейтинге месяца","#"+rk],["Очков за месяц",fmt(p.m)],["Время в игре",ptStr(p.pt)],["Помощей",fmt(p.as)],["Выиграно раундов",p.rp?`${fmt(p.rw)} из ${fmt(p.rp)} (${wr})`:"—"],["Последний раз на сервере",p.online?"Сейчас в игре":dts(lastIn(p),1)]]);
     let h=`<h2>Информация</h2>`+pfRows([["ID",String(790000+((p.id*7919)%9000))],["Роль","Игрок"],["Дата регистрации",dts(reg)],["Место в рейтинге месяца","#"+placeOf(p)],["Часов на проекте",fmt(p.hrs)+" ч"],["Клан",cl?esc(cl.n):"Нет"],["Последний сервер",on?SERVERS[p.id%SERVERS.length].name:"Неизвестно"],["Последний вход",dts(lastIn(p),1)]]);
     return h}
   if(tab==="skins"){const l=pfLoadout(p,own);
@@ -4404,7 +4419,7 @@ drawTiers();
 
 // ---------- медали за топ-10 месяца ----------
 const MEDALS=new Map();
-(function(){const all=[...players,...guests];MEDAL_MONTHS.forEach((mo,k)=>{const r=rng(900+k*31);all.map(p=>[p,p.pts*(0.3+r()*1.6)]).sort((a,b)=>b[1]-a[1]).slice(0,10).forEach(([p],i)=>{if(p===ME)return;if(!MEDALS.has(p))MEDALS.set(p,[]);MEDALS.get(p).push({place:i+1,month:mo})})});
+(function(){if(REAL_STATS)return;const all=[...players,...guests];MEDAL_MONTHS.forEach((mo,k)=>{const r=rng(900+k*31);all.map(p=>[p,p.pts*(0.3+r()*1.6)]).sort((a,b)=>b[1]-a[1]).slice(0,10).forEach(([p],i)=>{if(p===ME)return;if(!MEDALS.has(p))MEDALS.set(p,[]);MEDALS.get(p).push({place:i+1,month:mo})})});
   if(!SRV)MEDALS.set(ME,[{place:7,month:MEDAL_MONTHS[5]},{place:7,month:MEDAL_MONTHS[2]},{place:9,month:MEDAL_MONTHS[0]}])})();
 const MCOL=p=>p===1?["#fff1b8","#f2c234","#9a6b00","#5a3c00"]:p===2?["#ffffff","#cfd6df","#7c8794","#3f4650"]:p===3?["#ffd9b8","#d88a4b","#8a4a1c","#4a240a"]:["#ffd27a","#e39b2a","#7a4a0a","#3a2208"];
 const MRIB=p=>p===1?["#eb4b4b","#d4f58a"]:p===2?["#4b69ff","#e8edf3"]:p===3?["#2fb36a","#f3c9a5"]:["#2a1d22","#b5e853"];
@@ -4441,9 +4456,11 @@ const clanTag=p=>{const c=clanOf(p);return c?`<span class="ctag" data-tip="Кл�
 function rtHead(cols){return`<div class="rt-row rt-h">${cols.map(c=>`<span>${c}</span>`).join("")}</div>`}
 function drawStats(){const all=board(),q=$("q-stats").value.trim().toLowerCase();
   const pod=all.slice(0,3),col=["#d4f58a","#d5dde8","#e0915f"];
-  $("podM").innerHTML=[1,0,2].map(k=>{const p=pod[k],cl=clanOf(p);return`<button class="pd p${k+1}" data-p="${esc(p.n)}" style="--mc:${col[k]}"><span class="pd-num">${k+1}</span><span class="pd-av" style="--ac:${p.c}">${ini(p.n)}<i>${k+1}</i></span><b class="pd-nm">${esc(p.n)}${kingBadge(p)}</b><small class="pd-cl">${cl?`[${esc(cl.t)}] ${esc(cl.n)}`:"без клана"}</small>${rtPts(monthPts(p),1)}<span class="pd-prize">Приз: KING на 30 дней</span></button>`}).join("");
+  $("podM").innerHTML=[1,0,2].filter(k=>pod[k]).map(k=>{const p=pod[k],cl=clanOf(p);return`<button class="pd p${k+1}" data-p="${esc(p.n)}" style="--mc:${col[k]}"><span class="pd-num">${k+1}</span><span class="pd-av" style="--ac:${p.c}">${ini(p.n)}<i>${k+1}</i></span><b class="pd-nm">${esc(p.n)}${kingBadge(p)}</b><small class="pd-cl">${cl?`[${esc(cl.t)}] ${esc(cl.n)}`:"без клана"}</small>${rtPts(monthPts(p),1)}<span class="pd-prize">Приз: KING на 30 дней</span></button>`}).join("");
   const rows=all.map((p,i)=>({p,i})).filter(({p})=>!q||p.n.toLowerCase().includes(q));
-  $("rtList").innerHTML=rtHead(["Место","Игрок","Рейтинг","Убийств","Смертей","Помощи","Хедшотов","K/D","Точность","Приз"])+(rows.length?rows.map(({p,i})=>`<div class="rt-row ${i<3?"top t"+(i+1):""} ${logged&&p===ME?"me":""}" data-p="${esc(p.n)}" tabindex="0" role="button"><span class="rt-pl">${i+1}</span><span class="rt-who"><i class="av${cosFrame(p.n)}${cosAvInner(p.n)?" hasav":""}" style="background:${p.c}">${cosAvInner(p.n)||ini(p.n)}</i><span class="nm"${cosNick(p.n)}>${esc(p.n)}</span>${cosBadge(p.n)}${kingBadge(p)}${clanTag(p)}</span><span>${rtPts(monthPts(p))}</span>${rc("kill",fmt(p.kills))}${rc("skull",fmt(p.deaths))}${rc("as",fmt(stAs(p)))}${rc("hs",fmt(stHs(p)))}${rc("kd",p.kd.toFixed(2))}${rc("acc",stAcc(p)+"%")}<span>${i<3?'<span class="przc god">KING</span>':i<10?'<span class="przc leg">LEGEND</span>':""}</span></div>`).join(""):`<div class="rt-empty">Игрок «${esc(q)}» не найден</div>`)}
+  if(REAL_STATS&&!all.length){$("rtList").innerHTML=`<div class="rt-empty">Рейтинг месяца пока пуст. Зайди на сервер — очки начисляются за убийства, хедшоты, помощь, бомбу и выигранные раунды.</div>`;return}
+  const mk=p=>p.real?p.mk:p.kills,md=p=>p.real?p.md:p.deaths;
+  $("rtList").innerHTML=rtHead(["Место","Игрок","Рейтинг","Убийств","Смертей","Помощи","Хедшотов","K/D",REAL_STATS?"В игре":"Точность","Приз"])+(rows.length?rows.map(({p,i})=>`<div class="rt-row ${i<3?"top t"+(i+1):""} ${logged&&p===ME?"me":""}" data-p="${esc(p.n)}" tabindex="0" role="button"><span class="rt-pl">${i+1}</span><span class="rt-who"><i class="av${cosFrame(p.n)}${cosAvInner(p.n)?" hasav":""}" style="background:${p.c}">${cosAvInner(p.n)||ini(p.n)}</i><span class="nm"${cosNick(p.n)}>${esc(p.n)}</span>${cosBadge(p.n)}${kingBadge(p)}${clanTag(p)}</span><span>${rtPts(monthPts(p))}</span>${rc("kill",fmt(mk(p)))}${rc("skull",fmt(md(p)))}${rc("as",fmt(p.real?p.ma:stAs(p)))}${rc("hs",fmt(p.real?p.mhs:stHs(p)))}${rc("kd",(p.real?(md(p)?mk(p)/md(p):mk(p)):p.kd).toFixed(2))}${rc("acc",p.real?ptStr(p.mpt):stAcc(p)+"%")}<span>${i<3?'<span class="przc god">KING</span>':i<10?'<span class="przc leg">LEGEND</span>':""}</span></div>`).join(""):`<div class="rt-empty">Игрок «${esc(q)}» не найден</div>`)}
 document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.matches(".rt-row[data-p]"))openProfile(e.target.dataset.p)});
 $("q-stats").oninput=drawStats;
 function tickMonth(){const now=new Date(),msk=new Date(now.getTime()+3*3600e3);const end=Date.UTC(msk.getUTCFullYear(),msk.getUTCMonth()+1,1);const left=end-msk.getTime();
