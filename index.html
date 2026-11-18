@@ -3398,7 +3398,7 @@ document.addEventListener("click",e=>{const c=e.target.closest("[data-connect]")
 document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.matches(".srv[data-s]"))openServer(+e.target.dataset.s);if(e.key==="Escape"&&$("drawer").hidden){$("srvModal").hidden=true;$("cmdModal").hidden=true}});
 $("quickBtn").onclick=()=>{const best=SERVERS.filter(s=>s.cur<s.max-1).sort((a,b)=>b.cur-a.cur)[0];if(best)connect(SERVERS.indexOf(best))};
 const CMDS=[["!rank","твои очки и место в рейтинге"],["!top","топ-10 сервера"],["!tk","баланс Тащер Коинов"],["!rs","обнулить счёт за карту"],["!rtv","голосовать за смену карты"],["!nominate","предложить карту"],["!ws","скины оружия, бесплатно (или раздел «Скины» на сайте)"],["!knife","выбор ножа, бесплатно"],["!vip","меню привилегии"],["!medic","аптечка +40 HP (ELITE и выше)"],["!guns","меню оружия (LEGEND и выше)"],["!calladmin","позвать администратора"],["!report","пожаловаться на игрока"]];
-if(window.TSRV)CMDS.splice(0,CMDS.length,["!ws","где выбрать скины: инвентарь на сайте tashercs.ru"],["!wp","обновить скины после «Надеть» на сайте"]);
+if(window.TSRV)CMDS.splice(0,CMDS.length,["!ws","где выбрать скины: инвентарь на сайте tashercs.ru"],["!wp","обновить скины вручную (обычно не нужно: они ставятся сами)"]);
 $("cmdList").innerHTML=CMDS.map(([c,d])=>`<div><code>${c}</code><span>${d}</span></div>`).join("");
 $("cmdsBtn").onclick=()=>{$("cmdModal").hidden=false;$("cmClose").focus()};
 $("cmClose").onclick=()=>$("cmdModal").hidden=true;
@@ -3916,7 +3916,7 @@ function dust(list){let sum=0;list.forEach(it=>{if(isOnIt(it))equip(it,false);su
   if(SRV&&list.length){const all=[...ids];(async()=>{try{let r;for(let i=0;i<all.length;i+=200)r=await api("/api/items/sell",{ids:all.slice(i,i+200)});ME.tk=r.tk;INV=INV.filter(x=>!ids.has(x.id));invSave();drawChip()}catch(e){toast("Продажа не прошла: "+e.message);srvSync()}})()}return sum}
 $("invGrid").addEventListener("click",e=>{const g=e.target.closest("[data-gocases]");if(g){go("skins");return}
   const q=e.target.closest("[data-ieq],[data-istk],[data-idel]");if(!q||!needLogin())return;const id=q.dataset.ieq||q.dataset.istk||q.dataset.idel,it=INV.find(x=>x.id===id);if(!it)return;
-  if(q.dataset.ieq){const sd=q.dataset.side,on=!onSide(it,sd);equip(it,on,sd);drawInv();const tn=sd==="ct"?"за спецназ (CT)":"за террористов (T)";toast(on?`${it.w} | ${it.s}: надето ${tn}${SRV?". В игре напиши !wp":""}`:`${it.w}: снято ${tn}`)}
+  if(q.dataset.ieq){const sd=q.dataset.side,on=!onSide(it,sd);equip(it,on,sd);drawInv();const tn=sd==="ct"?"за спецназ (CT)":"за террористов (T)";toast(on?`${it.w} | ${it.s}: надето ${tn}${SRV?". На сервере появится сразу":""}`:`${it.w}: снято ${tn}`)}
   else if(q.dataset.istk)openStkItem(it);
   else{const sum=dust([it]);drawSkins();toast(`Продано сайту: +${fmt(sum)} ТК`)}});
 // открытие ×1–×5

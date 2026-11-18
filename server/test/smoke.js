@@ -18,8 +18,13 @@ const jl = [["L 11/18/2026 - 23:52:29: \"-NaiFF1337<2><[U:1:1618774009]><>\" ent
   ["Stopped cs2.service - TASHER CS2 server.", "systemd"]].map(([m, id], i) => JSON.stringify({ __CURSOR: "c" + i, __REALTIME_TIMESTAMP: String((Date.now() - 1000 + i) * 1000), MESSAGE: m, SYSLOG_IDENTIFIER: id })).join("\n") + "\n";
 fs.writeFileSync(JLINES, jl); fs.writeFileSync(JFAKE, `#!/bin/sh\ncat "${JLINES}"\nexec sleep 600\n`); fs.chmodSync(JFAKE, 0o755);
 fs.writeFileSync(path.join(dir, "404.html"), "<!doctype html><title>404</title>нет такой страницы");
+// поддельный RCON игрового сервера: записывает присланные команды
+const RCMDS = []; const RPORT = 27931;
+const rconSrv = require("node:net").createServer(c => { let buf = Buffer.alloc(0); c.on("data", d => { buf = Buffer.concat([buf, d]); while (buf.length >= 4 && buf.length >= 4 + buf.readInt32LE(0)) { const len = buf.readInt32LE(0), id = buf.readInt32LE(4), type = buf.readInt32LE(8), body = buf.toString("utf8", 12, 4 + len - 2); buf = buf.subarray(4 + len);
+  const pk = (i, t, b) => { const x = Buffer.from(b), p = Buffer.alloc(14 + x.length); p.writeInt32LE(10 + x.length, 0); p.writeInt32LE(i, 4); p.writeInt32LE(t, 8); x.copy(p, 12); return p; };
+  if (type === 3) c.write(pk(body === "rpass" ? id : -1, 2, "")); else { RCMDS.push(body); c.write(pk(id, 0, "ok\n")); } } }); }).listen(RPORT, "127.0.0.1");
 let log = "";
-function start(owners) { const p = spawn(process.execPath, [path.join(__dirname, "..", "app.js")], { env: { ...process.env, PORT, SITE_URL: B, DB_PATH: path.join(dir, "t.db"), STATIC_DIR: dir, DEV_LOGIN: "1", START_TK: "50000", OWNER_STEAMIDS: owners, WP_MYSQL_CNF: path.join(dir, "wp.cnf"), WP_PAINTS: PAINTS, MYSQL_BIN: FAKE, GAME_LOG_UNIT: "cs2.service", JOURNALCTL_BIN: JFAKE }, stdio: ["ignore", "pipe", "pipe"] }); p.stdout.on("data", d => log += d); p.stderr.on("data", d => log += d); return p; }
+function start(owners) { const p = spawn(process.execPath, [path.join(__dirname, "..", "app.js")], { env: { ...process.env, PORT, SITE_URL: B, DB_PATH: path.join(dir, "t.db"), STATIC_DIR: dir, DEV_LOGIN: "1", START_TK: "50000", OWNER_STEAMIDS: owners, WP_MYSQL_CNF: path.join(dir, "wp.cnf"), WP_PAINTS: PAINTS, MYSQL_BIN: FAKE, GAME_LOG_UNIT: "cs2.service", JOURNALCTL_BIN: JFAKE, GAME_SERVERS: `T|1.2.3.4:27015|127.0.0.1:${RPORT}`, GAME_RCON_PASS: "rpass" }, stdio: ["ignore", "pipe", "pipe"] }); p.stdout.on("data", d => log += d); p.stderr.on("data", d => log += d); return p; }
 async function up() { for (let i = 0; i < 50; i++) { try { await fetch(B + "/api/health"); return; } catch (e) { await new Promise(r => setTimeout(r, 100)); } } }
 let srv = start("76561190000000001");
 let fails = 0; const ok = (c, name, extra) => { if (!c) fails++; console.log((c ? "  ok  " : "FAIL  ") + name + (c ? "" : " " + JSON.stringify(extra))); };
@@ -143,6 +148,8 @@ const call = async (cookie, p, body, h = {}) => { const r = await fetch(B + p, b
       await new Promise(z => setTimeout(z, 700));
       const sql = fs.readFileSync(SQLLOG, "utf8"); const last = sql.split("-- END").filter(x => x.trim()).pop() || "";
       ok(/wp_player_skins/.test(last) && /'76561190000000009',2,/.test(last + sql) && /'76561190000000009',3,/.test(last), "скин записан в базу игры для обеих сторон", last.slice(0, 400));
+      await new Promise(z => setTimeout(z, 2600));
+      ok(RCMDS.filter(c => c === "wp_refresh 76561190000000009").length >= 2, "игровой сервер сразу применяет скин (wp_refresh, дважды)", RCMDS);
       r = (await call(C, "/api/me")).j; ok(r.loadout.length === 2, "надетое сохраняется на сервере", r.loadout);
       r = await call(C, "/api/equip", { id: both.id, team: "ct", on: false }); ok(r.s === 200 && r.j.loadout.length === 1 && r.j.loadout[0].team === "t", "снят за CT, за T остался", r.j);
       // продажа надетого снимает его и обновляет игру
@@ -186,5 +193,5 @@ const call = async (cookie, p, body, h = {}) => { const r = await fetch(B + p, b
   r = await call(A2, "/api/admin/users"); ok(r.s === 403, "бывший владелец не видит админку", r.s);
   console.log(fails ? `\nОШИБОК: ${fails}` : "\nВсе проверки пройдены");
   if (/Error|at /.test(log.replace(/TASHER server.*/, ""))) console.log("--- лог сервера ---\n" + log.slice(-1500));
-  srv.kill(); fs.rmSync(dir, { recursive: true, force: true }); process.exit(fails ? 1 : 0);
+  srv.kill(); rconSrv.close(); fs.rmSync(dir, { recursive: true, force: true }); process.exit(fails ? 1 : 0);
 })().catch(e => { console.error(e, log); srv.kill(); process.exit(1); });

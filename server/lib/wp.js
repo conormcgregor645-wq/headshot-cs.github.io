@@ -73,13 +73,15 @@ function sqlFor(steamid, rows) {
 }
 
 // очередь: записи одного игрока идут строго по порядку, частые нажатия склеиваются в одну запись
-function makeSync({ cnf, bin = "mysql", db = "weaponpaints", log = console }) {
+// onDone(steamid) вызывается после успешной записи — сайт просит игровой сервер сразу применить скины
+function makeSync({ cnf, bin = "mysql", db = "weaponpaints", log = console, onDone = null }) {
   const pending = new Map(), running = new Set();
   function run(steamid, getLoadout) {
     running.add(steamid); pending.delete(steamid);
     let sql; try { sql = sqlFor(steamid, rowsFor(getLoadout())); } catch (e) { running.delete(steamid); log.error("[wp]", e.message); return; }
     const p = execFile(bin, [`--defaults-extra-file=${cnf}`, db], { timeout: 15000 }, (err, out, errOut) => {
       if (err) log.error("[wp] запись в базу скинов не прошла:", String(errOut || err.message).trim().slice(0, 300));
+      else if (onDone) { try { onDone(steamid); } catch (e) {} }
       running.delete(steamid);
       if (pending.has(steamid)) run(steamid, pending.get(steamid));
     });

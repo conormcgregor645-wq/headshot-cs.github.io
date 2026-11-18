@@ -67,12 +67,13 @@ function parse(cfg) {
 // CS2 открывает RCON (TCP) на адресе имени машины — в Ubuntu это 127.0.1.1, а не 127.0.0.1.
 // Пробуем адрес из настроек, затем 127.0.1.1, и запоминаем рабочий.
 const RCON_HOST = new Map();
-async function rconStatus(s, pass, timeout) {
+async function rconStatus(s, pass, timeout) { return rconExec(s, pass, "status", timeout); }
+async function rconExec(s, pass, cmd, timeout = 2500) {
   const key = s.host + ":" + s.port, first = RCON_HOST.get(key);
   const hosts = [...new Set([first, s.host, ...(/^127\./.test(s.host) ? ["127.0.1.1", "127.0.0.1"] : [])].filter(Boolean))];
   let err;
   for (const h of hosts) {
-    try { const out = await RCON.exec(h, s.port, pass, "status", timeout); RCON_HOST.set(key, h); return out; }
+    try { const out = await RCON.exec(h, s.port, pass, cmd, timeout); RCON_HOST.set(key, h); return out; }
     catch (e) { err = e; if (e.code !== "ECONNREFUSED") break; }
   }
   throw err;
@@ -94,4 +95,4 @@ async function poll(list, timeout = 1500, rconPass = "") {
   }));
 }
 
-module.exports = { info, players, parse, poll };
+module.exports = { info, players, parse, poll, rconExec };
