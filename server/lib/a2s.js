@@ -2,6 +2,7 @@
 // Опрос игрового сервера стандартным запросом Steam (A2S_INFO и A2S_PLAYER) по UDP.
 const dgram = require("node:dgram");
 const RCON = require("./rcon");
+const { cleanNick } = require("./nick");
 
 const HEAD = Buffer.from([0xff, 0xff, 0xff, 0xff]);
 const INFO_REQ = Buffer.concat([HEAD, Buffer.from("TSource Engine Query\0", "latin1")]);
@@ -50,7 +51,7 @@ async function players(host, port, timeout) {
   const r = reader(b); const n = r.byte(); const list = [];
   for (let i = 0; i < n && r.left() > 0; i++) {
     r.byte(); const name = r.str(); const score = r.long(); const time = r.float();
-    if (name) list.push({ n: name.slice(0, 32), s: score, t: Math.max(0, Math.round(time)) });
+    if (name) list.push({ n: cleanNick(name) || "Игрок", s: score, t: Math.max(0, Math.round(time)) });
   }
   return list;
 }
@@ -81,12 +82,12 @@ async function rconExec(s, pass, cmd, timeout = 2500) {
 
 // опрос всех серверов; при ошибке сервер показывается как недоступный
 // rconPass: если задан, ники берём из команды status (CS2 не отдаёт их в A2S_PLAYER)
-async function poll(list, timeout = 1500, rconPass = "") {
+async function poll(list, timeout = 1500, rconPass = "", onStatus = null) {
   return Promise.all(list.map(async s => {
     try {
       const i = await info(s.host, s.port, timeout);
       let pl = [];
-      if (rconPass && i.players > i.bots) { try { pl = RCON.parseStatus(await rconStatus(s, rconPass, timeout + 1000)).filter(p => !p.bot).map(p => ({ n: p.n, t: p.t })); } catch (e) { pl = []; } }
+      if (rconPass && i.players > i.bots) { try { const st = RCON.parseStatus(await rconStatus(s, rconPass, timeout + 1000)); if (onStatus) { try { onStatus(s, st); } catch (e) {} } pl = st.filter(p => !p.bot).map(p => ({ n: p.n, t: p.t })); } catch (e) { pl = []; } }
       else if (!rconPass) { try { pl = await players(s.host, s.port, timeout); } catch (e) {} }
       return { name: i.name || s.name, addr: s.addr, map: i.map, players: Math.max(0, i.players - i.bots), bots: i.bots, max: i.max, online: true, list: pl };
     } catch (e) {

@@ -38,7 +38,7 @@ srv.bind(0, "127.0.0.1", async () => {
     else if (type === 2 && body === "status") { c.write(pk(id, 0, STATUS.slice(0, 120))); setTimeout(() => c.write(pk(id, 0, STATUS.slice(120))), 30); } } }); });
   await new Promise(z => rs.listen(0, "127.0.0.1", z)); const rp = rs.address().port;
   const out = await RCON.exec("127.0.0.1", rp, "secret", "status"); const pl = RCON.parseStatus(out);
-  ok(pl.length === 3 && pl[0].n === "Kexa" && pl[0].t === 153 && pl[1].n === "Ник с пробелом" && pl[1].t === 3907 && pl[2].bot, "RCON status: ники и время, ответ из двух пакетов собран", pl);
+  ok(pl.length === 3 && pl[0].n === "Kexa" && pl[0].t === 153 && pl[1].n === "Ник с пробелом" && pl[1].t === 3907 && pl[2].bot && pl[0].id === 2 && pl[1].id === 3, "RCON status: номера, ники и время, ответ из двух пакетов собран", pl);
   let err = ""; try { await RCON.exec("127.0.0.1", rp, "wrong", "status"); } catch (e) { err = e.message; } ok(/неверный пароль/.test(err), "RCON: неверный пароль распознан", err);
   rs.close();
   console.log(fails ? `\nОШИБОК: ${fails}` : "\nОпрос серверов работает"); srv.close(); process.exit(fails ? 1 : 0);

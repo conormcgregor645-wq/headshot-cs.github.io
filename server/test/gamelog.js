@@ -80,5 +80,12 @@ const db3 = new DatabaseSync(":memory:"), S3 = GL.makeStats(db3), sid3 = String(
 ["L 11/18/2026 - 10:00:00: \"B<2><[U:1:7]><CT>\" entered the game", "L 11/18/2026 - 10:20:00: \"B<2><[U:1:7]><CT>\" triggered \"Planted_The_Bomb\""].map(GL.parseLine).forEach(S3.apply);
 S3.serverStop(new Date(2026, 10, 18, 10, 25).getTime());
 ok(S3.player(sid3).pt === 25 * 60, "пауза 20 минут не обрывает время, остановка сервера закрывает сессию", S3.player(sid3).pt);
+// номер игрока на сервере (для кика) и подключение до входа в игру
+const cn = evs.find(e => e && e.e === "connect" && e.a.sid === P2); ok(cn && cn.a.uid === 4 && cn.a.n === "Игрок Тест", "подключение: SteamID и номер на сервере", cn);
+ok(ST.online().has(P2) && ST.online().get(P2).uid === 4 && !ST.online().has(ME) && ST.sidByName("Игрок Тест") === P2, "кто сейчас на сервере: вышедший убран, оставшийся с номером", [...ST.online()]);
+// «залго» и невидимые символы в нике
+const zl = GL.parseLine("L 11/18/2026 - 23:59:00: \"Z\u0351\u0352\u0353a\u0300\u0301\u0302\u200bl\u202eg\u3164o<6><[U:1:9]><>\" entered the game");
+ok(zl && zl.a.n === "Z\u0353\u00e0lgo" && zl.a.uid === 6, "ник очищен от залго и невидимых символов", zl && [...zl.a.n].map(c => c.codePointAt(0).toString(16)));
+const empty = GL.parseLine("L 11/18/2026 - 23:59:00: \"\u3164\u200b<7><[U:1:10]><>\" entered the game"); ok(empty && empty.a.n === "Игрок", "пустой ник заменяется", empty && empty.a.n);
 ok(GL.parseLine("garbage") === null && GL.parseLine("L 11/18/2026 - 23:55:12: something else") === null, "лишние строки пропускаются");
 console.log(fails ? `\nОШИБОК: ${fails}` : "\nСтатистика считается верно"); process.exit(fails ? 1 : 0);

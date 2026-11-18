@@ -92,6 +92,31 @@ function open(file) {
        PRIMARY KEY(user_id, team, slot)
      );
      CREATE INDEX loadout_item ON loadout(item_id);`,
+    // 4: баны (действуют в игре), статусы игроков, итоги месяца
+    `CREATE TABLE bans(
+       id INTEGER PRIMARY KEY,
+       sid TEXT NOT NULL, name TEXT NOT NULL DEFAULT '',
+       reason TEXT NOT NULL,
+       created_at INTEGER NOT NULL,
+       until INTEGER NOT NULL DEFAULT 0,
+       by_id INTEGER, by_name TEXT NOT NULL DEFAULT '',
+       lifted_at INTEGER, lifted_by TEXT
+     );
+     CREATE INDEX bans_sid ON bans(sid);
+     CREATE TABLE grants(
+       id INTEGER PRIMARY KEY,
+       sid TEXT NOT NULL, tier TEXT NOT NULL,
+       src TEXT NOT NULL, note TEXT NOT NULL DEFAULT '',
+       created_at INTEGER NOT NULL, from_at INTEGER NOT NULL, until INTEGER NOT NULL,
+       by_name TEXT NOT NULL DEFAULT '', revoked_at INTEGER
+     );
+     CREATE INDEX grants_sid ON grants(sid);
+     CREATE TABLE awards(
+       period TEXT NOT NULL, place INTEGER NOT NULL,
+       sid TEXT NOT NULL, name TEXT NOT NULL, pts INTEGER NOT NULL,
+       created_at INTEGER NOT NULL,
+       PRIMARY KEY(period, place)
+     );`,
   ];
   for (let v = ver; v < MIG.length; v++) {
     db.exec("BEGIN");

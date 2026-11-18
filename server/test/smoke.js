@@ -16,13 +16,17 @@ const jl = [["L 11/18/2026 - 23:52:29: \"-NaiFF1337<2><[U:1:1618774009]><>\" ent
   ["L 11/18/2026 - 23:53:20: \"-NaiFF1337<2><[U:1:1618774009]><TERRORIST>\" [1 2 3] killed \"Aspirant<1><BOT><CT>\" [4 5 6] with \"glock\" (headshot)", "cs2.sh"],
   ["L 11/18/2026 - 23:53:20: Team \"TERRORIST\" triggered \"SFUI_Notice_Terrorists_Win\" (CT \"0\") (T \"1\")", "cs2.sh"],
   ["Stopped cs2.service - TASHER CS2 server.", "systemd"]].map(([m, id], i) => JSON.stringify({ __CURSOR: "c" + i, __REALTIME_TIMESTAMP: String((Date.now() - 1000 + i) * 1000), MESSAGE: m, SYSLOG_IDENTIFIER: id })).join("\n") + "\n";
-fs.writeFileSync(JLINES, jl); fs.writeFileSync(JFAKE, `#!/bin/sh\ncat "${JLINES}"\nexec sleep 600\n`); fs.chmodSync(JFAKE, 0o755);
+fs.writeFileSync(JLINES, jl); fs.writeFileSync(JFAKE, `#!/bin/sh\nexec tail -n +1 -f "${JLINES}"\n`); fs.chmodSync(JFAKE, 0o755);
+// дописать строку в «журнал» (как будто она только что появилась в консоли сервера)
+let jn = 100; const jadd = m => fs.appendFileSync(JLINES, JSON.stringify({ __CURSOR: "c" + (jn++), __REALTIME_TIMESTAMP: String(Date.now() * 1000), MESSAGE: m, SYSLOG_IDENTIFIER: "cs2.sh" }) + "\n");
+const lnow = () => { const d = new Date(), p = n => String(n).padStart(2, "0"); return `L ${p(d.getMonth() + 1)}/${p(d.getDate())}/${d.getFullYear()} - ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}: `; };
 fs.writeFileSync(path.join(dir, "404.html"), "<!doctype html><title>404</title>нет такой страницы");
 // поддельный RCON игрового сервера: записывает присланные команды
 const RCMDS = []; const RPORT = 27931;
 const rconSrv = require("node:net").createServer(c => { let buf = Buffer.alloc(0); c.on("data", d => { buf = Buffer.concat([buf, d]); while (buf.length >= 4 && buf.length >= 4 + buf.readInt32LE(0)) { const len = buf.readInt32LE(0), id = buf.readInt32LE(4), type = buf.readInt32LE(8), body = buf.toString("utf8", 12, 4 + len - 2); buf = buf.subarray(4 + len);
   const pk = (i, t, b) => { const x = Buffer.from(b), p = Buffer.alloc(14 + x.length); p.writeInt32LE(10 + x.length, 0); p.writeInt32LE(i, 4); p.writeInt32LE(t, 8); x.copy(p, 12); return p; };
-  if (type === 3) c.write(pk(body === "rpass" ? id : -1, 2, "")); else { RCMDS.push(body); c.write(pk(id, 0, "ok\n")); } } }); }).listen(RPORT, "127.0.0.1");
+  const STATUS = "  id     time ping loss      state   rate adr name\n    1      BOT    0    0     active      0 'Aspirant'\n    2    00:05:01   30    0     active 786432 1.2.3.4:27005 '-NaiFF1337'\n    3    00:01:00   40    0     active 786432 5.6.7.8:27005 'Victim'\n";
+  if (type === 3) c.write(pk(body === "rpass" ? id : -1, 2, "")); else { RCMDS.push(body); c.write(pk(id, 0, body === "status" ? STATUS : "ok\n")); } } }); }).listen(RPORT, "127.0.0.1");
 let log = "";
 function start(owners) { const p = spawn(process.execPath, [path.join(__dirname, "..", "app.js")], { env: { ...process.env, PORT, SITE_URL: B, DB_PATH: path.join(dir, "t.db"), STATIC_DIR: dir, DEV_LOGIN: "1", START_TK: "50000", OWNER_STEAMIDS: owners, WP_MYSQL_CNF: path.join(dir, "wp.cnf"), WP_PAINTS: PAINTS, MYSQL_BIN: FAKE, GAME_LOG_UNIT: "cs2.service", JOURNALCTL_BIN: JFAKE, GAME_SERVERS: `T|1.2.3.4:27015|127.0.0.1:${RPORT}`, GAME_RCON_PASS: "rpass" }, stdio: ["ignore", "pipe", "pipe"] }); p.stdout.on("data", d => log += d); p.stderr.on("data", d => log += d); return p; }
 async function up() { for (let i = 0; i < 50; i++) { try { await fetch(B + "/api/health"); return; } catch (e) { await new Promise(r => setTimeout(r, 100)); } } }
@@ -172,6 +176,36 @@ const call = async (cookie, p, body, h = {}) => { const r = await fetch(B + p, b
     r = await call("", "/api/stats/player?sid=123"); ok(r.s === 400, "неверный SteamID", r.s);
     r = await call("", "/api/stats/player?sid=76561190000000077"); ok(r.s === 404, "не игравший игрок", r.s);
     const html = await (await fetch(B + "/")).text(); ok(/"stats":\{"period":"\d{4}-\d{2}","players":\[\{"sid":"76561199579039737"/.test(html), "рейтинг вписан в страницу");
+  }
+  // банлист, статусы, управление сервером
+  {
+    const O2 = await login("76561190000000001"), U5 = await login("76561190000000005");
+    r = await call("", "/api/bans"); ok(r.s === 200 && Array.isArray(r.j.bans) && r.j.bans.length === 0, "банлист пуст", r.j);
+    r = await call(U5, "/api/admin/ban", { target: "STEAM_1:1:55", reason: "Читы", days: 1 }); ok(r.s === 403, "игрок не может банить", r.s);
+    r = await call(U5, "/api/admin/server"); ok(r.s === 403, "игрок не видит управление сервером", r.s);
+    r = await call(U5, "/api/admin/grant", { target: "76561190000000005", tier: "KING", days: 30 }); ok(r.s === 403, "игрок не может выдать себе статус", r.s);
+    // Victim подключается к серверу, админ банит его по SteamID — сразу кик по номеру
+    jadd(lnow() + '"Victim<3><[U:1:111]><>" connected, address "5.6.7.8:27005"'); await new Promise(z => setTimeout(z, 600));
+    RCMDS.length = 0; r = await call(O2, "/api/admin/ban", { target: "STEAM_1:1:55", reason: "Читы (WH)", days: 7 });
+    ok(r.s === 200 && r.j.kicked === true && r.j.ban.n === "Victim" && RCMDS.some(c => /^kickid 3 "Бан до .* МСК\. Причина: Читы \(WH\)\. tashercs\.ru\/#bans"$/.test(c)), "бан игрока на сервере: сразу выгнан", [r, RCMDS]);
+    // бан по нику того, кого сейчас нет; при входе на сервер — кик
+    r = await call(O2, "/api/admin/ban", { target: "-naiff1337", reason: "Тест", days: 0 }); ok(r.s === 200 && r.j.ban.sid === "76561199579039737" && r.j.ban.perm && r.j.kicked === true && RCMDS.some(c => /^kickid 2 "Бан навсегда/.test(c)), "бан по нику (без учёта регистра): игрок есть в status — выгнан", [r, RCMDS]);
+    r = await call(O2, "/api/admin/ban", { target: "76561199579039737", reason: "Тест", days: 1 }); ok(r.s === 409, "второй бан не выдаётся", r);
+    await new Promise(z => setTimeout(z, 5200)); RCMDS.length = 0; jadd(lnow() + '"-NaiFF1337<2><[U:1:1618774009]><>" connected, address "1.2.3.4:27005"'); await new Promise(z => setTimeout(z, 800));
+    ok(RCMDS.some(c => /^kickid 2 "Бан навсегда\. Причина: Тест\./.test(c)), "забаненный заходит — сразу кик", RCMDS);
+    r = await call("", "/api/bans"); ok(r.j.bans.length === 2 && r.j.bans.every(b => b.active) && r.j.bans.some(b => b.sid2 === "STEAM_1:1:55"), "банлист виден всем", r.j);
+    let html = await (await fetch(B + "/")).text(); ok(/"bans":\[\{"id":/.test(html) && /"statuses":\[/.test(html) && /"awards":\[/.test(html), "банлист, статусы и итоги вписаны в страницу");
+    r = await call(O2, "/api/admin/unban", { id: r.j.bans.find(b => b.sid2 === "STEAM_1:1:55").id }); ok(r.s === 200 && r.j.ban.lifted, "разбан", r);
+    // статусы
+    r = await call(O2, "/api/admin/grant", { target: "76561190000000005", tier: "PREMIUM", days: 30 }); ok(r.s === 200 && r.j.statuses.some(s => s.sid === "76561190000000005" && s.t === "PREMIUM"), "статус выдан", r);
+    html = await (await fetch(B + "/", { headers: { cookie: U5 } })).text(); ok(/"statuses":\[\{"sid":"76561190000000005","t":"PREMIUM"/.test(html), "статус виден на сайте");
+    r = await call(O2, "/api/admin/revoke", { sid: "76561190000000005" }); ok(r.s === 200 && !r.j.statuses.length, "статус снят", r);
+    // управление сервером
+    r = await call(O2, "/api/admin/server"); ok(r.s === 200 && r.j.players.length === 3 && r.j.players.find(p => p.n === "-NaiFF1337").sid === "76561199579039737" && r.j.maps.length > 3, "админка: игроки на сервере с номерами и SteamID", r.j);
+    RCMDS.length = 0; r = await call(O2, "/api/admin/server", { act: "say", text: "Всем привет; quit" }); ok(r.s === 200 && RCMDS.includes("say Всем привет quit"), "сообщение в чат", [r, RCMDS]);
+    r = await call(O2, "/api/admin/server", { act: "kick", id: 3, n: "Victim", reason: "afk" }); ok(r.s === 200 && RCMDS.includes('kickid 3 "afk"'), "кик из админки", r);
+    r = await call(O2, "/api/admin/server", { act: "map", map: "de_nuke" }); ok(r.s === 200 && RCMDS.includes("changelevel de_nuke"), "смена карты", r);
+    r = await call(O2, "/api/admin/server", { act: "map", map: "quit" }); ok(r.s === 400, "карта не из списка", r);
   }
   // журнал сходится с балансом
   const lg = (await call(P, "/api/admin/ledger?user=2")).j.ledger; const u2 = (await call(P, "/api/me")).j.user;

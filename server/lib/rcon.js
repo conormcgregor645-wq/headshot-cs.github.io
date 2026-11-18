@@ -2,6 +2,7 @@
 // RCON игрового сервера (протокол Source RCON по TCP) и разбор команды status.
 // Нужен для списка игроков: CS2 не присылает ники в стандартном запросе Steam.
 const net = require("node:net");
+const { cleanNick } = require("./nick");
 
 function pkt(id, type, body) {
   const b = Buffer.from(body, "utf8"), p = Buffer.alloc(14 + b.length);
@@ -34,7 +35,7 @@ function exec(host, port, pass, cmd, timeout = 2500) {
   });
 }
 
-// "  2    01:05:33   36    0     active 786432 1.2.3.4:27005 'Ник'" -> {n, t, bot}
+// "  2    01:05:33   36    0     active 786432 1.2.3.4:27005 'Ник'" -> {id, n, t, bot}
 function parseStatus(text) {
   const list = [];
   for (const line of String(text).split(/\r?\n/)) {
@@ -42,7 +43,7 @@ function parseStatus(text) {
     if (!m || m[1] === "65535" || m[5] !== "active") continue;
     const bot = m[2] === "BOT"; let t = 0;
     if (!bot) t = m[2].split(":").map(Number).reduce((a, x) => a * 60 + x, 0);
-    const n = m[6].slice(0, 32); if (n) list.push({ n, t, bot });
+    const n = cleanNick(m[6]) || "Игрок"; list.push({ id: +m[1], n, t, bot });
   }
   return list;
 }

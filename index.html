@@ -1335,6 +1335,7 @@ button.pf-role{cursor:pointer}button.pf-role:hover{border-color:color-mix(in srg
 .rt-clan .rt-row{grid-template-columns:62px minmax(220px,1.8fr) 140px repeat(4,minmax(90px,.8fr)) 150px}
 .rt-row:not(.rt-h):hover{background:var(--panel-2);transform:translateX(3px)}
 .rt-row>span{min-width:0}
+.rt-row,.who{overflow:hidden}
 .rt-h{height:auto;padding:4px 16px 2px;background:none;cursor:default;font-size:13px;font-weight:700;color:var(--muted)}
 .rt-h span:nth-child(n+4){text-align:center}
 .rt-row>span:nth-child(n+4){display:flex;justify-content:center}
@@ -2961,9 +2962,23 @@ html.on-server #v-jackpot>*:not(.srv-soon):not(.page-head),html.on-server #v-whe
       <div class="note warn demo-only">Демо-версия. На настоящем сайте сюда попадут только администраторы: роль проверяется после входа через Steam. Изменения сейчас сразу видны на сайте, но пропадут после перезагрузки страницы.</div>
       <div class="adm-tiles" id="admTiles"></div>
       <div class="seg" id="admTabs" role="group" aria-label="Раздел">
-        <button data-t="bans" aria-pressed="true">Баны</button><button data-t="vip">Статусы</button><button data-t="tk">Баланс</button><button data-t="rules">Правила</button>
+        <button data-t="srv" hidden>Сервер</button><button data-t="bans" aria-pressed="true">Баны</button><button data-t="vip">Статусы</button><button data-t="tk">Баланс</button><button data-t="rules">Правила</button>
       </div>
 
+
+      <section class="adm-pane" data-pane="srv" hidden>
+        <div class="box"><div class="hdr"><h2>Игроки на сервере</h2></div><div class="adm-list" id="asPlayers"><div class="note">Загрузка…</div></div></div>
+        <form class="box adm-form" id="fSay">
+          <h3>Сообщение в чат сервера</h3>
+          <div class="fgrid"><label class="fld wide">Текст<input id="sayText" required maxlength="120" placeholder="Через 5 минут смена карты" autocomplete="off"></label></div>
+          <div class="frow"><span class="fmsg" id="sayMsg"></span><button class="steam" type="submit">Отправить</button></div>
+        </form>
+        <form class="box adm-form" id="fMap">
+          <h3>Карта и матч</h3>
+          <div class="fgrid"><label class="fld">Карта<select id="mapSel"></select></label></div>
+          <div class="frow"><span class="fmsg" id="mapMsg"></span><span class="ai" style="background:none;padding:0;display:flex;gap:8px"><button type="button" id="btnRestart">Рестарт матча</button></span><button class="steam" type="submit">Сменить карту</button></div>
+        </form>
+      </section>
 
       <section class="adm-pane" data-pane="bans">
         <form class="box adm-form" id="fBan">
@@ -3287,8 +3302,15 @@ const WEAP=["AK-47","AWP","M4A1-S","Desert Eagle","USP-S","M4A4","Glock-18"];
 const players=NICKS.map((n,i)=>{const kills=Math.round(300+R()*5600);const deaths=Math.round(kills*(0.6+R()*0.9));const hs=Math.round(26+R()*42);const hrs=Math.round(15+R()*480);const pts=Math.round(kills*1.3+hrs*3.5+R()*500);
   const w=[...WEAP].sort(()=>R()-.5).slice(0,4);let left=100;const share=w.map((x,k)=>{const v=k===3?left:Math.round(left*(.35+R()*.3));left-=v;return[x,v]}).sort((a,b)=>b[1]-a[1]);
   return{id:i,n,kills,deaths,kd:+(kills/deaths).toFixed(2),hs,hrs,pts,mvp:Math.round(kills/18),c:AVC[i%6],r:rankIdx(pts),w:share}});
-const P=n=>players.find(p=>p.n===n)||(typeof guests!=="undefined"&&guests.find(p=>p.n===n));
-const isKing=p=>{try{return(MEDALS.get(p)||[]).some(m=>m.place<=3&&m.month===LAST_MONTH)}catch(e){return false}};
+const XPL=[];// игроки из итогов месяца, которых нет в рейтинге текущего месяца
+const P=n=>players.find(p=>p.n===n)||(typeof guests!=="undefined"&&guests.find(p=>p.n===n))||XPL.find(p=>p.n===n);
+const isKing=p=>{try{if(window.TSRV){const s=srvStatusOf(p);return!!s&&s.t==="KING"}return(MEDALS.get(p)||[]).some(m=>m.place<=3&&m.month===LAST_MONTH)}catch(e){return false}};
+// статусы игроков с сервера: SteamID64 -> {t, u, f}
+let SRV_ST=new Map();
+function srvStatusesSet(list){SRV_ST=new Map((Array.isArray(list)?list:[]).map(x=>[String(x.sid),{t:String(x.t),u:new Date(+x.u),f:new Date(+x.f),src:x.src,note:x.note||""}]))}
+srvStatusesSet(window.TSRV&&window.TSRV.statuses);
+const sidOfP=p=>p?String(p.sid||(typeof ME!=="undefined"&&p===ME?ME.steamid||"":"")):"";
+function srvStatusOf(p){const sid=sidOfP(p);return sid?SRV_ST.get(sid)||null:null}
 const plural=(n,a,b,c)=>{n=Math.abs(n)%100;const m=n%10;return n>10&&n<20?c:m===1?a:m>=2&&m<=4?b:c};
 const kingBadge=p=>isKing(p)?`<span class="kb" title="Статус KING">KING</span>`:"";
 const who=p=>`<span class="who"><i class="av" style="background:${p.c}">${ini(p.n)}</i>${esc(p.n)}${kingBadge(p)}</span>`;
@@ -3310,6 +3332,10 @@ const MEDAL_MONTHS=(()=>{const n=new Date(Date.now()+3*3600e3),l=[];for(let k=6;
 const LAST_MONTH=MEDAL_MONTHS[MEDAL_MONTHS.length-1];
 const BADN=["Cheater228","xX_aim_Xx","WallHacker","nub_killer","Toxic_Boy","Zloy","Spammer01","KotikPro","Nagibator","Trolololo","Hz_kto","Vasyan","Prohodimec","Bot_Petya","Rusher","Kemper"];
 const bans=BADN.map((n,i)=>{const [reason,days]=REASONS[Math.floor(R()*REASONS.length)];const ago=Math.floor(R()*40);const d=new Date(today);d.setDate(d.getDate()-ago);const perm=days===0;return{n,c:AVC[i%6],sid:"STEAM_1:"+(i%2)+":"+(10000000+Math.floor(R()*89999999)),reason,days,perm,active:perm||ago<days,d,admin:ADMINS[i%3]}}).sort((a,b)=>b.d-a.d);
+// на настоящем сайте банлист приходит с сервера
+const srvBan=b=>({id:b.id,n:String(b.n||"Игрок"),c:AVC[(b.id|0)%6],sid:String(b.sid2||b.sid),sid64:String(b.sid),reason:String(b.reason||""),days:b.days|0,perm:!!b.perm,active:!!b.active,lifted:!!b.lifted,d:new Date(+b.d||Date.now()),until:+b.until||0,admin:String(b.by||"Админ")});
+function srvBansSet(list){if(!Array.isArray(list))return;bans.length=0;list.forEach(b=>bans.push(srvBan(b)))}
+if(window.TSRV&&Array.isArray(window.TSRV.bans))srvBansSet(window.TSRV.bans);
 let banF="all";
 function drawBans(){const q=$("q-bans").value.trim().toLowerCase();
   const rows=bans.filter(b=>(banF==="all"||(banF==="active")===b.active)&&(b.n.toLowerCase().includes(q)||b.sid.toLowerCase().includes(q)));
@@ -3595,7 +3621,7 @@ function srvStatsApply(st,my){if(!st||!Array.isArray(st.players))return;
   st.players.forEach((x,i)=>{const p=statP(x,i);if(SRV.user&&p.sid===ME.steamid){Object.assign(ME,p,{id:ME.id,n:ME.n,c:ME.c});players.push(ME)}else players.push(p)});
   if(SRV.user&&my&&!players.includes(ME))Object.assign(ME,statP(my,999),{id:ME.id,n:ME.n,c:ME.c,m:0})}
 if(REAL_STATS){srvStatsApply(SRV.stats,SRV.myStats);
-  setInterval(()=>{if(document.hidden||curView!=="stats")return;fetch("/api/stats",{credentials:"same-origin"}).then(r=>r.json()).then(d=>{if(!Array.isArray(d.players))return;srvStatsApply(d,null);drawStats()}).catch(()=>{})},30e3)}
+  setInterval(()=>{if(document.hidden||curView!=="stats")return;fetch("/api/stats",{credentials:"same-origin"}).then(r=>r.json()).then(d=>{if(!Array.isArray(d.players))return;srvStatsApply(d,null);try{srvMedals()}catch(e){}drawStats()}).catch(()=>{})},30e3)}
 const ptStr=s=>{s=s|0;const h=Math.floor(s/3600),m=Math.floor(s%3600/60);return h?`${h} ч ${m} мин`:`${m} мин`};
 const PURCHASES=[[new Date(today.getFullYear(),today.getMonth(),1),`Приз: 7 место в рейтинге за ${LAST_MONTH.split(" ")[0]} · LEGEND на 30 дней`,0],[daysAgo(12),"PREMIUM на 30 дней",199],[daysAgo(43),"VIP на 30 дней",99],[daysAgo(74),"VIP на 30 дней",99]].sort((a,b)=>b[0]-a[0]);
 function targetOf(a){let t=a[2].replace(/(\d)\s(\d)/g,"$1$2");let m=t.match(/(\d+) раз(?![а-яё])/);if(m)return+m[1];if(/за (один )?раунд/.test(t))return 1;t=t.replace(/\d\d:\d\d/g,"").replace(/больше \d+ метров/g,"").replace(/\d+ HP/g,"").replace(/\$\d+/g,"");m=t.match(/\d+/);return m?+m[0]:1}
@@ -3610,7 +3636,7 @@ const tkOf=p=>p===ME?ME.tk:p.real?null:Math.max(0,Math.round(p.kills*2+p.hrs*50+
 const svgI=(d,c="")=>`<svg class="${c}" viewBox="0 0 24 24" aria-hidden="true">${d}</svg>`;
 const PI={brush:'<path d="M14 4l6 6-9 9H5v-6z"/><path d="M12.5 5.5l6 6"/>',box:'<path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5z"/><path d="M3 7.5 12 12l9-4.5M12 12v9"/>',tk:'<circle cx="12" cy="12" r="9"/><path d="M8.5 8.5h7M12 8.5v8"/>',kill:'<circle cx="12" cy="12" r="7"/><path d="M12 2v5M12 17v5M2 12h5M17 12h5"/>',skull:'<path d="M12 3a8 8 0 0 0-8 8c0 3 1.6 5 3.5 6v3h9v-3c1.9-1 3.5-3 3.5-6a8 8 0 0 0-8-8z"/><circle cx="9" cy="11.5" r="1.6"/><circle cx="15" cy="11.5" r="1.6"/>',hs:'<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/>',info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/>',gun:'<path d="M3 9h16l2 2v2h-7l-2 2h-2l-1 5H5l1.5-6H3z"/>',star:'<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/>',wallet:'<rect x="3" y="6" width="18" height="14" rx="2"/><path d="M3 10h18M16 15h2"/>',gear:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M2 12h3M19 12h3M4.9 19.1L7 17M17 7l2.1-2.1"/>',back:'<path d="M15 6l-6 6 6 6"/>'};
 const TCOL=t=>(T6.find(x=>x.n===t)||{c:"#9aa3ad"}).c;
-function statusOf(p){if(p===ME)return ME.vip?{t:ME.vip.tier,u:ME.vip.until,f:ME.vip.from}:null;const v=VIPS.find(x=>x[0]===p.n);if(v)return{t:v[2],u:v[3],f:daysAgo(30-Math.round((v[3]-today)/864e5))};if(isKing(p)){const f=new Date(today.getFullYear(),today.getMonth(),1);return{t:"KING",u:new Date(f.getTime()+30*864e5),f}}return null}
+function statusOf(p){if(SRV){const s=srvStatusOf(p);return s?{t:s.t,u:s.u,f:s.f}:null}if(p===ME)return ME.vip?{t:ME.vip.tier,u:ME.vip.until,f:ME.vip.from}:null;const v=VIPS.find(x=>x[0]===p.n);if(v)return{t:v[2],u:v[3],f:daysAgo(30-Math.round((v[3]-today)/864e5))};if(isKing(p)){const f=new Date(today.getFullYear(),today.getMonth(),1);return{t:"KING",u:new Date(f.getTime()+30*864e5),f}}return null}
 const isOn=p=>p===ME||(p.real?!!p.online:p.id%3===0);
 const two=n=>String(n).padStart(2,"0");
 const dts=(d,t)=>`${two(d.getDate())}.${two(d.getMonth()+1)}.${d.getFullYear()}${t?` ${two(d.getHours())}:${two(d.getMinutes())}`:""}`;
@@ -3659,33 +3685,77 @@ document.addEventListener("click",e=>{if(e.target.closest("[data-login]"))setLog
 
 // ---------- админ-панель ----------
 REASONS.forEach(([r])=>$("bReason").insertAdjacentHTML("beforeend",`<option>${r}</option>`));
-const VIPS=[["Kotleta","STEAM_1:0:58213411","LEGEND",daysFwd(24)],["Vortex","STEAM_1:1:30944120","PREMIUM",daysFwd(9)],["Lenka","STEAM_1:0:77120456","VIP",daysFwd(3)],["Bober","STEAM_1:1:12099877","PREMIUM",daysFwd(17)],...(ME.vip&&!SRV?[[ME.n,"STEAM_1:1:48102377",ME.vip.tier,ME.vip.until]]:[])];
+const VIPS=SRV?[]:[["Kotleta","STEAM_1:0:58213411","LEGEND",daysFwd(24)],["Vortex","STEAM_1:1:30944120","PREMIUM",daysFwd(9)],["Lenka","STEAM_1:0:77120456","VIP",daysFwd(3)],["Bober","STEAM_1:1:12099877","PREMIUM",daysFwd(17)],...(ME.vip&&!SRV?[[ME.n,"STEAM_1:1:48102377",ME.vip.tier,ME.vip.until]]:[])];
+// статусы с сервера в строки админки: [ник, SteamID, статус, до, SteamID64, откуда]
+function srvVipsSet(list){if(!SRV)return;srvStatusesSet(list);VIPS.length=0;(Array.isArray(list)?list:[]).forEach(x=>VIPS.push([String(x.n||"Игрок"),String(x.sid2||x.sid),String(x.t),new Date(+x.u),String(x.sid),x.src==="award"?(x.note||"итоги месяца"):""]));
+  if(logged){const m=SRV_ST.get(String(ME.steamid));ME.vip=m?{tier:m.t,until:m.u,from:m.f}:null}}
+if(SRV)srvVipsSet(SRV.statuses);
 function drawAdmin(){const act=bans.filter(b=>b.active);
   $("admTiles").innerHTML=`<div><small>Онлайн сейчас</small><b>${fmt(totalOnline)}</b></div><div><small>Активные баны</small><b>${act.length}</b></div><div><small>Действующие статусы</small><b>${VIPS.length}</b></div><div><small>Правил</small><b>${RULES.reduce((n,r)=>n+r[1].length,0)}</b></div>`;
   $("aBans").innerHTML=act.map(b=>`<div class="ai"><div><b>${esc(b.n)} · ${esc(b.reason)}</b><small>${esc(b.sid)} · ${b.perm?"навсегда":"до "+new Date(b.d.getTime()+b.days*864e5).toLocaleDateString("ru-RU")}</small></div><button data-unban="${bans.indexOf(b)}">Разбанить</button></div>`).join("")||'<div class="note">Активных банов нет</div>';
-  $("aVips").innerHTML=VIPS.map((v,i)=>`<div class="ai"><div><b>${esc(v[0])} · ${esc(v[2])}</b><small>${esc(v[1])} · до ${v[3].toLocaleDateString("ru-RU")}</small></div><button data-unvip="${i}">Снять</button></div>`).join("")||'<div class="note">Никого</div>';
+  $("aVips").innerHTML=VIPS.map((v,i)=>`<div class="ai"><div><b>${esc(v[0])} · ${esc(v[2])}</b><small>${esc(v[1])} · до ${v[3].toLocaleDateString("ru-RU")}${v[5]?" · "+esc(v[5]):""}</small></div><button data-unvip="${i}">Снять</button></div>`).join("")||'<div class="note">Никого</div>';
   $("rSec").innerHTML=RULES.map(([h],i)=>`<option value="${i}">${h}</option>`).join("");
   $("aRules").innerHTML=RULES.map(([h,list],si)=>`<div class="ai"><span class="grp">${esc(h)}</span></div>`+list.map(([n,t,p],ri)=>`<div class="ai"><div><b>${esc(n)} ${esc(t)}</b><small>${esc(p)}</small></div><button data-unrule="${si}:${ri}">Удалить</button></div>`).join("")).join("")}
 function renum(){RULES.forEach((s,si)=>s[1].forEach((r,ri)=>r[0]=`${si+1}.${ri+1}`))}
 function refreshAll(){drawBans();drawAdmin();drawRules()}
 document.querySelectorAll("#admTabs button").forEach(b=>b.onclick=()=>{document.querySelectorAll("#admTabs button").forEach(x=>x.setAttribute("aria-pressed",x===b));document.querySelectorAll(".adm-pane").forEach(p=>p.hidden=p.dataset.pane!==b.dataset.t)});
 $("v-admin").addEventListener("click",e=>{const t=e.target.closest("button");if(!t)return;
+  if(SRV&&(t.dataset.unban||t.dataset.unvip)){srvAdmClick(t);return}
   if(t.dataset.unban){const b=bans[+t.dataset.unban];b.active=false;b.lifted=true;toast(`${b.n} разбанен`)}
   else if(t.dataset.unvip){const v=VIPS.splice(+t.dataset.unvip,1)[0];if(v[0]===ME.n){ME.vip=null;vipRedraw()}toast(`Статус ${v[2]} снят с ${v[0]}`)}
   else if(t.dataset.unrule){const [si,ri]=t.dataset.unrule.split(":").map(Number);RULES[si][1].splice(ri,1);renum();toast("Правило удалено")}
   else return;refreshAll()});
 const formMsg=(id,t,ok)=>{$(id).textContent=t;$(id).className="fmsg"+(ok?" ok":"")};
-$("fBan").onsubmit=e=>{e.preventDefault();const days=+$("bTerm").value,n=$("bNick").value.trim(),sid=$("bSid").value.trim().toUpperCase();
+async function srvAdmClick(t){if(t.disabled)return;t.disabled=true;
+  try{if(t.dataset.unban){const b=bans[+t.dataset.unban];if(!b)return;const r=await api("/api/admin/unban",{id:b.id});Object.assign(b,srvBan(r.ban));toast(`${b.n} разбанен`)}
+    else{const v=VIPS[+t.dataset.unvip];if(!v)return;const r=await api("/api/admin/revoke",{sid:v[4]});srvVipsSet(r.statuses);vipRedraw();toast(`Статус ${v[2]} снят с ${v[0]}`)}
+    refreshAll()}catch(err){toast(err.message)}finally{t.disabled=false}}
+if(SRV){// на сервере SteamID можно ввести в любом виде или указать ник
+  $("bSid").removeAttribute("pattern");$("bSid").placeholder="STEAM_1:0:123…, 7656…, ссылка или ник";$("bNick").required=false;$("bNick").placeholder="Необязательно";
+  $("vSid").removeAttribute("pattern");$("vSid").placeholder="STEAM_1:0:123…, 7656…, ссылка или ник";$("vNick").required=false;$("vNick").placeholder="Необязательно";
+  $("vDays").insertAdjacentHTML("beforeend",'<option value="180">180 дней</option><option value="365">365 дней</option>')}
+async function srvBanSubmit(e){const f=e.target,btn=f.querySelector("[type=submit]");const days=+$("bTerm").value,n=$("bNick").value.trim(),target=$("bSid").value.trim()||n;
+  if(!target){formMsg("bMsg","Укажи SteamID или ник");return}btn.disabled=true;formMsg("bMsg","Отправляю…",1);
+  try{const r=await api("/api/admin/ban",{target,name:n,reason:$("bReason").value,days});bans.unshift(srvBan(r.ban));f.reset();
+    formMsg("bMsg",`${r.ban.n} забанен${r.ban.perm?" навсегда":" на "+r.ban.days+" "+plural(r.ban.days,"день","дня","дней")}.${r.kicked?" Выгнан с сервера.":" Не сможет зайти на сервер."}`,1);refreshAll()}
+  catch(err){formMsg("bMsg",err.message)}finally{btn.disabled=false}}
+async function srvVipSubmit(e){const f=e.target,btn=f.querySelector("[type=submit]");const n=$("vNick").value.trim(),target=$("vSid").value.trim()||n,tier=$("vTier").value,days=+$("vDays").value;
+  if(!target){formMsg("vMsg","Укажи SteamID или ник");return}btn.disabled=true;formMsg("vMsg","Отправляю…",1);
+  try{const r=await api("/api/admin/grant",{target,tier,days});srvVipsSet(r.statuses);f.reset();$("vDays").value="30";
+    formMsg("vMsg",r.extended?`${r.name}: ${tier} продлён на ${days} дн.`:`${r.name} получил ${tier} на ${days} дн.`,1);vipRedraw()}
+  catch(err){formMsg("vMsg",err.message)}finally{btn.disabled=false}}
+$("fBan").onsubmit=e=>{e.preventDefault();if(SRV){srvBanSubmit(e);return}const days=+$("bTerm").value,n=$("bNick").value.trim(),sid=$("bSid").value.trim().toUpperCase();
   if(bans.some(b=>b.active&&b.sid===sid)){formMsg("bMsg",`У ${sid} уже есть активный бан.`);return}
   bans.unshift({n,c:AVC[bans.length%6],sid,reason:$("bReason").value,days,perm:days===0,active:true,d:new Date(today),admin:"Ты (демо)"});
   e.target.reset();formMsg("bMsg",`${n} забанен. Бан уже в банлисте.`,1);refreshAll()};
-$("fVip").onsubmit=e=>{e.preventDefault();const n=$("vNick").value.trim(),sid=$("vSid").value.trim().toUpperCase(),tier=$("vTier").value,days=+$("vDays").value;
+$("fVip").onsubmit=e=>{e.preventDefault();if(SRV){srvVipSubmit(e);return}const n=$("vNick").value.trim(),sid=$("vSid").value.trim().toUpperCase(),tier=$("vTier").value,days=+$("vDays").value;
   const ex=VIPS.find(v=>v[1]===sid);if(ex){ex[2]=tier;ex[3]=new Date(Math.max(ex[3],today)+days*864e5);formMsg("vMsg",`Срок ${n} продлён на ${days} дн.`,1)}else{VIPS.unshift([n,sid,tier,daysFwd(days)]);formMsg("vMsg",`${n} получил ${tier} на ${days} дн.`,1)}
   {const r=VIPS.find(v=>v[1]===sid);if(r&&(r[1]===ME_SID||r[0]===ME.n)){r[0]=ME.n;ME.vip={tier:r[2],until:r[3],from:ME.vip&&ME.vip.tier===r[2]?ME.vip.from:new Date(today)};vipRedraw()}}
   e.target.reset();$("vDays").value="30";drawAdmin()};
+// ---------- управление сервером (только на настоящем сайте) ----------
+let ASRV=null,asBusy=false;
+async function srvAdmServer(){if(!SRV||!isStaff()||asBusy)return;const box=$("asPlayers");asBusy=true;
+  try{const d=await api("/api/admin/server");ASRV=d;const s=d.server,sel=$("mapSel");
+    if(sel.dataset.k!==d.maps.join()){sel.innerHTML=d.maps.map(m=>`<option value="${esc(m)}">${esc(m)}</option>`).join("");sel.dataset.k=d.maps.join();if(s&&d.maps.includes(s.map))sel.value=s.map}
+    const head=`<div class="ai"><div><b>${esc(s?s.name:"Сервер")}</b><small>${s?(s.online?`${esc(s.map)} · игроков ${s.players}/${s.max}${s.bots?` · ботов ${s.bots}`:""}`:"не отвечает"):"нет данных"}</small></div><button type="button" data-asr="1">Обновить</button></div>`;
+    const rows=d.players.map(p=>`<div class="ai"><div><b>${esc(p.n)}${p.bot?" · бот":""}</b><small>#${p.id}${p.bot?"":" · "+ptStr(p.t)}${p.sid?" · "+esc(p.sid):""}</small></div><span class="btns2"><button type="button" data-askick="${p.id}" data-n="${esc(p.n)}">Кик</button>${p.bot?"":`<button type="button" data-asban="${p.id}">Бан</button>`}</span></div>`);
+    box.innerHTML=head+(rows.join("")||'<div class="note">На сервере сейчас никого нет</div>')}
+  catch(e){box.innerHTML=`<div class="ai"><div><b>Сервер не отвечает</b><small>${esc(e.message)}</small></div><button type="button" data-asr="1">Обновить</button></div>`}
+  finally{asBusy=false}}
+// опасные кнопки срабатывают со второго нажатия
+function armed(b,label){if(b.dataset.armed==="1")return true;const old=b.textContent;b.dataset.armed="1";b.textContent=label||"Точно?";setTimeout(()=>{b.dataset.armed="";b.textContent=old},3500);return false}
+async function srvAct(body,msgId){try{const r=await api("/api/admin/server",body);if(msgId)formMsg(msgId,r.msg||"Готово",1);else toast(r.msg||"Готово");setTimeout(srvAdmServer,1500);return true}catch(e){if(msgId)formMsg(msgId,e.message);else toast(e.message);return false}}
+$("asPlayers").addEventListener("click",async e=>{const b=e.target.closest("button");if(!b||b.disabled)return;
+  if(b.dataset.asr){srvAdmServer();return}
+  if(b.dataset.askick){if(!armed(b,"Выгнать?"))return;b.disabled=true;await srvAct({act:"kick",id:+b.dataset.askick,n:b.dataset.n,reason:"Кик администратором"});b.disabled=false;return}
+  if(b.dataset.asban){const p=ASRV&&ASRV.players.find(x=>x.id===+b.dataset.asban);if(!p)return;
+    document.querySelector('#admTabs [data-t="bans"]').click();$("bNick").value=p.n;$("bSid").value=p.sid||p.n;formMsg("bMsg","Выбери причину и срок",1);$("bReason").focus()}});
+$("fSay").onsubmit=async e=>{e.preventDefault();const b=e.target.querySelector("[type=submit]");b.disabled=true;if(await srvAct({act:"say",text:$("sayText").value},"sayMsg"))$("sayText").value="";b.disabled=false};
+$("fMap").onsubmit=async e=>{e.preventDefault();const b=e.target.querySelector("[type=submit]");if(!armed(b,"Сменить на "+$("mapSel").value+"?"))return;b.disabled=true;await srvAct({act:"map",map:$("mapSel").value},"mapMsg");b.disabled=false};
+$("btnRestart").onclick=async e=>{const b=e.currentTarget;if(!armed(b,"Перезапустить?"))return;b.disabled=true;await srvAct({act:"restart"},"mapMsg");b.disabled=false};
 // статус игрока изменился: обновляем строку в админке и всё, где он показан
 const ME_SID="STEAM_1:1:48102377";
-function vipSync(){const k=VIPS.findIndex(v=>v[1]===ME_SID||v[0]===ME.n);if(ME.vip){const row=[ME.n,ME_SID,ME.vip.tier,ME.vip.until];if(k>=0)VIPS[k]=row;else VIPS.unshift(row)}else if(k>=0)VIPS.splice(k,1);vipRedraw()}
+function vipSync(){if(SRV)return;const k=VIPS.findIndex(v=>v[1]===ME_SID||v[0]===ME.n);if(ME.vip){const row=[ME.n,ME_SID,ME.vip.tier,ME.vip.until];if(k>=0)VIPS[k]=row;else VIPS.unshift(row)}else if(k>=0)VIPS.splice(k,1);vipRedraw()}
 function vipRedraw(){[drawChip,drawTiers,()=>{if(curView==="me")drawMe()},()=>{if(curView==="admin")drawAdmin()},()=>{if(curView==="wheel")drawWheel()}].forEach(f=>{try{f()}catch(e){}})}
 $("fRule").onsubmit=e=>{e.preventDefault();const si=+$("rSec").value;RULES[si][1].push(["",$("rText").value.trim(),$("rPun").value.trim()]);renum();e.target.reset();formMsg("rMsg","Правило добавлено на страницу «Правила».",1);refreshAll()};
 
@@ -4421,6 +4491,13 @@ drawTiers();
 const MEDALS=new Map();
 (function(){if(REAL_STATS)return;const all=[...players,...guests];MEDAL_MONTHS.forEach((mo,k)=>{const r=rng(900+k*31);all.map(p=>[p,p.pts*(0.3+r()*1.6)]).sort((a,b)=>b[1]-a[1]).slice(0,10).forEach(([p],i)=>{if(p===ME)return;if(!MEDALS.has(p))MEDALS.set(p,[]);MEDALS.get(p).push({place:i+1,month:mo})})});
   if(!SRV)MEDALS.set(ME,[{place:7,month:MEDAL_MONTHS[5]},{place:7,month:MEDAL_MONTHS[2]},{place:9,month:MEDAL_MONTHS[0]}])})();
+// на настоящем сайте медали — из итогов месяца на сервере (топ-10 каждого месяца)
+function srvMedals(){if(!SRV||!Array.isArray(SRV.awards))return;MEDALS.clear();XPL.length=0;
+  const extra=new Map((Array.isArray(SRV.awardsP)?SRV.awardsP:[]).map(x=>[String(x.sid),x]));
+  SRV.awards.forEach(a=>{const sid=String(a.sid);let p=(logged&&String(ME.steamid)===sid)?ME:players.find(x=>x.sid===sid)||XPL.find(x=>x.sid===sid);
+    if(!p){p=statP(extra.get(sid)||{sid,n:a.n},500+XPL.length);p.n=String(a.n||p.n);XPL.push(p)}
+    const [y,m]=String(a.period).split("-").map(Number);if(!(m>=1&&m<=12))return;if(!MEDALS.has(p))MEDALS.set(p,[]);MEDALS.get(p).push({place:a.place|0,month:MONTHS[m-1]+" "+y})})}
+try{srvMedals()}catch(e){console.error(e)}
 const MCOL=p=>p===1?["#fff1b8","#f2c234","#9a6b00","#5a3c00"]:p===2?["#ffffff","#cfd6df","#7c8794","#3f4650"]:p===3?["#ffd9b8","#d88a4b","#8a4a1c","#4a240a"]:["#ffd27a","#e39b2a","#7a4a0a","#3a2208"];
 const MRIB=p=>p===1?["#eb4b4b","#d4f58a"]:p===2?["#4b69ff","#e8edf3"]:p===3?["#2fb36a","#f3c9a5"]:["#2a1d22","#b5e853"];
 let mdN=0;
@@ -4766,7 +4843,7 @@ function route(forced){try{closeProfile()}catch(e){}["modal","srvModal","cmdModa
   if(v==="support")try{drawSupport()}catch(e){console.error(e)}
   if(v==="tickets")try{drawTickets()}catch(e){console.error(e)}
   if(SRV&&(v==="support"||v==="tickets"))srvTickets();
-  if(SRV&&v==="admin")try{drawTkAdm()}catch(e){}
+  if(SRV&&v==="admin"){try{drawTkAdm()}catch(e){}try{drawAdmin();if(!document.querySelector('.adm-pane[data-pane="srv"]').hidden)srvAdmServer()}catch(e){}}
   document.querySelector(".rail").classList.remove("open");$("burger").setAttribute("aria-expanded","false");
   {const T={play:"",public:"Public",me:"Мой профиль",player:"Профиль игрока",clan:"Клан",case:"Кейс",wheel:"Фортуна",upgrade:"Апгрейд",inventory:"Инвентарь",jackpot:"Джекпот",support:"Поддержка",tickets:"Тикеты",shop:"Магазин",skins:"Кейсы",stats:"Рейтинг",clans:"Кланы",ach:"Достижения",bans:"Банлист",rules:"Правила",admin:"Админ-панель",offer:"Публичная оферта",privacy:"Конфиденциальность","404":"Страница не найдена"};document.title=(T[v]?T[v]+" — ":"")+"Tasher CS2"}
   window.scrollTo(0,0);setTimeout(()=>{try{if(!document.documentElement.classList.contains("no-anim"))countIn(document.getElementById("v-"+v))}catch(e){}},30)}
@@ -4858,8 +4935,12 @@ addEventListener("hashchange",()=>{let h="";try{h=location.hash.slice(1)}catch(e
 // ===== серверный режим: то, что ещё не перенесено на сервер =====
 if(SRV){try{PURCHASES.length=0}catch(e){}
   [["v-jackpot","Джекпот скоро откроется","Ставки между игроками подключаем к серверу. Пока можно открывать кейсы и делать апгрейды."],["v-wheel","Фортуна скоро откроется","Ежедневные призы подключаем к серверу."]].forEach(([id,t,d])=>{const v=$(id);if(!v)return;const el=document.createElement("div");el.className="srv-soon";el.innerHTML=`<b>${t}</b><span>${d}</span>`;const ph=v.querySelector(":scope>.page-head");if(ph)ph.after(el);else v.prepend(el)});
-  // в админке на сервере пока работает только «Баланс»
-  document.querySelectorAll("#admTabs button").forEach(b=>{if(b.dataset.t!=="tk")b.hidden=true;else b.click()});
+  // в админке на сервере: сервер, баны, статусы, баланс (правила пока редактируются в коде сайта)
+  document.querySelector('#admTabs [data-t="srv"]').addEventListener("click",()=>{if(curView==="admin")srvAdmServer()});
+  document.querySelectorAll("#admTabs button").forEach(b=>{if(b.dataset.t==="rules")b.hidden=true;if(b.dataset.t==="srv"){b.hidden=false;b.click()}});
+  setInterval(()=>{if(!document.hidden&&curView==="admin"&&!document.querySelector('.adm-pane[data-pane="srv"]').hidden)srvAdmServer()},15e3);
+  // банлист обновляется сам, пока открыт
+  setInterval(()=>{if(document.hidden||curView!=="bans")return;fetch("/api/bans",{credentials:"same-origin"}).then(r=>r.json()).then(d=>{if(Array.isArray(d.bans)){srvBansSet(d.bans);drawBans()}}).catch(()=>{})},30e3);
   try{drawOwnLink()}catch(e){}
   srvDrops(true);srvTickets();
   document.addEventListener("visibilitychange",()=>{if(!document.hidden&&logged){srvSync();srvTickets()}});

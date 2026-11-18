@@ -15,6 +15,9 @@ const WP = require("./lib/wp");
 const A2S = require("./lib/a2s");
 const GL = require("./lib/gamelog");
 const JOURNAL = require("./lib/journal");
+const RCON = require("./lib/rcon");
+const { makeControl } = require("./lib/control");
+const { cleanNick } = require("./lib/nick");
 
 // ---------- настройки ----------
 const ENV = process.env;
@@ -40,6 +43,8 @@ const CFG = {
   gameLogUnit: ENV.GAME_LOG_UNIT || "",
   journalBin: ENV.JOURNALCTL_BIN || "journalctl",
   statsBots: ENV.GAME_STATS_BOTS !== "0",
+  // карты для смены из админки (пусто — стандартный список)
+  gameMaps: (ENV.GAME_MAPS || "").split(/[,\s]+/).filter(Boolean),
 };
 const SECURE = CFG.site.startsWith("https://");
 if (CFG.devLogin && SECURE) { console.error("DEV_LOGIN нельзя включать на боевом сайте (SITE_URL https)."); process.exit(1); }
@@ -56,6 +61,9 @@ const PAINTS_N = WP.loadPaints(CFG.wpPaints);
 // после записи скинов плагин сам применяет их в игре (таблица wp_player_refresh, см. lib/wp.js)
 const wpSync = WP.makeSync({ cnf: CFG.wpCnf, bin: CFG.mysqlBin });
 const STATS = GL.makeStats(db, { bots: CFG.statsBots });
+// ники на сайте тоже приводим к чистому виду
+{ const fix = db.prepare("UPDATE users SET name=? WHERE id=?"); for (const r of db.prepare("SELECT id, name FROM users").all()) { const c = cleanNick(r.name); if (c !== r.name) fix.run(c, r.id); } }
+const CTL = makeControl({ db, tx: fn => tx(db, fn), stats: STATS, month: GL.month, rcon: { pass: CFG.gameRcon, exec: A2S.rconExec, parseStatus: RCON.parseStatus }, servers: CFG.gameServers, maps: CFG.gameMaps });
 const mskDay = (t = now()) => new Date(t + 3 * 3600e3).toISOString().slice(0, 10);
 const sha = s => crypto.createHash("sha256").update(s).digest("hex");
 
@@ -245,7 +253,8 @@ let GS = null;
 async function pollServers() {
   if (!CFG.gameServers.length) return;
   try {
-    const r = await A2S.poll(CFG.gameServers, 1500, CFG.gameRcon);
+    // забаненный на сервере (например, бан выдан, пока сервер был недоступен) — выгоняем
+    const r = await A2S.poll(CFG.gameServers, 1500, CFG.gameRcon, (s, st) => { for (const p of st) if (!p.bot) { const sid = STATS.sidByName(p.n); if (sid) CTL.enforce(sid, p.id); } });
     for (const s of r) for (const p of s.list) { const x = STATS.liveScore(p.n); if (x) { p.k = x.k; p.d = x.d; } } // счёт на текущей карте из журнала
     GS = r;
   } catch (e) {}
@@ -276,9 +285,19 @@ if (CFG.gameLogUnit && require.main === module) {
   JOURNAL.follow({ unit: CFG.gameLogUnit, bin: CFG.journalBin, cursor: curRow ? curRow.v : "", onCursor: c => saveCur.run(c),
     onLine: (msg, t, sys) => {
       if (sys) { if (/^(Stopped|Stopping|Started|Starting) |Main process exited|Failed with result/.test(msg)) STATS.serverStop(t); return; }
-      if (msg.charCodeAt(0) === 76 /* L */) STATS.apply(GL.parseLine(msg));
+      if (msg.charCodeAt(0) !== 76 /* L */) return;
+      const ev = GL.parseLine(msg); STATS.apply(ev);
+      // забаненный зашёл — выгоняем (только по свежим строкам, не при перечитывании старого журнала)
+      if (ev && ev.e !== "leave" && now() - t < 120e3) for (const p of [ev.a, ev.v]) if (p && p.sid) CTL.enforce(p.sid, p.uid);
     } });
 }
+
+// итоги месяца: проверяем при запуске и каждые 10 минут (сработает один раз после конца месяца)
+if (CFG.gameLogUnit && require.main === module) { setTimeout(() => { try { CTL.runAwards(); } catch (e) { console.error("[awards]", e); } }, 15e3).unref(); setInterval(() => { try { CTL.runAwards(); } catch (e) { console.error("[awards]", e); } }, 600e3).unref(); }
+
+// ---------- банлист, статусы, итоги месяца (публично) ----------
+get("/api/bans", () => ({ bans: CTL.listBans() }));
+get("/api/statuses", () => ({ statuses: CTL.statuses(), awards: CTL.listAwards() }));
 
 // лента последних выпадений (для блока Live)
 let DROPS_CACHE = { t: 0, v: null };
@@ -368,6 +387,21 @@ post("/api/admin/role", ctx => {
   if (target.role === "owner") bad("Нельзя менять роль владельца");
   db.prepare("UPDATE users SET role=? WHERE id=?").run(role, target.id);
   return { ok: true };
+});
+const ctlOut = r => { if (r && r.error) bad(r.error, r.code || 400); return r; };
+post("/api/admin/ban", async ctx => { const a = needAdmin(ctx); rateLimit("ban:" + a.id, 20, 60e3); return ctlOut(await CTL.ban(a, ctx.body)); });
+post("/api/admin/unban", ctx => { const a = needAdmin(ctx); return ctlOut(CTL.unban(a, ctx.body.id)); });
+post("/api/admin/grant", ctx => { const a = needAdmin(ctx); return ctlOut(CTL.grant(a, ctx.body)); });
+post("/api/admin/revoke", ctx => { const a = needAdmin(ctx); return ctlOut(CTL.revoke(a, String(ctx.body.sid || ""))); });
+const rconOk = () => { if (!CFG.gameServers.length || !CFG.gameRcon) bad("Управление сервером не настроено (нет RCON)", 503); };
+get("/api/admin/server", async ctx => {
+  needAdmin(ctx); rconOk();
+  try { return { ...(await CTL.serverInfo()), server: (GS || [])[0] || null }; } catch (e) { bad("Сервер не отвечает: " + e.message, 502); }
+});
+post("/api/admin/server", async ctx => {
+  const a = needAdmin(ctx); rconOk(); rateLimit("srv:" + a.id, 20, 60e3);
+  let r; try { r = await CTL.serverAct(a, ctx.body); } catch (e) { bad("Сервер не отвечает: " + e.message, 502); }
+  return ctlOut(r);
 });
 get("/api/admin/ledger", ctx => {
   needAdmin(ctx); const uid = +ctx.query.get("user") || 0;
@@ -474,6 +508,9 @@ function serveIndex(req, res) {
   const u = sessionUser(req);
   const data = u ? { user: pubUser(u), items: userItems(u.id), loadout: userLoadout(u.id) } : { user: null };
   if (GS) data.servers = GS;
+  data.bans = CTL.listBans(); data.statuses = CTL.statuses(); data.awards = CTL.listAwards();
+  // статистика призёров прошлых месяцев (для их профилей и медалей), даже если в этом месяце они не играли
+  if (CFG.gameLogUnit) data.awardsP = [...new Set(data.awards.map(a => a.sid))].slice(0, 60).map(sid => STATS.player(sid)).filter(Boolean);
   if (CFG.gameLogUnit) { data.stats = { period: GL.month(now()), players: statsTop(GL.month(now())).slice(0, 100) }; if (u) data.myStats = STATS.player(u.steamid); }
   const js = JSON.stringify(data).replace(/</g, "\\u003c").replace(/\u2028|\u2029/g, "");
   // страница личная: браузер каждый раз сверяется с сервером и не качает её заново, если ничего не изменилось
@@ -518,4 +555,4 @@ if (require.main === module) {
   const stop = () => { server.close(() => { try { db.close(); } catch (e) {} process.exit(0); }); setTimeout(() => process.exit(0), 5000).unref(); };
   process.on("SIGTERM", stop); process.on("SIGINT", stop);
 }
-module.exports = { server, db, CFG, WP };
+module.exports = { server, db, CFG, WP, CTL, STATS };

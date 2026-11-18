@@ -1,4 +1,5 @@
 "use strict";
+const { cleanNick } = require("./nick");
 // Вход через Steam (OpenID 2.0) и данные профиля через Steam Web API.
 const OPENID = "https://steamcommunity.com/openid/login";
 
@@ -44,7 +45,7 @@ async function profile(apiKey, steamid, fetchImpl = fetch) {
     const j = await r.json(); const p = j && j.response && j.response.players && j.response.players[0];
     if (!p) return null;
     // ник чистим от символов разметки, аватар принимаем только с серверов Steam
-    const name = String(p.personaname || "").replace(/[<>&"'`\\\u0000-\u001f\u2028\u2029]/g, "").trim().slice(0, 32);
+    const name = cleanNick(p.personaname);
     const av = String(p.avatarfull || p.avatarmedium || "");
     return { name, avatar: /^https:\/\/[a-z0-9.-]+\.(steamstatic\.com|akamaihd\.net)\/[\w\-./]+$/i.test(av) ? av : "" };
   } catch (e) { return null; }

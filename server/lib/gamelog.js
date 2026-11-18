@@ -2,12 +2,13 @@
 // Статистика игроков из журнала CS2 (строки "L 11/18/2026 - 23:53:20: ..." в консоли сервера).
 // Формат проверен на настоящем сервере: убийства, входы/выходы, команды, победы в раундах, бомба.
 
+const { cleanNick } = require("./nick");
 const STEAM64 = 76561197960265728n;
 const TOKEN = /"(.*?)<(\d+)><([^<>]*)><([^<>]*)>"/; // "Ник<2><[U:1:1618774009]><CT>"
 function who(s) {
   const m = s.match(TOKEN); if (!m) return null;
   const id = m[3], u = id.match(/^\[U:1:(\d+)\]$/);
-  return { n: m[1], bot: id === "BOT", sid: u ? String(STEAM64 + BigInt(u[1])) : null, team: m[4] === "CT" ? "ct" : m[4] === "TERRORIST" ? "t" : "" };
+  return { n: cleanNick(m[1]) || "Игрок", uid: +m[2], bot: id === "BOT", sid: u ? String(STEAM64 + BigInt(u[1])) : null, team: m[4] === "CT" ? "ct" : m[4] === "TERRORIST" ? "t" : "" };
 }
 function splitTokens(s) { // два участника: "A<..>" ... "B<..>"
   const re = new RegExp(TOKEN.source, "g"); const out = []; let m;
@@ -29,6 +30,8 @@ function parseLine(line) {
   if (/^".*" flash-assisted killing /.test(s)) return null;
   if ((r = s.match(/^(".*") \[[^\]]*\] (?:committed suicide|was killed by the bomb|was killed) /))) { const a = who(r[1]); return a ? { t, e: "suicide", a } : null; }
   if ((r = s.match(/^(".*") entered the game\s*$/))) { const a = who(r[1]); return a ? { t, e: "enter", a } : null; }
+  // подключение (ещё до входа в игру) — нужно, чтобы сразу выгнать забаненного
+  if ((r = s.match(/^(".*") (?:connected, address|STEAM USERID validated)/))) { const a = who(r[1]); return a ? { t, e: "connect", a } : null; }
   if ((r = s.match(/^(".*") disconnected\b/))) { const a = who(r[1]); return a ? { t, e: "leave", a } : null; }
   if ((r = s.match(/^(".*") switched from team <(\w*)> to <(\w*)>/))) { const a = who(r[1]); if (!a) return null; a.team = r[3] === "CT" ? "ct" : r[3] === "TERRORIST" ? "t" : ""; return { t, e: "team", a }; }
   if ((r = s.match(/^(".*") triggered "(Planted_The_Bomb|Defused_The_Bomb)"/))) { const a = who(r[1]); return a ? { t, e: r[2] === "Planted_The_Bomb" ? "plant" : "defuse", a } : null; }
@@ -61,6 +64,9 @@ function makeStats(db, { bots = true } = {}) {
       rw INTEGER NOT NULL DEFAULT 0, rp INTEGER NOT NULL DEFAULT 0, pt INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(sid, period));
     CREATE INDEX IF NOT EXISTS gstats_period ON gstats(period);
     CREATE TABLE IF NOT EXISTS gweapons(sid TEXT NOT NULL, w TEXT NOT NULL, k INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(sid, w));`);
+  // старые ники в базе приводим к чистому виду (один раз при запуске, дёшево)
+  { const fix = db.prepare("UPDATE gplayers SET name=? WHERE sid=?");
+    for (const r of db.prepare("SELECT sid, name FROM gplayers").all()) { const c = cleanNick(r.name) || "Игрок"; if (c !== r.name) fix.run(c, r.sid); } }
   const COLS = ["k", "d", "hs", "a", "tk", "su", "pl", "df", "rw", "rp", "pt"];
   const ups = Object.fromEntries(COLS.map(c => [c, db.prepare(`INSERT INTO gstats(sid,period,${c}) VALUES(?,?,?) ON CONFLICT(sid,period) DO UPDATE SET ${c}=${c}+excluded.${c}`)]));
   const upPlayer = db.prepare("INSERT INTO gplayers(sid,name,first_seen,last_seen) VALUES(?,?,?,?) ON CONFLICT(sid) DO UPDATE SET name=excluded.name, last_seen=MAX(last_seen,excluded.last_seen)");
@@ -69,7 +75,7 @@ function makeStats(db, { bots = true } = {}) {
   const seen = (p, t) => { if (p && p.sid) upPlayer.run(p.sid, String(p.n).slice(0, 64), t, t); };
 
   // состояние текущей карты (в памяти): разминка, команды, сессии, счёт на карте для списка игроков
-  const S = { warm: false, team: new Map(), sess: new Map(), live: new Map(), lastT: 0 };
+  const S = { warm: false, team: new Map(), sess: new Map(), live: new Map(), lastT: 0, uid: new Map() };
   const live = p => { const k = p.sid || "bot:" + p.n; let x = S.live.get(k); if (!x) S.live.set(k, x = { n: p.n, k: 0, d: 0 }); x.n = p.n; return x; };
   function closeSess(sid, t) { const st = S.sess.get(sid); if (st == null) return; S.sess.delete(sid); add(sid, "pt", Math.round(Math.min(Math.max(0, t - st), MAX_SESSION) / 1000), t); }
   function closeAll(t) { for (const sid of [...S.sess.keys()]) closeSess(sid, t); }
@@ -80,13 +86,13 @@ function makeStats(db, { bots = true } = {}) {
     // большая пауза в журнале — сервер перезапускался: закрываем сессии временем последней строки
     if (S.lastT && t - S.lastT > GAP) { closeAll(S.lastT); S.warm = false; }
     S.lastT = Math.max(S.lastT, t);
-    for (const p of [ev.a, ev.v]) if (p) { seen(p, t); if (p.sid && p.team) S.team.set(p.sid, p.team); if (p.sid && !S.sess.has(p.sid) && ev.e !== "leave") S.sess.set(p.sid, t); }
+    for (const p of [ev.a, ev.v]) if (p) { seen(p, t); if (p.sid && ev.e !== "leave") S.uid.set(p.sid, { uid: p.uid, n: p.n }); if (p.sid && p.team) S.team.set(p.sid, p.team); if (p.sid && !S.sess.has(p.sid) && ev.e !== "leave" && ev.e !== "connect") S.sess.set(p.sid, t); }
     switch (ev.e) {
       case "warmup_start": S.warm = true; break;
       case "warmup_end": case "match_start": S.warm = false; if (ev.e === "match_start") S.live.clear(); break;
-      case "logclose": closeAll(t); S.live.clear(); break;
+      case "logclose": closeAll(t); S.live.clear(); S.uid.clear(); break;
       case "enter": if (ev.a.sid) { closeSess(ev.a.sid, t); S.sess.set(ev.a.sid, t); } break;
-      case "leave": if (ev.a.sid) { closeSess(ev.a.sid, t); S.team.delete(ev.a.sid); } S.live.delete(ev.a.sid || "bot:" + ev.a.n); break;
+      case "leave": if (ev.a.sid) { closeSess(ev.a.sid, t); S.team.delete(ev.a.sid); S.uid.delete(ev.a.sid); } S.live.delete(ev.a.sid || "bot:" + ev.a.n); break;
       case "kill": {
         if (S.warm) break;
         const { a, v } = ev, same = a.team && a.team === v.team, self = (a.sid && a.sid === v.sid) || (a.bot && v.bot && a.n === v.n);
@@ -128,9 +134,12 @@ function makeStats(db, { bots = true } = {}) {
       w: db.prepare("SELECT w, k FROM gweapons WHERE sid=? ORDER BY k DESC LIMIT 4").all(sid).map(x => [x.w, x.k]) };
   }
   // остановка/запуск сервера (из системного журнала): закрываем сессии, счёт на карте сбрасываем
-  function serverStop(t) { closeAll(Math.max(S.lastT || t, Math.min(t, (S.lastT || t) + MAX_SESSION))); S.live.clear(); S.team.clear(); S.warm = false; S.lastT = Math.max(S.lastT, t); }
+  function serverStop(t) { closeAll(Math.max(S.lastT || t, Math.min(t, (S.lastT || t) + MAX_SESSION))); S.live.clear(); S.team.clear(); S.uid.clear(); S.warm = false; S.lastT = Math.max(S.lastT, t); }
   const liveScore = name => { for (const x of S.live.values()) if (x.n === name) return { k: x.k, d: x.d }; return null; };
-  return { apply, serverStop, top, player, liveScore, state: S, month };
+  // кто из игроков сейчас на сервере (по журналу): SteamID -> {uid, n}
+  const online = () => S.uid;
+  const sidByName = name => { let f = null; for (const [sid, x] of S.uid) if (x.n === name) { if (f) return null; f = sid; } return f; };
+  return { apply, serverStop, top, player, liveScore, online, sidByName, state: S, month };
 }
 
-module.exports = { parseLine, weaponName, makeStats, month };
+module.exports = { parseLine, weaponName, makeStats, month, who };
