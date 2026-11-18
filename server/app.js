@@ -33,6 +33,7 @@ const CFG = {
   mysqlBin: ENV.MYSQL_BIN || "mysql",
   // игровые серверы для списка на сайте: "Название|адрес для игроков|адрес для опроса;..."
   gameServers: A2S.parse(ENV.GAME_SERVERS),
+  gameRcon: ENV.GAME_RCON_PASS || "",
 };
 const SECURE = CFG.site.startsWith("https://");
 if (CFG.devLogin && SECURE) { console.error("DEV_LOGIN нельзя включать на боевом сайте (SITE_URL https)."); process.exit(1); }
@@ -233,7 +234,7 @@ post("/api/upgrade", ctx => {
 
 // игровые серверы: опрашиваем раз в 10 секунд, сайту отдаём последний результат
 let GS = null;
-async function pollServers() { if (!CFG.gameServers.length) return; try { GS = await A2S.poll(CFG.gameServers); } catch (e) {} }
+async function pollServers() { if (!CFG.gameServers.length) return; try { GS = await A2S.poll(CFG.gameServers, 1500, CFG.gameRcon); } catch (e) {} }
 if (CFG.gameServers.length && require.main === module) { pollServers(); setInterval(pollServers, 10e3).unref(); }
 get("/api/servers", async () => { if (!GS && CFG.gameServers.length) await pollServers(); return { servers: GS || [] }; });
 

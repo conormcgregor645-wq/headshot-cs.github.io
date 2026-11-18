@@ -1,6 +1,7 @@
 "use strict";
 // Опрос игрового сервера стандартным запросом Steam (A2S_INFO и A2S_PLAYER) по UDP.
 const dgram = require("node:dgram");
+const RCON = require("./rcon");
 
 const HEAD = Buffer.from([0xff, 0xff, 0xff, 0xff]);
 const INFO_REQ = Buffer.concat([HEAD, Buffer.from("TSource Engine Query\0", "latin1")]);
@@ -64,11 +65,14 @@ function parse(cfg) {
 }
 
 // опрос всех серверов; при ошибке сервер показывается как недоступный
-async function poll(list, timeout = 1500) {
+// rconPass: если задан, ники берём из команды status (CS2 не отдаёт их в A2S_PLAYER)
+async function poll(list, timeout = 1500, rconPass = "") {
   return Promise.all(list.map(async s => {
     try {
       const i = await info(s.host, s.port, timeout);
-      let pl = []; try { pl = await players(s.host, s.port, timeout); } catch (e) {}
+      let pl = [];
+      if (rconPass && i.players > i.bots) { try { pl = RCON.parseStatus(await RCON.exec(s.host, s.port, rconPass, "status", timeout + 1000)).filter(p => !p.bot).map(p => ({ n: p.n, t: p.t })); } catch (e) { pl = []; } }
+      else if (!rconPass) { try { pl = await players(s.host, s.port, timeout); } catch (e) {} }
       return { name: i.name || s.name, addr: s.addr, map: i.map, players: Math.max(0, i.players - i.bots), bots: i.bots, max: i.max, online: true, list: pl };
     } catch (e) {
       return { name: s.name, addr: s.addr, map: "", players: 0, bots: 0, max: 0, online: false, list: [] };

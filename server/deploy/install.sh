@@ -73,6 +73,19 @@ if [ -z "$(getenv GAME_SERVERS)" ] && systemctl list-unit-files cs2.service >/de
   setenv GAME_SERVERS "TASHER Public 5x5|$IP:27015|127.0.0.1:27015"
 fi
 [ -n "$(getenv GAME_SERVERS)" ] && echo "игровые серверы на сайте: $(getenv GAME_SERVERS | cut -d'|' -f2)"
+# ники игроков сайт берёт по RCON (CS2 не отдаёт их в стандартном запросе): новый пароль RCON, общий для сервера и сайта
+CFGF=/home/cs2/server/game/csgo/cfg/server.cfg
+if [ -z "$(getenv GAME_RCON_PASS)" ] && [ -f "$CFGF" ]; then
+  RP=$(head -c 48 /dev/urandom | base64 | tr -dc 'A-Za-z0-9' | head -c 24)
+  sed -i '/^rcon_password /d' "$CFGF"; echo "rcon_password \"$RP\"" >>"$CFGF"
+  grep -q '^host_players_show' "$CFGF" || echo 'host_players_show 2' >>"$CFGF"
+  [ -f /etc/tasher/cs2.env ] && { grep -v '^RCON_PASS=' /etc/tasher/cs2.env >/etc/tasher/cs2.env.tmp || true; echo "RCON_PASS=$RP" >>/etc/tasher/cs2.env.tmp; cat /etc/tasher/cs2.env.tmp >/etc/tasher/cs2.env; rm -f /etc/tasher/cs2.env.tmp; }
+  setenv GAME_RCON_PASS "$RP"
+  systemctl restart cs2 2>/dev/null || true
+  echo "пароль RCON заменён на новый, игровой сервер перезапущен"
+fi
+# RCON работает по TCP: снаружи он не нужен, игре хватает UDP
+if command -v ufw >/dev/null && ufw status | grep -q "^27015 "; then ufw delete allow 27015 >/dev/null; ufw allow 27015/udp >/dev/null; echo "порт 27015: открыт только UDP (RCON снаружи закрыт)"; fi
 echo "владелец: $(getenv OWNER_STEAMIDS), ключ Steam: сохранён"
 
 log "4/7 Связь с игровым сервером (скины в игре)"
