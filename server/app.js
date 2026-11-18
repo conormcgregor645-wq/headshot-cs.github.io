@@ -12,6 +12,7 @@ const { open, tx } = require("./lib/db");
 const steam = require("./lib/steam");
 const G = require("./lib/game");
 const WP = require("./lib/wp");
+const A2S = require("./lib/a2s");
 
 // ---------- настройки ----------
 const ENV = process.env;
@@ -30,6 +31,8 @@ const CFG = {
   wpCnf: ENV.WP_MYSQL_CNF || "",
   wpPaints: ENV.WP_PAINTS || "/var/lib/tasher/paints.json",
   mysqlBin: ENV.MYSQL_BIN || "mysql",
+  // игровые серверы для списка на сайте: "Название|адрес для игроков|адрес для опроса;..."
+  gameServers: A2S.parse(ENV.GAME_SERVERS),
 };
 const SECURE = CFG.site.startsWith("https://");
 if (CFG.devLogin && SECURE) { console.error("DEV_LOGIN нельзя включать на боевом сайте (SITE_URL https)."); process.exit(1); }
@@ -228,6 +231,12 @@ post("/api/upgrade", ctx => {
   return out;
 });
 
+// игровые серверы: опрашиваем раз в 10 секунд, сайту отдаём последний результат
+let GS = null;
+async function pollServers() { if (!CFG.gameServers.length) return; try { GS = await A2S.poll(CFG.gameServers); } catch (e) {} }
+if (CFG.gameServers.length && require.main === module) { pollServers(); setInterval(pollServers, 10e3).unref(); }
+get("/api/servers", async () => { if (!GS && CFG.gameServers.length) await pollServers(); return { servers: GS || [] }; });
+
 // лента последних выпадений (для блока Live)
 let DROPS_CACHE = { t: 0, v: null };
 get("/api/drops", () => {
@@ -421,6 +430,7 @@ function serveIndex(req, res) {
   }
   const u = sessionUser(req);
   const data = u ? { user: pubUser(u), items: userItems(u.id), loadout: userLoadout(u.id) } : { user: null };
+  if (GS) data.servers = GS;
   const js = JSON.stringify(data).replace(/</g, "\\u003c").replace(/\u2028|\u2029/g, "");
   // страница личная: браузер каждый раз сверяется с сервером и не качает её заново, если ничего не изменилось
   const etag = '"' + INDEX.tag + "-" + sha(js).slice(0, 16) + '"';
@@ -460,7 +470,7 @@ const server = http.createServer(async (req, res) => {
 });
 server.headersTimeout = 15e3; server.requestTimeout = 30e3;
 if (require.main === module) {
-  server.listen(CFG.port, CFG.host, () => console.log(`TASHER server: ${CFG.site} (слушает ${CFG.host}:${CFG.port}), база ${CFG.db}, сайт из ${CFG.staticDir}, кейсов ${G.CASES.length}, скины в игру: ${CFG.wpCnf ? "включено, раскрасок " + PAINTS_N : "выключено"}`));
+  server.listen(CFG.port, CFG.host, () => console.log(`TASHER server: ${CFG.site} (слушает ${CFG.host}:${CFG.port}), база ${CFG.db}, сайт из ${CFG.staticDir}, кейсов ${G.CASES.length}, скины в игру: ${CFG.wpCnf ? "включено, раскрасок " + PAINTS_N : "выключено"}, игровых серверов: ${CFG.gameServers.length}`));
   const stop = () => { server.close(() => { try { db.close(); } catch (e) {} process.exit(0); }); setTimeout(() => process.exit(0), 5000).unref(); };
   process.on("SIGTERM", stop); process.on("SIGINT", stop);
 }

@@ -67,6 +67,12 @@ if [ -z "$(getenv STEAM_API_KEY)" ]; then
   setenv STEAM_API_KEY "$KEY"
 fi
 sed -i '/^DEV_LOGIN=/d' "$ENVF"
+IP=$(curl -fsS -4 --connect-timeout 10 ifconfig.me 2>/dev/null || hostname -I | cut -d' ' -f1)
+# игровой сервер на этой же машине — показываем его на сайте с живым онлайном
+if [ -z "$(getenv GAME_SERVERS)" ] && systemctl list-unit-files cs2.service >/dev/null 2>&1 && [ -f /etc/systemd/system/cs2.service ]; then
+  setenv GAME_SERVERS "TASHER Public 5x5|$IP:27015|127.0.0.1:27015"
+fi
+[ -n "$(getenv GAME_SERVERS)" ] && echo "игровые серверы на сайте: $(getenv GAME_SERVERS | cut -d'|' -f2)"
 echo "владелец: $(getenv OWNER_STEAMIDS), ключ Steam: сохранён"
 
 log "4/7 Связь с игровым сервером (скины в игре)"
@@ -118,7 +124,6 @@ install -m 755 /opt/tasher/server/deploy/update.sh /usr/local/bin/tasher-update
 echo "17 4 * * * root /usr/local/bin/tasher-backup >/dev/null 2>&1" >/etc/cron.d/tasher-backup
 echo "бэкап базы каждую ночь в 04:17, обновление сайта: tasher-update"
 
-IP=$(curl -fsS -4 ifconfig.me 2>/dev/null || hostname -I | cut -d' ' -f1)
 printf '\n\033[1;32m=== ГОТОВО ===\033[0m\n'
 echo "Сайт работает на этом сервере. Осталось направить домен $DOMAIN сюда:"
 echo "  в DNS у регистратора A-запись для @ и для www -> $IP"
