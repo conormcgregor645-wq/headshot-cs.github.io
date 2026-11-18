@@ -17,7 +17,7 @@ log() { printf '\n\033[1;32m=== %s ===\033[0m\n' "$*"; }
 die() { printf '\n\033[1;31mОШИБКА: %s\033[0m\n' "$*"; exit 1; }
 
 [ "$(id -u)" = 0 ] || die "запусти от root"
-[ -x "$SRV/game/bin/linuxsteamrt64/cs2" ] || die "CS2 не найден в $SRV — сначала установи игру"
+[ -x "$SRV/game/cs2.sh" ] || die "CS2 не найден в $SRV — сначала установи игру"
 
 TMP=$(mktemp -d)
 trap 'rm -rf "$TMP"' EXIT
@@ -140,9 +140,10 @@ Wants=network-online.target
 User=cs2
 Group=cs2
 EnvironmentFile=/etc/tasher/cs2.env
-WorkingDirectory=/home/cs2/server/game/bin/linuxsteamrt64
+WorkingDirectory=/home/cs2/server/game
 ExecStartPre=/home/cs2/update.sh
-ExecStart=/home/cs2/server/game/bin/linuxsteamrt64/cs2 -dedicated -console -usercon -port 27015 -maxplayers 10 +game_type 0 +game_mode 1 +map de_dust2 +sv_setsteamaccount ${GSLT}
+# запуск через cs2.sh от Valve: он подставляет пути к библиотекам, без них Metamod не находит игру
+ExecStart=/home/cs2/server/game/cs2.sh -dedicated -console -usercon -port 27015 -maxplayers 10 +game_type 0 +game_mode 1 +map de_dust2 +sv_setsteamaccount ${GSLT}
 Restart=always
 RestartSec=10
 TimeoutStartSec=1800
