@@ -18,6 +18,7 @@ const JOURNAL = require("./lib/journal");
 const RCON = require("./lib/rcon");
 const { makeControl } = require("./lib/control");
 const { cleanNick } = require("./lib/nick");
+const VIP = require("./lib/vip");
 
 // ---------- настройки ----------
 const ENV = process.env;
@@ -63,7 +64,12 @@ const wpSync = WP.makeSync({ cnf: CFG.wpCnf, bin: CFG.mysqlBin });
 const STATS = GL.makeStats(db, { bots: CFG.statsBots });
 // ники на сайте тоже приводим к чистому виду
 { const fix = db.prepare("UPDATE users SET name=? WHERE id=?"); for (const r of db.prepare("SELECT id, name FROM users").all()) { const c = cleanNick(r.name); if (c !== r.name) fix.run(c, r.id); } }
-const CTL = makeControl({ db, tx: fn => tx(db, fn), stats: STATS, month: GL.month, rcon: { pass: CFG.gameRcon, exec: A2S.rconExec, parseStatus: RCON.parseStatus }, servers: CFG.gameServers, maps: CFG.gameMaps });
+// статусы -> VIP-плагин в игре (та же база, что и скины; после записи игроку на сервере статус применяется сразу)
+let vipSync = () => null;
+const CTL = makeControl({ db, tx: fn => tx(db, fn), stats: STATS, month: GL.month, rcon: { pass: CFG.gameRcon, exec: A2S.rconExec, parseStatus: RCON.parseStatus }, servers: CFG.gameServers, maps: CFG.gameMaps, onStatusChange: () => vipSync() });
+vipSync = VIP.makeVipSync({ cnf: CFG.wpCnf, bin: CFG.mysqlBin, getStatuses: () => CTL.statuses(),
+  reload: sid => CFG.gameServers.length && CFG.gameRcon ? A2S.rconExec(CFG.gameServers[0], CFG.gameRcon, "css_reload_vip_player " + sid, 3000) : null });
+if (CFG.wpCnf && require.main === module) { setTimeout(() => vipSync(), 3000).unref(); setInterval(() => vipSync(), 60e3).unref(); } // раз в минуту: истёкшие статусы и выдачи, сделанные пока сервер был недоступен
 const mskDay = (t = now()) => new Date(t + 3 * 3600e3).toISOString().slice(0, 10);
 const sha = s => crypto.createHash("sha256").update(s).digest("hex");
 
@@ -172,7 +178,7 @@ get("/api/health", () => ({ ok: true, t: now() }));
 
 get("/api/me", ctx => {
   if (!ctx.user) return { user: null };
-  return { user: pubUser(ctx.user), items: userItems(ctx.user.id), loadout: userLoadout(ctx.user.id) };
+  return { user: pubUser(ctx.user), items: userItems(ctx.user.id), loadout: userLoadout(ctx.user.id), cos: userCos(ctx.user), purchases: userPurchases(ctx.user.id) };
 });
 
 // надеть / снять предмет за сторону (ct или t)
@@ -294,6 +300,66 @@ if (CFG.gameLogUnit && require.main === module) {
 
 // итоги месяца: проверяем при запуске и каждые 10 минут (сработает один раз после конца месяца)
 if (CFG.gameLogUnit && require.main === module) { setTimeout(() => { try { CTL.runAwards(); } catch (e) { console.error("[awards]", e); } }, 15e3).unref(); setInterval(() => { try { CTL.runAwards(); } catch (e) { console.error("[awards]", e); } }, 600e3).unref(); }
+
+// ---------- магазин: статусы и оформление профиля за рубли с баланса ----------
+const TIER_P = { VIP: 99, PREMIUM: 199, ELITE: 349, LEGEND: 549, TITAN: 899, KING: 1499 };
+const PERIODS = { 30: 0, 90: 0.1, 180: 0.2 };
+const tierPrice = (tier, days) => Math.round(TIER_P[tier] * days / 30 * (1 - PERIODS[days]) / 10) * 10 - 1;
+const COSM = new Map(JSON.parse(fs.readFileSync(path.join(__dirname, "data", "cosmetics.json"), "utf8")).map(x => [x.id, x]));
+function userCos(u) { let eq = {}; try { eq = JSON.parse(u.cos_eq || "{}"); } catch (e) {} return { own: db.prepare("SELECT item_id FROM cos_own WHERE user_id=? ORDER BY created_at").all(u.id).map(r => r.item_id), eq }; }
+function userPurchases(uid) {
+  return db.prepare("SELECT delta, meta, created_at FROM ledger WHERE user_id=? AND kind='shop' ORDER BY id DESC LIMIT 50").all(uid)
+    .map(r => { let m = {}; try { m = JSON.parse(r.meta || "{}"); } catch (e) {} return { t: r.created_at, what: String(m.what || "Покупка"), p: -r.delta }; });
+}
+post("/api/shop/tier", ctx => {
+  const u = needUser(ctx); rateLimit("shop:" + u.id, 10, 60e3);
+  const tier = Object.hasOwn(TIER_P, ctx.body.tier) ? ctx.body.tier : bad("Неизвестный статус");
+  const days = Number(ctx.body.days); if (!Object.hasOwn(PERIODS, days)) bad("Срок: 30, 90 или 180 дней");
+  let sid = u.steamid, gname = "";
+  if (ctx.body.gift != null && String(ctx.body.gift).trim()) {
+    const r = CTL.resolve(ctx.body.gift); if (r.error) bad(r.error);
+    if (r.sid === u.steamid) bad("Это твой SteamID — выбери «Себе»");
+    sid = r.sid; gname = r.name || "Игрок";
+  }
+  const price = tierPrice(tier, days);
+  const what = `Статус ${tier} на ${days} дней` + (gname ? ` в подарок ${gname}` : "");
+  const out = tx(db, () => {
+    const balance = addMoney(u.id, "rub", -price, "shop", "tier:" + tier, { what, tier, days, sid });
+    const g = CTL.addGrant(sid, tier, days, "shop", gname ? `подарок от ${u.name || "игрока"}` : "покупка", u.name || ("Player" + u.id));
+    return { balance, until: g.until, extended: g.extended };
+  });
+  console.log(`[shop] ${u.name}(${u.id}) ${what} за ${price} ₽`);
+  vipSync();
+  return { ...out, price, what, statuses: CTL.statuses(), purchases: userPurchases(u.id) };
+});
+post("/api/shop/cos", ctx => {
+  const u = needUser(ctx); rateLimit("cos:" + u.id, 30, 60e3);
+  const it = COSM.get(String(ctx.body.id || "")); if (!it) bad("Такого предмета нет");
+  return tx(db, () => {
+    const fresh = db.prepare("SELECT * FROM users WHERE id=?").get(u.id);
+    let balance = fresh.rub;
+    if (!db.prepare("SELECT 1 FROM cos_own WHERE user_id=? AND item_id=?").get(u.id, it.id)) {
+      balance = addMoney(u.id, "rub", -it.p, "shop", "cos:" + it.id, { what: `Оформление: ${it.n}` });
+      db.prepare("INSERT INTO cos_own(user_id,item_id,created_at) VALUES(?,?,?)").run(u.id, it.id, now());
+    }
+    const eq = userCos(fresh).eq; eq[it.cat] = it.id;
+    db.prepare("UPDATE users SET cos_eq=? WHERE id=?").run(JSON.stringify(eq), u.id);
+    return { balance, cos: userCos({ ...fresh, cos_eq: JSON.stringify(eq) }), purchases: userPurchases(u.id) };
+  });
+});
+post("/api/cos/eq", ctx => {
+  const u = needUser(ctx);
+  const cat = ["frame", "bg", "badge"].includes(ctx.body.cat) ? ctx.body.cat : bad("Неверный раздел");
+  const eq = userCos(u).eq;
+  if (ctx.body.id == null) delete eq[cat];
+  else {
+    const it = COSM.get(String(ctx.body.id)); if (!it || it.cat !== cat) bad("Такого предмета нет");
+    if (!db.prepare("SELECT 1 FROM cos_own WHERE user_id=? AND item_id=?").get(u.id, it.id)) bad("Сначала купи этот предмет", 409);
+    eq[cat] = it.id;
+  }
+  db.prepare("UPDATE users SET cos_eq=? WHERE id=?").run(JSON.stringify(eq), u.id);
+  return { cos: userCos({ ...u, cos_eq: JSON.stringify(eq) }) };
+});
 
 // ---------- банлист, статусы, итоги месяца (публично) ----------
 get("/api/bans", () => ({ bans: CTL.listBans() }));
@@ -506,7 +572,7 @@ function serveIndex(req, res) {
     INDEX = { mtime: st.mtimeMs, a: html.slice(0, i), b: html.slice(i), tag: sha(html).slice(0, 16) };
   }
   const u = sessionUser(req);
-  const data = u ? { user: pubUser(u), items: userItems(u.id), loadout: userLoadout(u.id) } : { user: null };
+  const data = u ? { user: pubUser(u), items: userItems(u.id), loadout: userLoadout(u.id), cos: userCos(u), purchases: userPurchases(u.id) } : { user: null };
   if (GS) data.servers = GS;
   data.bans = CTL.listBans(); data.statuses = CTL.statuses(); data.awards = CTL.listAwards();
   // статистика призёров прошлых месяцев (для их профилей и медалей), даже если в этом месяце они не играли

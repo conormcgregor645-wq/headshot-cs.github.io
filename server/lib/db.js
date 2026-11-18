@@ -117,6 +117,14 @@ function open(file) {
        created_at INTEGER NOT NULL,
        PRIMARY KEY(period, place)
      );`,
+    // 5: магазин — купленное оформление профиля и что надето
+    `CREATE TABLE cos_own(
+       user_id INTEGER NOT NULL REFERENCES users(id),
+       item_id TEXT NOT NULL,
+       created_at INTEGER NOT NULL,
+       PRIMARY KEY(user_id, item_id)
+     );
+     ALTER TABLE users ADD COLUMN cos_eq TEXT NOT NULL DEFAULT '{}';`,
   ];
   for (let v = ver; v < MIG.length; v++) {
     db.exec("BEGIN");

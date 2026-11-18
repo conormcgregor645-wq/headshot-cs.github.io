@@ -28,7 +28,7 @@ const prevMonth = p => { const [y, m] = p.split("-").map(Number); return m === 1
 // текст для консоли сервера: без кавычек, точек с запятой и переводов строк (иначе можно дописать свою команду)
 const consoleText = (v, max) => String(v == null ? "" : v).replace(/[\u0000-\u001f\u007f\u2028\u2029"';\\]/g, " ").replace(/\s+/g, " ").trim().slice(0, max);
 
-function makeControl({ db, tx, stats, month, rcon, servers, maps, log = console, now = Date.now }) {
+function makeControl({ db, tx, stats, month, rcon, servers, maps, log = console, now = Date.now, onStatusChange = () => {} }) {
   const MAPS = (maps && maps.length ? maps : DEFAULT_MAPS).filter(m => /^[a-z0-9_]{3,40}$/.test(m));
   const srv0 = () => servers[0] || null;
 
@@ -121,31 +121,41 @@ function makeControl({ db, tx, stats, month, rcon, servers, maps, log = console,
   // действующий статус игрока — самый старший из невыданных назад и неистёкших
   function statuses() {
     const t = now(), out = new Map();
-    for (const g of db.prepare("SELECT * FROM grants WHERE revoked_at IS NULL AND until>? ORDER BY until DESC").all(t)) {
+    const rows = db.prepare("SELECT * FROM grants WHERE revoked_at IS NULL AND until>? ORDER BY until DESC").all(t);
+    for (const g of rows) {
       const cur = out.get(g.sid), rank = TIERS.indexOf(g.tier);
       if (!cur || rank > TIERS.indexOf(cur.t)) out.set(g.sid, { sid: g.sid, t: g.tier, u: g.until, f: g.from_at, src: g.src, note: g.note });
     }
+    // «действует с» — начало самой ранней из подряд идущих выдач этого статуса
+    for (const s of out.values()) for (const g of rows) if (g.sid === s.sid && g.tier === s.t && g.from_at < s.f) s.f = g.from_at;
     return [...out.values()].map(s => ({ ...s, n: nameOf(s.sid) || "Игрок", sid2: toSteam2(s.sid) })).sort((a, b) => TIERS.indexOf(b.t) - TIERS.indexOf(a.t) || b.u - a.u);
+  }
+  // выдать статус: та же выдача от админа или из магазина продлевается, иначе новая идёт следом за действующей того же статуса
+  function addGrant(sid, tier, days, src, note, by) {
+    const t = now();
+    const ex = db.prepare("SELECT * FROM grants WHERE sid=? AND tier=? AND src IN ('admin','shop') AND revoked_at IS NULL AND until>? ORDER BY until DESC LIMIT 1").get(sid, tier, t);
+    if (ex) { db.prepare("UPDATE grants SET until=? WHERE id=?").run(ex.until + days * DAY, ex.id); return { extended: true, until: ex.until + days * DAY }; }
+    const last = db.prepare("SELECT MAX(until) u FROM grants WHERE sid=? AND tier=? AND revoked_at IS NULL AND until>?").get(sid, tier, t);
+    const from = Math.max(t, (last && last.u) || 0);
+    db.prepare("INSERT INTO grants(sid,tier,src,note,created_at,from_at,until,by_name) VALUES(?,?,?,?,?,?,?,?)").run(sid, tier, src, consoleText(note, 100), t, from, from + days * DAY, by || "");
+    return { extended: from > t, until: from + days * DAY };
   }
   function grant(admin, body) {
     const r = resolve(body.target); if (r.error) return { error: r.error };
     const tier = TIERS.includes(body.tier) ? body.tier : null; if (!tier) return { error: "Статус: " + TIERS.join(", ") };
     const days = Number(body.days); if (!Number.isInteger(days) || days < 1 || days > 3650) return { error: "Срок: от 1 до 3650 дней" };
-    const t = now(), by = admin.name || ("Player" + admin.id);
-    const res = tx(() => {
-      const ex = db.prepare("SELECT * FROM grants WHERE sid=? AND tier=? AND src='admin' AND revoked_at IS NULL AND until>? ORDER BY until DESC LIMIT 1").get(r.sid, tier, t);
-      if (ex) { db.prepare("UPDATE grants SET until=? WHERE id=?").run(ex.until + days * DAY, ex.id); return "extend"; }
-      db.prepare("INSERT INTO grants(sid,tier,src,note,created_at,from_at,until,by_name) VALUES(?,?,?,?,?,?,?,?)").run(r.sid, tier, "admin", consoleText(body.note, 100), t, t, t + days * DAY, by);
-      return "new";
-    });
-    log.log(`[admin] ${by}(${admin.id}) статус ${tier} на ${days} дн. -> ${r.name || r.sid} (${res === "extend" ? "продлён" : "выдан"})`);
-    return { sid: r.sid, name: r.name || "Игрок", extended: res === "extend", statuses: statuses() };
+    const by = admin.name || ("Player" + admin.id);
+    const res = tx(() => addGrant(r.sid, tier, days, "admin", body.note, by));
+    log.log(`[admin] ${by}(${admin.id}) статус ${tier} на ${days} дн. -> ${r.name || r.sid} (${res.extended ? "продлён" : "выдан"})`);
+    onStatusChange();
+    return { sid: r.sid, name: r.name || "Игрок", extended: res.extended, statuses: statuses() };
   }
   function revoke(admin, sid) {
     if (!/^\d{17}$/.test(String(sid || ""))) return { error: "Неверный SteamID" };
     const r = db.prepare("UPDATE grants SET revoked_at=? WHERE sid=? AND revoked_at IS NULL AND until>?").run(now(), sid, now());
     if (!r.changes) return { error: "У игрока нет действующего статуса", code: 404 };
     log.log(`[admin] ${admin.name}(${admin.id}) снял статусы с ${sid}`);
+    onStatusChange();
     return { statuses: statuses() };
   }
 
@@ -163,6 +173,7 @@ function makeControl({ db, tx, stats, month, rcon, servers, maps, log = console,
         db.prepare("INSERT INTO grants(sid,tier,src,note,created_at,from_at,until,by_name) VALUES(?,?,?,?,?,?,?,?)").run(p.sid, tier, "award", `${place} место · ${monthRu(prev)}`, t, t, t + 30 * DAY, "Итоги месяца");
       });
     });
+    onStatusChange();
     log.log(`[awards] итоги ${prev}: ${top.map((p, i) => `${i + 1}. ${p.n} (${p.pts})`).join(", ")}`);
     return prev;
   }
@@ -208,7 +219,7 @@ function makeControl({ db, tx, stats, month, rcon, servers, maps, log = console,
     return { error: "Неизвестное действие" };
   }
 
-  return { resolve, activeBan, listBans, ban, unban, enforce, statuses, grant, revoke, runAwards, listAwards, serverInfo, serverAct, MAPS };
+  return { addGrant, resolve, activeBan, listBans, ban, unban, enforce, statuses, grant, revoke, runAwards, listAwards, serverInfo, serverAct, MAPS };
 }
 
 module.exports = { makeControl, toSid64, toSteam2, prevMonth, consoleText, TIERS, DEFAULT_MAPS };

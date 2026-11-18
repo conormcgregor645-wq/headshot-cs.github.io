@@ -7,7 +7,8 @@ const dir = fs.mkdtempSync(path.join(os.tmpdir(), "tasher-test-"));
 fs.writeFileSync(path.join(dir, "index.html"), "<!doctype html><html><head><title>t</title></head><body></body></html>");
 // поддельный клиент mysql: сохраняет присланный SQL в файл, чтобы проверить запись скинов в игру
 const SQLLOG = path.join(dir, "sql.log"), FAKE = path.join(dir, "mysql"), PAINTS = path.join(dir, "paints.json");
-fs.writeFileSync(FAKE, `#!/bin/sh\ncat >> "${SQLLOG}"\necho "-- END" >> "${SQLLOG}"\n`); fs.chmodSync(FAKE, 0o755);
+// на проверку «есть ли таблица VIP-плагина» отвечает 1
+fs.writeFileSync(FAKE, `#!/bin/sh\ncase "$*" in *vip_users*) echo 1; exit 0;; esac\ncat >> "${SQLLOG}"\necho "-- END" >> "${SQLLOG}"\n`); fs.chmodSync(FAKE, 0o755);
 fs.writeFileSync(path.join(dir, "wp.cnf"), "[client]\n");
 fs.writeFileSync(PAINTS, JSON.stringify(Object.fromEntries(require("../data/wdata.json").flatMap(w => w.skins.map((sk, i) => [(require("../lib/wp").defOf(w.n)) + "|" + sk[0], [1000 + i]])))));
 // поддельный journalctl: отдаёт строки журнала CS2 в формате JSON и «ждёт новых», как journalctl -f
@@ -206,6 +207,35 @@ const call = async (cookie, p, body, h = {}) => { const r = await fetch(B + p, b
     r = await call(O2, "/api/admin/server", { act: "kick", id: 3, n: "Victim", reason: "afk" }); ok(r.s === 200 && RCMDS.includes('kickid 3 "afk"'), "кик из админки", r);
     r = await call(O2, "/api/admin/server", { act: "map", map: "de_nuke" }); ok(r.s === 200 && RCMDS.includes("changelevel de_nuke"), "смена карты", r);
     r = await call(O2, "/api/admin/server", { act: "map", map: "quit" }); ok(r.s === 400, "карта не из списка", r);
+  }
+  // магазин: статус за рубли с баланса уходит в VIP-плагин игры
+  {
+    const B6 = await login("76561198000000006"), O3 = await login("76561190000000001");
+    const me6 = (await call(B6, "/api/me")).j.user;
+    r = await call(B6, "/api/shop/tier", { tier: "PREMIUM", days: 30 }); ok(r.s === 402, "статус без денег не покупается", r);
+    r = await call(B6, "/api/shop/tier", { tier: "GOD", days: 30 }); ok(r.s === 400, "неизвестный статус", r.s);
+    r = await call(B6, "/api/shop/tier", { tier: "VIP", days: 45 }); ok(r.s === 400, "неверный срок", r.s);
+    await call(O3, "/api/admin/balance", { user: me6.id, cur: "rub", delta: 1000, reason: "тест магазина" });
+    fs.writeFileSync(SQLLOG, ""); RCMDS.length = 0;
+    r = await call(B6, "/api/shop/tier", { tier: "PREMIUM", days: 90 });
+    ok(r.s === 200 && r.j.price === 539 && r.j.balance === 461 && r.j.statuses.some(x => x.sid === "76561198000000006" && x.t === "PREMIUM") && r.j.purchases[0].what === "Статус PREMIUM на 90 дней" && r.j.purchases[0].p === 539, "статус куплен: цена со скидкой 10% за 90 дней", r.j);
+    await new Promise(z => setTimeout(z, 700));
+    const sql = fs.readFileSync(SQLLOG, "utf8");
+    ok(/INSERT INTO vip_users .*\(\d+,'[^']*',UNIX_TIMESTAMP\(\),0,'PREMIUM',\d{10}\)/.test(sql) && sql.includes(String(76561198000000006n - 76561197960265728n)), "статус записан в базу VIP-плагина", sql.slice(-600));
+    ok(RCMDS.includes("css_reload_vip_player 76561198000000006"), "игроку на сервере статус применяется сразу", RCMDS);
+    r = await call(B6, "/api/shop/tier", { tier: "PREMIUM", days: 30 }); ok(r.s === 200 && r.j.extended && r.j.balance === 262, "повторная покупка продлевает статус", r.j);
+    const st = r.j.statuses.find(x => x.sid === "76561198000000006"); ok(st && Math.round((st.u - st.f) / 864e5) === 120, "срок: 90 + 30 дней", st);
+    r = await call(B6, "/api/shop/tier", { tier: "VIP", days: 30, gift: "76561199579039737" }); ok(r.s === 200 && r.j.statuses.some(x => x.sid === "76561199579039737" && x.t === "VIP") && /в подарок -NaiFF1337/.test(r.j.what), "подарок другому игроку", r.j);
+    r = await call(B6, "/api/shop/tier", { tier: "VIP", days: 30, gift: "76561198000000006" }); ok(r.s === 400, "подарок самому себе отклонён", r);
+    // оформление профиля
+    const cos = require("../data/cosmetics.json"), fr = cos.find(x => x.cat === "frame" && x.p <= 100);
+    r = await call(B6, "/api/cos/eq", { cat: "frame", id: fr.id }); ok(r.s === 409, "некупленное не надеть", r);
+    const bal0 = (await call(B6, "/api/me")).j.user.balance;
+    r = await call(B6, "/api/shop/cos", { id: fr.id }); ok(r.s === 200 && r.j.balance === bal0 - fr.p && r.j.cos.own.includes(fr.id) && r.j.cos.eq.frame === fr.id, "рамка куплена и надета", r.j);
+    r = await call(B6, "/api/shop/cos", { id: fr.id }); ok(r.s === 200 && r.j.balance === bal0 - fr.p, "повторно не списывается", r.j);
+    r = await call(B6, "/api/cos/eq", { cat: "frame", id: null }); ok(r.s === 200 && !r.j.cos.eq.frame, "рамка снята", r.j);
+    r = await call(B6, "/api/shop/cos", { id: "nope" }); ok(r.s === 400, "несуществующий предмет", r.s);
+    r = (await call(B6, "/api/me")).j; ok(r.cos.own.length === 1 && r.purchases.length === 4 && r.purchases[0].what === "Оформление: " + fr.n, "покупки сохранены на сервере", r);
   }
   // журнал сходится с балансом
   const lg = (await call(P, "/api/admin/ledger?user=2")).j.ledger; const u2 = (await call(P, "/api/me")).j.user;
