@@ -176,7 +176,20 @@ systemctl start cs2-restart.timer
 log "7/8 Первый запуск (создаются файлы настроек плагинов, до 4 минут)"
 WPJ="$CSS/configs/plugins/WeaponPaints/WeaponPaints.json"
 CORE="$CSS/configs/core.json"
-okjson() { [ -s "$1" ] && python3 -c 'import json,sys; json.load(open(sys.argv[1], encoding="utf-8-sig"))' "$1" 2>/dev/null; }
+cat >"$H/cssjson.py" <<'PY'
+# чтение и правка настроек CounterStrikeSharp: в начале файла бывает строка-комментарий //
+import json, re, sys
+def load(path):
+    t = open(path, encoding="utf-8-sig").read()
+    t = re.sub(r"(?m)^\s*//.*$", "", t)
+    return json.loads(t)
+if __name__ == "__main__":
+    try:
+        load(sys.argv[1])
+    except Exception:
+        sys.exit(1)
+PY
+okjson() { [ -s "$1" ] && python3 "$H/cssjson.py" "$1" 2>/dev/null; }
 systemctl stop cs2.service || true
 # испорченный или пустой файл удаляем — сервер создаст его заново
 for f in "$WPJ" "$CORE"; do if [ -e "$f" ] && ! okjson "$f"; then rm -f "$f"; fi; done
@@ -192,10 +205,11 @@ if ! okjson "$CORE"; then
   if [ -f "$CSS/configs/core.example.json" ]; then cp "$CSS/configs/core.example.json" "$CORE"; else echo '{}' >"$CORE"; fi
 fi
 
-DB_PASS="$DB_PASS" WPJ="$WPJ" CORE="$CORE" python3 - <<'PY'
+DB_PASS="$DB_PASS" WPJ="$WPJ" CORE="$CORE" PYTHONPATH="$H" python3 - <<'PY'
 import json, os
+from cssjson import load
 def edit(path, fn):
-    with open(path, encoding="utf-8-sig") as f: j = json.load(f)
+    j = load(path)
     fn(j)
     with open(path, "w", encoding="utf-8") as f: json.dump(j, f, ensure_ascii=False, indent=2)
 def core(j): j["FollowCS2ServerGuidelines"] = False
@@ -221,5 +235,12 @@ sleep 75
 echo "--- состояние ---"
 systemctl is-active cs2.service || true
 journalctl -u cs2 --since "-2min" --no-pager | grep -iE "metamod|counterstrikesharp|loaded|plugin|weaponpaints|error|fail|exception|gslt|steam" | grep -viE "steamclient|steamnetworking" | tail -40 | cut -c1-220 || true
-mysql -N -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='weaponpaints'" | sed 's/^/таблиц в базе скинов: /' || true
+J=$(journalctl -u cs2 --since "-3min" --no-pager)
+ok() { if printf '%s' "$J" | grep -q "$1"; then echo "  ✔ $2"; else echo "  ✘ $2 — НЕТ"; fi; }
+echo "--- итог ---"
+ok "Finished loading plugin PlayerSettings" "PlayerSettings"
+ok "Finished loading plugin MenuManager" "MenuManager"
+ok "Finished loading plugin WeaponPaints" "WeaponPaints"
+T=$(mysql -N -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='weaponpaints'" 2>/dev/null || echo 0)
+echo "  таблиц в базе скинов: $T"
 printf '\n\033[1;32m=== ГОТОВО ===\033[0m\nАдрес для игры: connect %s:27015\n' "$(curl -fsS -4 ifconfig.me 2>/dev/null || hostname -I | cut -d' ' -f1)"
