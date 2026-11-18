@@ -174,15 +174,23 @@ systemctl enable cs2.service cs2-restart.timer >/dev/null 2>&1
 systemctl start cs2-restart.timer
 
 log "7/8 Первый запуск (создаются файлы настроек плагинов, до 4 минут)"
-systemctl restart cs2.service
 WPJ="$CSS/configs/plugins/WeaponPaints/WeaponPaints.json"
 CORE="$CSS/configs/core.json"
-for i in $(seq 1 48); do [ -f "$WPJ" ] && break; sleep 5; printf '.'; done; echo
-if [ ! -f "$WPJ" ]; then
+okjson() { [ -s "$1" ] && python3 -c 'import json,sys; json.load(open(sys.argv[1], encoding="utf-8-sig"))' "$1" 2>/dev/null; }
+systemctl stop cs2.service || true
+# испорченный или пустой файл удаляем — сервер создаст его заново
+for f in "$WPJ" "$CORE"; do if [ -e "$f" ] && ! okjson "$f"; then rm -f "$f"; fi; done
+systemctl start cs2.service
+for i in $(seq 1 48); do if okjson "$WPJ" && okjson "$CORE"; then break; fi; sleep 5; printf '.'; done; echo
+sleep 10   # даём серверу дописать файлы
+systemctl stop cs2.service
+if ! okjson "$WPJ"; then
   echo "--- последние строки сервера ---"; journalctl -u cs2 -n 60 --no-pager | cut -c1-220
   die "плагин WeaponPaints не создал настройки. Пришли этот вывод целиком"
 fi
-[ -f "$CORE" ] || { [ -f "$CSS/configs/core.example.json" ] && cp "$CSS/configs/core.example.json" "$CORE"; }
+if ! okjson "$CORE"; then
+  if [ -f "$CSS/configs/core.example.json" ]; then cp "$CSS/configs/core.example.json" "$CORE"; else echo '{}' >"$CORE"; fi
+fi
 
 DB_PASS="$DB_PASS" WPJ="$WPJ" CORE="$CORE" python3 - <<'PY'
 import json, os
@@ -207,8 +215,8 @@ print("настройки плагинов записаны")
 PY
 chown -R cs2:cs2 "$H"; chmod 640 "$WPJ"
 
-log "8/8 Перезапуск с настройками"
-systemctl restart cs2.service
+log "8/8 Запуск с настройками"
+systemctl start cs2.service
 sleep 75
 echo "--- состояние ---"
 systemctl is-active cs2.service || true
