@@ -118,6 +118,8 @@ sv_lan 0
 sv_password ""
 rcon_password "$RCON_PASS"
 sv_hibernate_when_empty 1
+// список игроков для сайта (запрос Steam A2S_PLAYER)
+host_players_show 2
 CFG
 chmod 640 "$CSGO/cfg/server.cfg"
 
