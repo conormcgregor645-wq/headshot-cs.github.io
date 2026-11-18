@@ -64,6 +64,20 @@ function parse(cfg) {
   }).filter(s => s.addr && s.host && s.port > 0 && s.port < 65536);
 }
 
+// CS2 открывает RCON (TCP) на адресе имени машины — в Ubuntu это 127.0.1.1, а не 127.0.0.1.
+// Пробуем адрес из настроек, затем 127.0.1.1, и запоминаем рабочий.
+const RCON_HOST = new Map();
+async function rconStatus(s, pass, timeout) {
+  const key = s.host + ":" + s.port, first = RCON_HOST.get(key);
+  const hosts = [...new Set([first, s.host, ...(/^127\./.test(s.host) ? ["127.0.1.1", "127.0.0.1"] : [])].filter(Boolean))];
+  let err;
+  for (const h of hosts) {
+    try { const out = await RCON.exec(h, s.port, pass, "status", timeout); RCON_HOST.set(key, h); return out; }
+    catch (e) { err = e; if (e.code !== "ECONNREFUSED") break; }
+  }
+  throw err;
+}
+
 // опрос всех серверов; при ошибке сервер показывается как недоступный
 // rconPass: если задан, ники берём из команды status (CS2 не отдаёт их в A2S_PLAYER)
 async function poll(list, timeout = 1500, rconPass = "") {
@@ -71,7 +85,7 @@ async function poll(list, timeout = 1500, rconPass = "") {
     try {
       const i = await info(s.host, s.port, timeout);
       let pl = [];
-      if (rconPass && i.players > i.bots) { try { pl = RCON.parseStatus(await RCON.exec(s.host, s.port, rconPass, "status", timeout + 1000)).filter(p => !p.bot).map(p => ({ n: p.n, t: p.t })); } catch (e) { pl = []; } }
+      if (rconPass && i.players > i.bots) { try { pl = RCON.parseStatus(await rconStatus(s, rconPass, timeout + 1000)).filter(p => !p.bot).map(p => ({ n: p.n, t: p.t })); } catch (e) { pl = []; } }
       else if (!rconPass) { try { pl = await players(s.host, s.port, timeout); } catch (e) {} }
       return { name: i.name || s.name, addr: s.addr, map: i.map, players: Math.max(0, i.players - i.bots), bots: i.bots, max: i.max, online: true, list: pl };
     } catch (e) {
