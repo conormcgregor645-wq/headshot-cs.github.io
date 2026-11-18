@@ -15,16 +15,33 @@ die() { printf '\n\033[1;31mОШИБКА: %s\033[0m\n' "$*"; exit 1; }
 log "1/7 Пакеты (Node.js 22, Caddy)"
 apt-get update -q
 apt-get install -y -q curl git ca-certificates gnupg debian-keyring debian-archive-keyring apt-transport-https sqlite3 >/dev/null
-if ! command -v node >/dev/null || [ "$(node -p 'process.versions.node.split(".")[0]')" -lt 22 ]; then
-  curl -fsSL https://deb.nodesource.com/setup_22.x | bash - >/dev/null
-  apt-get install -y -q nodejs >/dev/null
+node_ok() { command -v node >/dev/null && [ "$(node -p 'process.versions.node.split(".")[0]' 2>/dev/null || echo 0)" -ge 22 ] && node -e 'require("node:sqlite")' 2>/dev/null; }
+# Node.js 22: пробуем несколько источников (часть адресов из России может не открываться)
+node_tar() { # $1 — адрес папки с версией
+  local sums f d=/usr/local/lib/nodejs
+  sums=$(curl -fsSL --connect-timeout 15 "$1/SHASUMS256.txt") || return 1
+  f=$(printf '%s\n' "$sums" | grep -o 'node-v22\.[0-9.]*-linux-x64\.tar\.xz' | head -1); [ -n "$f" ] || return 1
+  curl -fsSL --connect-timeout 15 -o "/tmp/$f" "$1/$f" || return 1
+  (cd /tmp && printf '%s\n' "$sums" | grep " $f\$" | sha256sum -c - >/dev/null) || { echo "контрольная сумма не сошлась"; return 1; }
+  rm -rf "$d"; mkdir -p "$d"; tar -xJf "/tmp/$f" -C "$d" --strip-components=1; rm -f "/tmp/$f"
+  ln -sf "$d/bin/node" /usr/bin/node; ln -sf "$d/bin/npm" /usr/bin/npm; ln -sf "$d/bin/npx" /usr/bin/npx
+}
+if ! node_ok; then
+  for src in https://nodejs.org/dist/latest-v22.x https://npmmirror.com/mirrors/node/latest-v22.x https://mirrors.huaweicloud.com/nodejs/latest-v22.x; do
+    echo "Node.js: пробую $src"; node_tar "$src" && node_ok && break
+  done
 fi
-node -e 'require("node:sqlite")' 2>/dev/null || die "нужен Node.js 22.13 или новее (сейчас $(node -v))"
+if ! node_ok && command -v snap >/dev/null; then echo "Node.js: пробую snap"; snap install node --channel=22/stable --classic >/dev/null 2>&1 && ln -sf /snap/bin/node /usr/bin/node || true; fi
+node_ok || die "не удалось установить Node.js 22 (сейчас $(node -v 2>/dev/null || echo нет))"
+# Caddy: из пакетов Ubuntu, если не вышло — из репозитория Caddy
 if ! command -v caddy >/dev/null; then
-  curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | gpg --batch --yes --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
-  curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' >/etc/apt/sources.list.d/caddy-stable.list
-  apt-get update -q && apt-get install -y -q caddy >/dev/null
+  apt-get install -y -q caddy >/dev/null 2>&1 || {
+    curl -1sLf --connect-timeout 15 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | gpg --batch --yes --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
+    curl -1sLf --connect-timeout 15 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' >/etc/apt/sources.list.d/caddy-stable.list
+    apt-get update -q && apt-get install -y -q caddy >/dev/null
+  }
 fi
+command -v caddy >/dev/null || die "не удалось установить Caddy"
 echo "Node.js $(node -v), $(caddy version | cut -d' ' -f1)"
 
 log "2/7 Файлы сайта"
