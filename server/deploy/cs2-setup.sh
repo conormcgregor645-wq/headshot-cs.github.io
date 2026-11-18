@@ -126,6 +126,9 @@ mp_logdetail 3
 sv_logfile 1
 CFG
 chmod 640 "$CSGO/cfg/server.cfg"
+# настройки режима: выполняются после стандартного конфига competitive и перебивают его значения
+F="$CSGO/cfg/gamemode_competitive_server.cfg"; touch "$F"
+grep -q '^mp_freezetime' "$F" && sed -i 's/^mp_freezetime.*/mp_freezetime 3/' "$F" || echo 'mp_freezetime 3' >>"$F"
 
 cat >"$H/update.sh" <<'SH'
 #!/bin/sh
