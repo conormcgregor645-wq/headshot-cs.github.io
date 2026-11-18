@@ -47,8 +47,11 @@ else
   OUT=$(rc "kickid $BID \"TASHER: проверка кика\"")
   if printf '%s' "$OUT" | grep -qi "unknown command"; then bad "сервер не знает kickid: $OUT"
   else
-    sleep 3
-    if journalctl -u cs2 --since "$SINCE" --no-pager -o cat | grep -F "\"$BN<$BID><BOT>" | grep -q "disconnected"; then ok "бот $BN (#$BID) выгнан командой kickid — кик и бан с сайта работают"
+    # сервер отвечает «<ник> kicked by Console» и сразу пишет строку о выходе; журнал systemd может прийти с задержкой
+    GONE=""
+    if printf '%s' "$OUT" | grep -qiE "kicked by console|\"$BN<$BID><BOT>.*disconnected"; then GONE=1
+    else for i in 1 2 3 4 5; do sleep 2; journalctl -u cs2 --since "$SINCE" --no-pager -o cat | grep -F "\"$BN<$BID><BOT>" | grep -q "disconnected" && { GONE=1; break; }; done; fi
+    if [ -n "$GONE" ]; then ok "бот $BN (#$BID) выгнан командой kickid — кик и бан с сайта работают"
     else bad "после kickid $BID бот $BN не вышел. Ответ сервера: $(printf '%s' "$OUT" | head -c 200)"; fi
   fi
 fi
