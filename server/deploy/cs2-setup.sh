@@ -76,11 +76,13 @@ inst() { # имя, ссылка: раскладывает архив плаги�
 }
 
 log "4/8 Metamod:Source 2.0"
-curl -fsSL -o "$TMP/mm" "https://mms.alliedmods.net/mmsdrop/2.0/mmsource-latest-linux" || die "Metamod не скачался"
-if [ "$(stat -c%s "$TMP/mm")" -lt 2000 ]; then
-  f=$(tr -d '\r\n ' <"$TMP/mm")
-  curl -fsSL -o "$TMP/mm.tgz" "https://mms.alliedmods.net/mmsdrop/2.0/$f" || die "Metamod не скачался"
-else mv "$TMP/mm" "$TMP/mm.tgz"; fi
+# свежие сборки 2.0 выкладываются в релизах на GitHub (старый адрес mmsdrop отдаёт устаревшую сборку)
+MMURL=$(curl -fsSL "https://api.github.com/repos/alliedmodders/metamod-source/releases?per_page=40" |
+  jq -r '[.[] | select(.tag_name | startswith("2.")) | .assets[] | select(.name | test("linux\\.tar\\.gz$")) | .browser_download_url][0] // empty' || true)
+[ -n "$MMURL" ] || MMURL="https://github.com/alliedmodders/metamod-source/releases/download/2.0.0.1491/mmsource-2.0.0-git1491-linux.tar.gz"
+echo "Metamod: $(basename "$MMURL")"
+curl -fsSL -o "$TMP/mm.tgz" "$MMURL" || die "Metamod не скачался"
+rm -rf "$ADD/metamod"
 mkdir -p "$TMP/mmx"; tar xzf "$TMP/mm.tgz" -C "$TMP/mmx"
 [ -d "$TMP/mmx/addons" ] || die "Metamod: в архиве нет папки addons"
 cp -r "$TMP/mmx/addons" "$CSGO/"
