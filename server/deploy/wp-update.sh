@@ -54,19 +54,22 @@ for i in $(seq 1 36); do [ -s "$WPJ" ] && python3 /home/cs2/cssjson.py "$WPJ" &&
 sleep 8; systemctl stop cs2
 [ -s "$WPJ" ] && python3 /home/cs2/cssjson.py "$WPJ" || { restore; die "новая версия не создала настройки"; }
 DB_PASS="$DB_PASS" WPJ="$WPJ" PYTHONPATH=/home/cs2 python3 - <<'PY'
-import json, os
+import json, os, secrets
 from cssjson import load
-j = load(os.environ["WPJ"])
-j.update(DatabaseHost="127.0.0.1", DatabasePort=3306, DatabaseUser="wp", DatabasePassword=os.environ["DB_PASS"], DatabaseName="weaponpaints", Website="tashercs.ru")
-a = j.setdefault("Additional", {})
+p = os.environ["WPJ"]; j = load(p); a = j.setdefault("Additional", {})
+# меню выбора в игре закрыты: пустой список команд ломает новую версию плагина (SetupKnifeMenu),
+# поэтому командам меню даём случайные имена, которые игрок не угадает. Скины выбираются только на сайте.
+keep = {"CommandSkin": ["ws"], "CommandRefresh": ["wp"], "CommandRefreshAdmin": ["wp_refresh"]}
 for k in list(a.keys()):
-    if k.startswith("Command") and isinstance(a[k], list) and k not in ("CommandSkin", "CommandRefresh", "CommandRefreshAdmin"): a[k] = []
-# CommandRefreshAdmin — серверная команда css_wp_refresh: через неё сайт применяет скины сразу после «Надеть»
-a.update(CommandSkin=["ws"], CommandRefresh=["wp"], CommandRefreshAdmin=["wp_refresh"], CommandWpEnabled=True, CommandKillEnabled=False, GiveRandomKnife=False, GiveRandomSkin=False)
+    if k.startswith("Command") and isinstance(a[k], list) and k not in keep:
+        a[k] = ["off" + secrets.token_hex(6)]
+a.update(keep)
+j.update(DatabaseHost="127.0.0.1", DatabasePort=3306, DatabaseUser="wp", DatabasePassword=os.environ["DB_PASS"], DatabaseName="weaponpaints", Website="tashercs.ru")
+a.update(CommandWpEnabled=True, CommandKillEnabled=False, GiveRandomKnife=False, GiveRandomSkin=False)
 for k in ("KnifeEnabled", "GloveEnabled", "SkinEnabled", "AgentEnabled"):
     if k in a: a[k] = True
-json.dump(j, open(os.environ["WPJ"], "w", encoding="utf-8"), ensure_ascii=False, indent=2)
-print("настройки записаны")
+json.dump(j, open(p, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
+print("настройки WeaponPaints: команды меню скрыты, css_wp_refresh включена")
 PY
 chown -R cs2:cs2 /home/cs2; chmod 640 "$WPJ"
 
