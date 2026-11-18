@@ -53,17 +53,8 @@ const db = open(CFG.db);
 }
 const now = () => Date.now();
 const PAINTS_N = WP.loadPaints(CFG.wpPaints);
-// после записи скинов: команда WeaponPaints wp_refresh применяет их игроку сразу, без !wp.
-// Второй раз через 2 с — плагин выдаёт перчатки раньше, чем дочитает базу, со второго раза они точно появятся.
-function gameRefresh(steamid) {
-  if (!CFG.gameRcon || !CFG.gameServers.length || !/^\d{17}$/.test(steamid)) return;
-  // css_wp_refresh — исправленная версия плагина; wp_refresh — исходная (если первой команды нет)
-  const run = () => CFG.gameServers.forEach(s => A2S.rconExec(s, CFG.gameRcon, "css_wp_refresh " + steamid)
-    .then(out => /unknown command/i.test(out) ? A2S.rconExec(s, CFG.gameRcon, "wp_refresh " + steamid) : out)
-    .catch(e => console.error("[wp] обновление скинов в игре:", e.message)));
-  run(); setTimeout(run, 2000).unref();
-}
-const wpSync = WP.makeSync({ cnf: CFG.wpCnf, bin: CFG.mysqlBin, onDone: gameRefresh });
+// после записи скинов плагин сам применяет их в игре (таблица wp_player_refresh, см. lib/wp.js)
+const wpSync = WP.makeSync({ cnf: CFG.wpCnf, bin: CFG.mysqlBin });
 const STATS = GL.makeStats(db, { bots: CFG.statsBots });
 const mskDay = (t = now()) => new Date(t + 3 * 3600e3).toISOString().slice(0, 10);
 const sha = s => crypto.createHash("sha256").update(s).digest("hex");

@@ -69,6 +69,10 @@ function sqlFor(steamid, rows) {
   q.push(`DELETE FROM wp_player_gloves WHERE steamid=${S};`);
   if (rows.gloves.length) q.push(`INSERT INTO wp_player_gloves (steamid,weapon_team,weapon_defindex) VALUES ${rows.gloves.map(r => `(${S},${n(r.t)},${n(r.def)})`).join(",")};`);
   q.push("COMMIT;");
+  // просьба плагину применить скины сразу: WeaponPaints (форк mrc4tt) опрашивает таблицу wp_player_refresh,
+  // обновляет скины игроку на сервере и удаляет строку. В исходной версии плагина таблицы нет — тогда ничего не делаем.
+  q.push(`SET @q = IF(EXISTS(SELECT 1 FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'wp_player_refresh'), "INSERT INTO wp_player_refresh (steamid) VALUES ('${steamid}') ON DUPLICATE KEY UPDATE stamp = CURRENT_TIMESTAMP", 'DO 0');`);
+  q.push("PREPARE wp_refresh_q FROM @q; EXECUTE wp_refresh_q; DEALLOCATE PREPARE wp_refresh_q;");
   return q.join("\n");
 }
 
