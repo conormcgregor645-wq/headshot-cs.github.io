@@ -60,8 +60,9 @@ j = load(os.environ["WPJ"])
 j.update(DatabaseHost="127.0.0.1", DatabasePort=3306, DatabaseUser="wp", DatabasePassword=os.environ["DB_PASS"], DatabaseName="weaponpaints", Website="tashercs.ru")
 a = j.setdefault("Additional", {})
 for k in list(a.keys()):
-    if k.startswith("Command") and isinstance(a[k], list) and k not in ("CommandSkin", "CommandRefresh"): a[k] = []
-a.update(CommandSkin=["ws"], CommandRefresh=["wp"], CommandWpEnabled=True, CommandKillEnabled=False, GiveRandomKnife=False, GiveRandomSkin=False)
+    if k.startswith("Command") and isinstance(a[k], list) and k not in ("CommandSkin", "CommandRefresh", "CommandRefreshAdmin"): a[k] = []
+# CommandRefreshAdmin — серверная команда css_wp_refresh: через неё сайт применяет скины сразу после «Надеть»
+a.update(CommandSkin=["ws"], CommandRefresh=["wp"], CommandRefreshAdmin=["wp_refresh"], CommandWpEnabled=True, CommandKillEnabled=False, GiveRandomKnife=False, GiveRandomSkin=False)
 for k in ("KnifeEnabled", "GloveEnabled", "SkinEnabled", "AgentEnabled"):
     if k in a: a[k] = True
 json.dump(j, open(os.environ["WPJ"], "w", encoding="utf-8"), ensure_ascii=False, indent=2)

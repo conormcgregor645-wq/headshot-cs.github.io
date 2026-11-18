@@ -149,7 +149,7 @@ const call = async (cookie, p, body, h = {}) => { const r = await fetch(B + p, b
       const sql = fs.readFileSync(SQLLOG, "utf8"); const last = sql.split("-- END").filter(x => x.trim()).pop() || "";
       ok(/wp_player_skins/.test(last) && /'76561190000000009',2,/.test(last + sql) && /'76561190000000009',3,/.test(last), "скин записан в базу игры для обеих сторон", last.slice(0, 400));
       await new Promise(z => setTimeout(z, 2600));
-      ok(RCMDS.filter(c => c === "wp_refresh 76561190000000009").length >= 2, "игровой сервер сразу применяет скин (wp_refresh, дважды)", RCMDS);
+      ok(RCMDS.filter(c => c === "css_wp_refresh 76561190000000009").length >= 2, "игровой сервер сразу применяет скин (css_wp_refresh, дважды)", RCMDS);
       r = (await call(C, "/api/me")).j; ok(r.loadout.length === 2, "надетое сохраняется на сервере", r.loadout);
       r = await call(C, "/api/equip", { id: both.id, team: "ct", on: false }); ok(r.s === 200 && r.j.loadout.length === 1 && r.j.loadout[0].team === "t", "снят за CT, за T остался", r.j);
       // продажа надетого снимает его и обновляет игру

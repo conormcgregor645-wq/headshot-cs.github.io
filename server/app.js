@@ -57,7 +57,10 @@ const PAINTS_N = WP.loadPaints(CFG.wpPaints);
 // Второй раз через 2 с — плагин выдаёт перчатки раньше, чем дочитает базу, со второго раза они точно появятся.
 function gameRefresh(steamid) {
   if (!CFG.gameRcon || !CFG.gameServers.length || !/^\d{17}$/.test(steamid)) return;
-  const run = () => CFG.gameServers.forEach(s => A2S.rconExec(s, CFG.gameRcon, "wp_refresh " + steamid).catch(e => console.error("[wp] wp_refresh:", e.message)));
+  // css_wp_refresh — исправленная версия плагина; wp_refresh — исходная (если первой команды нет)
+  const run = () => CFG.gameServers.forEach(s => A2S.rconExec(s, CFG.gameRcon, "css_wp_refresh " + steamid)
+    .then(out => /unknown command/i.test(out) ? A2S.rconExec(s, CFG.gameRcon, "wp_refresh " + steamid) : out)
+    .catch(e => console.error("[wp] обновление скинов в игре:", e.message)));
   run(); setTimeout(run, 2000).unref();
 }
 const wpSync = WP.makeSync({ cnf: CFG.wpCnf, bin: CFG.mysqlBin, onDone: gameRefresh });
