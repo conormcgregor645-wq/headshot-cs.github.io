@@ -20,15 +20,25 @@ command -v jq >/dev/null || apt-get install -y jq >/dev/null
 log "1/6 Скачиваю VIPCore ($REPO)"
 TMP=$(mktemp -d); trap 'rm -rf "$TMP"' EXIT
 curl -fsSL "https://api.github.com/repos/$REPO/releases?per_page=30" -o "$TMP/rel.json" || die "GitHub не ответил"
-CORE_URL=$(jq -r '[.[] | select(.draft|not) | .assets[] | select(.name=="VIPCore.zip") | .browser_download_url][0] // empty' "$TMP/rel.json")
-MODS_URL=$(jq -r '[.[] | select(.draft|not) | .assets[] | select(.name=="VIP_Modules.zip") | .browser_download_url][0] // empty' "$TMP/rel.json")
-[ -n "$CORE_URL" ] && [ -n "$MODS_URL" ] || die "не нашёл файлы релиза"
-echo "ядро:   $(basename "$(dirname "$CORE_URL")")"; echo "модули: $(basename "$(dirname "$MODS_URL")")"
-curl -fsSL -o "$TMP/core.zip" "$CORE_URL"; curl -fsSL -o "$TMP/mods.zip" "$MODS_URL"
+# полный набор модулей лежит в релизе ядра; релизы «vX.Y.Z-modules-N» содержат только изменённые модули — накладываем их по порядку
+CORE_TAG=$(jq -r '[.[] | select(.draft|not) | select(any(.assets[]; .name=="VIPCore.zip"))][0].tag_name // empty' "$TMP/rel.json")
+[ -n "$CORE_TAG" ] || die "не нашёл релиз с VIPCore.zip"
+url_of() { jq -r --arg t "$1" --arg n "$2" '.[] | select(.tag_name==$t) | .assets[] | select(.name==$n) | .browser_download_url' "$TMP/rel.json" | head -1; }
+CORE_URL=$(url_of "$CORE_TAG" VIPCore.zip); BASE_MODS=$(url_of "$CORE_TAG" VIP_Modules.zip)
+[ -n "$CORE_URL" ] && [ -n "$BASE_MODS" ] || die "в релизе $CORE_TAG нет VIPCore.zip или VIP_Modules.zip"
+echo "ядро и модули: $CORE_TAG"
+curl -fsSL -o "$TMP/core.zip" "$CORE_URL"; curl -fsSL -o "$TMP/mods.zip" "$BASE_MODS"
 mkdir "$TMP/c" "$TMP/m"; unzip -q -o "$TMP/core.zip" -d "$TMP/c"; unzip -q -o "$TMP/mods.zip" -d "$TMP/m"
+for T in $(jq -r --arg t "$CORE_TAG" '.[] | select(.draft|not) | .tag_name | select(startswith($t + "-modules-"))' "$TMP/rel.json" | sort -t- -k3 -n); do
+  U=$(url_of "$T" VIP_Modules.zip); [ -n "$U" ] || continue
+  rm -rf "$TMP/u"; mkdir "$TMP/u"; curl -fsSL -o "$TMP/u.zip" "$U"; unzip -q -o "$TMP/u.zip" -d "$TMP/u"
+  for d in "$TMP"/u/*/; do n=$(basename "$d"); [ -f "$d/$n.dll" ] || continue; rm -rf "$TMP/m/$n"; cp -r "$d" "$TMP/m/$n"; echo "обновление модуля $n из $T"; done
+done
 CA=$(find "$TMP/c" -maxdepth 3 -type d -name counterstrikesharp | head -1)
 [ -n "$CA" ] && [ -f "$CA/plugins/VIPCore/VIPCore.dll" ] && [ -f "$CA/shared/VipCoreApi/VipCoreApi.dll" ] || die "в архиве ядра нет VIPCore.dll или VipCoreApi.dll"
-for m in $MODS; do d=$(find "$TMP/m" -maxdepth 3 -type d -name "$m" | head -1); [ -n "$d" ] && [ -f "$d/$m.dll" ] || die "в архиве модулей нет $m"; done
+for m in $MODS; do
+  if [ ! -f "$TMP/m/$m/$m.dll" ]; then echo "модули в архиве:"; ls "$TMP/m" | sed 's/^/  /'; die "в архиве модулей нет $m"; fi
+done
 echo "архивы в порядке"
 
 log "2/6 Копия текущего состояния"
@@ -53,7 +63,7 @@ rm -rf "$PLG"/VIPCore "$PLG"/VIP_* "$SHARED"
 mkdir -p "$PLG" "$CSS/shared" "$CFGD/Modules"
 cp -r "$CA/plugins/VIPCore" "$PLG/"
 cp -r "$CA/shared/VipCoreApi" "$CSS/shared/"
-for m in $MODS; do d=$(find "$TMP/m" -maxdepth 3 -type d -name "$m" | head -1); cp -r "$d" "$PLG/"; done
+for m in $MODS; do cp -r "$TMP/m/$m" "$PLG/"; done
 echo "установлено: ядро и модули: $MODS"
 
 log "4/6 Настройки статусов (VIP, PREMIUM, ELITE, LEGEND, TITAN, KING)"
