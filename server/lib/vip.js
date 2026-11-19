@@ -36,6 +36,7 @@ function makeVipSync({ cnf, bin = "mysql", db = "weaponpaints", serverId = 0, ge
   let last = new Map(), running = false, again = false, warned = false;
   const run = (args, input) => new Promise((ok, no) => {
     const p = execFile(bin, [`--defaults-extra-file=${cnf}`, "-N", "-B", db, ...args], { timeout: 15000 }, (err, out, errOut) => err ? no(new Error(String(errOut || err.message).trim().slice(0, 300))) : ok(String(out)));
+    p.stdin.on("error", () => {}); // mysql может закрыть ввод раньше — это не ошибка
     if (input != null) p.stdin.end(input); else p.stdin.end();
   });
   async function once() {

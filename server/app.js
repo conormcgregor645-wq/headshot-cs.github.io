@@ -19,6 +19,11 @@ const RCON = require("./lib/rcon");
 const { makeControl } = require("./lib/control");
 const { cleanNick } = require("./lib/nick");
 const VIP = require("./lib/vip");
+const { makeEarn } = require("./lib/earn");
+const { makeWheel } = require("./lib/wheel");
+const { makeJackpot } = require("./lib/jackpot");
+const { makeClans } = require("./lib/clans");
+const STYLE = require("./lib/style");
 
 // ---------- настройки ----------
 const ENV = process.env;
@@ -65,8 +70,8 @@ const STATS = GL.makeStats(db, { bots: CFG.statsBots });
 // ники на сайте тоже приводим к чистому виду
 { const fix = db.prepare("UPDATE users SET name=? WHERE id=?"); for (const r of db.prepare("SELECT id, name FROM users").all()) { const c = cleanNick(r.name); if (c !== r.name) fix.run(c, r.id); } }
 // статусы -> VIP-плагин в игре (та же база, что и скины; после записи игроку на сервере статус применяется сразу)
-let vipSync = () => null;
-const CTL = makeControl({ db, tx: fn => tx(db, fn), stats: STATS, month: GL.month, rcon: { pass: CFG.gameRcon, exec: A2S.rconExec, parseStatus: RCON.parseStatus }, servers: CFG.gameServers, maps: CFG.gameMaps, onStatusChange: () => vipSync() });
+let vipSync = () => null, styleSync = () => null;
+const CTL = makeControl({ db, tx: fn => tx(db, fn), stats: STATS, month: GL.month, rcon: { pass: CFG.gameRcon, exec: A2S.rconExec, parseStatus: RCON.parseStatus }, servers: CFG.gameServers, maps: CFG.gameMaps, onStatusChange: () => { vipSync(); styleSync(); } });
 vipSync = VIP.makeVipSync({ cnf: CFG.wpCnf, bin: CFG.mysqlBin, getStatuses: () => CTL.statuses(),
   reload: sid => CFG.gameServers.length && CFG.gameRcon ? A2S.rconExec(CFG.gameServers[0], CFG.gameRcon, "css_reload_vip_player " + sid, 3000) : null });
 if (CFG.wpCnf && require.main === module) { setTimeout(() => vipSync(), 3000).unref(); setInterval(() => vipSync(), 60e3).unref(); } // раз в минуту: истёкшие статусы и выдачи, сделанные пока сервер был недоступен
@@ -178,7 +183,7 @@ get("/api/health", () => ({ ok: true, t: now() }));
 
 get("/api/me", ctx => {
   if (!ctx.user) return { user: null };
-  return { user: pubUser(ctx.user), items: userItems(ctx.user.id), loadout: userLoadout(ctx.user.id), cos: userCos(ctx.user), purchases: userPurchases(ctx.user.id) };
+  return { user: pubUser(ctx.user), items: userItems(ctx.user.id), loadout: userLoadout(ctx.user.id), cos: userCos(ctx.user), purchases: userPurchases(ctx.user.id), wheel: WHEEL.state(ctx.user), earn: EARN.today(ctx.user.steamid) };
 });
 
 // надеть / снять предмет за сторону (ct или t)
@@ -292,21 +297,110 @@ if (CFG.gameLogUnit && require.main === module) {
     onLine: (msg, t, sys) => {
       if (sys) { if (/^(Stopped|Stopping|Started|Starting) |Main process exited|Failed with result/.test(msg)) STATS.serverStop(t); return; }
       if (msg.charCodeAt(0) !== 76 /* L */) return;
-      const ev = GL.parseLine(msg); STATS.apply(ev);
+      const ev = GL.parseLine(msg), warm = STATS.state.warm; STATS.apply(ev);
+      // ТК за игру (разминку не считаем)
+      try {
+        EARN.apply(ev, warm);
+        if (ev && ev.e === "round" && !warm) EARN.roundWin([...STATS.state.team].filter(([sid, team]) => team === ev.win && STATS.state.sess.has(sid)).map(([sid]) => sid), ev.t || t);
+      } catch (e) { console.error("[earn]", e.message); }
       // забаненный зашёл — выгоняем (только по свежим строкам, не при перечитывании старого журнала)
       if (ev && ev.e !== "leave" && now() - t < 120e3) for (const p of [ev.a, ev.v]) if (p && p.sid) CTL.enforce(p.sid, p.uid);
     } });
 }
 
-// итоги месяца: проверяем при запуске и каждые 10 минут (сработает один раз после конца месяца)
-if (CFG.gameLogUnit && require.main === module) { setTimeout(() => { try { CTL.runAwards(); } catch (e) { console.error("[awards]", e); } }, 15e3).unref(); setInterval(() => { try { CTL.runAwards(); } catch (e) { console.error("[awards]", e); } }, 600e3).unref(); }
+// итоги месяца (игроки и кланы): проверяем при запуске и каждые 10 минут (сработает один раз после конца месяца)
+const runAllAwards = () => { try { CTL.runAwards(); } catch (e) { console.error("[awards]", e); } try { if (CLANS.runAwards()) styleSync(); } catch (e) { console.error("[clan awards]", e); } };
+if (CFG.gameLogUnit && require.main === module) { setTimeout(runAllAwards, 15e3).unref(); setInterval(runAllAwards, 600e3).unref(); }
+
+// ---------- ТК за игру ----------
+const statusTier = (() => { let m = new Map(), at = 0; return sid => { if (now() - at > 30e3) { m = new Map(CTL.statuses().map(s => [s.sid, s.t])); at = now(); } return m.get(sid) || null; }; })();
+const EARN = makeEarn({ db, tx: fn => tx(db, fn), addMoney, statusOf: statusTier });
+if (CFG.gameLogUnit && require.main === module) {
+  // минута в игре: всем, кто сейчас на сервере (если сервер живой — журнал писался за последние 3 минуты)
+  setInterval(() => { try { if (now() - STATS.state.lastT < 180e3) EARN.minute([...STATS.state.sess.keys()], now()); } catch (e) { console.error("[earn]", e.message); } }, 60e3).unref();
+  setInterval(() => { try { EARN.flush(); } catch (e) { console.error("[earn]", e.message); } }, 30e3).unref();
+}
+
+// ---------- Фортуна ----------
+const WHEEL = makeWheel({ db, tx: fn => tx(db, fn), addMoney, addGrant: (...a) => CTL.addGrant(...a), statusOf: sid => (CTL.statuses().find(s => s.sid === sid) || {}).t || null });
+post("/api/wheel/spin", ctx => {
+  const u = needUser(ctx); rateLimit("wheel:" + u.id, 5, 10e3);
+  let r; try { r = WHEEL.spin(u); } catch (e) { if (e.code) bad(e.message, e.code); throw e; }
+  if (r.tier) { vipSync(); styleSync(); }
+  return { ...r, wheel: WHEEL.state(u), statuses: r.tier ? CTL.statuses() : undefined };
+});
+
+// ---------- джекпот ----------
+const AGENTS = new Set(G.W.filter(w => w.c === "agent").map(w => w.n));
+const JP = makeJackpot({ db, tx: fn => tx(db, fn), takeItems, itemValue: r => G.itemValue(r), isAgent: w => AGENTS.has(w), pubItem, onLock: u => syncGame(u) });
+if (require.main === module) setInterval(() => { try { JP.tick(); } catch (e) { console.error("[jackpot]", e); } }, 500).unref();
+get("/api/jackpot", ctx => JP.view(ctx.user));
+post("/api/jackpot/bet", ctx => {
+  const u = needUser(ctx); rateLimit("jp:" + u.id, 10, 10e3);
+  let r; try { r = JP.bet(u, ctx.body.ids); } catch (e) { if (e.code) bad(e.message, e.code); throw e; }
+  return { ...r, view: JP.view(u), items: userItems(u.id) };
+});
+
+// ---------- кланы ----------
+const CLANS = makeClans({ db, tx: fn => tx(db, fn), addMoney, month: GL.month, prevMonth: require("./lib/control").prevMonth });
+// картинки клана хранятся в базе как data:image/...; сайту отдаём ссылками, чтобы список кланов был лёгким
+const clanImgUrl = (c, k) => c[k] ? `/api/clans/img?id=${c.id}&k=${k}&v=${crypto.createHash("sha1").update(c[k]).digest("hex").slice(0, 10)}` : null;
+function clansOut(u) {
+  const L = CLANS.list(u);
+  for (const c of L.clans) { c.ava = c.ava ? clanImgUrl(c, "ava") : null; c.cover = c.cover ? clanImgUrl(c, "cover") : null; }
+  return L;
+}
+function clanImg(req, res, url) {
+  const id = +url.searchParams.get("id"), k = url.searchParams.get("k");
+  const c = (k === "ava" || k === "cover") && Number.isInteger(id) ? db.prepare(`SELECT ${k} v FROM clans WHERE id=?`).get(id) : null;
+  const m = c && c.v && /^data:(image\/(?:webp|jpeg|png));base64,(.+)$/.exec(c.v);
+  if (!m) { res.writeHead(404); return res.end(); }
+  res.writeHead(200, { "content-type": m[1], "cache-control": "public, max-age=31536000, immutable", "x-content-type-options": "nosniff" });
+  return res.end(Buffer.from(m[2], "base64"));
+}
+const clanAct = fn => ctx => {
+  const u = needUser(ctx); rateLimit("clan:" + u.id, 30, 60e3);
+  try { fn(u, ctx.body); } catch (e) { if (e.code) bad(e.message, e.code); throw e; }
+  styleSync();
+  return { ...clansOut(u), me: pubUser(db.prepare("SELECT * FROM users WHERE id=?").get(u.id)) };
+};
+get("/api/clans", ctx => clansOut(ctx.user));
+post("/api/clans/create", clanAct((u, b) => CLANS.create(u, b)));
+post("/api/clans/apply", clanAct((u, b) => CLANS.apply(u, +b.id)));
+post("/api/clans/cancel", clanAct((u, b) => CLANS.cancelApp(u, +b.id)));
+post("/api/clans/decide", clanAct((u, b) => CLANS.decide(u, +b.id, !!b.accept)));
+post("/api/clans/leave", clanAct(u => CLANS.leave(u)));
+post("/api/clans/kick", clanAct((u, b) => CLANS.kick(u, +b.user)));
+post("/api/clans/transfer", clanAct((u, b) => CLANS.transfer(u, +b.user)));
+post("/api/clans/edit", clanAct((u, b) => CLANS.edit(u, b)));
+post("/api/clans/deposit", clanAct((u, b) => CLANS.deposit(u, +b.v)));
+post("/api/clans/upgrade", clanAct((u, b) => CLANS.upgrade(u, b)));
+
+// ---------- стиль в игре (плагин TASHER Style) ----------
+function styleRows() {
+  const st = new Map(CTL.statuses().map(s => [s.sid, s.t])), rows = new Map();
+  const row = sid => { let r = rows.get(sid); if (!r) rows.set(sid, r = { sid, tier: st.get(sid) || null, clanTag: "", clanColor: "", nick: "", tag: "", smokeHex: "" }); return r; };
+  for (const sid of st.keys()) row(sid);
+  for (const c of db.prepare("SELECT u.steamid sid, c.tag, c.color FROM clan_members m JOIN clans c ON c.id=m.clan_id JOIN users u ON u.id=m.user_id").all()) { const r = row(c.sid); r.clanTag = c.tag; r.clanColor = c.color; }
+  for (const u of db.prepare("SELECT steamid, cos_eq, cos_tag FROM users WHERE cos_eq<>'{}' OR cos_tag<>''").all()) {
+    let eq = {}; try { eq = JSON.parse(u.cos_eq || "{}"); } catch (e) {}
+    const nick = COSM.get(eq.nick), smoke = COSM.get(eq.smoke), tag = eq.tag && u.cos_tag ? u.cos_tag : "";
+    if (!nick && !smoke && !tag) continue;
+    const r = row(u.steamid); if (nick && nick.cat === "nick") r.nick = nick.id; if (smoke && smoke.cat === "smoke") r.smokeHex = smoke.v; if (tag) r.tag = tag;
+  }
+  return [...rows.values()];
+}
+styleSync = STYLE.makeStyleSync({ cnf: CFG.wpCnf, bin: CFG.mysqlBin, collect: styleRows,
+  reload: () => CFG.gameServers.length && CFG.gameRcon ? A2S.rconExec(CFG.gameServers[0], CFG.gameRcon, "css_tasher_style_reload", 3000) : null });
+if (CFG.wpCnf && require.main === module) { setTimeout(() => styleSync(), 4000).unref(); setInterval(() => styleSync(), 60e3).unref(); }
 
 // ---------- магазин: статусы и оформление профиля за рубли с баланса ----------
 const TIER_P = { VIP: 99, PREMIUM: 199, ELITE: 349, LEGEND: 549, TITAN: 899, KING: 1499 };
 const PERIODS = { 30: 0, 90: 0.1, 180: 0.2 };
 const tierPrice = (tier, days) => Math.round(TIER_P[tier] * days / 30 * (1 - PERIODS[days]) / 10) * 10 - 1;
 const COSM = new Map(JSON.parse(fs.readFileSync(path.join(__dirname, "data", "cosmetics.json"), "utf8")).map(x => [x.id, x]));
-function userCos(u) { let eq = {}; try { eq = JSON.parse(u.cos_eq || "{}"); } catch (e) {} return { own: db.prepare("SELECT item_id FROM cos_own WHERE user_id=? ORDER BY created_at").all(u.id).map(r => r.item_id), eq }; }
+const COS_EQ_CATS = ["frame", "bg", "badge", "nick", "smoke", "tag"]; // что надевается (свой тег покупается отдельно — /api/cos/tag)
+function userCos(u) { let eq = {}; try { eq = JSON.parse(u.cos_eq || "{}"); } catch (e) {} return { own: db.prepare("SELECT item_id FROM cos_own WHERE user_id=? ORDER BY created_at").all(u.id).map(r => r.item_id), eq, tag: u.cos_tag || "" }; }
 function userPurchases(uid) {
   return db.prepare("SELECT delta, meta, created_at FROM ledger WHERE user_id=? AND kind='shop' ORDER BY id DESC LIMIT 50").all(uid)
     .map(r => { let m = {}; try { m = JSON.parse(r.meta || "{}"); } catch (e) {} return { t: r.created_at, what: String(m.what || "Покупка"), p: -r.delta }; });
@@ -334,7 +428,8 @@ post("/api/shop/tier", ctx => {
 });
 post("/api/shop/cos", ctx => {
   const u = needUser(ctx); rateLimit("cos:" + u.id, 30, 60e3);
-  const it = COSM.get(String(ctx.body.id || "")); if (!it) bad("Такого предмета нет");
+  const out = (() => {
+  const it = COSM.get(String(ctx.body.id || "")); if (!it || !COS_EQ_CATS.includes(it.cat) || it.cat === "tag") bad("Такого предмета нет");
   return tx(db, () => {
     const fresh = db.prepare("SELECT * FROM users WHERE id=?").get(u.id);
     let balance = fresh.rub;
@@ -346,10 +441,33 @@ post("/api/shop/cos", ctx => {
     db.prepare("UPDATE users SET cos_eq=? WHERE id=?").run(JSON.stringify(eq), u.id);
     return { balance, cos: userCos({ ...fresh, cos_eq: JSON.stringify(eq) }), purchases: userPurchases(u.id) };
   });
+  })();
+  styleSync(); return out;
+});
+// свой тег в чате: латиница и цифры, до 6 символов; каждая смена платная, снять — бесплатно
+post("/api/cos/tag", ctx => {
+  const u = needUser(ctx); rateLimit("cos:" + u.id, 30, 60e3);
+  const it = COSM.get("tag"); if (!it) bad("Тег сейчас недоступен");
+  const tag = String(ctx.body.tag == null ? "" : ctx.body.tag).toUpperCase().trim();
+  const out = tx(db, () => {
+    const fresh = db.prepare("SELECT * FROM users WHERE id=?").get(u.id);
+    let eq = {}; try { eq = JSON.parse(fresh.cos_eq || "{}"); } catch (e) {}
+    if (!tag) bad("Впиши тег");
+    if (!/^[A-Z0-9]{1,6}$/.test(tag)) bad("Тег: латинские буквы и цифры, до 6 символов");
+    if (tag === fresh.cos_tag) bad("Такой тег уже стоит");
+    const balance = addMoney(u.id, "rub", -it.p, "shop", "cos:tag", { what: `Свой тег в чате [${tag}]` });
+    db.prepare("INSERT OR IGNORE INTO cos_own(user_id,item_id,created_at) VALUES(?,?,?)").run(u.id, "tag", now());
+    eq.tag = "tag";
+    db.prepare("UPDATE users SET cos_tag=?, cos_eq=? WHERE id=?").run(tag, JSON.stringify(eq), u.id);
+    return { balance };
+  });
+  styleSync();
+  const u2 = db.prepare("SELECT * FROM users WHERE id=?").get(u.id);
+  return { ...out, cos: userCos(u2), purchases: userPurchases(u.id) };
 });
 post("/api/cos/eq", ctx => {
   const u = needUser(ctx);
-  const cat = ["frame", "bg", "badge"].includes(ctx.body.cat) ? ctx.body.cat : bad("Неверный раздел");
+  const cat = COS_EQ_CATS.includes(ctx.body.cat) ? ctx.body.cat : bad("Неверный раздел");
   const eq = userCos(u).eq;
   if (ctx.body.id == null) delete eq[cat];
   else {
@@ -358,6 +476,7 @@ post("/api/cos/eq", ctx => {
     eq[cat] = it.id;
   }
   db.prepare("UPDATE users SET cos_eq=? WHERE id=?").run(JSON.stringify(eq), u.id);
+  styleSync();
   return { cos: userCos({ ...u, cos_eq: JSON.stringify(eq) }) };
 });
 
@@ -572,7 +691,9 @@ function serveIndex(req, res) {
     INDEX = { mtime: st.mtimeMs, a: html.slice(0, i), b: html.slice(i), tag: sha(html).slice(0, 16) };
   }
   const u = sessionUser(req);
-  const data = u ? { user: pubUser(u), items: userItems(u.id), loadout: userLoadout(u.id), cos: userCos(u), purchases: userPurchases(u.id) } : { user: null };
+  const data = u ? { user: pubUser(u), items: userItems(u.id), loadout: userLoadout(u.id), cos: userCos(u), purchases: userPurchases(u.id), wheel: WHEEL.state(u), earn: EARN.today(u.steamid) } : { user: null };
+  // джекпот без отметки времени сервера — иначе страница никогда не отдавалась бы из кэша (время сверит первый опрос)
+  data.clans = clansOut(u); { const v = JP.view(u); delete v.now; data.jackpot = v; }
   if (GS) data.servers = GS;
   data.bans = CTL.listBans(); data.statuses = CTL.statuses(); data.awards = CTL.listAwards();
   // статистика призёров прошлых месяцев (для их профилей и медалей), даже если в этом месяце они не играли
@@ -589,12 +710,14 @@ function serveIndex(req, res) {
 }
 
 // ---------- сервер ----------
+const BIG_BODY = new Set(["/api/clans/create", "/api/clans/edit"]); // картинки клана
 const SEC_HEADERS = { "x-content-type-options": "nosniff", "referrer-policy": "strict-origin-when-cross-origin", "x-frame-options": "SAMEORIGIN" };
 const server = http.createServer(async (req, res) => {
   for (const [k, v] of Object.entries(SEC_HEADERS)) res.setHeader(k, v);
   let url; try { url = new URL(req.url, CFG.site); } catch (e) { return send(res, 400, "bad url"); }
   try {
     if (url.pathname.startsWith("/auth/")) { if (await authRoutes(req, res, url)) return; return send(res, 404, "Not found"); }
+    if (url.pathname === "/api/clans/img" && req.method === "GET") return clanImg(req, res, url);
     if (url.pathname.startsWith("/api/")) {
       const h = (R[req.method] || new Map()).get(url.pathname);
       if (!h) return fail(res, 404, "Нет такого метода");
@@ -603,7 +726,7 @@ const server = http.createServer(async (req, res) => {
         if (req.headers["x-tasher"] !== "1") return fail(res, 403, "Запрос отклонён");
         const o = req.headers.origin; if (o && o !== new URL(CFG.site).origin) return fail(res, 403, "Запрос отклонён");
       }
-      const ctx = { req, res, url, query: url.searchParams, user: sessionUser(req), body: req.method === "POST" ? await readBody(req) : {} };
+      const ctx = { req, res, url, query: url.searchParams, user: sessionUser(req), body: req.method === "POST" ? await readBody(req, BIG_BODY.has(url.pathname) ? 2 * 1024 * 1024 : undefined) : {} };
       if (ctx.body === null || typeof ctx.body !== "object") ctx.body = {};
       return send(res, 200, await h(ctx));
     }

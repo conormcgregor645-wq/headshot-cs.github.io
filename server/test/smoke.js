@@ -8,7 +8,7 @@ fs.writeFileSync(path.join(dir, "index.html"), "<!doctype html><html><head><titl
 // поддельный клиент mysql: сохраняет присланный SQL в файл, чтобы проверить запись скинов в игру
 const SQLLOG = path.join(dir, "sql.log"), FAKE = path.join(dir, "mysql"), PAINTS = path.join(dir, "paints.json");
 // на проверку «есть ли таблица VIP-плагина» отвечает 1
-fs.writeFileSync(FAKE, `#!/bin/sh\ncase "$*" in *vip_users*) echo 1; exit 0;; esac\ncat >> "${SQLLOG}"\necho "-- END" >> "${SQLLOG}"\n`); fs.chmodSync(FAKE, 0o755);
+fs.writeFileSync(FAKE, `#!/bin/sh\ncase "$*" in *vip_users*|*tasher_style*) echo 1; exit 0;; esac\ncat >> "${SQLLOG}"\necho "-- END" >> "${SQLLOG}"\n`); fs.chmodSync(FAKE, 0o755);
 fs.writeFileSync(path.join(dir, "wp.cnf"), "[client]\n");
 fs.writeFileSync(PAINTS, JSON.stringify(Object.fromEntries(require("../data/wdata.json").flatMap(w => w.skins.map((sk, i) => [(require("../lib/wp").defOf(w.n)) + "|" + sk[0], [1000 + i]])))));
 // поддельный journalctl: отдаёт строки журнала CS2 в формате JSON и «ждёт новых», как journalctl -f
@@ -236,6 +236,33 @@ const call = async (cookie, p, body, h = {}) => { const r = await fetch(B + p, b
     r = await call(B6, "/api/cos/eq", { cat: "frame", id: null }); ok(r.s === 200 && !r.j.cos.eq.frame, "рамка снята", r.j);
     r = await call(B6, "/api/shop/cos", { id: "nope" }); ok(r.s === 400, "несуществующий предмет", r.s);
     r = (await call(B6, "/api/me")).j; ok(r.cos.own.length === 1 && r.purchases.length === 4 && r.purchases[0].what === "Оформление: " + fr.n, "покупки сохранены на сервере", r);
+  }
+  // Фортуна, джекпот, кланы, свой тег в чате
+  {
+    const W = await login("76561198000000009"), O4 = await login("76561190000000001");
+    const wid = (await call(W, "/api/me")).j.user.id;
+    r = await call(W, "/api/wheel/spin", {}); ok(r.s === 200 && Number.isInteger(r.j.i) && r.j.streak === 1 && r.j.wheel && !r.j.wheel.canSpin === !r.j.again, "Фортуна: приз выбран сервером", r.j);
+    if (!r.j.again) { r = await call(W, "/api/wheel/spin", {}); ok(r.s === 409, "Фортуна: второй раз за день нельзя", r); }
+    r = await call(W, "/api/jackpot"); ok(r.s === 200 && Array.isArray(r.j.hist) && r.j.rules.MAXP === 10, "джекпот: состояние раунда", r.j);
+    r = await call(W, "/api/jackpot/bet", { ids: ["нет-такого"] }); ok(r.s === 409, "джекпот: чужой или несуществующий скин не поставить", r);
+    const tkW = (await call(W, "/api/me")).j.user.tk;
+    await call(O4, "/api/admin/balance", { user: wid, cur: "tk", delta: -tkW, reason: "тест кланов" });
+    r = await call(W, "/api/clans/create", { name: "Тестовый клан", tag: "TST" }); ok(r.s === 402, "клан без 50 000 ТК не создать", r);
+    await call(O4, "/api/admin/balance", { user: wid, cur: "tk", delta: 60000, reason: "тест кланов" });
+    await call(O4, "/api/admin/balance", { user: wid, cur: "rub", delta: 100, reason: "тест тега" });
+    fs.writeFileSync(SQLLOG, ""); RCMDS.length = 0;
+    const tk0 = (await call(W, "/api/me")).j.user.tk;
+    r = await call(W, "/api/clans/create", { name: "Тестовый клан", tag: "tst", color: "#5aa9ff" });
+    ok(r.s === 200 && r.j.my && r.j.my.lead && r.j.clans.some(c => c.t === "TST" && c.members.length === 1) && r.j.me.tk === tk0 - 50000, "клан создан, списано 50 000 ТК", r.j);
+    r = await call(W, "/api/cos/tag", { tag: "pro" }); ok(r.s === 200 && r.j.cos.tag === "PRO" && r.j.cos.eq.tag === "tag" && r.j.balance === 21, "свой тег в чате куплен за 79 ₽", r.j);
+    await new Promise(z => setTimeout(z, 900));
+    const sql = fs.readFileSync(SQLLOG, "utf8");
+    ok(/INSERT INTO tasher_style .*\(76561198000000009,'\{lime\}\[PRO\]','','PRO',''\)/.test(sql), "тег уходит в игру (TASHER Style)", sql.slice(-500));
+    ok(RCMDS.includes("css_tasher_style_reload"), "сервер перечитывает стили сразу", RCMDS);
+    r = await call(W, "/api/cos/eq", { cat: "tag", id: null }); ok(r.s === 200 && !r.j.cos.eq.tag && r.j.cos.tag === "PRO", "тег можно снять, не теряя его", r.j);
+    await new Promise(z => setTimeout(z, 900));
+    ok(/\(76561198000000009,'\{lightblue\}\[TST\]','','TST',''\)/.test(fs.readFileSync(SQLLOG, "utf8")), "без своего тега в чате — тег клана", fs.readFileSync(SQLLOG, "utf8").slice(-400));
+    let html = await (await fetch(B + "/", { headers: { cookie: W } })).text(); ok(/"clans":\{"clans":\[/.test(html) && /"jackpot":\{"round"/.test(html) && /"wheel":\{"canSpin"/.test(html) && /"earn":\{"base"/.test(html), "кланы, джекпот, Фортуна и ТК за игру вписаны в страницу");
   }
   // журнал сходится с балансом
   const lg = (await call(P, "/api/admin/ledger?user=2")).j.ledger; const u2 = (await call(P, "/api/me")).j.user;

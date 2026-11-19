@@ -89,6 +89,7 @@ function makeSync({ cnf, bin = "mysql", db = "weaponpaints", log = console, onDo
       running.delete(steamid);
       if (pending.has(steamid)) run(steamid, pending.get(steamid));
     });
+    p.stdin.on("error", () => {}); // ввод закрыт раньше времени — ошибку покажет сам mysql
     p.stdin.end(sql);
   }
   return function sync(steamid, getLoadout) {

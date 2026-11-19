@@ -2671,7 +2671,6 @@ html.on-server #v-jackpot,html.on-server #v-wheel{position:relative}
 .srv-soon{position:sticky;top:90px;z-index:5;margin:0 auto 18px;max-width:560px;padding:18px 20px;border-radius:18px;text-align:center;background:rgba(14,16,12,.96);border:1px solid rgba(181,232,83,.35);box-shadow:0 20px 60px rgba(0,0,0,.6)}
 .srv-soon b{display:block;font-family:var(--f-display);font-size:20px;font-weight:900;font-style:italic;text-transform:uppercase;margin-bottom:6px}
 .srv-soon span{font-size:14px;color:var(--muted);line-height:1.5}
-html.on-server #v-jackpot>*:not(.srv-soon):not(.page-head),html.on-server #v-wheel>*:not(.srv-soon):not(.page-head){opacity:.28;pointer-events:none;filter:grayscale(.6)}
 /* фон на весь профиль на вкладке «Информация» */
 #meBody{position:relative}
 .pf-big .pbx{position:absolute;left:0;right:0;top:0;bottom:auto;aspect-ratio:3/2;-webkit-mask:linear-gradient(180deg,#000 60%,transparent);mask:linear-gradient(180deg,#000 60%,transparent)}
@@ -2941,7 +2940,7 @@ html.on-server #v-jackpot>*:not(.srv-soon):not(.page-head),html.on-server #v-whe
             <details><summary>Оплатил, но привилегии нет</summary><p>Привилегия выдаётся за 1–5 минут. Перезайди на сервер. Если через 15 минут её нет, создай обращение в теме «Оплата» и укажи почту из чека.</p></details>
             <details><summary>Скины не видно на сервере</summary><p>Проверь в инвентаре, что скин надет. Скины применяются после возрождения. Вывести их в Steam нельзя, они работают только на наших серверах.</p></details>
             <details><summary>Бан выдан по ошибке</summary><p>Выбери тему «Бан или мут». Если есть демка или запись экрана, приложи ссылку на неё.</p></details>
-            <details><summary>Не начислились ТК</summary><p>ТК начисляются в конце каждого раунда: 1 ТК за убийство и 15 ТК за каждый час на сервере, с множителем привилегии. Изменения на сайте видны через пару минут.</p></details>
+            <details><summary>Не начислились ТК</summary><p>ТК начисляются за игру на сервере: 5 ТК за убийство игрока (+1 за хедшот), 1 ТК за убийство бота, 2 за помощь, 3 за установку бомбы, 5 за разминирование, 2 за победу команды в раунде и 1 ТК за каждую минуту в игре. Разминка не считается. Статус увеличивает начисление: VIP ×1.1, PREMIUM ×1.2, ELITE ×1.3, LEGEND ×1.5, TITAN ×1.75, KING ×2. Лимит — 2000 ТК в сутки (до множителя). На счёт ТК приходят примерно раз в 30 секунд; если ты ещё не входил на сайт, накопленное придёт при первом входе через Steam.</p></details>
           </section>
           <section class="tk-mine" id="tkMine"></section>
         </aside>
@@ -3534,11 +3533,12 @@ function drawClanPage(){const c=clans[CLN];if(!c)return;const lead=c.members[0],
     <div class="cl-id"><div class="pf-nm"><h1>${esc(c.n)}</h1><span class="pf-lvl" style="--pc:${pc}">#${k+1} в рейтинге</span></div>
     <div class="pf-tags"><span class="pf-role"><i style="background:${c.c}"></i>[${esc(c.t)}]</span>${lead?`<button class="pf-role" data-p="${esc(lead.n)}">Лидер: ${esc(lead.n)}</button>`:""}</div>
     <p>${esc(c.d)}</p></div>
-    ${mine?`<span class="cl-mine">Твой клан</span>`:`<button class="steam" id="joinClan">Подать заявку</button>`}</section>
+    ${mine?`<span class="cl-mine">Твой клан</span>`:`<button class="steam" id="joinClan">${SRV&&CLS&&CLS.myApps.includes(c.id)?"Отменить заявку":"Подать заявку"}</button>`}</section>
   <div class="pf-stats"><div><small>Очки за месяц</small><b>${fmt(c.month)}</b></div><div><small>Очки за всё время</small><b>${fmt(c.pts)}</b></div><div><small>Участников</small><b>${svgI('<circle cx="9" cy="8" r="3.5"/><path d="M2 21c0-4 3-7 7-7s7 3 7 7M16 4a3.5 3.5 0 0 1 0 7M18 14c2.4.7 4 3.2 4 7"/>')}${c.members.length}/${c.slots||30}</b></div><div><small>Средний У/С</small><b>${c.members.length?c.kd.toFixed(2):"—"}</b></div><div><small>Побед в месяце</small><b>${c.wins}</b></div></div>
   ${mine?`<section class="pf-panel"><h2>Казна клана</h2><div id="clanBankBox">${cosClan()}</div></section>`:""}<section class="pf-panel"><h2>Участники</h2>${c.members.length?`<div class="cl-mem">${c.members.map((m,n)=>`<button class="cl-row" data-p="${esc(m.n)}"><span class="n">${n+1}</span><span class="who"><i class="av" style="background:${m.c}">${ini(m.n)}</i><span>${esc(m.n)}</span>${m===lead?'<span class="lead">Лидер</span>':""}</span><span class="k">У/С ${m.kd.toFixed(2)}</span>${ptsChip(m)}<span class="pt">#${placeOf(m)}</span></button>`).join("")}</div>`:`<div class="pf-empty">Пока никого</div>`}</section>`;
+  if(SRV)$("clBody").insertAdjacentHTML("beforeend",srvClanExtra(c,mine));
   $("clBk").onclick=()=>go(clBack&&clBack!=="clan"?clBack:"clans");
-  const j=$("joinClan");if(j)j.onclick=()=>{if(!logged){toast("Сначала войди через Steam");return}if(srvSoon("Заявки в кланы"))return;if(myClan){toast("Ты уже в клане");return}if(c.members.length>=(c.slots||30)){toast(`В клане нет мест: максимум ${c.slots||30} человек`);return}toast(`Заявка в клан [${c.t}] отправлена лидеру`);j.disabled=true;j.textContent="Заявка отправлена"}}
+  const j=$("joinClan");if(j)j.onclick=()=>{if(!logged){toast("Сначала войди через Steam");return}if(SRV){const has=CLS&&CLS.myApps.includes(c.id);srvClan(has?"/api/clans/cancel":"/api/clans/apply",{id:c.id},has?"Заявка отменена":`Заявка в клан [${c.t}] отправлена лидеру`,j);return}if(myClan){toast("Ты уже в клане");return}if(c.members.length>=(c.slots||30)){toast(`В клане нет мест: максимум ${c.slots||30} человек`);return}toast(`Заявка в клан [${c.t}] отправлена лидеру`);j.disabled=true;j.textContent="Заявка отправлена"}}
 document.addEventListener("click",e=>{const c=e.target.closest("[data-clan]");if(c)openClan(+c.dataset.clan)});
 
 // создание клана со своими картинками
@@ -3561,15 +3561,18 @@ $("ncColors").onclick=e=>{const b=e.target.closest("button");if(!b)return;draft.
 $("ncNameIn").oninput=ncPrev;$("ncTagIn").oninput=ncPrev;
 const CLAN_COST=50000;
 let clanMade=false;try{clanMade=localStorage.getItem("clanMade")==="1"}catch(e){}
-function tryNewClan(){if(!logged){toast("Сначала войди через Steam");return}if(srvSoon("Создание кланов"))return;
+function tryNewClan(){if(!logged){toast("Сначала войди через Steam");return}
   if(myClan){toast("У тебя уже есть клан");return}
-  if(clanMade){toast("Клан можно создать только один раз");return}
+  if(clanMade&&!SRV){toast("Клан можно создать только один раз");return}
   if(ME.tk<CLAN_COST){toast(`Не хватает ${fmt(CLAN_COST-ME.tk)} ТК. ТК начисляются за игру на сервере`);return}
   openNewClan()}
 function openNewClan(){$("ncHave").textContent=fmt(ME.tk)+" ТК";$("clanModal").hidden=false;$("ncMsg").textContent="";$("ncMsg").className="";ncPrev();$("ncNameIn").focus()}
 $("ncClose").onclick=()=>$("clanModal").hidden=true;
 $("clanModal").onclick=e=>{if(e.target.id==="clanModal")$("clanModal").hidden=true};
 $("clanForm").onsubmit=e=>{e.preventDefault();const n=$("ncNameIn").value.trim(),t=$("ncTagIn").value.trim().toUpperCase();
+  if(SRV){const btn=$("ncSubmit");btn.disabled=true;$("ncMsg").textContent="Создаём…";$("ncMsg").className="ok";
+    api("/api/clans/create",{name:n,tag:t,color:draft.c,ava:draft.ava,cover:draft.cover}).then(r=>{srvClansApply(r);ME.tk=r.me.tk;drawChip();$("clanModal").hidden=true;toast(`Клан [${t}] создан. Списано 50 000 ТК`);const i=clans.indexOf(myClan);if(i>=0)openClan(i);else drawClans()})
+      .catch(err=>{$("ncMsg").textContent=err.message;$("ncMsg").className=""}).finally(()=>{btn.disabled=false});return}
   if(clans.some(c=>c.t===t)){$("ncMsg").textContent=`Тег [${t}] уже занят, придумай другой.`;$("ncMsg").className="";return}
   if(clans.some(c=>c.n.toLowerCase()===n.toLowerCase())){$("ncMsg").textContent="Клан с таким названием уже есть.";$("ncMsg").className="";return}
   if(clanMade||ME.tk<CLAN_COST){$("ncMsg").textContent="Создать клан не получится: не хватает ТК или клан уже создавался.";return}
@@ -3608,7 +3611,8 @@ async function api(p,body){let r;try{r=await fetch(p,body?{method:"POST",headers
   let j=null;try{j=await r.json()}catch(e){}if(!r.ok){if(r.status===401&&logged&&!api.out){api.out=1;toast("Сессия закончилась, войди заново");setTimeout(()=>location.reload(),1200)}throw new Error(j&&j.error||"Сервер не отвечает, попробуй позже")}return j}
 function srvUser(u){Object.assign(ME,{id:u.id,n:u.n,steamid:u.steamid,av:u.av||"",role:u.role,tk:u.tk,balance:u.balance,kills:0,deaths:0,kd:0,hs:0,hrs:0,pts:0,mvp:0,w:[],r:rankIdx(0),vip:null,c:"#b5e853",m:0,created:u.created})}
 function srvSoon(what){if(!SRV)return false;toast((what||"Этот раздел")+" скоро заработает, подключаем к серверу");return true}
-async function srvSync(){try{const d=await api("/api/me");if(d.user){ME.tk=d.user.tk;ME.balance=d.user.balance;try{srvPurchasesSet(d.purchases);srvCosSet(d.cos)}catch(_){}INV=srvItems(d.items);invSave();srvLoadout(d.loadout);drawChip();try{drawSkins();if(curView==="upgrade"&&!UP.busy)drawUp();if(curView==="me")drawMe()}catch(e){}}else if(logged)location.reload()}catch(e){}}
+var SRV_EARN=null;
+async function srvSync(){try{const d=await api("/api/me");if(d.user){ME.tk=d.user.tk;ME.balance=d.user.balance;try{srvPurchasesSet(d.purchases);srvCosSet(d.cos);if(d.earn)SRV_EARN=d.earn;if(d.wheel&&!whBusy){srvWheelSet(d.wheel);if(curView==="wheel")drawWheel()}}catch(_){}INV=srvItems(d.items);invSave();srvLoadout(d.loadout);drawChip();try{drawSkins();if(curView==="upgrade"&&!UP.busy)drawUp();if(curView==="me")drawMe()}catch(e){}}else if(logged)location.reload()}catch(e){}}
 if(SRV){document.documentElement.classList.add("on-server");logged=!!SRV.user;if(SRV.user)srvUser(SRV.user)}
 // настоящая статистика с игрового сервера: заменяет примерных игроков (рейтинг месяца, профили)
 const REAL_STATS=!!(SRV&&SRV.stats&&Array.isArray(SRV.stats.players));
@@ -3621,7 +3625,7 @@ function srvStatsApply(st,my){if(!st||!Array.isArray(st.players))return;
   st.players.forEach((x,i)=>{const p=statP(x,i);if(SRV.user&&p.sid===ME.steamid){Object.assign(ME,p,{id:ME.id,n:ME.n,c:ME.c});players.push(ME)}else players.push(p)});
   if(SRV.user&&my&&!players.includes(ME))Object.assign(ME,statP(my,999),{id:ME.id,n:ME.n,c:ME.c,m:0})}
 if(REAL_STATS){srvStatsApply(SRV.stats,SRV.myStats);
-  setInterval(()=>{if(document.hidden||curView!=="stats")return;fetch("/api/stats",{credentials:"same-origin"}).then(r=>r.json()).then(d=>{if(!Array.isArray(d.players))return;srvStatsApply(d,null);try{srvMedals()}catch(e){}drawStats()}).catch(()=>{})},30e3)}
+  setInterval(()=>{if(document.hidden||curView!=="stats")return;fetch("/api/stats",{credentials:"same-origin"}).then(r=>r.json()).then(d=>{if(!Array.isArray(d.players))return;srvStatsApply(d,null);try{srvMedals()}catch(e){}try{if(CLS)srvClansApply(CLS)}catch(e){}drawStats()}).catch(()=>{})},30e3)}
 const ptStr=s=>{s=s|0;const h=Math.floor(s/3600),m=Math.floor(s%3600/60);return h?`${h} ч ${m} мин`:`${m} мин`};
 function srvPurchasesSet(list){PURCHASES.length=0;(Array.isArray(list)?list:[]).forEach(x=>PURCHASES.push([new Date(+x.t),String(x.what||"Покупка"),x.p|0]))}
 const PURCHASES=[[new Date(today.getFullYear(),today.getMonth(),1),`Приз: 7 место в рейтинге за ${LAST_MONTH.split(" ")[0]} · LEGEND на 30 дней`,0],[daysAgo(12),"PREMIUM на 30 дней",199],[daysAgo(43),"VIP на 30 дней",99],[daysAgo(74),"VIP на 30 дней",99]].sort((a,b)=>b[0]-a[0]);
@@ -3670,7 +3674,7 @@ function pfPanel(p,own,tab){
   if(tab==="serv"){const st=statusOf(p);if(!st)return`<h2>Услуги</h2><div class="pf-empty">${own?"Активных услуг нет.":"У игрока нет активных услуг."}</div>${own?`<a class="steam pf-cta" href="#shop">Открыть магазин</a>`:""}`;
     const left=Math.max(0,Math.round((st.u-today)/864e5)),tot=Math.max(left,Math.round((st.u-st.f)/864e5))||30;
     return`<h2>Услуги</h2><div class="pf-srv" style="--tc:${TCOL(st.t)}"><div><b>${st.t}</b><small>Привилегия на серверах Public</small></div><div class="pf-srv-r"><span>до ${dstr(st.u)}</span><div class="bar"><span style="width:${left/tot*100}%"></span></div><small>осталось ${left} ${plural(left,"день","дня","дней")}</small></div>${own?`<a class="steam" href="#shop">Продлить</a>`:""}</div>`}
-  if(tab==="pay")return`<div class="pf-bal"><div><small>Баланс</small><b>${fmt(ME.balance)} ₽</b><button class="steam" id="pfTop">Пополнить</button></div><div><small>Тащер Коины</small><b class="tkc">${svgI(PI.tk)}${fmt(ME.tk)} ТК</b><span>Только зарабатываются в игре, купить нельзя</span></div></div>
+  if(tab==="pay")return`<div class="pf-bal"><div><small>Баланс</small><b>${fmt(ME.balance)} ₽</b><button class="steam" id="pfTop">Пополнить</button></div><div><small>Тащер Коины</small><b class="tkc">${svgI(PI.tk)}${fmt(ME.tk)} ТК</b><span>${SRV&&SRV_EARN?`Сегодня за игру: ${fmt(Math.round(SRV_EARN.base*SRV_EARN.mult))} ТК${SRV_EARN.mult>1?` (×${SRV_EARN.mult} за статус)`:""} · лимит ${fmt(SRV_EARN.cap)} в день${SRV_EARN.pending?` · ещё ${fmt(SRV_EARN.pending)} ТК в пути`:""}`:"Только зарабатываются в игре, купить нельзя"}</span></div></div>
     <h2 class="pf-h2">История пополнений и покупок</h2>${PURCHASES.length?`<div class="pf-rows pf-hist">${PURCHASES.map(([d,t,s])=>`<div><span><small>${dts(d)}</small>${esc(t)}</span><b class="${s?"":"gift"}">${s?"−"+fmt(s)+" ₽":"Приз"}</b></div>`).join("")}</div>`:`<div class="pf-empty">Пополнений и покупок пока не было</div>`}`;
   if(tab==="set")return`<h2>Настройки</h2><div id="setSlot"></div>`;
   if(tab==="mine")return pfMine();
@@ -4234,7 +4238,8 @@ const WSEG=[[0,"150","ТК",{tk:150}],[1,"1 500","ТК",{tk:1500}],[0,"300","Т�
 let WH={streak:SRV?0:2,last:"",prize:null,again:0,mode:"strip"};Object.assign(WH,lsGet("wheel","obj")||{});
 WH.streak=Math.min(7,Math.max(0,Math.floor(+WH.streak)||0));if(typeof WH.last!=="string")WH.last="";if(!(Number.isInteger(WH.prize)&&WSEG[WH.prize]))WH.prize=null;WH.again=WH.again?1:0;if(!okNum(WH.ang))WH.ang=0;
 WH.mode="radar";
-const whSave=()=>{try{localStorage.setItem("wheel",JSON.stringify(WH))}catch(e){}};
+const whSave=()=>{if(SRV)return;try{localStorage.setItem("wheel",JSON.stringify(WH))}catch(e){}};
+if(SRV){WH.streak=0;WH.prize=null;WH.again=0;WH.last="";if(SRV.wheel)setTimeout(()=>{srvWheelSet(SRV.wheel);if(curView==="wheel"&&!whBusy)drawWheel()})}
 const mskDay=(d=new Date())=>new Date(d.getTime()+3*3600e3).toISOString().slice(0,10);
 const WH_BONUS=3000; // бонус за 7 дней подряд, ТК
 let whBusy=false,STRIP=[];
@@ -4269,8 +4274,16 @@ function whPrize(i){const [r,t,sub]=WSEG[i];return`<small style="color:${WR[r][1
 const ease=k=>1-Math.pow(1-k,4);
 function tween(ms,f,done){const t0=performance.now();const step=t=>{const k=Math.min(1,(t-t0)/ms);f(ease(k));if(k<1)requestAnimationFrame(step);else done()};requestAnimationFrame(step)}
 function setSweep(a){const g=$("rdSweep");if(g)g.setAttribute("transform",`rotate(${a} 200 200)`);document.querySelectorAll(".rb").forEach(b=>{const p=RPOS[+b.dataset.b],d=((a-p.a)%360+360)%360;b.style.setProperty("--glow",d<60?(1-d/60).toFixed(2):0)})}
-function spinWheel(){if(!logged){toast("Сначала войди через Steam");return}if(srvSoon("Фортуна"))return;if(whBusy||WH.last===mskDay())return;
-  const r=pickR(),i=pickSeg(r);whBusy=true;const AG=whApply(i,r);const b=$("whSpin");b.disabled=true;b.textContent=WH.mode==="strip"?"Открываем…":"Сканируем…";
+function spinWheel(){if(!logged){toast("Сначала войди через Steam");return}if(whBusy||WH.last===mskDay())return;
+  if(SRV){srvSpin();return}
+  const r=pickR(),i=pickSeg(r);whBusy=true;const AG=whApply(i,r);whRun(i,r,AG)}
+// на сервере приз выбирает сервер, сайт только показывает анимацию до выпавшего приза
+async function srvSpin(){whBusy=true;const b=$("whSpin");b.disabled=true;
+  try{const x=await api("/api/wheel/spin",{});ME.tk=x.tk;ME.balance=x.balance;if(x.statuses)srvVipsSet(x.statuses);
+    WH.streak=x.streak;WH.prize=x.i;WH.again=x.again?1:0;WH.last=x.again?"":mskDay();if(x.bonus)WH.bonus=1;whRun(x.i,x.r,x.again)}
+  catch(e){whBusy=false;toast(e.message);try{srvSync()}catch(_){}drawWheel()}}
+function srvWheelSet(w){if(!w)return;WH.streak=Math.min(7,w.streak|0);WH.prize=Number.isInteger(w.prize)&&WSEG[w.prize]?w.prize:null;WH.again=w.again?1:0;WH.last=w.canSpin?"":mskDay()}
+function whRun(i,r,AG){const b=$("whSpin");b.disabled=true;b.textContent=WH.mode==="strip"?"Открываем…":"Сканируем…";
   document.querySelectorAll(".rb.hit,.st-it.win").forEach(e=>e.classList.remove("hit","win"));
   if(WH.mode==="strip"){const N=58;STRIP=Array.from({length:N+6},(_,k)=>k===N?i:pickSeg(pickR()));
     const row=$("stRow");row.innerHTML=STRIP.map(x=>stItem(x)).join("");row.style.transform="translateX(0)";
@@ -4580,11 +4593,30 @@ document.addEventListener("click",e=>{const a=e.target.closest("[data-achp]");if
 // ===== Джекпот =====
 const JP_COUNT=35e3,JP_SPIN=8e3,JP_SHOW=5e3,JP_MAXP=10,JP_MAXI=10,JP_COL=["#5aa9ff","#3ddc97","#c084fc","#ff6b8b","#2dd4bf","#f472b6","#a3e635","#60a5fa","#fb923c","#e879f9","#facc15","#38bdf8","#f87171","#34d399","#818cf8","#fbbf24","#22d3ee","#d946ef","#84cc16","#fda4af"];
 let JP={r:null,h:[]},jpSel=[],jpSig="";
-{const o=lsGet("jp1","obj");if(o){const okIt=it=>isObj(it)&&typeof it.w==="string"&&typeof it.s==="string"&&okNum(it.wear),okP=p=>isObj(p)&&typeof p.n==="string"&&okHex(p.c)&&Array.isArray(p.items)&&p.items.length>0&&p.items.every(okIt);
+if(!SRV){const o=lsGet("jp1","obj");if(o){const okIt=it=>isObj(it)&&typeof it.w==="string"&&typeof it.s==="string"&&okNum(it.wear),okP=p=>isObj(p)&&typeof p.n==="string"&&okHex(p.c)&&Array.isArray(p.items)&&p.items.length>0&&p.items.every(okIt);
   if(Array.isArray(o.h))JP.h=o.h.filter(h=>isObj(h)&&typeof h.n==="string"&&okNum(h.v)&&okNum(h.ch)&&okNum(h.t)).map(h=>{if(!okHex(h.c))h.c="#5aa9ff";h.top=Array.isArray(h.top)?h.top.filter(okIt):[];return h}).slice(0,60);
   if(okNum(o.rn))JP.rn=Math.floor(o.rn);
   const r=o.r;if(isObj(r)&&Array.isArray(r.players)&&r.players.every(okP)&&okNum(r.t0)&&okNum(r.cd)&&okNum(r.spin)&&okNum(r.nb)&&(r.win==null||!!r.players[r.win]))JP.r=r}}
-const jpSave=()=>{try{localStorage.setItem("jp1",JSON.stringify(JP))}catch(e){}};
+const jpSave=()=>{if(SRV)return;try{localStorage.setItem("jp1",JSON.stringify(JP))}catch(e){}};
+// ---- джекпот на сервере: раунды общие для всех, сайт опрашивает состояние и только рисует ----
+let JPS={off:0,last:0,busy:false,mine:null,rn:0};
+const jpHue=n=>{let h=0;for(const ch of String(n))h=(h*31+ch.charCodeAt(0))>>>0;return JP_COL[h%JP_COL.length]};
+function srvJpApply(v){if(!v)return;if(v.now)JPS.off=Date.now()-v.now;const C=t=>t?t+JPS.off:0;
+  const prev=JP.r,R=v.round;
+  if(R){JPS.rn=Math.max(JPS.rn,R.rn);JP.r={id:R.id,rn:R.rn,t0:C(R.t0),cd:C(R.cd),spin:C(R.spin),win:R.win,pt:R.pt||0,done:R.done,nb:Infinity,
+      players:R.players.map((p,i)=>({n:String(p.n||"Игрок"),c:JP_COL[i%JP_COL.length],me:p.me?1:0,items:srvItems(p.items),t:0}))}}
+  else JP.r={id:null,rn:JPS.rn+1,t0:Date.now(),players:[],cd:0,spin:0,win:null,pt:0,done:0,nb:Infinity};
+  JP.h=(v.hist||[]).map(h=>({n:String(h.n),c:jpHue(h.n),me:!!h.me,v:h.v|0,ch:+h.ch||0,t:C(h.t),k:h.k|0,np:h.np|0,my:h.my|0,top:srvItems(h.top)}));
+  // мой раунд разыгран (или ставка вернулась) — сообщаем и обновляем инвентарь
+  if(JPS.mine){const h=(v.hist||[]).find(x=>x.id===JPS.mine);
+    if(h){JPS.mine=null;srvSync();
+      if(h.me)try{notify("prize","Джекпот твой!",`Ты забрал банк ${fmt(h.v)} ТК: ${h.k} ${plural(h.k,"скин","скина","скинов")} с шансом ${(h.ch*100).toFixed(1)}%`)}catch(e){}
+      else try{notify("info","Джекпот разыгран",`Банк ${fmt(h.v)} ТК забрал ${h.n}. Твой шанс был ${(h.my/Math.max(1,h.v)*100).toFixed(1)}%`)}catch(e){}}
+    else if(!(R&&R.id===JPS.mine)){JPS.mine=null;srvSync()}}
+  if(R&&R.id&&!R.done&&R.players.some(p=>p.me))JPS.mine=R.id}
+async function srvJpPoll(){if(JPS.busy)return;JPS.busy=true;try{const v=await (await fetch("/api/jackpot",{credentials:"same-origin"})).json();JPS.last=Date.now();srvJpApply(v);
+    const ph=jpPhase(JP.r);if(curView==="jackpot"){if(ph!==jpSig||!$("jpBox").firstChild)drawJp();else{jpLive();const c=$("jpBet");if(c&&!jpSel.length&&ph!=="spin")keepScroll(()=>{c.innerHTML=jpBet(JP.r)})}}}catch(e){}finally{JPS.busy=false}}
+if(SRV&&SRV.jackpot)srvJpApply(SRV.jackpot);
 const jpId=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
 const jpV=p=>p.items.reduce((s,it)=>s+itDust(it),0);
 const jpTot=R=>R.players.reduce((s,p)=>s+jpV(p),0);
@@ -4601,7 +4633,8 @@ function jpFinish(R){if(R.done)return;R.done=1;const P=R.players[R.win],T=jpTot(
   if(P.me){const got=all.map(it=>Object.assign({},it,{id:jpId(),t:Date.now()}));INV.push(...got);invSave();try{drawInv()}catch(e){}try{notify("prize","Джекпот твой!",`Ты забрал банк ${fmt(T)} ТК: ${got.length} ${plural(got.length,"скин","скина","скинов")} с шансом ${(ch*100).toFixed(1)}%`)}catch(e){}}
   else if(jpMe(R)){try{notify("info","Джекпот разыгран",`Банк ${fmt(T)} ТК забрал ${P.n}. Твой шанс был ${(jpV(jpMe(R))/T*100).toFixed(1)}%`)}catch(e){}}}
 function jpPhase(R){const now=Date.now();if(!R)return"wait";if(R.spin&&now>=R.spin+JP_SPIN)return"show";if(R.spin&&now>=R.spin)return"spin";if(R.cd)return"count";return"wait"}
-function jpTick(){let R=JP.r,ch=0;const now=Date.now(),view=curView==="jackpot";
+function jpTick(){if(SRV){const view=curView==="jackpot",gap=view?1500:JPS.mine?8e3:0;if(gap&&Date.now()-JPS.last>=gap)srvJpPoll();else if(view)jpLive();return}
+  let R=JP.r,ch=0;const now=Date.now(),view=curView==="jackpot";
   if(!R||(!view&&!jpMe(R)&&now-R.t0>3e5)||(R.done&&now>=R.spin+JP_SPIN+JP_SHOW)){if(R&&!R.done&&R.spin){if(R.win==null)[R.win,R.pt]=jpPick(R);jpFinish(R)}if(view||!R||R.done){JP.r=R=jpNew();ch=1}else return}
   if(!view&&!jpMe(R))return;
   if(R.cd&&!R.spin&&now>=R.cd){R.spin=R.cd;[R.win,R.pt]=jpPick(R);ch=1}
@@ -4657,7 +4690,7 @@ function jpBet(R){const ph=jpPhase(R),open=(ph==="wait"||ph==="count"&&R.cd-Date
    ${free.length?`<div class="jp-inv">${free.map(it=>{const w=invW(it),sk=invSk(it),on=jpSel.includes(it.id);return`<button class="up-it${!on&&jpSel.length>=left?" dis":""}" type="button" data-jpi="${it.id}" aria-pressed="${on}" style="--rc:${RC[it.r]}">${itBadge(it,"up-stt")}<span class="pic">${art(w,sk,it.wear)}</span><b>${w.n}</b><span class="nm">${sk[0]==="Vanilla"?"Обычный":sk[0]}</span><span class="pr">${fmt(itDust(it))} ТК</span></button>`}).join("")}</div>`:`<div class="jp-empty">${logged?"В инвентаре нет скинов для ставки. Открой кейс!":"Войди через Steam, чтобы делать ставки."}</div>`}
    <div class="jp-sum"><div><small>Выбрано</small><b>${jpSel.length} · ${fmt(sv)} ТК</b></div><div><small>Твой шанс</small><b class="ch">${ch.toFixed(1)}%</b></div></div>
    <button class="steam jp-go" id="jpGo" type="button" ${open&&jpSel.length&&!full?"":"disabled"}>${!open?(ph==="count"?"Ставки закрыты":"Идёт розыгрыш"):full?"Мест нет, жди следующий раунд":left<=0?"Лимит скинов":jpSel.length?`Поставить ${fmt(sv)} ТК`:"Выбери скины"}</button>
-   <small class="jp-note">Шанс равен доле твоих скинов в банке. Победитель забирает все скины.</small>`}
+   <small class="jp-note">Шанс равен доле твоих скинов в банке. Победитель забирает все скины.${SRV?" Если за 10 минут никто не присоединится, ставка вернётся в инвентарь.":""}</small>`}
 function jpHist(){if(!JP.h.length)return`<div class="jp-empty">Здесь появятся победители</div>`;
   return JP.h.slice(0,8).map(h=>`<div class="jp-h${h.me?" me":""}" style="--pc:${h.c}">${jpAv(h.n,h.c)}<div><b>${esc(h.n)}</b><span>${mkAgo2(h.t)}</span></div><div class="jp-hv"><b>${fmt(h.v)} ТК</b><span>шанс ${(h.ch*100).toFixed(1)}%</span></div></div>`).join("")}
 function drawJp(){const box=$("jpBox");if(!box)return;if(!JP.r)JP.r=jpNew();const R=JP.r,[cl,cr]=jpCols(R);
@@ -4669,14 +4702,18 @@ function jpLive(){const R=JP.r,c=$("jpCenter");if(!R||!c)return;const ph=jpPhase
   if(ph==="count"&&R.cd-Date.now()<=3e3){const g=$("jpGo");if(g&&!g.disabled){$("jpBet").innerHTML=jpBet(R)}}}
 document.addEventListener("click",e=>{if(!e.target.closest("#jpBox"))return;let b;
   if(b=e.target.closest("[data-jpi]")){if(!needLogin())return;const id=b.dataset.jpi,k=jpSel.indexOf(id);if(k>=0)jpSel.splice(k,1);else{const me=jpMe(JP.r);if(jpSel.length>=JP_MAXI-(me?me.items.length:0)){toast(`Не больше ${JP_MAXI} скинов за раунд`);return}jpSel.push(id)}keepScroll(()=>{$("jpBet").innerHTML=jpBet(JP.r)});return}
-  if(e.target.closest("#jpGo")){if(!needLogin())return;if(srvSoon("Джекпот"))return;const R=JP.r,ph=jpPhase(R);if(!(ph==="wait"||ph==="count"&&R.cd-Date.now()>3e3)){toast("Ставки на этот раунд закрыты");return}
+  if(e.target.closest("#jpGo")){if(!needLogin())return;if(SRV){srvJpBet(e.target.closest("#jpGo"));return}const R=JP.r,ph=jpPhase(R);if(!(ph==="wait"||ph==="count"&&R.cd-Date.now()>3e3)){toast("Ставки на этот раунд закрыты");return}
     if(!jpMe(R)&&R.players.length>=JP_MAXP){toast("В этом раунде уже 10 участников, жди следующий");return}
     const items=jpSel.map(id=>INV.find(x=>x.id===id)).filter(Boolean);if(!items.length)return;items.forEach(it=>{if(isOnIt(it))equip(it,false)});const ids=new Set(items.map(x=>x.id));INV=INV.filter(x=>!ids.has(x.id));invSave();
     let me=jpMe(R);if(!me){me={n:logged?ME.n:"Ты",c:"#b5e853",me:1,items:[],t:Date.now()};R.players.push(me)}me.items.push(...items);jpSel=[];
     if(!R.cd&&R.players.length>=2)R.cd=Date.now()+JP_COUNT;if(R.players.length<2)R.nb=Math.min(R.nb,Date.now()+2500);jpSave();drawJp();try{drawInv()}catch(e){}
     toast(`Ставка принята: ${items.length} ${plural(items.length,"скин","скина","скинов")} на ${fmt(items.reduce((s,it)=>s+itDust(it),0))} ТК`)}});
+async function srvJpBet(btn){if(!jpSel.length||btn.disabled)return;btn.disabled=true;const ids=[...jpSel];
+  try{const r=await api("/api/jackpot/bet",{ids});jpSel=[];INV=srvItems(r.items);invSave();try{drawInv()}catch(e){}srvJpApply(r.view);drawJp();srvSync();
+    toast(`Ставка принята: ${r.n} ${plural(r.n,"скин","скина","скинов")} на ${fmt(r.sum)} ТК`)}
+  catch(e){toast(e.message);btn.disabled=false;srvJpPoll()}}
 // раунд, оставшийся с прошлого визита
-try{const R=JP.r;if(R&&!R.done&&jpMe(R)&&R.cd&&Date.now()>=R.cd+JP_SPIN){if(R.win==null){R.spin=R.cd;[R.win,R.pt]=jpPick(R)}jpFinish(R);jpSave()}}catch(e){}
+if(!SRV)try{const R=JP.r;if(R&&!R.done&&jpMe(R)&&R.cd&&Date.now()>=R.cd+JP_SPIN){if(R.win==null){R.spin=R.cd;[R.win,R.pt]=jpPick(R)}jpFinish(R);jpSave()}}catch(e){}
 
 let jpHF="all";
 function jpHModal(){let m=$("jpHM");if(!m){m=document.createElement("div");m.className="modal";m.id="jpHM";m.innerHTML=`<div class="sheet jp-hs" role="dialog" aria-modal="true" aria-label="История побед"></div>`;document.body.appendChild(m);m.onclick=e=>{if(e.target===m||e.target.closest("[data-jphx]"))m.hidden=true;const f=e.target.closest("[data-jphf]");if(f){jpHF=f.dataset.jphf;jpHDraw()}}}jpHDraw();m.hidden=false}
@@ -4701,8 +4738,8 @@ var COS={own:{},eq:{},tag:""};{const o=lsGet("cos1","obj");if(o){if(isObj(o.own)
   Object.keys(COS.eq).forEach(k=>{if(typeof COS.eq[k]!=="string")delete COS.eq[k]});delete COS.eq.ava;if(COS.eq.bg&&!/^bg_i_/.test(COS.eq.bg))delete COS.eq.bg}
 const cosSave=()=>{if(SRV)return;try{localStorage.setItem("cos1",JSON.stringify(COS))}catch(e){}};
 // на сервере купленное и надетое хранится в аккаунте (сейчас — оформление профиля; эффекты в игре появятся позже)
-const COS_SRV=["frame","bg","badge"];
-function srvCosSet(c){if(!SRV||!c)return;COS.own=Object.fromEntries((Array.isArray(c.own)?c.own:[]).map(id=>[String(id),1]));COS.eq={};COS.tag="";
+const COS_SRV=["frame","bg","badge","nick","smoke","tag"];
+function srvCosSet(c){if(!SRV||!c)return;COS.own=Object.fromEntries((Array.isArray(c.own)?c.own:[]).map(id=>[String(id),1]));COS.eq={};COS.tag=typeof c.tag==="string"?c.tag:"";
   if(c.eq&&typeof c.eq==="object")COS_SRV.forEach(k=>{if(typeof c.eq[k]==="string")COS.eq[k]=c.eq[k]})}
 if(SRV){COS={own:{},eq:{},tag:""};srvCosSet(SRV.cos)}
 async function srvCos(it){try{let r;
@@ -4727,7 +4764,7 @@ var CI=[
  ...[["#ffffff","Белый"],["#b5e853","Лайм"],["#38d3ff","Голубой"],["#ff8a3d","Оранжевый"],["#ff6b8b","Розовый"]].map(([v,n],i)=>({id:"tr_"+i,cat:"trail",n,p:59,v}))];
 const CCAT={frame:["Рамки аватара","Обводка аватарки в профиле, рейтинге и джекпоте"],bg:["Фоны профиля","Фон шапки твоего профиля"],badge:["Значки","Иконка рядом с ником в рейтинге и джекпоте"],
  nick:["Цвет ника","Ник в чате сервера, рейтинге и на сайте"],tag:["Тег в чате","До 6 символов перед ником: [TAG] Ник"],kill:["Эффект убийства","Вспышка на месте фрага"],snd:["Звук убийства","Слышишь только ты"],smoke:["Цвет дыма","Твои дымовые гранаты"],trail:["Трейл гранат","Светящийся след за гранатой"]};
-const CTABS={prof:["frame","bg","badge"],game:["nick","tag","kill","snd","smoke","trail"]};
+const CTABS={prof:["frame","bg","badge"],game:SRV?["nick","tag","smoke"]:["nick","tag","kill","snd","smoke","trail"]};
 function cosI(id){return CI?CI.find(x=>x.id===id):null}function cosEq(cat){if(!CI||!COS)return null;const id=COS.eq[cat];return id?cosI(id):null}
 function isMe(n){try{return n===ME.n}catch(e){return false}}
 function cosAvInner(n,c){return SRV&&ME.av&&isMe(n)?`<img src="${esc(ME.av)}" alt="" referrerpolicy="no-referrer">`:""}
@@ -4779,6 +4816,36 @@ function cosPreview(){const n=logged?ME.n:"Гость",fr=cosEq("frame"),bg=cosE
 // ---- казна клана
 const CLAN_UP={col:99,emb:149,slots:249,tag:199};
 var EMBS={star:BADGES.star,skull:BADGES.skull,bolt:BADGES.bolt,crown:BADGES.crown,wolf:BADGES.wolf,aim:BADGES.aim};
+// ---- кланы на сервере ----
+var CLS=null;
+function srvClanMember(m,i){if(logged&&String(ME.steamid)===String(m.sid))return ME;
+  return players.find(x=>x.sid===m.sid)||(typeof XPL!=="undefined"&&XPL.find(x=>x.sid===m.sid))||statP({sid:m.sid,n:m.n,pts:m.mpts},800+i)}
+function srvClansApply(L){if(!L||!Array.isArray(L.clans))return;CLS=L;let i=0;clans.length=0;
+  for(const c of L.clans)clans.push({id:c.id,n:String(c.n),t:String(c.t),c:c.c,d:String(c.d||""),emb:c.emb||null,ava:c.ava||null,cover:c.cover||null,slots:c.slots|0||30,
+    members:c.members.map(m=>srvClanMember(m,i++)),mem:c.members,pts:c.pts|0,month:c.month|0,wins:c.wins|0,kd:+c.kd||0});
+  myClan=L.my?clans.find(c=>c.id===L.my.id)||null:null;
+  CB.bank=L.my?L.my.bank|0:0;CB.log=L.my?(L.my.log||[]).map(l=>({t:String(l.t),v:l.v|0,d:l.d})):[];
+  try{if(curView==="clans")drawClans();else if(curView==="clan"&&clans[CLN])keepScroll(drawClanPage)}catch(e){}}
+async function srvClan(url,body,msg,btn){if(btn)btn.disabled=true;
+  try{const r=await api(url,body);const cid=CLN!=null&&clans[CLN]?clans[CLN].id:null;srvClansApply(r);if(r.me){ME.tk=r.me.tk;ME.balance=r.me.balance;drawChip()}
+    if(cid!=null){const k=clans.findIndex(c=>c.id===cid);if(k>=0)CLN=k;else if(curView==="clan")go("clans")}
+    if(curView==="clan"&&clans[CLN])keepScroll(drawClanPage);else if(curView==="me")keepScroll(drawMe);else cosRefresh();if(msg)toast(msg)}
+  catch(e){toast(e.message)}finally{if(btn&&btn.isConnected)btn.disabled=false}}
+// панель на странице клана: заявки, участники, описание (лидер) и выход из клана
+function srvClanExtra(c,mine){if(!mine||!CLS||!CLS.my)return"";const lead=CLS.my.lead,me=String(ME.steamid);
+  let h="";
+  if(lead){h+=`<section class="pf-panel"><h2>Заявки в клан</h2>${CLS.my.apps.length?`<div class="cl-mem">${CLS.my.apps.map(a=>`<div class="cl-row"><span class="who"><span>${esc(a.n||"Игрок")}</span></span><span class="k">${new Date(a.t).toLocaleDateString("ru-RU")}</span><span class="cl-act"><button type="button" class="steam" data-capp="${a.id}" data-acc="1">Принять</button><button type="button" class="ghost" data-capp="${a.id}" data-acc="0">Отклонить</button></span></div>`).join("")}</div>`:`<div class="pf-empty">Новых заявок нет</div>`}</section>`;
+    h+=`<section class="pf-panel"><h2>Управление участниками</h2><div class="cl-mem">${(c.mem||[]).filter(m=>m.sid!==me).map(m=>`<div class="cl-row"><span class="who"><span>${esc(m.n)}</span></span><span class="cl-act"><button type="button" class="ghost" data-clead="${m.id}">Сделать лидером</button><button type="button" class="ghost" data-ckick="${m.id}">Исключить</button></span></div>`).join("")||`<div class="pf-empty">Кроме тебя в клане пока никого</div>`}</div></section>`;
+    h+=`<section class="pf-panel"><h2>Описание клана</h2><div class="co-tagin"><input id="clDescIn" maxlength="200" value="${esc(c.d)}" autocomplete="off"><button type="button" class="steam" data-cdesc>Сохранить</button></div></section>`}
+  const alone=(c.mem||[]).length<=1;
+  h+=`<section class="pf-panel"><button type="button" class="ghost" data-cleave ${lead&&!alone?"disabled":""}>${alone?"Покинуть и распустить клан":"Покинуть клан"}</button>${lead&&!alone?`<small class="note">Чтобы выйти, сначала передай лидерство другому участнику.</small>`:alone?`<small class="note">Ты последний участник: клан будет распущен, деньги из казны вернутся тебе на баланс.</small>`:""}</section>`;
+  return h}
+document.addEventListener("click",e=>{if(!SRV||!e.target.closest("#clBody"))return;let b;
+  if(b=e.target.closest("[data-capp]")){const acc=b.dataset.acc==="1";srvClan("/api/clans/decide",{id:+b.dataset.capp,accept:acc},acc?"Игрок принят в клан":"Заявка отклонена",b);return}
+  if(b=e.target.closest("[data-clead]")){if(!armed(b,"Точно передать?"))return;srvClan("/api/clans/transfer",{user:+b.dataset.clead},"Лидерство передано",b);return}
+  if(b=e.target.closest("[data-ckick]")){if(!armed(b,"Исключить?"))return;srvClan("/api/clans/kick",{user:+b.dataset.ckick},"Игрок исключён",b);return}
+  if(b=e.target.closest("[data-cdesc]")){srvClan("/api/clans/edit",{desc:$("clDescIn").value},"Описание сохранено",b);return}
+  if(b=e.target.closest("[data-cleave]")){if(!armed(b,"Точно выйти?"))return;srvClan("/api/clans/leave",{},"Ты вышел из клана",b);return}});
 var CB={bank:0,log:[]};{const o=lsGet("clanBank2","obj")||lsGet("clanBank","obj");if(o){if(o.rub){if(okNum(o.bank)&&o.bank>=0)CB.bank=Math.floor(o.bank);if(Array.isArray(o.log))CB.log=o.log.filter(l=>isObj(l)&&typeof l.t==="string"&&okNum(l.v))}
   if(Number.isInteger(o.slots)&&o.slots>=30&&o.slots<=50)CB.slots=o.slots;if(typeof o.emb==="string"&&EMBS[o.emb])CB.emb=o.emb}CB.rub=1}
 const cbSave=()=>{try{localStorage.setItem("clanBank2",JSON.stringify(CB))}catch(e){}};
@@ -4795,23 +4862,34 @@ function cosClan(){if(!myClan)return`<div class="co-empty"><b>У тебя пок
    ${CB.log.length?`<section class="co-sec"><div class="co-sh"><b>История казны</b></div><div class="co-log">${CB.log.slice(0,10).map(l=>`<div><span>${esc(l.t)}</span><b class="${l.v>0?"pl":"mn"}">${l.v>0?"+":"−"}${fmt(Math.abs(l.v))} ₽</b></div>`).join("")}</div></section>`:""}</div>`}
 function cbSpend(v,what){if(CB.bank<v){toast(`В казне не хватает ${fmt(v-CB.bank)} ₽`);return false}CB.bank-=v;CB.log.unshift({t:what,v:-v,d:Date.now()});CB.log=CB.log.slice(0,40);cbSave();return true}
 function drawCos(){const box=$("cosBox");if(!box)return;
-  box.innerHTML=`<div class="co-tabs" role="tablist">${[["prof","Профиль"],["game","В игре"]].filter(([k])=>!SRV||k==="prof").map(([k,t])=>`<button type="button" role="tab" data-cst="${k}" aria-selected="${cosTab===k}">${t}</button>`).join("")}<span class="co-bal">Баланс <b>${fmt(ME.balance)} ₽</b></span></div>
+  box.innerHTML=`<div class="co-tabs" role="tablist">${[["prof","Профиль"],["game","В игре"]].map(([k,t])=>`<button type="button" role="tab" data-cst="${k}" aria-selected="${cosTab===k}">${t}</button>`).join("")}<span class="co-bal">Баланс <b>${fmt(ME.balance)} ₽</b></span></div>
    ${`<div class="co-wrap"><aside class="co-side">${cosPreview()}</aside><div class="co-main">${CTABS[cosTab].map(cosSection).join("")}</div></div>`}`;cosClamp()}
 function cosRefresh(){try{drawChip()}catch(e){}if(curView==="clan")keepScroll(drawClanPage);else if(curView==="me")keepScroll(drawMe);else keepScroll(drawCos)}
 document.addEventListener("click",e=>{if(!e.target.closest("#cosBox,#clanBankBox,#meBody .pf-cos"))return;let b;
   if(b=e.target.closest("[data-cmore]")){const c=b.dataset.cmore;COSX[c]=!COSX[c];cosClamp();return}
   if(b=e.target.closest("[data-cst]")){cosTab=b.dataset.cst;drawCos();return}
   if(e.target.closest("[data-tagt]")){if(!COS.tag)return;if(COS.eq.tag)delete COS.eq.tag;else COS.eq.tag="tag";cosSave();cosRefresh();toast(COS.eq.tag?"Тег надет":"Тег снят");return}
-  if(e.target.closest("[data-tagbuy]")){if(!needLogin())return;if(srvSoon("Покупки в магазине"))return;const v=(($("cosTagIn")||{}).value||"").toUpperCase(),p=CI.find(x=>x.id==="tag").p;if(!/^[A-Z0-9]{1,6}$/.test(v)){toast("Впиши тег: латиница и цифры, до 6 символов");return}if(v===COS.tag){toast("Такой тег уже стоит");return}if(ME.balance<p){toast(`Не хватает ${fmt(p-ME.balance)} ₽`);return}
+  if(SRV&&e.target.closest("[data-tagbuy]")){if(!needLogin())return;const btn=e.target.closest("[data-tagbuy]"),v=(($("cosTagIn")||{}).value||"").toUpperCase(),p=CI.find(x=>x.id==="tag").p;
+    if(!/^[A-Z0-9]{1,6}$/.test(v)){toast("Впиши тег: латиница и цифры, до 6 символов");return}if(v===COS.tag){toast("Такой тег уже стоит");return}if(ME.balance<p){toast(`Не хватает ${fmt(p-ME.balance)} ₽`);return}
+    btn.disabled=true;api("/api/cos/tag",{tag:v}).then(r=>{ME.balance=r.balance;srvCosSet(r.cos);srvPurchasesSet(r.purchases);cosRefresh();toast(`Тег [${v}] в чате сервера появится в течение минуты`)}).catch(err=>toast(err.message)).finally(()=>{if(btn.isConnected)btn.disabled=false});return}
+  if(SRV&&e.target.closest("[data-tagt]")){if(!COS.tag)return;const on=!!COS.eq.tag;api("/api/cos/eq",{cat:"tag",id:on?null:"tag"}).then(r=>{srvCosSet(r.cos);cosRefresh();toast(on?"Тег снят":"Тег надет")}).catch(err=>toast(err.message));return}
+  if(e.target.closest("[data-tagbuy]")){if(!needLogin())return;const v=(($("cosTagIn")||{}).value||"").toUpperCase(),p=CI.find(x=>x.id==="tag").p;if(!/^[A-Z0-9]{1,6}$/.test(v)){toast("Впиши тег: латиница и цифры, до 6 символов");return}if(v===COS.tag){toast("Такой тег уже стоит");return}if(ME.balance<p){toast(`Не хватает ${fmt(p-ME.balance)} ₽`);return}
     ME.balance-=p;walletSave();COS.tag=v;COS.own.tag=1;COS.eq.tag="tag";cosSave();try{notify("buy","Новый тег в чате",`[${v}] за ${fmt(p)} ₽`)}catch(_){}cosRefresh();toast(`Тег [${v}] установлен`);return}
   if(b=e.target.closest("[data-cs]")){if(!needLogin())return;const it=cosI(b.dataset.cs);if(!it)return;
-    if(SRV){if(!COS_SRV.includes(it.cat)){toast("Эффекты в игре скоро появятся");return}if(b.disabled)return;b.disabled=true;srvCos(it).finally(()=>{b.disabled=false});return}
+    if(SRV){if(!COS_SRV.includes(it.cat)){toast("Этот эффект пока недоступен");return}if(b.disabled)return;b.disabled=true;srvCos(it).finally(()=>{b.disabled=false});return}
     if(COS.eq[it.cat]===it.id){delete COS.eq[it.cat];cosSave();cosRefresh();toast(`${it.n}: снято`);return}
     if(!COS.own[it.id]){if(it.cat==="tag"&&!/^[A-Za-z0-9]{1,6}$/.test(($("cosTagIn")||{}).value||COS.tag||"")){toast("Сначала впиши тег: латиница и цифры, до 6 символов");return}
       if(srvSoon("Покупки в магазине"))return;if(ME.balance<it.p){toast(`Не хватает ${fmt(it.p-ME.balance)} ₽`);return}ME.balance-=it.p;walletSave();COS.own[it.id]=1;if(it.cat==="tag")COS.tag=$("cosTagIn").value.toUpperCase();try{notify("buy","Покупка в Стиле",`${CCAT[it.cat][0]}: ${it.n} за ${fmt(it.p)} ₽`)}catch(_){}}
     COS.eq[it.cat]=it.id;cosSave();cosRefresh();toast(`${it.n}: надето`);if(it.cat==="snd")cosPlay(it);return}
   if(b=e.target.closest("[data-csp]")){const it=cosI(b.dataset.csp);if(it&&it.cat==="snd")cosPlay(it);if(it&&it.cat==="kill"){const k=b.querySelector(".kfx");if(k){k.classList.remove("go");void k.offsetWidth;k.classList.add("go")}}return}
-  if(b=e.target.closest("[data-dep]")){if(!needLogin()||!myClan)return;if(srvSoon("Казна клана"))return;const v=+b.dataset.dep;if(ME.balance<v){toast(`Не хватает ${fmt(v-ME.balance)} ₽`);return}ME.balance-=v;walletSave();CB.bank+=v;CB.log.unshift({t:`${ME.n} пополнил казну`,v,d:Date.now()});cbSave();cosRefresh();toast(`В казну клана +${fmt(v)} ₽`);return}
+  if(SRV){const sb=e.target.closest("[data-dep],[data-ccol],[data-cemb],[data-cslot],[data-ctag]");if(sb&&myClan){if(!needLogin())return;
+      if(sb.dataset.dep){const v=+sb.dataset.dep;if(ME.balance<v){toast(`Не хватает ${fmt(v-ME.balance)} ₽`);return}srvClan("/api/clans/deposit",{v},`В казну клана +${fmt(v)} ₽`,sb)}
+      else if(sb.dataset.ccol){if(myClan.c!==sb.dataset.ccol)srvClan("/api/clans/upgrade",{what:"color",v:sb.dataset.ccol},"Цвет клана обновлён",sb)}
+      else if(sb.hasAttribute("data-cemb")){const v=sb.dataset.cemb||"";if((myClan.emb||"")!==v)srvClan("/api/clans/upgrade",{what:"emb",v},v?"Эмблема обновлена":"Вернули тег на щит",sb)}
+      else if(sb.hasAttribute("data-cslot"))srvClan("/api/clans/upgrade",{what:"slots"},"В клане +5 мест",sb);
+      else if(sb.hasAttribute("data-ctag")){const v=($("clTagIn").value||"").trim().toUpperCase();if(!/^[A-Z0-9А-ЯЁ]{2,5}$/.test(v)){toast("Тег: 2–5 букв или цифр");return}srvClan("/api/clans/upgrade",{what:"tag",v},`Тег клана теперь [${v}]`,sb)}
+      return}}
+  if(b=e.target.closest("[data-dep]")){if(!needLogin()||!myClan)return;const v=+b.dataset.dep;if(ME.balance<v){toast(`Не хватает ${fmt(v-ME.balance)} ₽`);return}ME.balance-=v;walletSave();CB.bank+=v;CB.log.unshift({t:`${ME.n} пополнил казну`,v,d:Date.now()});cbSave();cosRefresh();toast(`В казну клана +${fmt(v)} ₽`);return}
   if(b=e.target.closest("[data-ccol]")){const v=b.dataset.ccol;if(myClan.c===v)return;if(!cbSpend(CLAN_UP.col,"Новый цвет клана"))return;myClan.c=v;clanSaveMe();cosRefresh();toast("Цвет клана обновлён");return}
   if(b=e.target.closest("[data-cemb]")){const v=b.dataset.cemb||null;if((myClan.emb||null)===v)return;if(v&&!cbSpend(CLAN_UP.emb,"Новая эмблема"))return;myClan.emb=v;CB.emb=v;cbSave();cosRefresh();toast(v?"Эмблема обновлена":"Вернули тег на щит");return}
   if(e.target.closest("[data-cslot]")){const sl=myClan.slots||30;if(sl>=50)return;if(!cbSpend(CLAN_UP.slots,"+5 мест в клане"))return;myClan.slots=CB.slots=sl+5;cbSave();cosRefresh();toast(`Теперь в клане ${myClan.slots} мест`);return}
@@ -4943,8 +5021,10 @@ document.addEventListener("pointerdown",e=>{const b=e.target.closest(".steam,.tm
 addEventListener("hashchange",()=>{let h="";try{h=location.hash.slice(1)}catch(e){}if(viewFrom(h)!==curView)route()});route();
 
 // ===== серверный режим: то, что ещё не перенесено на сервер =====
-if(SRV){try{srvPurchasesSet(SRV.purchases)}catch(e){}
-  [["v-jackpot","Джекпот скоро откроется","Ставки между игроками подключаем к серверу. Пока можно открывать кейсы и делать апгрейды."],["v-wheel","Фортуна скоро откроется","Ежедневные призы подключаем к серверу."]].forEach(([id,t,d])=>{const v=$(id);if(!v)return;const el=document.createElement("div");el.className="srv-soon";el.innerHTML=`<b>${t}</b><span>${d}</span>`;const ph=v.querySelector(":scope>.page-head");if(ph)ph.after(el);else v.prepend(el)});
+if(SRV){try{srvPurchasesSet(SRV.purchases);SRV_EARN=SRV.earn||null}catch(e){}
+  if(SRV.clans)try{srvClansApply(SRV.clans)}catch(e){console.error(e)}
+  // ТК за игру приходят на счёт сами: раз в минуту сверяем баланс, пока вкладка открыта
+  setInterval(()=>{if(logged&&!document.hidden)srvSync()},60e3);
   // в админке на сервере: сервер, баны, статусы, баланс (правила пока редактируются в коде сайта)
   document.querySelector('#admTabs [data-t="srv"]').addEventListener("click",()=>{if(curView==="admin")srvAdmServer()});
   document.querySelectorAll("#admTabs button").forEach(b=>{if(b.dataset.t==="rules")b.hidden=true;if(b.dataset.t==="srv"){b.hidden=false;b.click()}});

@@ -125,6 +125,59 @@ function open(file) {
        PRIMARY KEY(user_id, item_id)
      );
      ALTER TABLE users ADD COLUMN cos_eq TEXT NOT NULL DEFAULT '{}';`,
+    // 6: ТК за игру, Фортуна, джекпот, кланы, свой тег в чате
+    `CREATE TABLE earn_day(sid TEXT NOT NULL, day TEXT NOT NULL, base INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(sid, day));
+     CREATE TABLE earn_pending(sid TEXT PRIMARY KEY, tk REAL NOT NULL DEFAULT 0, updated_at INTEGER NOT NULL);
+     CREATE TABLE wheel(
+       user_id INTEGER PRIMARY KEY REFERENCES users(id),
+       last TEXT NOT NULL DEFAULT '', streak INTEGER NOT NULL DEFAULT 0, again INTEGER NOT NULL DEFAULT 0,
+       prize INTEGER, updated_at INTEGER NOT NULL
+     );
+     CREATE TABLE jp_rounds(
+       id INTEGER PRIMARY KEY,
+       created_at INTEGER NOT NULL, cd INTEGER NOT NULL DEFAULT 0, spin INTEGER NOT NULL DEFAULT 0,
+       win_user INTEGER, pt REAL, total INTEGER NOT NULL DEFAULT 0,
+       state TEXT NOT NULL DEFAULT 'open'
+     );
+     CREATE TABLE jp_bets(
+       id INTEGER PRIMARY KEY,
+       round_id INTEGER NOT NULL REFERENCES jp_rounds(id),
+       user_id INTEGER NOT NULL REFERENCES users(id),
+       item_id TEXT NOT NULL, value INTEGER NOT NULL, created_at INTEGER NOT NULL
+     );
+     CREATE INDEX jp_bets_round ON jp_bets(round_id);
+     CREATE TABLE clans(
+       id INTEGER PRIMARY KEY,
+       name TEXT NOT NULL UNIQUE COLLATE NOCASE, tag TEXT NOT NULL UNIQUE COLLATE NOCASE,
+       color TEXT NOT NULL, emb TEXT NOT NULL DEFAULT '', descr TEXT NOT NULL DEFAULT '',
+       ava TEXT, cover TEXT,
+       leader_id INTEGER NOT NULL REFERENCES users(id),
+       slots INTEGER NOT NULL DEFAULT 30, bank INTEGER NOT NULL DEFAULT 0 CHECK(bank>=0),
+       created_at INTEGER NOT NULL
+     );
+     CREATE TABLE clan_members(
+       user_id INTEGER PRIMARY KEY REFERENCES users(id),
+       clan_id INTEGER NOT NULL REFERENCES clans(id),
+       joined_at INTEGER NOT NULL
+     );
+     CREATE INDEX clan_members_clan ON clan_members(clan_id);
+     CREATE TABLE clan_apps(
+       id INTEGER PRIMARY KEY,
+       clan_id INTEGER NOT NULL REFERENCES clans(id),
+       user_id INTEGER NOT NULL REFERENCES users(id),
+       created_at INTEGER NOT NULL,
+       UNIQUE(clan_id, user_id)
+     );
+     CREATE TABLE clan_log(
+       id INTEGER PRIMARY KEY, clan_id INTEGER NOT NULL, user_id INTEGER, delta INTEGER NOT NULL, what TEXT NOT NULL, created_at INTEGER NOT NULL
+     );
+     CREATE INDEX clan_log_clan ON clan_log(clan_id, id);
+     CREATE TABLE clan_awards(
+       period TEXT NOT NULL, place INTEGER NOT NULL, clan_id INTEGER NOT NULL,
+       name TEXT NOT NULL, pts INTEGER NOT NULL, prize INTEGER NOT NULL, created_at INTEGER NOT NULL,
+       PRIMARY KEY(period, place)
+     );
+     ALTER TABLE users ADD COLUMN cos_tag TEXT NOT NULL DEFAULT '';`,
   ];
   for (let v = ver; v < MIG.length; v++) {
     db.exec("BEGIN");

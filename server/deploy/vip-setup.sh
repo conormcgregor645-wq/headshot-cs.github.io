@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # VIP-плагин для CS2 (VIPCore + модули): статусы VIP…KING с сайта дают бонусы в игре.
+# И плагин TASHER Style: тег и цвет ника в чате, тег в таблице счёта, цвет дыма — всё по данным сайта.
 # Запуск от root:  bash /opt/tasher/server/deploy/vip-setup.sh
 # Статусы выдаёт только сайт (магазин, админка, итоги месяца) — он сам пишет их в базу плагина.
 # Делает копию; если плагин не загрузится — сам всё возвращает как было.
@@ -9,7 +10,9 @@ PLG=$CSS/plugins; CFGD=$CSS/configs/plugins/VIPCore; SHARED=$CSS/shared/VipCoreA
 REPO="${VIP_REPO:-partiusfabaa/cs2-VIPCore}"
 # ядро и модуль цветного дыма с правками TASHER (меню на WASD, исправленный дым) — собираются на GitHub из plugins/vipcore
 TASHER_ZIP="${VIP_TASHER_ZIP:-https://github.com/conormcgregor645-wq/headshot-cs.github.io/releases/download/vipcore-tasher/VIPCore-tasher.zip}"
-MODS="VIP_Health VIP_Armor VIP_Money VIP_Grenades VIP_DefuseKit VIP_Healthshot VIP_Zeus VIP_WeaponsMenu VIP_RegenHealth VIP_Vampirism VIP_SmokeColor VIP_Tag"
+MODS="VIP_Health VIP_Armor VIP_Money VIP_Grenades VIP_DefuseKit VIP_Healthshot VIP_Zeus VIP_WeaponsMenu VIP_RegenHealth VIP_Vampirism"
+# теги в чате и цвет дыма теперь делает TASHER Style (с учётом клана и купленного на сайте), модули VIP_Tag и VIP_SmokeColor не ставим
+STYLE_ZIP="${TASHER_STYLE_ZIP:-https://github.com/conormcgregor645-wq/headshot-cs.github.io/releases/download/tasherstyle/TasherStyle.zip}"
 BK=/root/vip-backup-$(date +%Y%m%d-%H%M%S)
 log() { printf '\n\033[1;32m=== %s ===\033[0m\n' "$*"; }
 die() { printf '\n\033[1;31mОШИБКА: %s\033[0m\n' "$*"; exit 1; }
@@ -44,12 +47,16 @@ done
 curl -fsSL -o "$TMP/tasher.zip" "$TASHER_ZIP" || die "не скачал сборку TASHER ($TASHER_ZIP)"
 mkdir "$TMP/t"; unzip -q -o "$TMP/tasher.zip" -d "$TMP/t"
 TA="$TMP/t/addons/counterstrikesharp"
-[ -f "$TA/plugins/VIPCore/VIPCore.dll" ] && [ -f "$TA/plugins/VIPCore/CS2MenuManager.dll" ] && [ -f "$TA/plugins/VIP_SmokeColor/VIP_SmokeColor.dll" ] && [ -f "$TA/shared/CS2MenuManager/config.toml" ] || die "в сборке TASHER не хватает файлов"
+[ -f "$TA/plugins/VIPCore/VIPCore.dll" ] && [ -f "$TA/plugins/VIPCore/CS2MenuManager.dll" ] && [ -f "$TA/shared/CS2MenuManager/config.toml" ] || die "в сборке TASHER не хватает файлов"
+curl -fsSL -o "$TMP/style.zip" "$STYLE_ZIP" || die "не скачал TASHER Style ($STYLE_ZIP)"
+mkdir "$TMP/s"; unzip -q -o "$TMP/style.zip" -d "$TMP/s"
+SA="$TMP/s/addons/counterstrikesharp/plugins/TasherStyle"
+[ -f "$SA/TasherStyle.dll" ] && [ -f "$SA/MySqlConnector.dll" ] || die "в архиве TASHER Style не хватает файлов"
 echo "архивы в порядке"
 
 log "2/6 Копия текущего состояния"
 mkdir -p "$BK/plugins" "$BK/shared" "$BK/config"
-for d in "$PLG"/VIPCore "$PLG"/VIP_*; do [ -e "$d" ] && cp -a "$d" "$BK/plugins/" || true; done
+for d in "$PLG"/VIPCore "$PLG"/VIP_* "$PLG"/TasherStyle; do [ -e "$d" ] && cp -a "$d" "$BK/plugins/" || true; done
 [ -e "$SHARED" ] && cp -a "$SHARED" "$BK/shared/" || true
 [ -e "$CSS/shared/CS2MenuManager" ] && cp -a "$CSS/shared/CS2MenuManager" "$BK/shared/" || true
 [ -e "$CFGD" ] && cp -a "$CFGD/." "$BK/config/" || true
@@ -57,7 +64,7 @@ cp -a "$CSS/configs/core.json" "$BK/core.json" 2>/dev/null || true
 echo "копия в $BK"
 restore() {
   echo "Возвращаю как было…"; systemctl stop cs2 || true
-  rm -rf "$PLG"/VIPCore "$PLG"/VIP_* "$SHARED" "$CSS/shared/CS2MenuManager"
+  rm -rf "$PLG"/VIPCore "$PLG"/VIP_* "$PLG"/TasherStyle "$SHARED" "$CSS/shared/CS2MenuManager"
   cp -a "$BK/plugins/." "$PLG/" 2>/dev/null || true
   cp -a "$BK/shared/." "$CSS/shared/" 2>/dev/null || true
   [ -f "$BK/core.json" ] && cp -a "$BK/core.json" "$CSS/configs/core.json" || true
@@ -66,14 +73,15 @@ restore() {
 
 log "3/6 Установка"
 systemctl stop cs2
-rm -rf "$PLG"/VIPCore "$PLG"/VIP_* "$SHARED" "$CSS/shared/CS2MenuManager"
+rm -rf "$PLG"/VIPCore "$PLG"/VIP_* "$PLG"/TasherStyle "$SHARED" "$CSS/shared/CS2MenuManager"
 mkdir -p "$PLG" "$CSS/shared" "$CFGD/Modules"
 cp -r "$CA/plugins/VIPCore" "$PLG/"
 cp -r "$CA/shared/VipCoreApi" "$CSS/shared/"
 for m in $MODS; do cp -r "$TMP/m/$m" "$PLG/"; done
 # правки TASHER поверх: ядро с меню на WASD, исправленный цветной дым, настройки меню
-rm -rf "$PLG/VIPCore" "$PLG/VIP_SmokeColor"
-cp -r "$TA/plugins/VIPCore" "$TA/plugins/VIP_SmokeColor" "$PLG/"
+rm -rf "$PLG/VIPCore"
+cp -r "$TA/plugins/VIPCore" "$PLG/"
+cp -r "$SA" "$PLG/TasherStyle"
 cp -r "$TA/shared/CS2MenuManager" "$CSS/shared/"
 echo "установлено: ядро и модули: $MODS"
 
@@ -103,18 +111,20 @@ guns = {
   "T": {"AK-47 + Desert Eagle": {"Weapons": ["weapon_ak47", "weapon_deagle"], "Round": 1},
         "AWP + Desert Eagle": {"Weapons": ["weapon_awp", "weapon_deagle"], "Round": 1}},
 }
-tag = lambda n, c: {"ScoreboardTag": n, "ChatTag": f"[{n}]", "ColorTag": c, "NameColor": c, "MessageColor": "default"}
 groups = {
-  "VIP":     {"Health": 105, "Armor": 100, "Money": "++300",  "Grenades": nades(1), "Tag": tag("VIP", "silver")},
-  "PREMIUM": {"Health": 110, "Armor": 100, "Money": "++500",  "Grenades": nades(1, 1), "DefuseKit": True, "Tag": tag("PREMIUM", "lightblue")},
-  "ELITE":   {"Health": 115, "Armor": 100, "Money": "++800",  "Grenades": nades(1, 1, 1, 1), "DefuseKit": True, "Healthshot": 1, "Tag": tag("ELITE", "green")},
-  "LEGEND":  {"Health": 120, "Armor": 100, "Money": "++1000", "Grenades": nades(1, 1, 1, 1), "DefuseKit": True, "Healthshot": 1, "Zeus": True, "WeaponsMenu": guns, "Tag": tag("LEGEND", "purple")},
+  "VIP":     {"Health": 105, "Armor": 100, "Money": "++300",  "Grenades": nades(1)},
+  "PREMIUM": {"Health": 110, "Armor": 100, "Money": "++500",  "Grenades": nades(1, 1), "DefuseKit": True},
+  "ELITE":   {"Health": 115, "Armor": 100, "Money": "++800",  "Grenades": nades(1, 1, 1, 1), "DefuseKit": True, "Healthshot": 1},
+  "LEGEND":  {"Health": 120, "Armor": 100, "Money": "++1000", "Grenades": nades(1, 1, 1, 1), "DefuseKit": True, "Healthshot": 1, "Zeus": True, "WeaponsMenu": guns},
   "TITAN":   {"Health": 125, "Armor": 100, "Money": "++1500", "Grenades": nades(1, 1, 1, 1), "DefuseKit": True, "Healthshot": 2, "Zeus": True, "WeaponsMenu": guns,
-              "HealthRegen": {"Health": 5, "Delay": 5, "Interval": 2}, "Vampirism": 10, "Tag": tag("TITAN", "orange")},
+              "HealthRegen": {"Health": 5, "Delay": 5, "Interval": 2}, "Vampirism": 10},
   "KING":    {"Health": 130, "Armor": 100, "Money": "++2000", "Grenades": nades(2, 1, 1, 1), "DefuseKit": True, "Healthshot": 2, "Zeus": True, "WeaponsMenu": guns,
-              "HealthRegen": {"Health": 5, "Delay": 5, "Interval": 2}, "Vampirism": 15, "SmokeColor": [-1, -1, -1], "Tag": tag("KING", "gold")},
+              "HealthRegen": {"Health": 5, "Delay": 5, "Interval": 2}, "Vampirism": 15},
 }
 json.dump(core, open(os.path.join(d, "vip_core.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=2)
+sd = os.path.join(os.path.dirname(d), "TasherStyle"); os.makedirs(sd, exist_ok=True)
+json.dump({"Host": "127.0.0.1", "Port": 3306, "User": "wp", "Password": os.environ["DB_PASS"], "Database": "weaponpaints", "ReloadSeconds": 20, "ConfigVersion": 1},
+          open(os.path.join(sd, "TasherStyle.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=2)
 json.dump(groups, open(os.path.join(d, "vip.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=2)
 # сообщения плагинов на русском
 p = os.environ["CORE"]
@@ -132,16 +142,16 @@ systemctl start cs2
 N=$(echo $MODS | wc -w); OKC=""
 for i in $(seq 1 36); do
   J=$(journalctl -u cs2 --since "$SINCE" --no-pager -o cat)
-  if printf '%s' "$J" | grep -q "Failed to load plugin.*\(VIP\|Vip\)"; then break; fi
+  if printf '%s' "$J" | grep -q "Failed to load plugin.*\(VIP\|Vip\|TASHER\|Tasher\)"; then break; fi
   C=$(printf '%s' "$J" | grep -c "Finished loading plugin \[VIP\]" || true)
-  if [ "$C" -ge $((N + 1)) ]; then OKC=1; break; fi
+  if [ "$C" -ge $((N + 1)) ] && printf '%s' "$J" | grep -q "Finished loading plugin TASHER Style"; then OKC=1; break; fi
   sleep 5; printf '.'
 done; echo
 J=$(journalctl -u cs2 --since "$SINCE" --no-pager -o cat)
-printf '%s\n' "$J" | grep -E "Finished loading plugin \[VIP\]" | sed 's/.*Finished loading plugin /  загружен: /' | sort -u
+printf '%s\n' "$J" | grep -E "Finished loading plugin (\[VIP\]|TASHER Style)" | sed 's/.*Finished loading plugin /  загружен: /' | sort -u
 if [ -z "$OKC" ]; then
-  printf '%s\n' "$J" | grep -iE "vip|exception|error" | grep -v "Finished loading" | tail -20 | cut -c1-240
-  restore; die "VIP-плагин загрузился не полностью — вернул как было. Пришли вывод выше"
+  printf '%s\n' "$J" | grep -iE "vip|tasher|exception|error" | grep -v "Finished loading" | tail -20 | cut -c1-240
+  restore; die "плагины загрузились не полностью — вернул как было. Пришли вывод выше"
 fi
 T=""
 for i in $(seq 1 12); do
@@ -152,6 +162,15 @@ if [ -z "$T" ]; then
   restore; die "плагин не создал таблицу vip_users (нет связи с базой) — вернул как было. Пришли вывод выше"
 fi
 echo "таблица статусов создана"
+T=""
+for i in $(seq 1 12); do
+  [ "$(mysql -N -e "SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA='weaponpaints' AND TABLE_NAME='tasher_style'")" = 1 ] && { T=1; break; }; sleep 5
+done
+if [ -z "$T" ]; then
+  printf '%s\n' "$J" | grep -iE "tasher|mysql" | tail -10 | cut -c1-240
+  restore; die "TASHER Style не создал таблицу tasher_style (нет связи с базой) — вернул как было. Пришли вывод выше"
+fi
+echo "таблица стилей создана"
 
 log "6/6 Статусы с сайта -> в игру"
 systemctl restart tasher; sleep 6
@@ -160,4 +179,5 @@ DBN=$(mysql -N -e "SELECT COUNT(*) FROM weaponpaints.vip_users WHERE sid=0")
 echo "статусов на сайте: $SITE, в базе плагина: $DBN"
 [ "$SITE" = "$DBN" ] || echo "  (числа сравняются в течение минуты — сайт сверяет их раз в минуту)"
 mysql -N -e "SELECT account_id, \`group\`, FROM_UNIXTIME(expires) FROM weaponpaints.vip_users WHERE sid=0 ORDER BY expires DESC LIMIT 10" | sed 's/^/  /'
+sleep 5; echo "стилей в игре (теги, цвета ников, дым): $(mysql -N -e "SELECT COUNT(*) FROM weaponpaints.tasher_style")"
 printf '\n\033[1;32m=== ГОТОВО ===\033[0m\nКопия прежнего состояния: %s\nВ игре: !vip — меню привилегии. Статусы выдаются с сайта (магазин, админка, итоги месяца) и действуют сразу.\n' "$BK"
