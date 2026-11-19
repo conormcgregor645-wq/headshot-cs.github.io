@@ -7,6 +7,8 @@ set -euo pipefail
 CSGO=/home/cs2/server/game/csgo; CSS=$CSGO/addons/counterstrikesharp
 PLG=$CSS/plugins; CFGD=$CSS/configs/plugins/VIPCore; SHARED=$CSS/shared/VipCoreApi
 REPO="${VIP_REPO:-partiusfabaa/cs2-VIPCore}"
+# ядро и модуль цветного дыма с правками TASHER (меню на WASD, исправленный дым) — собираются на GitHub из plugins/vipcore
+TASHER_ZIP="${VIP_TASHER_ZIP:-https://github.com/conormcgregor645-wq/headshot-cs.github.io/releases/download/vipcore-tasher/VIPCore-tasher.zip}"
 MODS="VIP_Health VIP_Armor VIP_Money VIP_Grenades VIP_DefuseKit VIP_Healthshot VIP_Zeus VIP_WeaponsMenu VIP_RegenHealth VIP_Vampirism VIP_SmokeColor VIP_Tag"
 BK=/root/vip-backup-$(date +%Y%m%d-%H%M%S)
 log() { printf '\n\033[1;32m=== %s ===\033[0m\n' "$*"; }
@@ -39,18 +41,23 @@ CA=$(find "$TMP/c" -maxdepth 3 -type d -name counterstrikesharp | head -1)
 for m in $MODS; do
   if [ ! -f "$TMP/m/$m/$m.dll" ]; then echo "модули в архиве:"; ls "$TMP/m" | sed 's/^/  /'; die "в архиве модулей нет $m"; fi
 done
+curl -fsSL -o "$TMP/tasher.zip" "$TASHER_ZIP" || die "не скачал сборку TASHER ($TASHER_ZIP)"
+mkdir "$TMP/t"; unzip -q -o "$TMP/tasher.zip" -d "$TMP/t"
+TA="$TMP/t/addons/counterstrikesharp"
+[ -f "$TA/plugins/VIPCore/VIPCore.dll" ] && [ -f "$TA/plugins/VIPCore/CS2MenuManager.dll" ] && [ -f "$TA/plugins/VIP_SmokeColor/VIP_SmokeColor.dll" ] && [ -f "$TA/shared/CS2MenuManager/config.toml" ] || die "в сборке TASHER не хватает файлов"
 echo "архивы в порядке"
 
 log "2/6 Копия текущего состояния"
 mkdir -p "$BK/plugins" "$BK/shared" "$BK/config"
 for d in "$PLG"/VIPCore "$PLG"/VIP_*; do [ -e "$d" ] && cp -a "$d" "$BK/plugins/" || true; done
 [ -e "$SHARED" ] && cp -a "$SHARED" "$BK/shared/" || true
+[ -e "$CSS/shared/CS2MenuManager" ] && cp -a "$CSS/shared/CS2MenuManager" "$BK/shared/" || true
 [ -e "$CFGD" ] && cp -a "$CFGD/." "$BK/config/" || true
 cp -a "$CSS/configs/core.json" "$BK/core.json" 2>/dev/null || true
 echo "копия в $BK"
 restore() {
   echo "Возвращаю как было…"; systemctl stop cs2 || true
-  rm -rf "$PLG"/VIPCore "$PLG"/VIP_* "$SHARED"
+  rm -rf "$PLG"/VIPCore "$PLG"/VIP_* "$SHARED" "$CSS/shared/CS2MenuManager"
   cp -a "$BK/plugins/." "$PLG/" 2>/dev/null || true
   cp -a "$BK/shared/." "$CSS/shared/" 2>/dev/null || true
   [ -f "$BK/core.json" ] && cp -a "$BK/core.json" "$CSS/configs/core.json" || true
@@ -59,11 +66,15 @@ restore() {
 
 log "3/6 Установка"
 systemctl stop cs2
-rm -rf "$PLG"/VIPCore "$PLG"/VIP_* "$SHARED"
+rm -rf "$PLG"/VIPCore "$PLG"/VIP_* "$SHARED" "$CSS/shared/CS2MenuManager"
 mkdir -p "$PLG" "$CSS/shared" "$CFGD/Modules"
 cp -r "$CA/plugins/VIPCore" "$PLG/"
 cp -r "$CA/shared/VipCoreApi" "$CSS/shared/"
 for m in $MODS; do cp -r "$TMP/m/$m" "$PLG/"; done
+# правки TASHER поверх: ядро с меню на WASD, исправленный цветной дым, настройки меню
+rm -rf "$PLG/VIPCore" "$PLG/VIP_SmokeColor"
+cp -r "$TA/plugins/VIPCore" "$TA/plugins/VIP_SmokeColor" "$PLG/"
+cp -r "$TA/shared/CS2MenuManager" "$CSS/shared/"
 echo "установлено: ядро и модули: $MODS"
 
 log "4/6 Настройки статусов (VIP, PREMIUM, ELITE, LEGEND, TITAN, KING)"
@@ -73,9 +84,9 @@ import json, os
 d = os.environ["CFGD"]
 core = {
   "Delay": 2.0, "TimeMode": 3, "ServerId": 0, "ServerIP": os.environ["IP"], "ServerPort": 27015,
-  "MenuType": "center", "ReOpenMenuAfterItemClick": False, "AdminMenuPermission": ["@css/root"],
-  # в пистолетных раундах у всех равные условия
-  "DisableOnPistolRound": ["Items", "Grenades", "Health", "Armor", "Healthshot", "Zeus", "DefuseKit", "WeaponsMenu", "HealthRegen", "Vampirism"],
+  "MenuType": "wasd", "ReOpenMenuAfterItemClick": True, "AdminMenuPermission": ["@css/root"],
+  # все бонусы работают с 1-го раунда; деньги в пистолетных раундах не даёт сам модуль денег
+  "DisableOnPistolRound": [],
   "VipLogging": True,
   "Connection": {"Host": "127.0.0.1", "Database": "weaponpaints", "User": "wp", "Password": os.environ["DB_PASS"], "Port": 3306},
 }
@@ -86,11 +97,11 @@ def nades(fl=1, smoke=0, he=0, fire=0):
     if fire: ct["weapon_incgrenade"] = 1; t["weapon_molotov"] = 1
     return {"CT": ct, "T": t}
 guns = {
-  "CT": {"M4A1-S + Desert Eagle": {"Weapons": ["weapon_m4a1_silencer", "weapon_deagle"], "Round": 3},
-         "M4A4 + Desert Eagle": {"Weapons": ["weapon_m4a1", "weapon_deagle"], "Round": 3},
-         "AWP + Desert Eagle": {"Weapons": ["weapon_awp", "weapon_deagle"], "Round": 3}},
-  "T": {"AK-47 + Desert Eagle": {"Weapons": ["weapon_ak47", "weapon_deagle"], "Round": 3},
-        "AWP + Desert Eagle": {"Weapons": ["weapon_awp", "weapon_deagle"], "Round": 3}},
+  "CT": {"M4A1-S + Desert Eagle": {"Weapons": ["weapon_m4a1_silencer", "weapon_deagle"], "Round": 1},
+         "M4A4 + Desert Eagle": {"Weapons": ["weapon_m4a1", "weapon_deagle"], "Round": 1},
+         "AWP + Desert Eagle": {"Weapons": ["weapon_awp", "weapon_deagle"], "Round": 1}},
+  "T": {"AK-47 + Desert Eagle": {"Weapons": ["weapon_ak47", "weapon_deagle"], "Round": 1},
+        "AWP + Desert Eagle": {"Weapons": ["weapon_awp", "weapon_deagle"], "Round": 1}},
 }
 tag = lambda n, c: {"ScoreboardTag": n, "ChatTag": f"[{n}]", "ColorTag": c, "NameColor": c, "MessageColor": "default"}
 groups = {
