@@ -8,6 +8,8 @@ const { makeWheel, SEGS } = require("../lib/wheel");
 const { makeJackpot } = require("../lib/jackpot");
 const { makeClans, COST } = require("../lib/clans");
 const STYLE = require("../lib/style");
+const QM = require("../lib/quests");
+const INFO = require("../lib/gameinfo");
 const { prevMonth } = require("../lib/control");
 let fails = 0; const ok = (c, n, x) => { if (!c) fails++; console.log((c ? "  ok  " : "FAIL  ") + n + (c ? "" : " " + JSON.stringify(x))); };
 const thr = (f, re) => { try { f(); return false; } catch (e) { return re.test(e.message) ? e : false; } };
@@ -167,6 +169,73 @@ const bal = u => db.prepare("SELECT tk, rub FROM users WHERE id=?").get(u.id);
   ok(!/kill_fx/.test(STYLE.sqlFor([{ sid: sidN(2), killFx: "ring" }], false)), "старый плагин без колонок эффектов — пишем без них");
   const sql = STYLE.sqlFor([{ sid: sidN(1), tag: "a'b{red}" }, { sid: "123" }]);
   ok(!/\{red\}/.test(sql) && !/a'b/.test(sql) && (sql.match(/\(\d{17},/g) || []).length === 1, "в SQL нет кавычек и цветовых вставок из своего тега", sql);
+}
+
+// ---------- ежедневные задания ----------
+{
+  // набор на день: по одному каждой сложности, у всех одинаковый, соседние дни не повторяются
+  const days = Array.from({ length: 60 }, (_, i) => new Date(Date.UTC(2026, 10, 1) + i * 86400e3).toISOString().slice(0, 10));
+  let okDays = true, okNext = true;
+  for (let i = 0; i < days.length; i++) {
+    const L = QM.forDay(days[i]);
+    if (L.map(x => x.lv).join() !== "easy,medium,hard" || JSON.stringify(L) !== JSON.stringify(QM.forDay(days[i]))) okDays = false;
+    if (i && L.some((x, k) => x.id === QM.forDay(days[i - 1])[k].id)) okNext = false;
+  }
+  ok(okDays, "задания дня: лёгкое, среднее, сложное — одинаковые для всех");
+  ok(okNext, "задания не повторяются два дня подряд");
+  const all = Object.values(QM.POOL).flat(); ok(new Set(all.map(x => x.id)).size === all.length && all.every(x => x.goal > 0 && x.n), "у заданий уникальные коды и цели");
+
+  const done = [];
+  const Q = QM.makeQuests({ db, tx: T, addMoney, now, onDone: d => done.push(...d), log: { error() {} } });
+  const day = QM.mskDay(NOW), list = QM.forDay(day);
+  const u = user(301), sid = u.steamid, other = sidN(399), stranger = sidN(398);
+  const evFor = (q, a = sid) => {
+    if (q.c === "kill") return { t: NOW, e: "kill", a: { sid: a, team: "ct" }, v: { sid: other, team: "t" }, w: q.w ? q.w[0] : q.knife ? "knife_karambit" : "ak47", hs: !!q.hs };
+    if (q.c === "assist") return { t: NOW, e: "assist", a: { sid: a, team: "ct" }, v: { sid: other, team: "t" } };
+    return { t: NOW, e: q.c, a: { sid: a, team: "ct" } };
+  };
+  const step = (q, a = sid, warm = false) => q.c === "roundWin" ? Q.roundWin([a], NOW) : q.c === "minute" ? Q.minute([a], NOW) : Q.apply(evFor(q, a), warm);
+  const tk0 = bal(u).tk, q0 = list[0];
+  // разминка, убийство своего и бот-стрелок не считаются
+  if (q0.c === "kill") {
+    Q.apply(evFor(q0), true);
+    Q.apply({ ...evFor(q0), v: { sid: other, team: "ct" } }, false);
+    Q.apply({ ...evFor(q0), a: { sid: null, bot: true, team: "ct" } }, false);
+    ok(Q.state(sid).list[0].have === 0, "разминка, тимкилл и бот не двигают задание", Q.state(sid).list[0]);
+  }
+  // неподходящее оружие не считается для заданий на оружие
+  const wq = list.find(x => x.c === "kill" && (x.w || x.knife));
+  if (wq) { const before = Q.state(sid).list.find(x => x.id === wq.id).have; Q.apply({ ...evFor(wq), w: "nova" }, false);
+    ok(Q.state(sid).list.find(x => x.id === wq.id).have === before, "задание на оружие: другое оружие не в счёт"); }
+  for (let i = 0; i < q0.goal - 1; i++) step(q0);
+  let st = Q.state(sid);
+  ok(st.list[0].have === q0.goal - 1 && !st.list[0].done && bal(u).tk === tk0, "прогресс копится, награды ещё нет", st.list[0]);
+  step(q0); st = Q.state(sid);
+  ok(st.list[0].done && bal(u).tk === tk0 + q0.reward && done.some(d => d.q.id === q0.id), "задание выполнено — награда сразу на счёт", { st: st.list[0], tk: bal(u).tk });
+  step(q0); step(q0);
+  ok(bal(u).tk === tk0 + q0.reward && Q.state(sid).list[0].have === q0.goal, "второй раз за то же задание не платим");
+  for (const q of list.slice(1)) for (let i = 0; i < q.goal; i++) step(q);
+  st = Q.state(sid);
+  const sum = list.reduce((s, x) => s + x.reward, 0) + QM.ALL_BONUS;
+  ok(st.list.every(x => x.done) && st.bonus && bal(u).tk === tk0 + sum, "все три задания + бонус " + QM.ALL_BONUS + " ТК", { tk: bal(u).tk - tk0, sum, st });
+  ok(db.prepare("SELECT COUNT(*) n FROM ledger WHERE user_id=? AND kind='quest'").get(u.id).n === 4, "в истории 4 начисления за задания");
+  // игрок без аккаунта на сайте: награда копится до первого входа
+  for (let i = 0; i < q0.goal; i++) step(q0, stranger);
+  ok(Math.round(db.prepare("SELECT tk FROM earn_pending WHERE sid=?").get(stranger).tk) === q0.reward, "без аккаунта — награда ждёт первого входа");
+  // на следующий день — новые задания, прогресс с нуля
+  const st2 = Q.state(sid, NOW + 86400e3);
+  ok(st2.list.every(x => x.have === 0 && !x.done) && !st2.bonus && st2.day !== st.day, "новый день — новые задания с нуля", st2);
+  ok(st.ends > NOW && st.ends - NOW <= 86400e3 && new Date(st.ends + 3 * 3600e3).toISOString().slice(11, 16) === "00:00", "таймер до 00:00 по Москве", new Date(st.ends).toISOString());
+  ok(Q.state(null).list.length === 3 && Q.state(null).list.every(x => x.have === 0), "гость видит задания без прогресса");
+
+  // данные для команд в игре
+  const sql = INFO.sqlFor([{ sid, n: "Ник'с\\бэкслэшем", tier: "KING", place: 3, pts: 120, k: 40, d: 20, hs: 9, tk: 5000, pending: 12, earn: { base: 340, cap: 2000, mult: 2 }, quests: st },
+    { sid: stranger, n: "Гость", tier: "", tk: null, pending: 150, earn: { base: 0, cap: 2000, mult: 1 }, quests: null }, { sid: "123", n: "bad" }],
+    [{ sid, n: "Топ1", pts: 120, k: 40, d: 20 }]);
+  ok(/INSERT INTO tasher_player .*\(\d{17},'Никсбэкслэшем','KING',3,120,40,20,9,5000,12,340,2000,'2','\{"l":\[/.test(sql) && /,-1,150,0,2000,'1',''\)/.test(sql) && !/\b123,/.test(sql), "игрок для !rank/!tk/!quests: без кавычек, гость с -1", sql.slice(0, 600));
+  const js = /'(\{"l":.*?\})'\)/.exec(sql); let parsed = null; try { parsed = JSON.parse(js[1]); } catch (e) {}
+  ok(parsed && parsed.l.length === 3 && parsed.l[0].g === list[0].goal && parsed.b === 1 && parsed.bt === QM.ALL_BONUS, "задания для игры — правильный JSON", js && js[1]);
+  ok(/INSERT INTO tasher_top \(place,steamid,name,pts,kills,deaths\) VALUES \(1,\d{17},'Топ1',120,40,20\)/.test(sql), "топ-10 для !top");
 }
 
 db.close(); fs.rmSync(dir, { recursive: true, force: true });

@@ -24,6 +24,8 @@ const { makeWheel } = require("./lib/wheel");
 const { makeJackpot } = require("./lib/jackpot");
 const { makeClans } = require("./lib/clans");
 const STYLE = require("./lib/style");
+const { makeQuests } = require("./lib/quests");
+const INFO = require("./lib/gameinfo");
 
 // ---------- настройки ----------
 const ENV = process.env;
@@ -183,7 +185,7 @@ get("/api/health", () => ({ ok: true, t: now() }));
 
 get("/api/me", ctx => {
   if (!ctx.user) return { user: null };
-  return { user: pubUser(ctx.user), items: userItems(ctx.user.id), loadout: userLoadout(ctx.user.id), cos: userCos(ctx.user), purchases: userPurchases(ctx.user.id), wheel: WHEEL.state(ctx.user), earn: EARN.today(ctx.user.steamid) };
+  return { user: pubUser(ctx.user), items: userItems(ctx.user.id), loadout: userLoadout(ctx.user.id), cos: userCos(ctx.user), purchases: userPurchases(ctx.user.id), wheel: WHEEL.state(ctx.user), earn: EARN.today(ctx.user.steamid), quests: QUESTS.state(ctx.user.steamid) };
 });
 
 // надеть / снять предмет за сторону (ct или t)
@@ -301,8 +303,14 @@ if (CFG.gameLogUnit && require.main === module) {
       // ТК за игру (разминку не считаем)
       try {
         EARN.apply(ev, warm);
-        if (ev && ev.e === "round" && !warm) EARN.roundWin([...STATS.state.team].filter(([sid, team]) => team === ev.win && STATS.state.sess.has(sid)).map(([sid]) => sid), ev.t || t);
+        QUESTS.apply(ev, warm);
+        if (ev && ev.e === "round" && !warm) {
+          const winners = [...STATS.state.team].filter(([sid, team]) => team === ev.win && STATS.state.sess.has(sid)).map(([sid]) => sid);
+          EARN.roundWin(winners, ev.t || t); QUESTS.roundWin(winners, ev.t || t);
+        }
       } catch (e) { console.error("[earn]", e.message); }
+      // зашёл игрок — данные для !rank/!tk/!quests нужны ему сразу
+      if (ev && (ev.e === "enter" || ev.e === "connect") && now() - t < 120e3) infoSoon();
       // забаненный зашёл — выгоняем (только по свежим строкам, не при перечитывании старого журнала)
       if (ev && ev.e !== "leave" && now() - t < 120e3) for (const p of [ev.a, ev.v]) if (p && p.sid) CTL.enforce(p.sid, p.uid);
     } });
@@ -317,9 +325,35 @@ const statusTier = (() => { let m = new Map(), at = 0; return sid => { if (now()
 const EARN = makeEarn({ db, tx: fn => tx(db, fn), addMoney, statusOf: statusTier });
 if (CFG.gameLogUnit && require.main === module) {
   // минута в игре: всем, кто сейчас на сервере (если сервер живой — журнал писался за последние 3 минуты)
-  setInterval(() => { try { if (now() - STATS.state.lastT < 180e3) EARN.minute([...STATS.state.sess.keys()], now()); } catch (e) { console.error("[earn]", e.message); } }, 60e3).unref();
+  setInterval(() => { try { if (now() - STATS.state.lastT < 180e3) { const on = [...STATS.state.sess.keys()]; EARN.minute(on, now()); QUESTS.minute(on, now()); } } catch (e) { console.error("[earn]", e.message); } }, 60e3).unref();
   setInterval(() => { try { EARN.flush(); } catch (e) { console.error("[earn]", e.message); } }, 30e3).unref();
 }
+
+// ---------- ежедневные задания ----------
+const QUESTS = makeQuests({ db, tx: fn => tx(db, fn), addMoney, onDone: done => {
+  for (const d of done) console.log(`[quests] ${d.sid} выполнил «${d.q.n}» +${d.reward} ТК`);
+  infoSoon(); // плагин сразу напишет игроку «Задание выполнено»
+} });
+get("/api/quests", ctx => ({ quests: QUESTS.state(ctx.user ? ctx.user.steamid : null) }));
+
+// ---------- данные для команд в игре (!rank, !top, !tk, !quests) и приветствия статусов ----------
+function infoRows() {
+  const st = new Map(CTL.statuses().map(s => [s.sid, s.t]));
+  const top = STATS.top(GL.month(now()), 2000), place = new Map(top.map((p, i) => [p.sid, i + 1]));
+  const sids = new Set([...STATS.state.uid.keys(), ...st.keys()]);
+  const user = db.prepare("SELECT tk, name FROM users WHERE steamid=?"), pend = db.prepare("SELECT tk FROM earn_pending WHERE sid=?");
+  const players = [...sids].map(sid => {
+    const p = STATS.player(sid) || {}, u = user.get(sid), on = STATS.state.uid.get(sid);
+    return { sid, n: (on && on.n) || p.n || (u && u.name) || "", tier: st.get(sid) || "", place: place.get(sid) || 0, pts: p.pts || 0, k: p.mk || 0, d: p.md || 0, hs: p.mhs || 0,
+      tk: u ? u.tk : null, pending: Math.floor((pend.get(sid) || {}).tk || 0), earn: EARN.today(sid), quests: QUESTS.state(sid) };
+  });
+  return { players, top: top.slice(0, 10).map(p => ({ sid: p.sid, n: p.n, pts: p.pts, k: p.mk, d: p.md })) };
+}
+const infoSync = INFO.makeInfoSync({ cnf: CFG.wpCnf, bin: CFG.mysqlBin, collect: infoRows,
+  reload: () => CFG.gameServers.length && CFG.gameRcon ? A2S.rconExec(CFG.gameServers[0], CFG.gameRcon, "css_tasher_style_reload", 3000) : null });
+let infoT = null;
+function infoSoon() { if (infoT || !CFG.wpCnf) return; infoT = setTimeout(() => { infoT = null; infoSync(); }, 3000); infoT.unref(); }
+if (CFG.wpCnf && require.main === module) { setTimeout(() => infoSync(), 5000).unref(); setInterval(() => infoSync(), 30e3).unref(); }
 
 // ---------- Фортуна ----------
 const WHEEL = makeWheel({ db, tx: fn => tx(db, fn), addMoney, addGrant: (...a) => CTL.addGrant(...a), statusOf: sid => (CTL.statuses().find(s => s.sid === sid) || {}).t || null });
@@ -694,7 +728,7 @@ function serveIndex(req, res) {
     INDEX = { mtime: st.mtimeMs, a: html.slice(0, i), b: html.slice(i), tag: sha(html).slice(0, 16) };
   }
   const u = sessionUser(req);
-  const data = u ? { user: pubUser(u), items: userItems(u.id), loadout: userLoadout(u.id), cos: userCos(u), purchases: userPurchases(u.id), wheel: WHEEL.state(u), earn: EARN.today(u.steamid) } : { user: null };
+  const data = u ? { user: pubUser(u), items: userItems(u.id), loadout: userLoadout(u.id), cos: userCos(u), purchases: userPurchases(u.id), wheel: WHEEL.state(u), earn: EARN.today(u.steamid), quests: QUESTS.state(u.steamid) } : { user: null, quests: QUESTS.state(null) };
   // джекпот без отметки времени сервера — иначе страница никогда не отдавалась бы из кэша (время сверит первый опрос)
   data.clans = clansOut(u); { const v = JP.view(u); delete v.now; data.jackpot = v; }
   if (GS) data.servers = GS;

@@ -178,6 +178,11 @@ function open(file) {
        PRIMARY KEY(period, place)
      );
      ALTER TABLE users ADD COLUMN cos_tag TEXT NOT NULL DEFAULT '';`,
+    // 7: ежедневные задания
+    `CREATE TABLE quest_prog(
+       sid TEXT NOT NULL, day TEXT NOT NULL, qid TEXT NOT NULL, n INTEGER NOT NULL DEFAULT 0, done INTEGER NOT NULL DEFAULT 0,
+       PRIMARY KEY(sid, day, qid)
+     );`,
   ];
   for (let v = ver; v < MIG.length; v++) {
     db.exec("BEGIN");

@@ -1391,6 +1391,29 @@ button.pf-role{cursor:pointer}button.pf-role:hover{border-color:color-mix(in srg
 .wf-pin{position:absolute;left:50%;top:-10px;transform:translateX(-50%);z-index:3;width:34px;height:46px;background:linear-gradient(180deg,#fbbf24,#b45309);clip-path:polygon(0 0,100% 0,100% 55%,50% 100%,0 55%);filter:drop-shadow(0 6px 8px rgba(0,0,0,.6))}
 .wf-pin::after{content:"";position:absolute;left:50%;top:9px;width:10px;height:10px;transform:translateX(-50%);border-radius:50%;background:#fff}
 .wf-side{display:flex;flex-direction:column;gap:10px}
+.q-wrap{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:18px;align-items:start;margin-top:20px}
+.q-list{display:flex;flex-direction:column;gap:12px}
+.q-card{background:var(--panel);border-radius:16px;padding:16px 18px;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:6px 16px;align-items:center;border:1px solid transparent;transition:border-color .25s}
+.q-card.done{border-color:color-mix(in srgb,var(--accent) 55%,transparent)}
+.q-ic{grid-row:span 2;width:46px;height:46px;border-radius:12px;display:grid;place-items:center;background:color-mix(in srgb,var(--qc) 16%,transparent);color:var(--qc)}
+.q-ic svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.q-lv{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--qc)}
+.q-n{font-weight:800;font-size:16px;line-height:1.3}
+.q-rw{grid-row:span 2;text-align:right;font-weight:800;color:var(--gold,#f5c451);white-space:nowrap}
+.q-rw small{display:block;font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.q-bar{grid-column:2/4;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);font-weight:700}
+.q-bar i{flex:1;height:8px;border-radius:99px;background:rgba(255,255,255,.07);overflow:hidden;position:relative}
+.q-bar i b{position:absolute;inset:0 auto 0 0;width:var(--p);border-radius:inherit;background:linear-gradient(90deg,var(--qc),color-mix(in srgb,var(--qc) 60%,#fff))}
+.q-card.done .q-bar{color:var(--accent)}
+.q-side{display:flex;flex-direction:column;gap:12px}
+.q-side .wf-card b{font-size:22px;font-weight:800}
+.q-side ul{margin:0;padding-left:18px;color:var(--muted);font-size:14px;line-height:1.55}
+.q-side code{background:rgba(255,255,255,.07);border-radius:6px;padding:1px 6px;color:var(--fg)}
+.q-bonus.done b{color:var(--accent)}
+.q-mu{color:var(--muted);font-size:13px}
+.nv-qn{margin-left:auto;font-size:11px;font-weight:800;background:color-mix(in srgb,var(--accent) 20%,transparent);color:var(--accent);border-radius:99px;padding:2px 7px}
+@media (max-width:900px){.q-wrap{grid-template-columns:1fr}}
+@media (max-width:520px){.q-card{padding:14px;gap:6px 12px}.q-ic{width:40px;height:40px}.q-n{font-size:15px}.q-rw{font-size:14px}}
 .wf-card{background:var(--panel);border-radius:16px;padding:16px 18px;display:flex;flex-direction:column;gap:10px}
 .wf-card>small,.wf-row small{font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
 .wf-main{background:radial-gradient(120% 120% at 100% 0%,rgba(181,232,83,0.180),transparent 60%),var(--panel)}
@@ -2761,6 +2784,7 @@ html.on-server #v-jackpot,html.on-server #v-wheel{position:relative}
       <span class="nav-h">Игра</span>
       <a href="#play" data-v="play"><i class="nv-ic"><svg viewBox="0 0 24 24"><polygon points="6 4 20 12 6 20 6 4"/></svg></i><span class="nv-t">Играть</span></a>
       <a href="#stats" data-v="stats"><i class="nv-ic"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></i><span class="nv-t">Рейтинг</span></a>
+      <a href="#quests" data-v="quests"><i class="nv-ic"><svg viewBox="0 0 24 24"><path d="M9 11l2 2 4-4"/><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 17h8"/></svg></i><span class="nv-t">Задания</span><span class="nv-qn" id="qNav" hidden></span></a>
       <a href="#clans" data-v="clans"><i class="nv-ic"><svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></svg></i><span class="nv-t">Кланы</span></a>
       <a href="#shop" data-v="shop"><i class="nv-ic"><svg viewBox="0 0 24 24"><path d="M12 3l3 6 6 .9-4.5 4.3 1 6.3L12 17.6 6.5 20.5l1-6.3L3 9.9 9 9z"/></svg></i><span class="nv-t">Магазин</span><em class="nv-tag">VIP</em></a>
       <span class="nav-h">Скины</span>
@@ -2902,6 +2926,7 @@ html.on-server #v-jackpot,html.on-server #v-wheel{position:relative}
 
     <!-- WHEEL -->
     <div class="view" id="v-wheel" hidden><div id="whBody"></div></div>
+    <div class="view" id="v-quests" hidden><div id="qBody"></div></div>
     <div class="view" id="v-upgrade" hidden>
       <div class="page-head"><h1>Апгрейд</h1><p>Поставь скины и ТК, выбери скин дороже и попробуй прокачать. Чем дороже цель, тем ниже шанс.</p></div>
       <div id="upBody"></div>
@@ -3614,7 +3639,7 @@ async function api(p,body){let r;try{r=await fetch(p,body?{method:"POST",headers
 function srvUser(u){Object.assign(ME,{id:u.id,n:u.n,steamid:u.steamid,av:u.av||"",role:u.role,tk:u.tk,balance:u.balance,kills:0,deaths:0,kd:0,hs:0,hrs:0,pts:0,mvp:0,w:[],r:rankIdx(0),vip:null,c:"#b5e853",m:0,created:u.created})}
 function srvSoon(what){if(!SRV)return false;toast((what||"Этот раздел")+" скоро заработает, подключаем к серверу");return true}
 var SRV_EARN=null;
-async function srvSync(){try{const d=await api("/api/me");if(d.user){ME.tk=d.user.tk;ME.balance=d.user.balance;try{srvPurchasesSet(d.purchases);srvCosSet(d.cos);if(d.earn)SRV_EARN=d.earn;if(d.wheel&&!whBusy){srvWheelSet(d.wheel);if(curView==="wheel")drawWheel()}}catch(_){}INV=srvItems(d.items);invSave();srvLoadout(d.loadout);drawChip();try{drawSkins();if(curView==="upgrade"&&!UP.busy)drawUp();if(curView==="me")drawMe()}catch(e){}}else if(logged)location.reload()}catch(e){}}
+async function srvSync(){try{const d=await api("/api/me");if(d.user){ME.tk=d.user.tk;ME.balance=d.user.balance;try{srvPurchasesSet(d.purchases);srvCosSet(d.cos);if(d.earn)SRV_EARN=d.earn;if(d.quests)qsSet(d.quests);if(d.wheel&&!whBusy){srvWheelSet(d.wheel);if(curView==="wheel")drawWheel()}}catch(_){}INV=srvItems(d.items);invSave();srvLoadout(d.loadout);drawChip();try{drawSkins();if(curView==="upgrade"&&!UP.busy)drawUp();if(curView==="me")drawMe()}catch(e){}}else if(logged)location.reload()}catch(e){}}
 if(SRV){document.documentElement.classList.add("on-server");logged=!!SRV.user;if(SRV.user)srvUser(SRV.user)}
 // настоящая статистика с игрового сервера: заменяет примерных игроков (рейтинг месяца, профили)
 const REAL_STATS=!!(SRV&&SRV.stats&&Array.isArray(SRV.stats.players));
@@ -4284,6 +4309,37 @@ async function srvSpin(){whBusy=true;const b=$("whSpin");b.disabled=true;
   try{const x=await api("/api/wheel/spin",{});ME.tk=x.tk;ME.balance=x.balance;if(x.statuses)srvVipsSet(x.statuses);
     WH.streak=x.streak;WH.prize=x.i;WH.again=x.again?1:0;WH.last=x.again?"":mskDay();if(x.bonus)WH.bonus=1;whRun(x.i,x.r,x.again)}
   catch(e){whBusy=false;toast(e.message);try{srvSync()}catch(_){}drawWheel()}}
+// ===== Задания дня =====
+var QS=null;
+// пример для демо-режима (без сервера)
+const QS_DEMO={list:[{id:"k15",n:"Убей 15 противников",lv:"easy",lvn:"Лёгкое",goal:15,have:9,done:false,reward:150},{id:"ak15",n:"Убей 15 противников с AK-47",lv:"medium",lvn:"Среднее",goal:15,have:15,done:true,reward:300},{id:"awp15",n:"Убей 15 противников с AWP",lv:"hard",lvn:"Сложное",goal:15,have:2,done:false,reward:600}],bonus:false,bonusTk:300};
+const QCOL={easy:"#3ddc97",medium:"#38d3ff",hard:"#ff8a3d"};
+const QICO={easy:'<path d="M5 12l5 5L20 7"/>',medium:'<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/>',hard:'<path d="M12 2l3 6 6 1-4.5 4.2L17.5 20 12 16.8 6.5 20l1-6.8L3 9l6-1z"/>'};
+function qsData(){return SRV?(QS||SRV.quests||null):QS_DEMO}
+function qsSet(q){if(q&&Array.isArray(q.list))QS=q;qsNav();if(curView==="quests")drawQuests()}
+function qsNav(){const e=$("qNav");if(!e)return;const q=qsData();if(!q||!logged&&SRV){e.hidden=true;return}const n=q.list.filter(x=>x.done).length;e.textContent=n+"/"+q.list.length;e.hidden=false}
+function qsLeft(){const q=qsData(),end=q&&q.ends?q.ends:(()=>{const d=new Date(Date.now()+3*3600e3);d.setUTCHours(24,0,0,0);return d.getTime()-3*3600e3})();
+  const ms=Math.max(0,end-Date.now()),h=Math.floor(ms/3600e3),m=Math.floor(ms%3600e3/60e3);return h?`${h} ч ${m} мин`:`${m} мин`}
+function drawQuests(){const q=qsData(),box=$("qBody");if(!box)return;
+  if(!q){box.innerHTML=`<div class="page-head"><h1>Задания дня</h1><p>Задания загружаются…</p></div>`;return}
+  const guest=SRV&&!logged,done=q.list.filter(x=>x.done).length,sum=q.list.reduce((s,x)=>s+x.reward,0)+q.bonusTk;
+  box.innerHTML=`<div class="page-head"><h1>Задания дня</h1><p>Три задания на каждый день — одинаковые для всех. Играй на сервере, прогресс считается сам, награда в ТК приходит на счёт сразу.</p></div>
+  <div class="q-wrap"><div class="q-list">${q.list.map(x=>{const p=Math.round(Math.min(1,x.have/x.goal)*100);
+    return`<div class="q-card${x.done?" done":""}" style="--qc:${QCOL[x.lv]||"#b5e853"}"><span class="q-ic"><svg viewBox="0 0 24 24">${QICO[x.lv]||QICO.easy}</svg></span>
+      <span class="q-lv">${esc(x.lvn||"")}</span><span class="q-rw">+${fmt(x.reward)} ТК<small>${x.done?"получено":"награда"}</small></span>
+      <b class="q-n">${esc(x.n)}</b>
+      <div class="q-bar"><i><b style="--p:${guest?0:p}%"></b></i><span>${guest?`0 / ${x.goal}`:x.done?"Выполнено":`${x.have} / ${x.goal}`}</span></div></div>`}).join("")}
+    <div class="q-card q-bonus${q.bonus?" done":""}" style="--qc:#f5c451"><span class="q-ic"><svg viewBox="0 0 24 24"><path d="M20 12v9H4v-9M2 7h20v5H2zM12 21V7M12 7H7.5a2.5 2.5 0 1 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 1 0 0-5C13 2 12 7 12 7z"/></svg></span>
+      <span class="q-lv">Бонус</span><span class="q-rw">+${fmt(q.bonusTk)} ТК<small>${q.bonus?"получено":"награда"}</small></span>
+      <b class="q-n">Выполни все три задания</b>
+      <div class="q-bar"><i><b style="--p:${guest?0:Math.round(done/q.list.length*100)}%"></b></i><span>${guest?`0 / ${q.list.length}`:q.bonus?"Выполнено":`${done} / ${q.list.length}`}</span></div></div></div>
+  <aside class="q-side">
+    <div class="wf-card"><small>Новые задания через</small><b id="qLeft">${qsLeft()}</b><span class="q-mu">Обновляются в 00:00 по Москве</span></div>
+    <div class="wf-card"><small>Можно получить сегодня</small><b>${fmt(sum)} ТК</b>${guest?`<button class="steam" data-login>Войти через Steam</button><span class="q-mu">Чтобы видеть свой прогресс</span>`:""}</div>
+    <div class="wf-card"><small>Как это работает</small><ul><li>Считается только игра на нашем сервере, разминка не в счёт.</li><li>Убийства своих и самоубийства не засчитываются.</li><li>В игре: <code>!quests</code> — задания, <code>!rank</code> — место в рейтинге, <code>!tk</code> — баланс, <code>!top</code> — топ-10.</li><li>Если ещё не заходил на сайт, награды копятся и придут при первом входе через Steam.</li></ul></div>
+  </aside></div>`}
+setInterval(()=>{const e=$("qLeft");if(e)e.textContent=qsLeft();const q=qsData();if(SRV&&q&&q.ends&&Date.now()>q.ends+5e3&&!qsBusy){qsBusy=1;api("/api/quests").then(r=>qsSet(r.quests)).catch(()=>{}).finally(()=>{qsBusy=0})}},30e3);
+var qsBusy=0;setTimeout(()=>{try{qsNav()}catch(e){}});
 function srvWheelSet(w){if(!w)return;WH.streak=Math.min(7,w.streak|0);WH.prize=Number.isInteger(w.prize)&&WSEG[w.prize]?w.prize:null;WH.again=w.again?1:0;WH.last=w.canSpin?"":mskDay()}
 function whRun(i,r,AG){const b=$("whSpin");b.disabled=true;b.textContent=WH.mode==="strip"?"Открываем…":"Сканируем…";
   document.querySelectorAll(".rb.hit,.st-it.win").forEach(e=>e.classList.remove("hit","win"));
@@ -4448,6 +4504,7 @@ const CMP=[["Бой (с первого раунда)"],
  ["Деньги в начале раунда (кроме пистолетных)",["+$300","+$500","+$800","+$1 000","+$1 500","+$2 000"]],
  ["Внешний вид"],
  ["Тег в чате и в таблице счёта",["[VIP]","[PREMIUM]","[ELITE]","[LEGEND]","[TITAN]","[KING]"]],
+ ["Приветствие с мелодией для всех при заходе на сервер",[1,1,1,1,1,1]],
  ["Цветной дым",[0,0,0,0,0,1]],
  ["Сайт"],
  ["Отметка KING рядом с ником в рейтинге и на сайте",[0,0,0,0,0,1]]];
@@ -4905,7 +4962,7 @@ let shopTab="tiers";
 function setShopTab(t){shopTab=t;document.querySelectorAll("[data-shopt]").forEach(b=>b.setAttribute("aria-selected",b.dataset.shopt===t));document.querySelectorAll('#v-shop .shop-pane').forEach(p=>p.hidden=p.dataset.pane!==t);if(t==="style")drawCos()}
 document.addEventListener("click",e=>{const b=e.target.closest("[data-shopt]");if(b)setShopTab(b.dataset.shopt)});
 
-const VIEWS=["play","public","me","player","clan","case","wheel","upgrade","inventory","jackpot","support","tickets","shop","skins","stats","clans","ach","bans","rules","admin","offer","privacy","404"];
+const VIEWS=["play","public","me","player","clan","case","wheel","quests","upgrade","inventory","jackpot","support","tickets","shop","skins","stats","clans","ach","bans","rules","admin","offer","privacy","404"];
 let curView="play";
 function viewFrom(h){return !h?"play":VIEWS.includes(h)&&h!=="404"?h:"404"}
 function route(forced){try{closeProfile()}catch(e){}["modal","srvModal","cmdModal","clanModal","stkModal","tkModal","buyModal","tierModal"].forEach(id=>{const m=$(id);if(m)m.hidden=true});
@@ -4924,6 +4981,7 @@ function route(forced){try{closeProfile()}catch(e){}["modal","srvModal","cmdModa
   if(v!=="case")czCancel();
   if(v==="case")try{if(!czBusy){czState="idle";drawCasePage()}}catch(e){console.error(e)}
   if(v==="wheel")try{drawWheel()}catch(e){console.error(e)}
+  if(v==="quests")try{drawQuests()}catch(e){console.error(e)}
   if(v==="upgrade")try{drawUp()}catch(e){console.error(e)}
   if(v==="inventory")try{drawInv()}catch(e){console.error(e)}
   if(!STKREADY&&["inventory","me","player"].includes(v))try{stkLoad()}catch(e){}
@@ -4937,7 +4995,7 @@ function route(forced){try{closeProfile()}catch(e){}["modal","srvModal","cmdModa
   if(SRV&&(v==="support"||v==="tickets"))srvTickets();
   if(SRV&&v==="admin"){try{drawTkAdm()}catch(e){}try{drawAdmin();if(!document.querySelector('.adm-pane[data-pane="srv"]').hidden)srvAdmServer()}catch(e){}}
   document.querySelector(".rail").classList.remove("open");$("burger").setAttribute("aria-expanded","false");
-  {const T={play:"",public:"Public",me:"Мой профиль",player:"Профиль игрока",clan:"Клан",case:"Кейс",wheel:"Фортуна",upgrade:"Апгрейд",inventory:"Инвентарь",jackpot:"Джекпот",support:"Поддержка",tickets:"Тикеты",shop:"Магазин",skins:"Кейсы",stats:"Рейтинг",clans:"Кланы",ach:"Достижения",bans:"Банлист",rules:"Правила",admin:"Админ-панель",offer:"Публичная оферта",privacy:"Конфиденциальность","404":"Страница не найдена"};document.title=(T[v]?T[v]+" — ":"")+"Tasher CS2"}
+  {const T={play:"",public:"Public",me:"Мой профиль",player:"Профиль игрока",clan:"Клан",case:"Кейс",wheel:"Фортуна",upgrade:"Апгрейд",inventory:"Инвентарь",jackpot:"Джекпот",support:"Поддержка",tickets:"Тикеты",shop:"Магазин",skins:"Кейсы",stats:"Рейтинг",clans:"Кланы",quests:"Задания дня",ach:"Достижения",bans:"Банлист",rules:"Правила",admin:"Админ-панель",offer:"Публичная оферта",privacy:"Конфиденциальность","404":"Страница не найдена"};document.title=(T[v]?T[v]+" — ":"")+"Tasher CS2"}
   window.scrollTo(0,0);setTimeout(()=>{try{if(!document.documentElement.classList.contains("no-anim"))countIn(document.getElementById("v-"+v))}catch(e){}},30)}
 // переход по странице: работает и там, где ссылки с # не меняют адрес
 function go(v){route(v);try{if(location.hash!=="#"+v)history.pushState(null,"","#"+v)}catch(e){try{history.replaceState(null,"","#"+v)}catch(_){}}}
@@ -5025,7 +5083,7 @@ document.addEventListener("pointerdown",e=>{const b=e.target.closest(".steam,.tm
 addEventListener("hashchange",()=>{let h="";try{h=location.hash.slice(1)}catch(e){}if(viewFrom(h)!==curView)route()});route();
 
 // ===== серверный режим: то, что ещё не перенесено на сервер =====
-if(SRV){try{srvPurchasesSet(SRV.purchases);SRV_EARN=SRV.earn||null}catch(e){}
+if(SRV){try{srvPurchasesSet(SRV.purchases);SRV_EARN=SRV.earn||null;if(SRV.quests)QS=SRV.quests}catch(e){}
   if(SRV.clans)try{srvClansApply(SRV.clans)}catch(e){console.error(e)}
   // ТК за игру приходят на счёт сами: раз в минуту сверяем баланс, пока вкладка открыта
   setInterval(()=>{if(logged&&!document.hidden)srvSync()},60e3);
