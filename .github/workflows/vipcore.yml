@@ -18,6 +18,7 @@ jobs:
         working-directory: plugins/vipcore/src
         run: |
           set -e
+          dotnet publish VipCoreApi/VipCoreApi.csproj -c Release -p:Version=2.0.3 -o ../out/VipCoreApi
           dotnet publish VIPCore/VIPCore.csproj -c Release -p:Version=2.0.3 -o ../out/VIPCore
           dotnet publish modules/VIP_SmokeColor/VIP_SmokeColor.csproj -c Release -p:Version=2.0.3 -o ../out/VIP_SmokeColor
       - name: Package
@@ -27,7 +28,9 @@ jobs:
           P=pkg/addons/counterstrikesharp
           mkdir -p $P/plugins $P/shared/CS2MenuManager
           # библиотека VipCoreApi и сама CounterStrikeSharp уже есть на сервере — их не кладём
-          rm -f out/VIPCore/VipCoreApi.* out/VIPCore/CounterStrikeSharp.API.* out/VIP_SmokeColor/VipCoreApi.* out/VIP_SmokeColor/CounterStrikeSharp.API.*
+          # как в сборке автора: всё, что уже даёт CounterStrikeSharp (сборки Microsoft.*, логирование и т.д.), не кладём
+          (cd out/VipCoreApi && ls) | while read -r f; do rm -rf "out/VIPCore/$f"; done
+          rm -f out/VIPCore/VipCoreApi.*
           cp -r out/VIPCore $P/plugins/VIPCore
           cp -r src/VIPCore/lang $P/plugins/VIPCore/lang
           mkdir -p $P/plugins/VIP_SmokeColor && cp out/VIP_SmokeColor/VIP_SmokeColor.dll $P/plugins/VIP_SmokeColor/
