@@ -1,4 +1,5 @@
-// TASHER Style: тег и цвет ника в чате, тег в таблице счёта, цвет дыма и эффекты (убийство, звук, трассеры, след гранат) — по данным с сайта tashercs.ru.
+// TASHER Style: тег и цвет ника в чате, тег в таблице счёта, цвет дыма, эффекты (убийство, звук, трассеры, след гранат),
+// команды !rank !top !tk !quests и приветствие статусов с музыкой — по данным с сайта tashercs.ru.
 // Сайт пишет готовые значения в таблицу tasher_style (база weaponpaints), плагин перечитывает её раз в 20 секунд
 // и сразу по команде сервера css_tasher_style_reload (сайт присылает её по RCON после покупки).
 using System.Collections.Concurrent;
@@ -30,6 +31,19 @@ public class StyleConfig : BasePluginConfig
         ["8bit"] = "sounds/ui/armsrace_level_up.vsnd",
         ["coin"] = "sounds/ui/coin_pickup_01.vsnd",
     };
+    // приветствие игрока со статусом: короткая мелодия для всех на сервере (файлы звуков из самой игры)
+    [JsonPropertyName("GreetSounds")] public Dictionary<string, string> GreetSounds { get; set; } = new()
+    {
+        ["VIP"] = "sounds/ui/item_drop2_uncommon.vsnd",
+        ["PREMIUM"] = "sounds/ui/item_drop3_rare.vsnd",
+        ["ELITE"] = "sounds/ui/item_drop4_mythical.vsnd",
+        ["LEGEND"] = "sounds/ui/item_drop5_legendary.vsnd",
+        ["TITAN"] = "sounds/ui/item_drop6_ancient.vsnd",
+        ["KING"] = "sounds/ui/item_drop6_ancient.vsnd",
+    };
+    // одного и того же игрока приветствуем не чаще, чем раз в столько минут (перезаходы не спамят)
+    [JsonPropertyName("GreetCooldownMinutes")] public int GreetCooldownMinutes { get; set; } = 15;
+    [JsonPropertyName("Site")] public string Site { get; set; } = "tashercs.ru";
     // ограничение на число лучей эффектов одновременно (защита от перегрузки сервера)
     [JsonPropertyName("MaxBeams")] public int MaxBeams { get; set; } = 600;
 }
@@ -39,7 +53,7 @@ public record PlayerStyle(string ChatTag, string NameColor, string ScoreTag, str
 public partial class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
 {
     public override string ModuleName => "TASHER Style";
-    public override string ModuleVersion => "1.1.0";
+    public override string ModuleVersion => "1.2.0";
     public override string ModuleAuthor => "tashercs.ru";
 
     public StyleConfig Config { get; set; } = new();
@@ -62,6 +76,7 @@ public partial class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
         AddCommandListener("say_team", (p, i) => HandleChat(p, i, true), HookMode.Pre);
         RegisterListener<Listeners.OnEntitySpawned>(OnEntitySpawned);
         LoadEffects();
+        LoadInfo();
         RegisterEventHandler<EventPlayerSpawn>((e, _) =>
         {
             if (e.Userid is { } p) Server.NextFrame(() => ApplyScoreboard(p));
@@ -104,6 +119,7 @@ public partial class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
                     catch (Exception e) { ok = false; Logger.LogError("[TASHER Style] не удалось добавить колонку {Col}: {Error}", col, e.Message); }
                 }
                 _fxColumns = ok;
+                await CreateInfoTablesAsync(c);
             }
             catch (Exception e) { Logger.LogError("[TASHER Style] база недоступна: {Error}", e.Message); }
             ReloadAsync();
@@ -118,32 +134,46 @@ public partial class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
         info.ReplyToCommand("[TASHER Style] перечитываю");
     }
 
+    private int _reloadAgain;
     private void ReloadAsync()
     {
-        if (Interlocked.Exchange(ref _loading, 1) == 1) return;
+        if (Interlocked.Exchange(ref _loading, 1) == 1) { Interlocked.Exchange(ref _reloadAgain, 1); return; }
         Task.Run(async () =>
         {
             try
             {
-                var map = new Dictionary<ulong, PlayerStyle>();
-                await using var c = new MySqlConnection(ConnString);
-                await c.OpenAsync();
-                await using var cmd = c.CreateCommand();
-                var fx = _fxColumns;
-                cmd.CommandText = fx
-                    ? "SELECT steamid, chat_tag, name_color, score_tag, smoke, kill_fx, kill_snd, trail, tracer FROM tasher_style"
-                    : "SELECT steamid, chat_tag, name_color, score_tag, smoke FROM tasher_style";
-                await using var r = await cmd.ExecuteReaderAsync();
-                while (await r.ReadAsync())
-                    map[r.GetUInt64(0)] = new PlayerStyle(r.GetString(1), r.GetString(2), r.GetString(3), r.GetString(4),
-                        fx ? r.GetString(5) : "", fx ? r.GetString(6) : "", fx ? r.GetString(7) : "", fx ? r.GetString(8) : "");
-                _styles = map;
-                Server.NextFrame(() =>
+                do
                 {
-                    foreach (var p in Utilities.GetPlayers()) ApplyScoreboard(p);
-                });
+                    Interlocked.Exchange(ref _reloadAgain, 0);
+                    await using var c = new MySqlConnection(ConnString);
+                    await c.OpenAsync();
+                    try
+                    {
+                        var map = new Dictionary<ulong, PlayerStyle>();
+                        await using (var cmd = c.CreateCommand())
+                        {
+                            var fx = _fxColumns;
+                            cmd.CommandText = fx
+                                ? "SELECT steamid, chat_tag, name_color, score_tag, smoke, kill_fx, kill_snd, trail, tracer FROM tasher_style"
+                                : "SELECT steamid, chat_tag, name_color, score_tag, smoke FROM tasher_style";
+                            await using var r = await cmd.ExecuteReaderAsync();
+                            while (await r.ReadAsync())
+                                map[r.GetUInt64(0)] = new PlayerStyle(r.GetString(1), r.GetString(2), r.GetString(3), r.GetString(4),
+                                    fx ? r.GetString(5) : "", fx ? r.GetString(6) : "", fx ? r.GetString(7) : "", fx ? r.GetString(8) : "");
+                        }
+                        _styles = map;
+                        Server.NextFrame(() =>
+                        {
+                            foreach (var p in Utilities.GetPlayers()) ApplyScoreboard(p);
+                        });
+                    }
+                    catch (Exception e) { Logger.LogError("[TASHER Style] не удалось прочитать стили: {Error}", e.Message); }
+                    // данные для !rank, !top, !tk, !quests и приветствия
+                    try { await LoadInfoAsync(c); }
+                    catch (Exception e) { Logger.LogError("[TASHER Style] не удалось прочитать данные игроков: {Error}", e.Message); }
+                } while (Interlocked.Exchange(ref _reloadAgain, 0) == 1);
             }
-            catch (Exception e) { Logger.LogError("[TASHER Style] не удалось прочитать стили: {Error}", e.Message); }
+            catch (Exception e) { Logger.LogError("[TASHER Style] база недоступна: {Error}", e.Message); }
             finally { Interlocked.Exchange(ref _loading, 0); }
         });
     }
