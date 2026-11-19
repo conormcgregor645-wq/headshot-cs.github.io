@@ -164,20 +164,28 @@ fi
 echo "таблица статусов создана"
 T=""
 for i in $(seq 1 12); do
-  [ "$(mysql -N -e "SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA='weaponpaints' AND TABLE_NAME='tasher_style'")" = 1 ] && { T=1; break; }; sleep 5
+  # таблица и все 4 колонки эффектов (их добавляет TASHER Style 1.1)
+  [ "$(mysql -N -e "SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA='weaponpaints' AND TABLE_NAME='tasher_style' AND COLUMN_NAME IN ('kill_fx','kill_snd','trail','tracer')")" = 4 ] && { T=1; break; }; sleep 5
 done
 if [ -z "$T" ]; then
   printf '%s\n' "$J" | grep -iE "tasher|mysql" | tail -10 | cut -c1-240
-  restore; die "TASHER Style не создал таблицу tasher_style (нет связи с базой) — вернул как было. Пришли вывод выше"
+  restore; die "TASHER Style не подготовил таблицу tasher_style (нет связи с базой) — вернул как было. Пришли вывод выше"
 fi
-echo "таблица стилей создана"
+echo "таблица стилей и эффектов готова"
 
 log "6/6 Статусы с сайта -> в игру"
+# стартовый бонус новым игрокам — 3000 ТК (один раз заменяем прежний 0; потом можно менять в /etc/tasher.env)
+if [ -f /etc/tasher.env ] && [ ! -f /etc/tasher/.start_tk_3000 ]; then
+  if grep -q '^START_TK=' /etc/tasher.env; then sed -i 's|^START_TK=.*|START_TK=3000|' /etc/tasher.env; else echo "START_TK=3000" >>/etc/tasher.env; fi
+  mkdir -p /etc/tasher; touch /etc/tasher/.start_tk_3000; echo "стартовый бонус новым игрокам: 3000 ТК"
+fi
+# свежая версия команды tasher-update
+[ -f /opt/tasher/server/deploy/update.sh ] && install -m 755 /opt/tasher/server/deploy/update.sh /usr/local/bin/tasher-update
 systemctl restart tasher; sleep 6
 SITE=$(curl -fsS http://127.0.0.1:8080/api/statuses | jq '.statuses | length' 2>/dev/null || echo "?")
 DBN=$(mysql -N -e "SELECT COUNT(*) FROM weaponpaints.vip_users WHERE sid=0")
 echo "статусов на сайте: $SITE, в базе плагина: $DBN"
 [ "$SITE" = "$DBN" ] || echo "  (числа сравняются в течение минуты — сайт сверяет их раз в минуту)"
 mysql -N -e "SELECT account_id, \`group\`, FROM_UNIXTIME(expires) FROM weaponpaints.vip_users WHERE sid=0 ORDER BY expires DESC LIMIT 10" | sed 's/^/  /'
-sleep 5; echo "стилей в игре (теги, цвета ников, дым): $(mysql -N -e "SELECT COUNT(*) FROM weaponpaints.tasher_style")"
+sleep 5; echo "стилей в игре (теги, цвета, дым, эффекты): $(mysql -N -e "SELECT COUNT(*) FROM weaponpaints.tasher_style")"
 printf '\n\033[1;32m=== ГОТОВО ===\033[0m\nКопия прежнего состояния: %s\nВ игре: !vip — меню привилегии. Статусы выдаются с сайта (магазин, админка, итоги месяца) и действуют сразу.\n' "$BK"

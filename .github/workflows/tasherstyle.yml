@@ -1,4 +1,4 @@
-# Сборка плагина TASHER Style (тег и цвет ника в чате, цвет дыма) — архив в релизе tasherstyle
+# Сборка плагина TASHER Style (тег и цвет ника в чате, цвет дыма, эффекты) — архив в релизе tasherstyle
 name: tasherstyle
 on:
   push:
@@ -32,4 +32,4 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release delete tasherstyle --yes --cleanup-tag 2>/dev/null || true
-          gh release create tasherstyle plugins/tasherstyle/TasherStyle.zip --title "TASHER Style" --notes "Тег и цвет ника в чате, тег в таблице счёта, цвет дыма — по данным сайта. Ставится скриптом server/deploy/vip-setup.sh" --target "$GITHUB_SHA"
+          gh release create tasherstyle plugins/tasherstyle/TasherStyle.zip --title "TASHER Style" --notes "Тег и цвет ника в чате, тег в таблице счёта, цвет дыма, эффект и звук убийства, трассеры пуль и след гранат — по данным сайта. Ставится скриптом server/deploy/vip-setup.sh" --target "$GITHUB_SHA"

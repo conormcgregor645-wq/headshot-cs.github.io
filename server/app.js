@@ -35,7 +35,7 @@ const CFG = {
   staticDir: path.resolve(ENV.STATIC_DIR || path.join(__dirname, "..")),
   steamKey: ENV.STEAM_API_KEY || "",
   owners: new Set((ENV.OWNER_STEAMIDS || "").split(/[,\s]+/).filter(Boolean)),
-  startTk: Math.max(0, +(ENV.START_TK || 0)),
+  startTk: Math.max(0, +(ENV.START_TK ?? 3000) || 0), // стартовый бонус ТК новым игрокам
   sessionDays: +(ENV.SESSION_DAYS || 30),
   devLogin: ENV.DEV_LOGIN === "1",
   // связь с WeaponPaints: файл настроек mysql (пусто — выключено) и файл номеров раскрасок
@@ -379,14 +379,17 @@ post("/api/clans/upgrade", clanAct((u, b) => CLANS.upgrade(u, b)));
 // ---------- стиль в игре (плагин TASHER Style) ----------
 function styleRows() {
   const st = new Map(CTL.statuses().map(s => [s.sid, s.t])), rows = new Map();
-  const row = sid => { let r = rows.get(sid); if (!r) rows.set(sid, r = { sid, tier: st.get(sid) || null, clanTag: "", clanColor: "", nick: "", tag: "", smokeHex: "" }); return r; };
+  const row = sid => { let r = rows.get(sid); if (!r) rows.set(sid, r = { sid, tier: st.get(sid) || null, clanTag: "", clanColor: "", nick: "", tag: "", smokeHex: "", killFx: "", killSnd: "", trailHex: "", tracerHex: "" }); return r; };
   for (const sid of st.keys()) row(sid);
   for (const c of db.prepare("SELECT u.steamid sid, c.tag, c.color FROM clan_members m JOIN clans c ON c.id=m.clan_id JOIN users u ON u.id=m.user_id").all()) { const r = row(c.sid); r.clanTag = c.tag; r.clanColor = c.color; }
   for (const u of db.prepare("SELECT steamid, cos_eq, cos_tag FROM users WHERE cos_eq<>'{}' OR cos_tag<>''").all()) {
     let eq = {}; try { eq = JSON.parse(u.cos_eq || "{}"); } catch (e) {}
-    const nick = COSM.get(eq.nick), smoke = COSM.get(eq.smoke), tag = eq.tag && u.cos_tag ? u.cos_tag : "";
-    if (!nick && !smoke && !tag) continue;
-    const r = row(u.steamid); if (nick && nick.cat === "nick") r.nick = nick.id; if (smoke && smoke.cat === "smoke") r.smokeHex = smoke.v; if (tag) r.tag = tag;
+    const it = cat => { const x = COSM.get(eq[cat]); return x && x.cat === cat ? x : null; };
+    const nick = it("nick"), smoke = it("smoke"), kill = it("kill"), snd = it("snd"), trail = it("trail"), tracer = it("tracer"), tag = eq.tag && u.cos_tag ? u.cos_tag : "";
+    if (!nick && !smoke && !kill && !snd && !trail && !tracer && !tag) continue;
+    const r = row(u.steamid);
+    if (nick) r.nick = nick.id; if (smoke) r.smokeHex = smoke.v; if (tag) r.tag = tag;
+    if (kill) r.killFx = kill.v; if (snd) r.killSnd = snd.id.slice(3); if (trail) r.trailHex = trail.v; if (tracer) r.tracerHex = tracer.v;
   }
   return [...rows.values()];
 }
@@ -399,7 +402,7 @@ const TIER_P = { VIP: 99, PREMIUM: 199, ELITE: 349, LEGEND: 549, TITAN: 899, KIN
 const PERIODS = { 30: 0, 90: 0.1, 180: 0.2 };
 const tierPrice = (tier, days) => Math.round(TIER_P[tier] * days / 30 * (1 - PERIODS[days]) / 10) * 10 - 1;
 const COSM = new Map(JSON.parse(fs.readFileSync(path.join(__dirname, "data", "cosmetics.json"), "utf8")).map(x => [x.id, x]));
-const COS_EQ_CATS = ["frame", "bg", "badge", "nick", "smoke", "tag"]; // что надевается (свой тег покупается отдельно — /api/cos/tag)
+const COS_EQ_CATS = ["frame", "bg", "badge", "nick", "smoke", "tag", "kill", "snd", "trail", "tracer"]; // что надевается (свой тег покупается отдельно — /api/cos/tag)
 function userCos(u) { let eq = {}; try { eq = JSON.parse(u.cos_eq || "{}"); } catch (e) {} return { own: db.prepare("SELECT item_id FROM cos_own WHERE user_id=? ORDER BY created_at").all(u.id).map(r => r.item_id), eq, tag: u.cos_tag || "" }; }
 function userPurchases(uid) {
   return db.prepare("SELECT delta, meta, created_at FROM ledger WHERE user_id=? AND kind='shop' ORDER BY id DESC LIMIT 50").all(uid)

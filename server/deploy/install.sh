@@ -58,7 +58,7 @@ setenv() { if grep -q "^$1=" "$ENVF"; then sed -i "s|^$1=.*|$1=$2|" "$ENVF"; els
 getenv() { grep "^$1=" "$ENVF" | head -1 | cut -d= -f2-; }
 setenv SITE_URL "https://$DOMAIN"; setenv PORT 8080; setenv HOST 127.0.0.1
 setenv DB_PATH /var/lib/tasher/tasher.db; setenv STATIC_DIR /opt/tasher
-[ -n "$(getenv START_TK)" ] || setenv START_TK 0
+[ -n "$(getenv START_TK)" ] || setenv START_TK 3000
 [ -n "$(getenv OWNER_STEAMIDS)" ] || setenv OWNER_STEAMIDS "$OWNER_DEFAULT"
 if [ -z "$(getenv STEAM_API_KEY)" ]; then
   read -rsp "Вставь ключ Steam Web API правой кнопкой мыши и нажми Enter (символы не видны): " KEY </dev/tty; echo

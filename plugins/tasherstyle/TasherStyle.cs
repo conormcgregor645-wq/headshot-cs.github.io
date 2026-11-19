@@ -1,4 +1,4 @@
-// TASHER Style: тег и цвет ника в чате, тег в таблице счёта и цвет дыма — по данным с сайта tashercs.ru.
+// TASHER Style: тег и цвет ника в чате, тег в таблице счёта, цвет дыма и эффекты (убийство, звук, трассеры, след гранат) — по данным с сайта tashercs.ru.
 // Сайт пишет готовые значения в таблицу tasher_style (база weaponpaints), плагин перечитывает её раз в 20 секунд
 // и сразу по команде сервера css_tasher_style_reload (сайт присылает её по RCON после покупки).
 using System.Collections.Concurrent;
@@ -21,20 +21,32 @@ public class StyleConfig : BasePluginConfig
     [JsonPropertyName("Password")] public string Password { get; set; } = "";
     [JsonPropertyName("Database")] public string Database { get; set; } = "weaponpaints";
     [JsonPropertyName("ReloadSeconds")] public float ReloadSeconds { get; set; } = 20f;
+    // звуки убийства: код с сайта -> файл звука из игры (слышит только убивший)
+    [JsonPropertyName("KillSounds")] public Dictionary<string, string> KillSounds { get; set; } = new()
+    {
+        ["ding"] = "sounds/training/bell_normal.vsnd",
+        ["drum"] = "sounds/ui/deathmatch_kill_bonus.vsnd",
+        ["bell"] = "sounds/buttons/bell1.vsnd",
+        ["8bit"] = "sounds/ui/armsrace_level_up.vsnd",
+        ["coin"] = "sounds/ui/coin_pickup_01.vsnd",
+    };
+    // ограничение на число лучей эффектов одновременно (защита от перегрузки сервера)
+    [JsonPropertyName("MaxBeams")] public int MaxBeams { get; set; } = 600;
 }
 
-public record PlayerStyle(string ChatTag, string NameColor, string ScoreTag, string Smoke);
+public record PlayerStyle(string ChatTag, string NameColor, string ScoreTag, string Smoke, string KillFx, string KillSnd, string Trail, string Tracer);
 
-public class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
+public partial class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
 {
     public override string ModuleName => "TASHER Style";
-    public override string ModuleVersion => "1.0.0";
+    public override string ModuleVersion => "1.1.0";
     public override string ModuleAuthor => "tashercs.ru";
 
     public StyleConfig Config { get; set; } = new();
     private volatile Dictionary<ulong, PlayerStyle> _styles = new();
     private readonly ConcurrentDictionary<ulong, string> _appliedClan = new();
     private int _loading;
+    private volatile bool _fxColumns; // в таблице есть колонки эффектов
 
     public void OnConfigParsed(StyleConfig config) => Config = config;
 
@@ -49,6 +61,7 @@ public class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
         AddCommandListener("say", (p, i) => HandleChat(p, i, false), HookMode.Pre);
         AddCommandListener("say_team", (p, i) => HandleChat(p, i, true), HookMode.Pre);
         RegisterListener<Listeners.OnEntitySpawned>(OnEntitySpawned);
+        LoadEffects();
         RegisterEventHandler<EventPlayerSpawn>((e, _) =>
         {
             if (e.Userid is { } p) Server.NextFrame(() => ApplyScoreboard(p));
@@ -67,9 +80,30 @@ public class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
                     chat_tag VARCHAR(64) NOT NULL DEFAULT '',
                     name_color VARCHAR(16) NOT NULL DEFAULT '',
                     score_tag VARCHAR(16) NOT NULL DEFAULT '',
-                    smoke VARCHAR(16) NOT NULL DEFAULT ''
+                    smoke VARCHAR(16) NOT NULL DEFAULT '',
+                    kill_fx VARCHAR(16) NOT NULL DEFAULT '',
+                    kill_snd VARCHAR(16) NOT NULL DEFAULT '',
+                    trail VARCHAR(16) NOT NULL DEFAULT '',
+                    tracer VARCHAR(16) NOT NULL DEFAULT ''
                 ) DEFAULT CHARSET=utf8mb4";
                 await cmd.ExecuteNonQueryAsync();
+                // таблица от прошлой версии плагина — добавляем колонки эффектов
+                var ok = true;
+                foreach (var col in FxColumns)
+                {
+                    await using var chk = c.CreateCommand();
+                    chk.CommandText = "SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='tasher_style' AND COLUMN_NAME=@c";
+                    chk.Parameters.AddWithValue("@c", col);
+                    if (Convert.ToInt64(await chk.ExecuteScalarAsync()) > 0) continue;
+                    try
+                    {
+                        await using var alter = c.CreateCommand();
+                        alter.CommandText = $"ALTER TABLE tasher_style ADD COLUMN `{col}` VARCHAR(16) NOT NULL DEFAULT ''";
+                        await alter.ExecuteNonQueryAsync();
+                    }
+                    catch (Exception e) { ok = false; Logger.LogError("[TASHER Style] не удалось добавить колонку {Col}: {Error}", col, e.Message); }
+                }
+                _fxColumns = ok;
             }
             catch (Exception e) { Logger.LogError("[TASHER Style] база недоступна: {Error}", e.Message); }
             ReloadAsync();
@@ -95,10 +129,14 @@ public class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
                 await using var c = new MySqlConnection(ConnString);
                 await c.OpenAsync();
                 await using var cmd = c.CreateCommand();
-                cmd.CommandText = "SELECT steamid, chat_tag, name_color, score_tag, smoke FROM tasher_style";
+                var fx = _fxColumns;
+                cmd.CommandText = fx
+                    ? "SELECT steamid, chat_tag, name_color, score_tag, smoke, kill_fx, kill_snd, trail, tracer FROM tasher_style"
+                    : "SELECT steamid, chat_tag, name_color, score_tag, smoke FROM tasher_style";
                 await using var r = await cmd.ExecuteReaderAsync();
                 while (await r.ReadAsync())
-                    map[r.GetUInt64(0)] = new PlayerStyle(r.GetString(1), r.GetString(2), r.GetString(3), r.GetString(4));
+                    map[r.GetUInt64(0)] = new PlayerStyle(r.GetString(1), r.GetString(2), r.GetString(3), r.GetString(4),
+                        fx ? r.GetString(5) : "", fx ? r.GetString(6) : "", fx ? r.GetString(7) : "", fx ? r.GetString(8) : "");
                 _styles = map;
                 Server.NextFrame(() =>
                 {
@@ -160,16 +198,18 @@ public class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
         if (want.Length == 0) _appliedClan.TryRemove(player.SteamID, out _); else _appliedClan[player.SteamID] = want;
     }
 
-    // --- цвет дыма ---
+    // --- гранаты: цвет дыма и светящийся след ---
     private void OnEntitySpawned(CEntityInstance entity)
     {
-        if (entity.DesignerName != "smokegrenade_projectile") return;
-        var g = new CSmokeGrenadeProjectile(entity.Handle);
+        var name = entity.DesignerName;
+        if (name == null || !name.EndsWith("_projectile", StringComparison.Ordinal)) return;
+        var g = new CBaseCSGrenadeProjectile(entity.Handle);
         if (g.Handle == IntPtr.Zero) return;
-        Server.NextFrame(() => ApplySmoke(g, 0));
+        var isSmoke = name == "smokegrenade_projectile";
+        Server.NextFrame(() => OnGrenade(g, isSmoke, 0));
     }
 
-    private void ApplySmoke(CSmokeGrenadeProjectile g, int attempt)
+    private void OnGrenade(CBaseCSGrenadeProjectile g, bool isSmoke, int attempt)
     {
         if (!g.IsValid) return;
         CCSPlayerPawn? pawn = g.Thrower.Value;
@@ -177,24 +217,37 @@ public class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
         var bc = pawn is { IsValid: true } ? pawn.Controller.Value : null;
         if (bc is null || !bc.IsValid)
         {
-            if (attempt < 8) Server.NextFrame(() => ApplySmoke(g, attempt + 1));
+            if (attempt < 8) Server.NextFrame(() => OnGrenade(g, isSmoke, attempt + 1));
             return;
         }
         var controller = new CCSPlayerController(bc.Handle);
-        var smoke = (controller.IsValid ? StyleOf(controller)?.Smoke : null) ?? "";
-        if (smoke.Length == 0) return;
+        var style = controller.IsValid && !controller.IsBot ? StyleOf(controller) : null;
+        if (style == null) return;
+        if (isSmoke) ApplySmoke(new CSmokeGrenadeProjectile(g.Handle), style.Smoke);
+        if (style.Trail.Length > 0 && TryColor(style.Trail, out var col)) StartTrail(g, col);
+    }
 
+    private static void ApplySmoke(CSmokeGrenadeProjectile g, string smoke)
+    {
+        if (smoke.Length == 0 || !g.IsValid) return;
         float r, gr, b;
         if (smoke == "random")
         {
             r = Random.Shared.NextSingle() * 255f; gr = Random.Shared.NextSingle() * 255f; b = Random.Shared.NextSingle() * 255f;
         }
-        else
-        {
-            var parts = smoke.Split(',');
-            if (parts.Length != 3 || !float.TryParse(parts[0], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out r) || !float.TryParse(parts[1], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out gr) || !float.TryParse(parts[2], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out b)) return;
-        }
+        else if (!TryRgb(smoke, out r, out gr, out b)) return;
         g.SmokeColor.X = r; g.SmokeColor.Y = gr; g.SmokeColor.Z = b;
         Utilities.SetStateChanged(g, "CSmokeGrenadeProjectile", "m_vSmokeColor");
+    }
+
+    // "r,g,b" -> числа 0..255
+    internal static bool TryRgb(string s, out float r, out float g, out float b)
+    {
+        r = g = b = 0;
+        var parts = s.Split(',');
+        var inv = System.Globalization.CultureInfo.InvariantCulture;
+        const System.Globalization.NumberStyles ns = System.Globalization.NumberStyles.Float;
+        return parts.Length == 3 && float.TryParse(parts[0], ns, inv, out r) && float.TryParse(parts[1], ns, inv, out g) && float.TryParse(parts[2], ns, inv, out b)
+            && r is >= 0 and <= 255 && g is >= 0 and <= 255 && b is >= 0 and <= 255;
     }
 }

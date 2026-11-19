@@ -8,7 +8,7 @@ fs.writeFileSync(path.join(dir, "index.html"), "<!doctype html><html><head><titl
 // поддельный клиент mysql: сохраняет присланный SQL в файл, чтобы проверить запись скинов в игру
 const SQLLOG = path.join(dir, "sql.log"), FAKE = path.join(dir, "mysql"), PAINTS = path.join(dir, "paints.json");
 // на проверку «есть ли таблица VIP-плагина» отвечает 1
-fs.writeFileSync(FAKE, `#!/bin/sh\ncase "$*" in *vip_users*|*tasher_style*) echo 1; exit 0;; esac\ncat >> "${SQLLOG}"\necho "-- END" >> "${SQLLOG}"\n`); fs.chmodSync(FAKE, 0o755);
+fs.writeFileSync(FAKE, `#!/bin/sh\ncase "$*" in *kill_fx*) printf '1\\n4\\n'; exit 0;; *vip_users*|*tasher_style*) echo 1; exit 0;; esac\ncat >> "${SQLLOG}"\necho "-- END" >> "${SQLLOG}"\n`); fs.chmodSync(FAKE, 0o755);
 fs.writeFileSync(path.join(dir, "wp.cnf"), "[client]\n");
 fs.writeFileSync(PAINTS, JSON.stringify(Object.fromEntries(require("../data/wdata.json").flatMap(w => w.skins.map((sk, i) => [(require("../lib/wp").defOf(w.n)) + "|" + sk[0], [1000 + i]])))));
 // поддельный journalctl: отдаёт строки журнала CS2 в формате JSON и «ждёт новых», как journalctl -f
@@ -257,11 +257,18 @@ const call = async (cookie, p, body, h = {}) => { const r = await fetch(B + p, b
     r = await call(W, "/api/cos/tag", { tag: "pro" }); ok(r.s === 200 && r.j.cos.tag === "PRO" && r.j.cos.eq.tag === "tag" && r.j.balance === 21, "свой тег в чате куплен за 79 ₽", r.j);
     await new Promise(z => setTimeout(z, 900));
     const sql = fs.readFileSync(SQLLOG, "utf8");
-    ok(/INSERT INTO tasher_style .*\(76561198000000009,'\{lime\}\[PRO\]','','PRO',''\)/.test(sql), "тег уходит в игру (TASHER Style)", sql.slice(-500));
+    ok(/INSERT INTO tasher_style \(steamid,chat_tag,name_color,score_tag,smoke,kill_fx,kill_snd,trail,tracer\) .*\(76561198000000009,'\{lime\}\[PRO\]','','PRO','','','','',''\)/.test(sql), "тег уходит в игру (TASHER Style)", sql.slice(-500));
     ok(RCMDS.includes("css_tasher_style_reload"), "сервер перечитывает стили сразу", RCMDS);
     r = await call(W, "/api/cos/eq", { cat: "tag", id: null }); ok(r.s === 200 && !r.j.cos.eq.tag && r.j.cos.tag === "PRO", "тег можно снять, не теряя его", r.j);
     await new Promise(z => setTimeout(z, 900));
-    ok(/\(76561198000000009,'\{lightblue\}\[TST\]','','TST',''\)/.test(fs.readFileSync(SQLLOG, "utf8")), "без своего тега в чате — тег клана", fs.readFileSync(SQLLOG, "utf8").slice(-400));
+    ok(/\(76561198000000009,'\{lightblue\}\[TST\]','','TST','','','','',''\)/.test(fs.readFileSync(SQLLOG, "utf8")), "без своего тега в чате — тег клана", fs.readFileSync(SQLLOG, "utf8").slice(-400));
+    // эффекты в игре: эффект и звук убийства, трассеры, след гранат, цвет дыма
+    await call(O4, "/api/admin/balance", { user: wid, cur: "rub", delta: 500, reason: "тест эффектов" });
+    for (const id of ["kl_bolt", "sd_coin", "tc_3", "tr_2", "sm_1"]) { r = await call(W, "/api/shop/cos", { id }); ok(r.s === 200 && Object.values(r.j.cos.eq).includes(id), "куплено и надето: " + id, r.j); }
+    await new Promise(z => setTimeout(z, 900));
+    ok(/\(76561198000000009,'\{lightblue\}\[TST\]','','TST','255,107,139','bolt','coin','56,211,255','245,196,81'\)/.test(fs.readFileSync(SQLLOG, "utf8")), "эффекты, звук, трассеры, след гранат и дым уходят в игру", fs.readFileSync(SQLLOG, "utf8").slice(-400));
+    r = await call(W, "/api/cos/eq", { cat: "tracer", id: null }); ok(r.s === 200 && !r.j.cos.eq.tracer, "трассеры снимаются", r.j);
+    r = await call(W, "/api/cos/eq", { cat: "kill", id: "kl_spark" }); ok(r.s === 409, "некупленный эффект не надеть", r);
     let html = await (await fetch(B + "/", { headers: { cookie: W } })).text(); ok(/"clans":\{"clans":\[/.test(html) && /"jackpot":\{"round"/.test(html) && /"wheel":\{"canSpin"/.test(html) && /"earn":\{"base"/.test(html), "кланы, джекпот, Фортуна и ТК за игру вписаны в страницу");
   }
   // журнал сходится с балансом

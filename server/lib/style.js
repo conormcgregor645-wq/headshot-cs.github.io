@@ -1,5 +1,6 @@
 "use strict";
-// Стиль игрока в игре (плагин TASHER Style): тег и цвет ника в чате, тег в таблице счёта, цвет дыма.
+// Стиль игрока в игре (плагин TASHER Style): тег и цвет ника в чате, тег в таблице счёта, цвет дыма,
+// эффект и звук убийства, трассеры пуль и след гранат.
 // Сайт собирает итог из статуса, клана и купленного оформления и пишет в таблицу tasher_style (та же база, что скины).
 const { execFile } = require("node:child_process");
 
@@ -13,7 +14,9 @@ const hexRgb = h => { const m = /^#([0-9a-f]{6})$/i.exec(h || ""); if (!m) retur
 const cleanTag = s => String(s || "").replace(/[^0-9A-Za-zА-Яа-яЁё _\-.!?*#]/g, "").replace(/\s+/g, " ").trim().slice(0, 12);
 const STEAM64 = 76561197960265728n;
 
-// rows: [{sid, tier, clanTag, clanColor, nick (id), tag (свой тег), smokeHex}]
+const KILL_FX = new Set(["spark", "bolt", "conf", "ring"]);
+const KILL_SND = new Set(["ding", "drum", "bell", "8bit", "coin"]);
+// rows: [{sid, tier, clanTag, clanColor, nick (id), tag (свой тег), smokeHex, killFx, killSnd, trailHex, tracerHex}]
 function compose(r) {
   const parts = [];
   if (r.tier) parts.push(`{${TIER_COL[r.tier] || "default"}}[${r.tier}]`);
@@ -23,14 +26,16 @@ function compose(r) {
   const name = NICK_COL[r.nick] || (r.tier ? TIER_COL[r.tier] : "");
   const score = own || r.clanTag || r.tier || "";
   const smoke = r.smokeHex ? hexRgb(r.smokeHex) : r.tier === "KING" ? "random" : "";
-  return { chat: parts.join(" "), name, score: score.slice(0, 16), smoke };
+  const killFx = KILL_FX.has(r.killFx) ? r.killFx : "", killSnd = KILL_SND.has(r.killSnd) ? r.killSnd : "";
+  return { chat: parts.join(" "), name, score: score.slice(0, 16), smoke, killFx, killSnd, trail: hexRgb(r.trailHex), tracer: hexRgb(r.tracerHex) };
 }
 const q = s => "'" + String(s).replace(/[\\']/g, "") + "'";
-function sqlFor(rows) {
+// fx = в таблице есть колонки эффектов (их добавляет плагин версии 1.1 и новее)
+function sqlFor(rows, fx = false) {
   const ok = rows.filter(r => /^\d{17}$/.test(r.sid) && BigInt(r.sid) > STEAM64);
   const out = ["START TRANSACTION;", "DELETE FROM tasher_style;"];
-  if (ok.length) out.push("INSERT INTO tasher_style (steamid,chat_tag,name_color,score_tag,smoke) VALUES " +
-    ok.map(r => { const c = compose(r); return `(${r.sid},${q(c.chat)},${q(c.name)},${q(c.score)},${q(c.smoke)})`; }).join(",") + ";");
+  if (ok.length) out.push(`INSERT INTO tasher_style (steamid,chat_tag,name_color,score_tag,smoke${fx ? ",kill_fx,kill_snd,trail,tracer" : ""}) VALUES ` +
+    ok.map(r => { const c = compose(r); return `(${r.sid},${q(c.chat)},${q(c.name)},${q(c.score)},${q(c.smoke)}${fx ? `,${q(c.killFx)},${q(c.killSnd)},${q(c.trail)},${q(c.tracer)}` : ""})`; }).join(",") + ";");
   out.push("COMMIT;");
   return out.join("\n");
 }
@@ -44,10 +49,10 @@ function makeStyleSync({ cnf, bin = "mysql", db = "weaponpaints", collect, reloa
     if (input == null) p.stdin.end(); else p.stdin.end(input);
   });
   async function once() {
-    const has = (await run(["-e", "SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='tasher_style'"])).trim();
+    const [has, cols] = (await run(["-e", "SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='tasher_style'; SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='tasher_style' AND COLUMN_NAME IN ('kill_fx','kill_snd','trail','tracer')"])).trim().split(/\s+/);
     if (has !== "1") { if (!warned) { warned = true; log.log("[style] таблицы tasher_style ещё нет — плагин TASHER Style не установлен"); } return { skipped: true }; }
     warned = false;
-    const sql = sqlFor(collect());
+    const sql = sqlFor(collect(), cols === "4");
     if (sql === lastSql) return { same: true };
     await run([], sql); lastSql = sql;
     try { await reload(); } catch (e) {}

@@ -2491,12 +2491,14 @@ nav a.on,nav a.on svg{color:#b5e853!important}
 .co-smk{width:70px;height:50px;border-radius:50%;background:radial-gradient(circle at 40% 50%,var(--sc),transparent 60%),radial-gradient(circle at 65% 45%,var(--sc),transparent 55%);filter:blur(8px);opacity:.85;animation:csSmk 4s ease-in-out infinite}
 @keyframes csSmk{50%{transform:scale(1.15) translateX(4px);opacity:.6}}
 .co-trl{width:120px;height:4px;border-radius:2px;background:linear-gradient(90deg,transparent,var(--tc));box-shadow:0 0 12px var(--tc);transform:rotate(-18deg);position:relative}
+.co-trc{width:120px;height:2px;border-radius:1px;background:linear-gradient(90deg,transparent,var(--tc) 40%,#fff);box-shadow:0 0 10px var(--tc);transform:rotate(-12deg);position:relative}
+.co-trc::before{content:"";position:absolute;left:-10px;top:-5px;width:12px;height:12px;border-radius:50%;background:radial-gradient(circle,#fff,var(--tc) 40%,transparent 70%)}
 .co-trl::after{content:"";position:absolute;right:-6px;top:-4px;width:12px;height:12px;border-radius:50%;background:#555;box-shadow:0 0 8px var(--tc)}
 .kfx{position:absolute;inset:0;z-index:1;pointer-events:none}
 .kfx-spark{background:radial-gradient(circle,#ffd36b 0 2.5px,transparent 3.5px) 38% 30%/14px 14px no-repeat,radial-gradient(circle,#ff8a3d 0 2px,transparent 3px) 64% 36%/12px 12px no-repeat,radial-gradient(circle,#ffd36b 0 2px,transparent 3px) 30% 64%/12px 12px no-repeat,radial-gradient(circle,#fff 0 1.5px,transparent 2.5px) 70% 68%/10px 10px no-repeat,radial-gradient(circle,#ff8a3d 0 2px,transparent 3px) 50% 20%/12px 12px no-repeat,radial-gradient(circle,rgba(255,170,60,.35),transparent 55%)}
 .kfx-bolt{background:radial-gradient(circle,rgba(56,211,255,.6),transparent 55%)}
 .kfx-conf{background:linear-gradient(30deg,#ff6b8b,#ff6b8b) 34% 28%/8px 4px no-repeat,linear-gradient(#b5e853,#b5e853) 66% 32%/4px 8px no-repeat,linear-gradient(#38d3ff,#38d3ff) 28% 66%/7px 4px no-repeat,linear-gradient(#f5c451,#f5c451) 70% 70%/4px 7px no-repeat,linear-gradient(#a78bfa,#a78bfa) 52% 18%/6px 4px no-repeat,linear-gradient(#ff6b8b,#ff6b8b) 48% 82%/4px 6px no-repeat}
-.kfx-smoke{background:radial-gradient(circle,rgba(0,0,0,.9),rgba(40,40,40,.5) 40%,transparent 65%)}
+.kfx-ring{background:radial-gradient(circle,transparent 0 30%,#f5c451 31% 35%,transparent 36% 45%,rgba(255,255,255,.9) 46% 48%,transparent 49%)}
 .kfx.go{animation:kfxGo .7s ease-out}
 @keyframes kfxGo{0%{transform:scale(.3);opacity:1}100%{transform:scale(1.6);opacity:0}}
 .co-tagin{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
@@ -4737,8 +4739,8 @@ function keepScroll(f){const y=window.scrollY,m=new Map();document.querySelector
 var COS={own:{},eq:{},tag:""};{const o=lsGet("cos1","obj");if(o){if(isObj(o.own))COS.own=o.own;if(isObj(o.eq))COS.eq=o.eq;if(typeof o.tag==="string")COS.tag=o.tag}
   Object.keys(COS.eq).forEach(k=>{if(typeof COS.eq[k]!=="string")delete COS.eq[k]});delete COS.eq.ava;if(COS.eq.bg&&!/^bg_i_/.test(COS.eq.bg))delete COS.eq.bg}
 const cosSave=()=>{if(SRV)return;try{localStorage.setItem("cos1",JSON.stringify(COS))}catch(e){}};
-// на сервере купленное и надетое хранится в аккаунте (сейчас — оформление профиля; эффекты в игре появятся позже)
-const COS_SRV=["frame","bg","badge","nick","smoke","tag"];
+// на сервере купленное и надетое хранится в аккаунте; эффекты в игре включает плагин TASHER Style
+const COS_SRV=["frame","bg","badge","nick","smoke","tag","kill","snd","trail","tracer"];
 function srvCosSet(c){if(!SRV||!c)return;COS.own=Object.fromEntries((Array.isArray(c.own)?c.own:[]).map(id=>[String(id),1]));COS.eq={};COS.tag=typeof c.tag==="string"?c.tag:"";
   if(c.eq&&typeof c.eq==="object")COS_SRV.forEach(k=>{if(typeof c.eq[k]==="string")COS.eq[k]=c.eq[k]})}
 if(SRV){COS={own:{},eq:{},tag:""};srvCosSet(SRV.cos)}
@@ -4758,13 +4760,14 @@ var CI=[
  ...[["#b5e853","Лайм"],["#38d3ff","Циан"],["#ff6b8b","Розовый"],["#f5c451","Золото"],["#a78bfa","Фиолет"],["#eb4b4b","Красный"]].map(([v,n],i)=>({id:"nk_"+i,cat:"nick",n,p:39,v})),
  {id:"nk_grad1",cat:"nick",n:"Закат",p:119,v:"linear-gradient(90deg,#ff8a3d,#ff6b8b,#a78bfa)",grad:1},{id:"nk_grad2",cat:"nick",n:"Токсик",p:119,v:"linear-gradient(90deg,#b5e853,#38d3ff)",grad:1},
  {id:"tag",cat:"tag",n:"Свой тег в чате",p:79,v:"tag"},
- {id:"kl_spark",cat:"kill",n:"Искры",p:79,v:"spark"},{id:"kl_bolt",cat:"kill",n:"Разряд",p:119,v:"bolt"},{id:"kl_conf",cat:"kill",n:"Конфетти",p:99,v:"conf"},{id:"kl_smoke",cat:"kill",n:"Чёрный дым",p:99,v:"smoke"},
- {id:"sd_ding",cat:"snd",n:"Хедшот-дзынь",p:59,v:[[1760,.12],[2637,.25]]},{id:"sd_drum",cat:"snd",n:"Барабан",p:59,v:[[110,.15],[82,.25]]},{id:"sd_bell",cat:"snd",n:"Колокол",p:79,v:[[880,.6],[1320,.5]]},{id:"sd_8bit",cat:"snd",n:"8-бит",p:69,v:[[523,.07],[659,.07],[784,.07],[1047,.15]]},
+ {id:"kl_spark",cat:"kill",n:"Искры",p:79,v:"spark"},{id:"kl_bolt",cat:"kill",n:"Разряд",p:119,v:"bolt"},{id:"kl_conf",cat:"kill",n:"Конфетти",p:99,v:"conf"},{id:"kl_ring",cat:"kill",n:"Золотое кольцо",p:99,v:"ring"},
+ {id:"sd_ding",cat:"snd",n:"Дзынь",p:59,v:[[1760,.12],[2637,.25]]},{id:"sd_drum",cat:"snd",n:"Бонус",p:59,v:[[392,.08],[523,.08],[784,.2]]},{id:"sd_bell",cat:"snd",n:"Колокол",p:79,v:[[880,.6],[1320,.5]]},{id:"sd_8bit",cat:"snd",n:"Левел-ап",p:69,v:[[523,.07],[659,.07],[784,.07],[1047,.15]]},{id:"sd_coin",cat:"snd",n:"Монетка",p:59,v:[[988,.07],[1319,.22]]},
  ...[["#b5e853","Лайм"],["#ff6b8b","Розовый"],["#38d3ff","Голубой"],["#f5c451","Жёлтый"],["#a78bfa","Фиолетовый"],["#eb4b4b","Красный"]].map(([v,n],i)=>({id:"sm_"+i,cat:"smoke",n,p:79,v})),
- ...[["#ffffff","Белый"],["#b5e853","Лайм"],["#38d3ff","Голубой"],["#ff8a3d","Оранжевый"],["#ff6b8b","Розовый"]].map(([v,n],i)=>({id:"tr_"+i,cat:"trail",n,p:59,v}))];
+ ...[["#ffffff","Белый"],["#b5e853","Лайм"],["#38d3ff","Голубой"],["#ff8a3d","Оранжевый"],["#ff6b8b","Розовый"]].map(([v,n],i)=>({id:"tr_"+i,cat:"trail",n,p:59,v})),
+ ...[["#ffffff","Белый"],["#b5e853","Лайм"],["#38d3ff","Голубой"],["#f5c451","Золото"],["#ff6b8b","Розовый"],["#eb4b4b","Красный"]].map(([v,n],i)=>({id:"tc_"+i,cat:"tracer",n,p:99,v}))];
 const CCAT={frame:["Рамки аватара","Обводка аватарки в профиле, рейтинге и джекпоте"],bg:["Фоны профиля","Фон шапки твоего профиля"],badge:["Значки","Иконка рядом с ником в рейтинге и джекпоте"],
- nick:["Цвет ника","Ник в чате сервера, рейтинге и на сайте"],tag:["Тег в чате","До 6 символов перед ником: [TAG] Ник"],kill:["Эффект убийства","Вспышка на месте фрага"],snd:["Звук убийства","Слышишь только ты"],smoke:["Цвет дыма","Твои дымовые гранаты"],trail:["Трейл гранат","Светящийся след за гранатой"]};
-const CTABS={prof:["frame","bg","badge"],game:SRV?["nick","tag","smoke"]:["nick","tag","kill","snd","smoke","trail"]};
+ nick:["Цвет ника","Ник в чате сервера, рейтинге и на сайте"],tag:["Тег в чате","До 6 символов перед ником: [TAG] Ник"],kill:["Эффект убийства","Вспышка на месте фрага, видят все"],snd:["Звук убийства","Слышишь только ты"],smoke:["Цвет дыма","Твои дымовые гранаты"],trail:["Трейл гранат","Светящийся след за гранатой"],tracer:["Трассеры пуль","Луч от ствола до попадания, видят все"]};
+const CTABS={prof:["frame","bg","badge"],game:["nick","tag","kill","snd","tracer","smoke","trail"]};
 function cosI(id){return CI?CI.find(x=>x.id===id):null}function cosEq(cat){if(!CI||!COS)return null;const id=COS.eq[cat];return id?cosI(id):null}
 function isMe(n){try{return n===ME.n}catch(e){return false}}
 function cosAvInner(n,c){return SRV&&ME.av&&isMe(n)?`<img src="${esc(ME.av)}" alt="" referrerpolicy="no-referrer">`:""}
@@ -4789,7 +4792,8 @@ function cosSwatch(it){const c=it.cat;
   if(c==="kill")return`<span class="co-sw co-kl" data-kl="${it.v}"><i class="kfx kfx-${it.v}"></i><svg viewBox="0 0 24 24" class="co-skull">${BADGES.skull}</svg></span>`;
   if(c==="snd")return`<span class="co-sw"><svg viewBox="0 0 24 24" class="co-spk"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/></svg></span>`;
   if(c==="smoke")return`<span class="co-sw"><i class="co-smk" style="--sc:${it.v}"></i></span>`;
-  if(c==="trail")return`<span class="co-sw"><i class="co-trl" style="--tc:${it.v}"></i></span>`;return""}
+  if(c==="trail")return`<span class="co-sw"><i class="co-trl" style="--tc:${it.v}"></i></span>`;
+  if(c==="tracer")return`<span class="co-sw"><i class="co-trc" style="--tc:${it.v}"></i></span>`;return""}
 function cosItem(it){const own=!!COS.own[it.id],eq=COS.eq[it.cat]===it.id;
   return`<div class="co-it${eq?" eq":""}${it.season?" season":""}" data-csp="${it.id}">${cosSwatch(it)}<div class="co-in"><b>${esc(it.n)}</b><small>${[it.anim?"Анимированная":"",it.season?"Сезонная":"",own?"Куплено":""].filter(Boolean).join(" · ")||"&nbsp;"}</small></div>
    <button type="button" class="${eq?"ghost":own?"ghost on":"steam"} co-b" data-cs="${it.id}">${eq?"Снять":own?"Надеть":`${fmt(it.p)} ₽`}</button></div>`}
@@ -4802,17 +4806,17 @@ function cosClamp(){document.querySelectorAll("#cosBox .co-grid[data-ccat]").for
   mb.hidden=false;if(COSX[cat]){its.forEach(x=>x.hidden=false);mb.classList.add("open");mb.querySelector("i").textContent="−";mb.querySelector("span").textContent="Свернуть";return}
   const rows=cols===1?3:cols===2?2:1,show=Math.min(its.length,cols*rows)-1;if(show>=its.length-1){its.forEach(x=>x.hidden=false);mb.hidden=true;return}its.forEach((x,i)=>x.hidden=i>=show);mb.classList.remove("open");mb.querySelector("i").textContent="+";mb.querySelector("span").textContent=`Ещё ${its.length-show}`})}
 var cosRT;window.addEventListener("resize",()=>{clearTimeout(cosRT);cosRT=setTimeout(()=>{if($("cosBox")&&$("cosBox").offsetParent)cosClamp()},120)});
-function pfMine(){const cats=["frame","bg","badge","nick","kill","snd","smoke","trail"];
+function pfMine(){const cats=["frame","bg","badge","nick","kill","snd","tracer","smoke","trail"];
   const groups=cats.map(c=>[c,CI.filter(x=>x.cat===c&&COS.own[x.id])]).filter(([c,l])=>l.length);
   const tag=COS.tag?`<section class="co-sec"><div class="co-sh"><b>Тег в чате</b></div><div class="co-tagcur"><small>Сейчас</small><b><span class="co-tg">[${esc(COS.tag)}]</span> ${esc(ME.n)}</b><button type="button" class="ghost co-b" data-tagt>${COS.eq.tag?"Снять":"Надеть"}</button></div></section>`:"";
   return`<div class="pf-hr"><h2>Мои вещи</h2><a class="ghost" href="#style">В магазин</a></div>`+(groups.length||tag?`<div class="pf-cos">${groups.map(([c,l])=>`<section class="co-sec"><div class="co-sh"><b>${CCAT[c][0]}</b><span>${l.length} ${plural(l.length,"предмет","предмета","предметов")}</span></div><div class="co-grid${c==="bg"?" wide":""}">${l.map(cosItem).join("")}</div></section>`).join("")}${tag}</div>`:`<div class="pf-empty">Ты ещё ничего не купил в «Стиле». Рамки, фоны, значки и цвет ника появятся здесь, и их можно будет надевать прямо из профиля.</div><a class="steam pf-cta" href="#style">Открыть «Стиль»</a>`)}
 function cosTagBox(){const has=!!COS.tag,on=!!COS.eq.tag;return`<div class="co-tagbox"><div class="co-tagcur"><small>Сейчас</small><b>${has?`<span class="co-tg">[${esc(COS.tag)}]</span> ${esc(logged?ME.n:"Player")}`:"Тега нет"}</b>${has?`<button type="button" class="ghost co-b" data-tagt>${on?"Снять":"Надеть"}</button>`:""}</div>
   <div class="co-tagin"><input id="cosTagIn" maxlength="6" placeholder="${has?esc(COS.tag):"TAG"}" autocomplete="off"><button type="button" class="steam" data-tagbuy>${has?"Сменить":"Купить"} · ${fmt(CI.find(x=>x.id==="tag").p)} ₽</button></div><small class="co-note">Латиница и цифры, до 6 символов. Каждая установка или смена тега стоит 79 ₽.</small></div>`}
-function cosPreview(){const n=logged?ME.n:"Гость",fr=cosEq("frame"),bg=cosEq("bg"),av=null,kl=cosEq("kill"),sm=cosEq("smoke"),tr=cosEq("trail"),tg=cosTagTxt();
+function cosPreview(){const n=logged?ME.n:"Гость",fr=cosEq("frame"),bg=cosEq("bg"),av=null,kl=cosEq("kill"),sm=cosEq("smoke"),tr=cosEq("trail"),tc=cosEq("tracer"),tg=cosTagTxt();
   return`<div class="co-pv"><div class="co-pvh${cosBgCls(bg)}" style="${cosBg(bg)}">${cosLayer(bg)}<i class="co-pva${fr?" fr fr-"+fr.v:""}" style="--ac:${ME.c}">${av?jpAvSvg(av.v,av.c):esc(n[0].toUpperCase())}</i><div><b class="co-pvn"${cosNick(n)}>${esc(n)}</b>${cosBadge(n)}<small>Так тебя видят в профиле</small></div></div>
    <div class="co-pvr"><span class="co-pvl">Рейтинг</span><div class="co-pvrow"><span>#11</span><i class="co-avs${fr?" fr fr-"+fr.v:""}" style="--ac:${ME.c}">${av?jpAvSvg(av.v,av.c):esc(n[0].toUpperCase())}</i><b${cosNick(n)}>${esc(n)}</b>${cosBadge(n)}</div></div>
    <div class="co-pvr"><span class="co-pvl">Чат сервера</span><div class="co-chat"><span class="ct">${tg?`[${esc(tg)}] `:""}</span><b${cosNick(n)}>${esc(n)}</b>: gg wp</div></div>
-   <div class="co-pvr"><span class="co-pvl">В игре</span><div class="co-game"><span>Убийство: <b>${kl?kl.n:"стандарт"}</b></span><span>Звук: <b>${cosEq("snd")?cosEq("snd").n:"стандарт"}</b></span><span>Дым: ${sm?`<i class="dot" style="background:${sm.v}"></i>${sm.n}`:"<b>серый</b>"}</span><span>Трейл: ${tr?`<i class="dot" style="background:${tr.v}"></i>${tr.n}`:"<b>нет</b>"}</span></div></div></div>`}
+   <div class="co-pvr"><span class="co-pvl">В игре</span><div class="co-game"><span>Убийство: <b>${kl?kl.n:"стандарт"}</b></span><span>Звук: <b>${cosEq("snd")?cosEq("snd").n:"стандарт"}</b></span><span>Дым: ${sm?`<i class="dot" style="background:${sm.v}"></i>${sm.n}`:"<b>серый</b>"}</span><span>Трейл: ${tr?`<i class="dot" style="background:${tr.v}"></i>${tr.n}`:"<b>нет</b>"}</span><span>Трассеры: ${tc?`<i class="dot" style="background:${tc.v}"></i>${tc.n}`:"<b>нет</b>"}</span></div></div></div>`}
 // ---- казна клана
 const CLAN_UP={col:99,emb:149,slots:249,tag:199};
 var EMBS={star:BADGES.star,skull:BADGES.skull,bolt:BADGES.bolt,crown:BADGES.crown,wolf:BADGES.wolf,aim:BADGES.aim};
