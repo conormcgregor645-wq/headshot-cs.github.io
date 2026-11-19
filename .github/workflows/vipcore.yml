@@ -1,0 +1,44 @@
+# Сборка VIPCore с правками TASHER (меню на WASD, цветной дым) — архив выкладывается в релиз vipcore-tasher
+name: vipcore
+on:
+  push:
+    paths: ["plugins/vipcore/**", ".github/workflows/vipcore.yml"]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Build
+        working-directory: plugins/vipcore/src
+        run: |
+          set -e
+          dotnet publish VIPCore/VIPCore.csproj -c Release -p:Version=2.0.3 -o ../out/VIPCore
+          dotnet publish modules/VIP_SmokeColor/VIP_SmokeColor.csproj -c Release -p:Version=2.0.3 -o ../out/VIP_SmokeColor
+      - name: Package
+        working-directory: plugins/vipcore
+        run: |
+          set -e
+          P=pkg/addons/counterstrikesharp
+          mkdir -p $P/plugins $P/shared/CS2MenuManager
+          # библиотека VipCoreApi и сама CounterStrikeSharp уже есть на сервере — их не кладём
+          rm -f out/VIPCore/VipCoreApi.* out/VIPCore/CounterStrikeSharp.API.* out/VIP_SmokeColor/VipCoreApi.* out/VIP_SmokeColor/CounterStrikeSharp.API.*
+          cp -r out/VIPCore $P/plugins/VIPCore
+          cp -r src/VIPCore/lang $P/plugins/VIPCore/lang
+          mkdir -p $P/plugins/VIP_SmokeColor && cp out/VIP_SmokeColor/VIP_SmokeColor.dll $P/plugins/VIP_SmokeColor/
+          cp cs2menumanager.toml $P/shared/CS2MenuManager/config.toml
+          test -f $P/plugins/VIPCore/VIPCore.dll && test -f $P/plugins/VIPCore/CS2MenuManager.dll && test -f $P/plugins/VIP_SmokeColor/VIP_SmokeColor.dll
+          (cd pkg && zip -qr ../VIPCore-tasher.zip addons)
+          unzip -l VIPCore-tasher.zip
+      - name: Release
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete vipcore-tasher --yes --cleanup-tag 2>/dev/null || true
+          gh release create vipcore-tasher plugins/vipcore/VIPCore-tasher.zip --title "VIPCore (TASHER)" --notes "VIPCore 2.0.3 с меню на WASD и исправленным цветным дымом. Ставится скриптом server/deploy/vip-setup.sh" --target "$GITHUB_SHA"
