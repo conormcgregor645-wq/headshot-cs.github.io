@@ -1,0 +1,35 @@
+# Сборка плагина TASHER Style (тег и цвет ника в чате, цвет дыма) — архив в релизе tasherstyle
+name: tasherstyle
+on:
+  push:
+    paths: ["plugins/tasherstyle/**", ".github/workflows/tasherstyle.yml"]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Build
+        working-directory: plugins/tasherstyle
+        run: dotnet publish TasherStyle.csproj -c Release -o out
+      - name: Package
+        working-directory: plugins/tasherstyle
+        run: |
+          set -e
+          P=pkg/addons/counterstrikesharp/plugins/TasherStyle
+          mkdir -p $P
+          cp out/TasherStyle.dll out/TasherStyle.deps.json out/MySqlConnector.dll $P/
+          (cd pkg && zip -qr ../TasherStyle.zip addons)
+          unzip -l TasherStyle.zip
+      - name: Release
+        if: github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete tasherstyle --yes --cleanup-tag 2>/dev/null || true
+          gh release create tasherstyle plugins/tasherstyle/TasherStyle.zip --title "TASHER Style" --notes "Тег и цвет ника в чате, тег в таблице счёта, цвет дыма — по данным сайта. Ставится скриптом server/deploy/vip-setup.sh" --target "$GITHUB_SHA"
