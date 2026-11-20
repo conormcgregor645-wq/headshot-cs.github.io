@@ -8,6 +8,7 @@ using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes.Registration;
 using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Modules.Utils;
+using Microsoft.Extensions.Logging;
 using MySqlConnector;
 
 namespace TasherStyle;
@@ -29,7 +30,8 @@ public class QuestDay
 }
 
 public record PlayerInfo(string Name, string Tier, int Place, int Pts, int Kills, int Deaths, int Hs,
-    long Tk, int TkPending, int EarnToday, int EarnCap, string EarnMult, QuestDay? Quests);
+    long Tk, int TkPending, int EarnToday, int EarnCap, string EarnMult, QuestDay? Quests,
+    string League = "", int Sr = 0, string LeagueInfo = "", string Pass = "");
 
 public record TopRow(int Place, string Name, int Pts, int Kills, int Deaths);
 
@@ -38,6 +40,7 @@ public partial class TasherStyle
     private volatile Dictionary<ulong, PlayerInfo> _info = new();
     private volatile List<TopRow> _top = new();
     private volatile bool _infoLoaded;
+    private volatile bool _infoExt; // в tasher_player есть колонки лиги и пропуска (1.3)
     private readonly ConcurrentDictionary<ulong, DateTime> _greeted = new();
     private DateTime _lastGreetSound = DateTime.MinValue;
 
@@ -62,7 +65,7 @@ public partial class TasherStyle
         });
     }
 
-    private static async Task CreateInfoTablesAsync(MySqlConnection c)
+    private async Task CreateInfoTablesAsync(MySqlConnection c)
     {
         await using var cmd = c.CreateCommand();
         cmd.CommandText = @"CREATE TABLE IF NOT EXISTS tasher_player (
@@ -92,6 +95,23 @@ public partial class TasherStyle
                 deaths INT NOT NULL DEFAULT 0
             ) DEFAULT CHARSET=utf8mb4";
         await cmd2.ExecuteNonQueryAsync();
+        // колонки 1.3: лига и боевой пропуск
+        var ok = true;
+        foreach (var (col, def) in new[] { ("league", "VARCHAR(16) NOT NULL DEFAULT ''"), ("sr", "INT NOT NULL DEFAULT 0"), ("league_info", "VARCHAR(160) NOT NULL DEFAULT ''"), ("pass", "TEXT") })
+        {
+            await using var chk = c.CreateCommand();
+            chk.CommandText = "SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='tasher_player' AND COLUMN_NAME=@c";
+            chk.Parameters.AddWithValue("@c", col);
+            if (Convert.ToInt64(await chk.ExecuteScalarAsync()) > 0) continue;
+            try
+            {
+                await using var alter = c.CreateCommand();
+                alter.CommandText = $"ALTER TABLE tasher_player ADD COLUMN `{col}` {def}";
+                await alter.ExecuteNonQueryAsync();
+            }
+            catch (Exception e) { ok = false; Logger.LogError("[TASHER Style] не удалось добавить колонку {Col}: {Error}", col, e.Message); }
+        }
+        _infoExt = ok;
     }
 
     private async Task LoadInfoAsync(MySqlConnection c)
@@ -99,7 +119,8 @@ public partial class TasherStyle
         var map = new Dictionary<ulong, PlayerInfo>();
         await using (var cmd = c.CreateCommand())
         {
-            cmd.CommandText = "SELECT steamid, name, tier, place, pts, kills, deaths, hs, tk, tk_pending, earn_today, earn_cap, earn_mult, quests FROM tasher_player";
+            var ext = _infoExt;
+            cmd.CommandText = "SELECT steamid, name, tier, place, pts, kills, deaths, hs, tk, tk_pending, earn_today, earn_cap, earn_mult, quests" + (ext ? ", league, sr, league_info, pass" : "") + " FROM tasher_player";
             await using var r = await cmd.ExecuteReaderAsync();
             while (await r.ReadAsync())
             {
@@ -110,7 +131,8 @@ public partial class TasherStyle
                     if (js.Length > 0) { try { q = JsonSerializer.Deserialize<QuestDay>(js); } catch { q = null; } }
                 }
                 map[r.GetUInt64(0)] = new PlayerInfo(r.GetString(1), r.GetString(2), r.GetInt32(3), r.GetInt32(4), r.GetInt32(5), r.GetInt32(6), r.GetInt32(7),
-                    r.GetInt64(8), r.GetInt32(9), r.GetInt32(10), r.GetInt32(11), r.GetString(12), q);
+                    r.GetInt64(8), r.GetInt32(9), r.GetInt32(10), r.GetInt32(11), r.GetString(12), q,
+                    ext ? r.GetString(14) : "", ext ? r.GetInt32(15) : 0, ext ? r.GetString(16) : "", ext && !r.IsDBNull(17) ? r.GetString(17) : "");
             }
         }
         var top = new List<TopRow>();
@@ -178,6 +200,13 @@ public partial class TasherStyle
         return false;
     }
 
+    private static char LeagueColor(string league) => league switch
+    {
+        "Железо" => ChatColors.Grey, "Бронза" => ChatColors.Orange, "Серебро" => ChatColors.Silver, "Золото" => ChatColors.Gold,
+        "Платина" => ChatColors.LightBlue, "Алмаз" => ChatColors.Blue, "Мастер" => ChatColors.Purple, "Легенда" => ChatColors.Red,
+        _ => ChatColors.Default,
+    };
+
     private static string Kd(int k, int d) => d == 0 ? k.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) : ((double)k / d).ToString("0.00", System.Globalization.CultureInfo.InvariantCulture);
     private static string Num(long v) => v.ToString("#,0", System.Globalization.CultureInfo.InvariantCulture).Replace(",", " ");
 
@@ -186,6 +215,10 @@ public partial class TasherStyle
     {
         if (player is not { IsValid: true } || player.IsBot) return;
         if (!InfoReady(player, out var i)) return;
+        if (i.LeagueInfo.Length > 0)
+            player.PrintToChat(i.League.Length > 0
+                ? $"{Prefix}Лига: {LeagueColor(i.League)}{i.League}{ChatColors.Default} · сила {ChatColors.Lime}{i.Sr}{ChatColors.Default} · {i.LeagueInfo}"
+                : $"{Prefix}Лига: {ChatColors.Grey}{i.LeagueInfo}");
         if (i.Place == 0)
         {
             player.PrintToChat($"{Prefix}В этом месяце у тебя пока нет очков рейтинга — сыграй пару раундов.");
