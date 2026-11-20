@@ -3,6 +3,7 @@
 // эффект и звук убийства, трассеры пуль и след гранат.
 // Сайт собирает итог из статуса, клана и купленного оформления и пишет в таблицу tasher_style (та же база, что скины).
 const { execFile } = require("node:child_process");
+const { LEAGUES } = require("./skill");
 
 const TIER_COL = { VIP: "silver", PREMIUM: "lightblue", ELITE: "green", LEGEND: "purple", TITAN: "orange", KING: "gold" };
 // цвета ника с сайта -> цвета чата CS2 (в чате только фиксированные цвета; градиенты — ближайшим)
@@ -19,6 +20,8 @@ const KILL_SND = new Set(["ding", "drum", "bell", "8bit", "coin"]);
 // rows: [{sid, tier, clanTag, clanColor, nick (id), tag (свой тег), smokeHex, killFx, killSnd, trailHex, tracerHex}]
 function compose(r) {
   const parts = [];
+  // лига (после калибровки) — первым тегом в чате
+  if (Number.isInteger(r.league) && LEAGUES[r.league]) parts.push(`{${LEAGUES[r.league].chat}}[${LEAGUES[r.league].n}]`);
   if (r.tier) parts.push(`{${TIER_COL[r.tier] || "default"}}[${r.tier}]`);
   const own = cleanTag(r.tag);
   if (own) parts.push(`{lime}[${own}]`);

@@ -10,6 +10,11 @@ const { makeClans, COST } = require("../lib/clans");
 const STYLE = require("../lib/style");
 const QM = require("../lib/quests");
 const INFO = require("../lib/gameinfo");
+const MK = require("../lib/market");
+const SKM = require("../lib/skill");
+const EVM = require("../lib/events");
+const PM = require("../lib/pass");
+const G = require("../lib/game");
 const { prevMonth } = require("../lib/control");
 let fails = 0; const ok = (c, n, x) => { if (!c) fails++; console.log((c ? "  ok  " : "FAIL  ") + n + (c ? "" : " " + JSON.stringify(x))); };
 const thr = (f, re) => { try { f(); return false; } catch (e) { return re.test(e.message) ? e : false; } };
@@ -236,6 +241,157 @@ const bal = u => db.prepare("SELECT tk, rub FROM users WHERE id=?").get(u.id);
   const js = /'(\{"l":.*?\})'\)/.exec(sql); let parsed = null; try { parsed = JSON.parse(js[1]); } catch (e) {}
   ok(parsed && parsed.l.length === 3 && parsed.l[0].g === list[0].goal && parsed.b === 1 && parsed.bt === QM.ALL_BONUS, "задания для игры — правильный JSON", js && js[1]);
   ok(/INSERT INTO tasher_top \(place,steamid,name,pts,kills,deaths\) VALUES \(1,\d{17},'Топ1',120,40,20\)/.test(sql), "топ-10 для !top");
+  ok(!/tasher_punish/.test(sql), "старый плагин без таблицы мутов — её не трогаем");
+  const ps = INFO.sqlFor([], [], [{ sid, mute: { until: Date.UTC(2026, 10, 20, 12), reason: "Мат'; DROP" }, gag: null }, { sid: stranger, mute: null, gag: { until: 0, reason: "Спам" } }, { sid: "1", mute: { until: 0, reason: "x" } }]);
+  ok(/DELETE FROM tasher_punish;/.test(ps) && new RegExp(`\\(${sid},${Date.UTC(2026, 10, 20, 12) / 1000},'Мат; DROP',-1,''\\)`).test(ps) && new RegExp(`\\(${stranger},-1,'',0,'Спам'\\)`).test(ps) && !/\(1,/.test(ps), "муты и геги для игры: срок в секундах, -1 нет, 0 навсегда", ps);
+  ok(/DELETE FROM tasher_punish;\nCOMMIT;/.test(INFO.sqlFor([], [], [])), "все наказания сняты — таблица очищается");
+}
+
+// ---------- торговая площадка ----------
+{
+  const logs = [];
+  const M = MK.makeMarket({ db, tx: T, addMoney, itemValue: G.itemValue, catOf: w => (G.W.find(x => x.n === w) || {}).c || "", now, log: { log: m => logs.push(m) } });
+  const s1 = user(501, 0), b1 = user(502, 10000), b2 = user(503, 5);
+  const ak = G.W.find(w => w.n === "AK-47"), sk = ak.skins[0];
+  let k = 0; const give = (u, w = "AK-47", s = sk[0], wear = 0.1) => { const id = "mk" + (++k); db.prepare("INSERT INTO items(id,user_id,w,s,r,wear,st,sv,sp,fx,seed,src,src_ref,state,created_at) VALUES(?,?,?,?,?,?,0,0,NULL,0,1,'case','x','inv',?)").run(id, u.id, w, s, 3, wear, NOW); return id; };
+  const i1 = give(s1), v = G.itemValue(db.prepare("SELECT * FROM items WHERE id=?").get(i1));
+  db.prepare("INSERT INTO loadout(user_id,team,slot,item_id) VALUES(?,?,?,?)").run(s1.id, "t", "AK-47", i1);
+  ok(thr(() => M.listItem(s1, i1, 0), /целое/) && thr(() => M.listItem(s1, i1, 1.5), /целое/) && thr(() => M.listItem(s1, i1, MK.maxPrice(v) + 1), /Слишком высокая/), "цена: целая, от 1, не выше трёх цен сайта");
+  ok(thr(() => M.listItem(b1, i1, 100), /не найден/), "чужой скин не выставить");
+  let r = M.listItem(s1, i1, 1000);
+  ok(r.lot.price === 1000 && r.unequipped && db.prepare("SELECT state FROM items WHERE id=?").get(i1).state === "market" && !db.prepare("SELECT 1 FROM loadout WHERE item_id=?").get(i1), "скин выставлен: ушёл из инвентаря и снят с персонажа", r);
+  ok(thr(() => M.listItem(s1, i1, 900), /не найден|использован/), "дважды не выставить");
+  let B = M.browse(); ok(B.total === 1 && B.lots[0].it.w === "AK-47" && B.lots[0].seller === "U501" && B.lots[0].v === v, "лот на витрине", B);
+  ok(M.browse({ q: "ak-4" }).total === 1 && M.browse({ q: "нет" }).total === 0 && M.browse({ cat: "rifle" }).total === 1 && M.browse({ cat: "knife" }).total === 0 && M.browse({ r: "3" }).total === 1 && M.browse({ r: "1" }).total === 0, "поиск и фильтры");
+  ok(thr(() => M.buy(s1, B.lots[0].id), /твой лот/), "свой лот не купить");
+  ok(thr(() => M.buy(b2, B.lots[0].id), /Не хватает/), "без денег не купить");
+  ok(thr(() => M.buy(b1, B.lots[0].id, 999), /изменилась/), "цена изменилась — покупка не проходит");
+  const fee = MK.feeOf(1000);
+  r = M.buy(b1, B.lots[0].id, 1000);
+  ok(fee === 50 && r.tk === 9000 && bal(s1).tk === 950 && db.prepare("SELECT user_id, state FROM items WHERE id=?").get(i1).user_id === b1.id && db.prepare("SELECT state FROM items WHERE id=?").get(i1).state === "inv", "покупка: 1000 ТК, продавцу 950 (комиссия 5%), скин у покупателя", { tk: r.tk, s: bal(s1) });
+  ok(thr(() => M.buy(b1, B.lots[0].id), /уже купили/), "дважды не купить");
+  ok(M.browse().total === 0, "проданный лот ушёл с витрины");
+  const h1 = M.mine(s1).hist[0], h2 = M.mine(b1).hist[0];
+  ok(h1.kind === "sold" && h1.got === 950 && h1.fee === 50 && h2.kind === "bought" && h2.got === -1000 && M.feed()[0].price === 1000, "история продавца и покупателя, лента продаж", { h1, h2 });
+  ok(db.prepare("SELECT COUNT(*) n FROM ledger WHERE kind='market'").get().n === 2, "в журнале операций две записи");
+  // покупатель перепродаёт; снятие с продажи
+  r = M.listItem(b1, i1, 500); ok(r.lot.price === 500 && !r.unequipped, "купленный скин можно перепродать");
+  M.cancel(b1, r.lot.id); ok(db.prepare("SELECT state FROM items WHERE id=?").get(i1).state === "inv" && M.browse().total === 0 && M.mine(b1).open.length === 0, "снят с продажи — вернулся в инвентарь");
+  ok(thr(() => M.cancel(b1, r.lot.id), /не найден/) && thr(() => M.cancel(s1, 99999), /не найден/), "снять дважды или чужой — нельзя");
+  // лимит лотов
+  for (let n = 0; n < MK.MAX_LOTS; n++) M.listItem(s1, give(s1), 10);
+  ok(thr(() => M.listItem(s1, give(s1), 10), /не больше 30/), "не больше 30 лотов");
+  ok(M.browse().total === 30 && M.browse({ sort: "cheap" }).lots.length === 30 && M.browse({ offset: 29 }).lots.length === 1, "страницы витрины");
+  ok(MK.feeOf(1) === 0 && MK.feeOf(10) === 1 && MK.feeOf(100) === 5, "комиссия 5%, на копеечных лотах не больше 1");
+}
+
+// ---------- лиги ----------
+{
+  const K = SKM.makeSkill({ db, now });
+  const h = (n, team) => ({ sid: sidN(n), n: "H" + n, team, bot: false }), bot = team => ({ sid: null, n: "Bot", team, bot: true });
+  const kill = (a, v, warm = false) => K.apply({ e: "kill", a, v }, warm);
+  ok(K.info(sidN(601)).calib && K.info(sidN(601)).sr === SKM.START && K.info(sidN(601)).lg === null, "новичок: калибровка, сила 1000");
+  kill(h(601, "ct"), h(602, "t"));
+  const a1 = K.info(sidN(601)), b1 = K.info(sidN(602));
+  ok(a1.sr === 1006 && b1.sr === 994 && a1.n === 1 && b1.n === 1, "убийство равного: +6 / −6", { a1, b1 });
+  kill(h(601, "ct"), h(602, "t"), true); ok(K.info(sidN(601)).n === 1, "разминка не считается");
+  kill(h(601, "ct"), h(601, "ct")); ok(K.info(sidN(601)).n === 1, "самоубийство не считается");
+  kill(h(601, "ct"), h(603, "ct")); ok(Math.round(K.info(sidN(601)).sr) === 1001 && !db.prepare("SELECT 1 FROM skill WHERE sid=?").get(sidN(603)), "тимкилл −5 убийце, жертве ничего");
+  const s0 = db.prepare("SELECT sr FROM skill WHERE sid=?").get(sidN(601)).sr;
+  kill(h(601, "ct"), bot("t")); const s1 = db.prepare("SELECT sr FROM skill WHERE sid=?").get(sidN(601)).sr;
+  kill(bot("t"), h(601, "ct")); const s2 = db.prepare("SELECT sr FROM skill WHERE sid=?").get(sidN(601)).sr;
+  ok(s1 - s0 > 0 && s1 - s0 < 3 && s1 - s2 > 0 && s1 - s2 < 3, "боты дают и отнимают мало", { s0, s1, s2 });
+  // сильный против слабого: за слабого мало, за сильного много
+  db.prepare("INSERT OR REPLACE INTO skill(sid,sr,n,peak,updated_at) VALUES(?,?,?,?,?)").run(sidN(610), 1500, 100, 1500, NOW);
+  db.prepare("INSERT OR REPLACE INTO skill(sid,sr,n,peak,updated_at) VALUES(?,?,?,?,?)").run(sidN(611), 900, 100, 900, NOW);
+  kill(h(610, "ct"), h(611, "t")); const strongWin = db.prepare("SELECT sr FROM skill WHERE sid=?").get(sidN(610)).sr - 1500;
+  kill(h(611, "t"), h(610, "ct")); const upset = db.prepare("SELECT sr FROM skill WHERE sid=?").get(sidN(611)).sr - (900 - strongWin);
+  ok(strongWin > 0 && strongWin < 1.5 && upset > 10, "победа над слабым почти ничего не даёт, над сильным — много", { strongWin, upset });
+  K.round([sidN(610)], [sidN(611)]); ok(Math.abs(db.prepare("SELECT sr FROM skill WHERE sid=?").get(sidN(610)).sr - (1500 + strongWin - upset + 1)) < 1e-6, "раунд: +1 победителям, −1 проигравшим");
+  // лиги и калибровка
+  const i610 = K.info(sidN(610)); ok(i610.lg === SKM.leagueIdx(i610.sr) && SKM.LEAGUES[i610.lg].n === "Алмаз" && i610.next.n === "Мастер" && i610.next.need === Math.ceil(1550 - db.prepare("SELECT sr FROM skill WHERE sid=?").get(sidN(610)).sr), "лига и следующая", i610);
+  for (let n = 0; n < 45; n++) kill(h(620, "ct"), bot("t"));
+  const i620 = K.info(sidN(620)); ok(!i620.calib && i620.lg != null && i620.left === 0, "после 40 событий калибровка закончена", i620);
+  ok(SKM.leagueIdx(799) === 0 && SKM.leagueIdx(800) === 1 && SKM.leagueIdx(1100) === 3 && SKM.leagueIdx(1700) === 7 && SKM.leagueIdx(5000) === 7, "границы лиг");
+  const bd = K.board(); ok(bd.leagues.length === 8 && bd.leagues.reduce((x, l) => x + l.count, 0) === bd.total && bd.top[0].sid === sidN(610), "таблица лиг: число игроков и сильнейшие", bd);
+  const st = STYLE.compose({ league: 3, tier: "VIP" }); ok(st.chat === "{gold}[Золото] {silver}[VIP]", "лига — первым тегом в чате игры", st);
+  const r0 = db.prepare("SELECT sr FROM skill WHERE sid=?").get(sidN(610)).sr;
+  K.softReset(0.5); ok(Math.abs(db.prepare("SELECT sr FROM skill WHERE sid=?").get(sidN(610)).sr - (1000 + (r0 - 1000) * 0.5)) < 1e-6, "мягкий сброс сезона: половина пути к 1000");
+  ok(K.info(sidN(610)).n <= 20, "после сброса — короткая перекалибровка");
+}
+
+// ---------- события по расписанию ----------
+{
+  const msk = (y, mo, d, h, mi = 0) => Date.UTC(y, mo - 1, d, h - 3, mi); // время по Москве -> UTC
+  let T0 = msk(2026, 11, 20, 20, 30); // пятница 20:30 МСК
+  const E = EVM.makeEvents({ db, now: () => T0 });
+  const titles = () => E.active().map(a => a.title).sort().join();
+  ok(titles() === "Пятница заданий,Счастливый час" && E.mult("tk") === 2 && E.mult("quest") === 2 && E.mult("xp") === 1, "пятница 20:30: счастливый час и пятница заданий", E.active());
+  const hap = E.active().find(a => a.title === "Счастливый час"); ok(hap.to === msk(2026, 11, 20, 21), "счастливый час до 21:00", new Date(hap.to).toISOString());
+  T0 = msk(2026, 11, 20, 21, 0); ok(E.mult("tk") === 1, "в 21:00 закончился");
+  T0 = msk(2026, 11, 21, 0, 0); ok(E.mult("quest") === 1 && E.mult("xp") === 2, "суббота 00:00: пятница кончилась, выходные опыта начались");
+  T0 = msk(2026, 11, 22, 23, 59); ok(E.mult("xp") === 2, "воскресенье 23:59 ещё выходные");
+  T0 = msk(2026, 11, 23, 0, 0); ok(E.mult("xp") === 1, "понедельник — выходные кончились");
+  const up = E.upcoming(); ok(up[0].title === "Счастливый час" && up[0].from === msk(2026, 11, 23, 20), "ближайшее — счастливый час в 20:00", up.slice(0, 2));
+  // через полночь и разовые
+  const adm = { id: 1, name: "Owner" };
+  ok(E.create(adm, { kind: "nope", title: "x" }).error && E.create(adm, { kind: "tk2", title: "Ночь", days: [], start: "23:00", end: "02:00" }).error && E.create(adm, { kind: "tk2", title: "Ночь", days: [1], start: "25:00", end: "02:00" }).error, "неверные события отклоняются");
+  const n1 = E.create(adm, { kind: "tk2", title: "Ночные ТК", days: [1], start: "23:00", end: "02:00" }); ok(n1.id && !n1.error, "событие через полночь создано", n1);
+  T0 = msk(2026, 11, 24, 1, 30); ok(E.mult("tk") === 2 && E.active()[0].to === msk(2026, 11, 24, 2), "вторник 01:30 — ещё понедельничная ночь", E.active());
+  T0 = msk(2026, 11, 24, 2, 0); ok(E.mult("tk") === 1, "в 02:00 ночь кончилась");
+  const o = E.create(adm, { kind: "xp2", title: "Новый год", once: true, from: msk(2026, 12, 31, 18), to: msk(2027, 1, 2, 0) }); ok(o.id, "разовое событие", o);
+  T0 = msk(2027, 1, 1, 12); ok(E.mult("xp") === 2 && E.active().some(a => a.title === "Новый год"), "разовое идёт");
+  ok(E.toggle(o.id, false).events.find(x => x.id === o.id).enabled === false && E.mult("xp") === 1, "выключенное событие не действует");
+  ok(E.remove(o.id).events.every(x => x.id !== o.id) && E.remove(o.id).code === 404, "удаление");
+  ok(E.list().some(x => x.desc === "пн 23:00–02:00 МСК") && E.list().some(x => x.desc === "сб, вс 00:00–00:00 МСК" || /сб, вс 00:00–24:00|сб, вс/.test(x.desc)), "описание расписания", E.list().map(x => x.desc));
+  // влияние на ТК и задания
+  T0 = msk(2026, 11, 20, 20, 30);
+  const E2 = makeEarn({ db, tx: T, addMoney, statusOf: () => null, eventMult: t => E.mult("tk", t), now: () => T0 });
+  const before = (db.prepare("SELECT tk FROM earn_pending WHERE sid=?").get(sidN(701)) || { tk: 0 }).tk;
+  E2.add(sidN(701), 10, T0); ok((db.prepare("SELECT tk FROM earn_pending WHERE sid=?").get(sidN(701)).tk - before) === 20 && E2.today(sidN(701), T0).mult === 2, "счастливый час: ТК за игру ×2");
+  const Q2 = QM.makeQuests({ db, tx: T, addMoney, eventMult: t => E.mult("quest", t), now: () => T0, log: { error() {} } });
+  const st2 = Q2.state(null); ok(st2.x === 2 && st2.list.every((q, i) => q.reward === QM.forDay(QM.mskDay(T0))[i].reward * 2) && st2.bonusTk === 600, "пятница заданий: награды ×2 видны", st2);
+}
+
+// ---------- боевой пропуск ----------
+{
+  let T1 = Date.UTC(2026, 10, 20, 12); let xpm = 1; const grants = []; let ong = 0;
+  const COS = new Map(JSON.parse(fs.readFileSync(path.join(__dirname, "..", "data", "cosmetics.json"), "utf8")).map(x => [x.id, x]));
+  const gi = (uid, it, src, ref) => { db.prepare("INSERT INTO items(id,user_id,w,s,r,wear,st,sv,sp,fx,seed,src,src_ref,state,created_at) VALUES(?,?,?,?,?,?,0,0,NULL,0,?,?,?,'inv',?)").run(it.id, uid, it.w, it.s, it.r, it.wear, it.seed || 0, src, ref || null, T1); return it; };
+  const P = PM.makePass({ db, tx: T, addMoney, giveItem: gi, rollCase: G.rollCase, caseByK: k => G.CASE_BY_K.get(k), cosById: id => COS.get(id), addGrant: (...a) => grants.push(a), onGrant: () => ong++, eventMult: () => xpm, now: () => T1, log: { log() {} } });
+  ok(PM.REWARDS.free.length === 50 && PM.REWARDS.prem.length === 50 && [...PM.REWARDS.free, ...PM.REWARDS.prem].flat().every(r => r.t === "tk" ? r.v > 0 : r.t === "case" ? !!G.CASE_BY_K.get(r.k) : r.t === "cos" ? COS.has(r.id) : r.t === "status" ? ["VIP", "PREMIUM", "ELITE", "LEGEND", "TITAN", "KING"].includes(r.tier) && r.d > 0 : false), "50 уровней: все награды существуют (кейсы, оформление, статусы)");
+  const u = user(801, 0, 1000), sid = u.steamid;
+  ok(P.season().id === "s1" && P.state(sid).me.lv === 0, "идёт сезон 1");
+  const k = (a, v, hs) => ({ t: T1, e: "kill", a: { sid: a, team: "ct" }, v: v ? { sid: v, team: "t" } : { sid: null, bot: true, team: "t" }, w: "ak47", hs });
+  P.apply(k(sid, sidN(899), true), false); ok(P.state(sid).me.xp === 13, "убийство с хедшотом 13 опыта");
+  P.apply(k(sid, null, true), false); ok(P.state(sid).me.xp === 15, "бот — 2 опыта (без бонуса за хедшот)");
+  P.apply(k(sid, sidN(899)), true); ok(P.state(sid).me.xp === 15, "разминка не считается");
+  for (let i = 0; i < 400; i++) P.minute([sid], T1);
+  ok(P.state(sid).me.today === PM.DAY_CAP && P.state(sid).me.xp === PM.DAY_CAP, "лимит опыта за игру — 1500 в сутки", P.state(sid).me);
+  P.quest(sid, "hard", T1); ok(P.state(sid).me.xp === PM.DAY_CAP + 500, "задания — сверх лимита");
+  xpm = 2; T1 += 86400e3; P.minute([sid], T1); xpm = 1; ok(P.state(sid).me.xp === PM.DAY_CAP + 510, "новый день, выходные опыта ×2");
+  ok(P.state(sid).me.lv === 1 && thr(() => P.claim(u, { track: "f", lv: 2 }), /Нужен уровень 2/), "2010 опыта — уровень 1; награду выше уровня не забрать");
+  db.prepare("UPDATE pass SET xp=? WHERE sid=?").run(5 * PM.XP_LEVEL + 10, sid);
+  let st = P.state(sid); ok(st.me.lv === 5 && st.me.unclaimed === 5 && st.me.into === 10, "уровень 5, 5 бесплатных наград ждут", st.me);
+  ok(thr(() => P.claim(u, { track: "p", lv: 1 }), /премиум/), "премиум-награду без премиума не забрать");
+  const tk0 = bal(u).tk;
+  let r = P.claim(u, { track: "f", lv: 1 }); ok(r.got[0].txt === "110 ТК" && bal(u).tk === tk0 + 110, "забрал уровень 1: 110 ТК", r);
+  ok(thr(() => P.claim(u, { track: "f", lv: 1 }), /Уже получено/), "дважды не забрать");
+  r = P.claim(u, { all: true }); ok(r.got.length === 4 && r.got.some(g => g.lv === 5 && /кейс «Армейский»/.test(g.txt)) && db.prepare("SELECT COUNT(*) n FROM items WHERE user_id=? AND src='pass'").get(u.id).n === 1, "«Забрать всё»: ТК и скин из кейса", r.got);
+  ok(P.state(sid).me.unclaimed === 0, "всё получено");
+  r = P.buyPremium(u); ok(r.balance === 1000 - PM.PREMIUM_PRICE && P.state(sid).me.prem && P.state(sid).me.unclaimed === 5, "премиум куплен — открылись премиум-награды пройденных уровней", P.state(sid).me);
+  ok(thr(() => P.buyPremium(u), /уже куплен/), "дважды не купить");
+  r = P.claim(u, { all: true }); ok(r.got.length === 5 && r.got.some(g => g.track === "p" && /кейс «Огненный»/.test(g.txt)), "премиум-награды получены", r.got);
+  // статус и оформление
+  db.prepare("UPDATE pass SET xp=? WHERE sid=?").run(50 * PM.XP_LEVEL + 9999, sid);
+  ok(P.state(sid).me.lv === 50, "уровень не выше 50");
+  db.prepare("INSERT INTO cos_own(user_id,item_id,created_at) VALUES(?,?,?)").run(u.id, "fr_winter", T1);
+  const t1 = bal(u).tk; ong = 0; grants.length = 0;
+  r = P.claim(u, { track: "p", lv: 50 });
+  ok(grants.length === 1 && grants[0][1] === "KING" && grants[0][2] === 14 && ong === 1 && r.got.some(g => /2490 ТК вместо «Зима 2026»/.test(g.txt)) && bal(u).tk === t1 + 2490, "уровень 50: KING на 14 дней, уже купленная рамка — ТК", r.got);
+  r = P.claim(u, { track: "f", lv: 10 }); ok(db.prepare("SELECT 1 FROM cos_own WHERE user_id=? AND item_id='bd_aim'").get(u.id) && r.got[0].txt === "«Прицел»", "оформление из пропуска — в «Моих вещах»");
+  const b = P.brief(sid); ok(b.lv === 50 && b.prem === 1 && b.s === "Сезон 1 · Зима" && b.un > 0, "данные для !pass", b);
+  T1 = Date.UTC(2027, 1, 5); ok(P.state(sid).season === null && P.addXp(sid, 100, T1) === 0 && thr(() => P.claim(u, { all: true }), /закончился/), "после конца сезона опыт и награды закрыты");
 }
 
 db.close(); fs.rmSync(dir, { recursive: true, force: true });

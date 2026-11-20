@@ -183,6 +183,36 @@ function open(file) {
        sid TEXT NOT NULL, day TEXT NOT NULL, qid TEXT NOT NULL, n INTEGER NOT NULL DEFAULT 0, done INTEGER NOT NULL DEFAULT 0,
        PRIMARY KEY(sid, day, qid)
      );`,
+    // 8: мут (голос) и гег (чат) — в той же таблице, что баны
+    `ALTER TABLE bans ADD COLUMN kind TEXT NOT NULL DEFAULT 'ban';
+     CREATE INDEX bans_kind ON bans(kind, sid);`,
+    // 9: торговая площадка
+    `CREATE TABLE market(
+       id INTEGER PRIMARY KEY, item_id TEXT NOT NULL, seller_id INTEGER NOT NULL REFERENCES users(id), price INTEGER NOT NULL CHECK(price>0),
+       state TEXT NOT NULL DEFAULT 'open', buyer_id INTEGER, fee INTEGER NOT NULL DEFAULT 0, created_at INTEGER NOT NULL, closed_at INTEGER
+     );
+     CREATE INDEX market_state ON market(state, id);
+     CREATE INDEX market_seller ON market(seller_id, state);
+     CREATE INDEX market_buyer ON market(buyer_id);
+     CREATE UNIQUE INDEX market_item_open ON market(item_id) WHERE state='open';`,
+    // 10: лиги — рейтинг силы игроков
+    `CREATE TABLE skill(sid TEXT PRIMARY KEY, sr REAL NOT NULL, n INTEGER NOT NULL DEFAULT 0, peak REAL NOT NULL, updated_at INTEGER NOT NULL);
+     CREATE INDEX skill_sr ON skill(sr);`,
+    // 11: события по расписанию (время московское); три стандартных включены сразу
+    `CREATE TABLE events(
+       id INTEGER PRIMARY KEY, kind TEXT NOT NULL, title TEXT NOT NULL, once INTEGER NOT NULL DEFAULT 0,
+       days TEXT NOT NULL DEFAULT '', start_min INTEGER NOT NULL DEFAULT 0, end_min INTEGER NOT NULL DEFAULT 0,
+       from_at INTEGER NOT NULL DEFAULT 0, to_at INTEGER NOT NULL DEFAULT 0, enabled INTEGER NOT NULL DEFAULT 1,
+       created_by TEXT NOT NULL DEFAULT '', created_at INTEGER NOT NULL DEFAULT 0
+     );
+     INSERT INTO events(kind,title,days,start_min,end_min) VALUES ('tk2','Счастливый час','0,1,2,3,4,5,6',1200,1260);
+     INSERT INTO events(kind,title,days,start_min,end_min) VALUES ('quest2','Пятница заданий','5',0,1440);
+     INSERT INTO events(kind,title,days,start_min,end_min) VALUES ('xp2','Выходные опыта','6,0',0,1440);`,
+    // 12: боевой пропуск
+    `CREATE TABLE pass(
+       sid TEXT NOT NULL, season TEXT NOT NULL, xp INTEGER NOT NULL DEFAULT 0, prem INTEGER NOT NULL DEFAULT 0, claimed TEXT NOT NULL DEFAULT '',
+       day TEXT NOT NULL DEFAULT '', day_xp INTEGER NOT NULL DEFAULT 0, updated_at INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(sid, season)
+     );`,
   ];
   for (let v = ver; v < MIG.length; v++) {
     db.exec("BEGIN");

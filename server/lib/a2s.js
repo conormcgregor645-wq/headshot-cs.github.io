@@ -87,7 +87,7 @@ async function poll(list, timeout = 1500, rconPass = "", onStatus = null) {
     try {
       const i = await info(s.host, s.port, timeout);
       let pl = [];
-      if (rconPass && i.players > i.bots) { try { const st = RCON.parseStatus(await rconStatus(s, rconPass, timeout + 1000)); if (onStatus) { try { onStatus(s, st); } catch (e) {} } pl = st.filter(p => !p.bot).map(p => ({ n: p.n, t: p.t })); } catch (e) { pl = []; } }
+      if (rconPass && i.players > i.bots) { try { const st = RCON.parseStatus(await rconStatus(s, rconPass, timeout + 1000)); if (onStatus) { try { onStatus(s, st); } catch (e) {} } pl = st.map(p => (p.bot ? { n: p.n, t: 0, bot: 1 } : { n: p.n, t: p.t })); } catch (e) { pl = []; } }
       else if (!rconPass) { try { pl = await players(s.host, s.port, timeout); } catch (e) {} }
       return { name: i.name || s.name, addr: s.addr, map: i.map, players: Math.max(0, i.players - i.bots), bots: i.bots, max: i.max, online: true, list: pl };
     } catch (e) {

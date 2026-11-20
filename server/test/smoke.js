@@ -8,7 +8,7 @@ fs.writeFileSync(path.join(dir, "index.html"), "<!doctype html><html><head><titl
 // поддельный клиент mysql: сохраняет присланный SQL в файл, чтобы проверить запись скинов в игру
 const SQLLOG = path.join(dir, "sql.log"), FAKE = path.join(dir, "mysql"), PAINTS = path.join(dir, "paints.json");
 // на проверку «есть ли таблица VIP-плагина» отвечает 1
-fs.writeFileSync(FAKE, `#!/bin/sh\ncase "$*" in *kill_fx*) printf '1\\n4\\n'; exit 0;; *tasher_player*) echo 2; exit 0;; *vip_users*|*tasher_style*) echo 1; exit 0;; esac\ncat >> "${SQLLOG}"\necho "-- END" >> "${SQLLOG}"\n`); fs.chmodSync(FAKE, 0o755);
+fs.writeFileSync(FAKE, `#!/bin/sh\ncase "$*" in *kill_fx*) printf '1\\n4\\n'; exit 0;; *league_info*) printf '2\\n1\\n3\\n1\\n'; exit 0;; *tasher_punish*) printf '2\\n1\\n'; exit 0;; *tasher_player*) echo 2; exit 0;; *vip_users*|*tasher_style*) echo 1; exit 0;; esac\ncat >> "${SQLLOG}"\necho "-- END" >> "${SQLLOG}"\n`); fs.chmodSync(FAKE, 0o755);
 fs.writeFileSync(path.join(dir, "wp.cnf"), "[client]\n");
 fs.writeFileSync(PAINTS, JSON.stringify(Object.fromEntries(require("../data/wdata.json").flatMap(w => w.skins.map((sk, i) => [(require("../lib/wp").defOf(w.n)) + "|" + sk[0], [1000 + i]])))));
 // поддельный journalctl: отдаёт строки журнала CS2 в формате JSON и «ждёт новых», как journalctl -f
@@ -257,23 +257,31 @@ const call = async (cookie, p, body, h = {}) => { const r = await fetch(B + p, b
     r = await call(W, "/api/cos/tag", { tag: "pro" }); ok(r.s === 200 && r.j.cos.tag === "PRO" && r.j.cos.eq.tag === "tag" && r.j.balance === 21, "свой тег в чате куплен за 79 ₽", r.j);
     await new Promise(z => setTimeout(z, 900));
     const sql = fs.readFileSync(SQLLOG, "utf8");
-    ok(/INSERT INTO tasher_style \(steamid,chat_tag,name_color,score_tag,smoke,kill_fx,kill_snd,trail,tracer\) .*\(76561198000000009,'\{lime\}\[PRO\]','','PRO','','','','',''\)/.test(sql), "тег уходит в игру (TASHER Style)", sql.slice(-500));
+    ok(/INSERT INTO tasher_style \(steamid,chat_tag,name_color,score_tag,smoke,kill_fx,kill_snd,trail,tracer\) .*\(76561198000000009,'(\{\w+\}\[\w+\] )?\{lime\}\[PRO\]','\w*','PRO','\w*','','','',''\)/.test(sql), "тег уходит в игру (TASHER Style)", sql.slice(-500));
     ok(RCMDS.includes("css_tasher_style_reload"), "сервер перечитывает стили сразу", RCMDS);
     r = await call(W, "/api/cos/eq", { cat: "tag", id: null }); ok(r.s === 200 && !r.j.cos.eq.tag && r.j.cos.tag === "PRO", "тег можно снять, не теряя его", r.j);
     await new Promise(z => setTimeout(z, 900));
-    ok(/\(76561198000000009,'\{lightblue\}\[TST\]','','TST','','','','',''\)/.test(fs.readFileSync(SQLLOG, "utf8")), "без своего тега в чате — тег клана", fs.readFileSync(SQLLOG, "utf8").slice(-400));
+    ok(/\(76561198000000009,'(\{\w+\}\[\w+\] )?\{lightblue\}\[TST\]','\w*','TST','\w*','','','',''\)/.test(fs.readFileSync(SQLLOG, "utf8")), "без своего тега в чате — тег клана", fs.readFileSync(SQLLOG, "utf8").slice(-400));
     // эффекты в игре: эффект и звук убийства, трассеры, след гранат, цвет дыма
     await call(O4, "/api/admin/balance", { user: wid, cur: "rub", delta: 500, reason: "тест эффектов" });
     for (const id of ["kl_bolt", "sd_coin", "tc_3", "tr_2", "sm_1"]) { r = await call(W, "/api/shop/cos", { id }); ok(r.s === 200 && Object.values(r.j.cos.eq).includes(id), "куплено и надето: " + id, r.j); }
     await new Promise(z => setTimeout(z, 900));
-    ok(/\(76561198000000009,'\{lightblue\}\[TST\]','','TST','255,107,139','bolt','coin','56,211,255','245,196,81'\)/.test(fs.readFileSync(SQLLOG, "utf8")), "эффекты, звук, трассеры, след гранат и дым уходят в игру", fs.readFileSync(SQLLOG, "utf8").slice(-400));
+    ok(/\(76561198000000009,'(\{\w+\}\[\w+\] )?\{lightblue\}\[TST\]','\w*','TST','255,107,139','bolt','coin','56,211,255','245,196,81'\)/.test(fs.readFileSync(SQLLOG, "utf8")), "эффекты, звук, трассеры, след гранат и дым уходят в игру", fs.readFileSync(SQLLOG, "utf8").slice(-400));
     r = await call(W, "/api/cos/eq", { cat: "tracer", id: null }); ok(r.s === 200 && !r.j.cos.eq.tracer, "трассеры снимаются", r.j);
     r = await call(W, "/api/cos/eq", { cat: "kill", id: "kl_spark" }); ok(r.s === 409, "некупленный эффект не надеть", r);
     // задания дня и данные для команд в игре
-    r = (await call(W, "/api/me")).j; ok(r.quests && r.quests.list.length === 3 && r.quests.list.every(x => x.goal > 0 && x.reward > 0 && x.have >= 0) && r.quests.bonusTk === 300, "задания дня в профиле", r.quests);
+    r = (await call(W, "/api/me")).j; ok(r.quests && r.quests.list.length === 3 && r.quests.list.every(x => x.goal > 0 && x.reward > 0 && x.have >= 0) && r.quests.bonusTk === 300 * (r.quests.x || 1), "задания дня в профиле", r.quests);
     r = await call("", "/api/quests"); ok(r.s === 200 && r.j.quests.list.length === 3 && r.j.quests.list.every(x => x.have === 0), "гость видит задания", r.j);
     { let sqlI = ""; for (let i = 0; i < 40 && !/INSERT INTO tasher_player/.test(sqlI); i++) { await new Promise(z => setTimeout(z, 250)); sqlI = fs.readFileSync(SQLLOG, "utf8"); }
-      ok(/INSERT INTO tasher_player \(steamid,name,tier,place,pts,kills,deaths,hs,tk,tk_pending,earn_today,earn_cap,earn_mult,quests\) VALUES/.test(sqlI) && /'\{"l":\[\{"n":"/.test(sqlI), "данные для !rank/!tk/!quests уходят в игру", sqlI.slice(-300)); }
+      ok(/INSERT INTO tasher_player \(steamid,name,tier,place,pts,kills,deaths,hs,tk,tk_pending,earn_today,earn_cap,earn_mult,quests,league,sr,league_info,pass\) VALUES/.test(sqlI) && /'\{"l":\[\{"n":"/.test(sqlI), "данные для !rank/!tk/!quests уходят в игру", sqlI.slice(-300)); }
+    // мут с сайта: сразу в таблицу игры и команда серверу перечитать
+    fs.writeFileSync(SQLLOG, ""); RCMDS.length = 0;
+    r = await call(O4, "/api/admin/ban", { target: "76561198000000009", reason: "Мат в голосовом", mins: 30, kind: "mute" });
+    ok(r.s === 200 && r.j.ban.kind === "mute" && r.j.ban.mins === 30 && !r.j.kicked, "мут выдан с сайта", r.j);
+    { let sp = ""; for (let i = 0; i < 20 && !/INSERT INTO tasher_punish/.test(sp); i++) { await new Promise(z => setTimeout(z, 150)); sp = fs.readFileSync(SQLLOG, "utf8"); }
+      ok(/INSERT INTO tasher_punish \(steamid,mute_until,mute_reason,gag_until,gag_reason\) VALUES \(76561198000000009,\d{10},'Мат в голосовом',-1,''\)/.test(sp) && RCMDS.includes("css_tasher_style_reload"), "мут сразу уходит в игру", sp.slice(-300)); }
+    r = await call("", "/api/bans"); ok(r.j.bans.some(b => b.kind === "mute" && b.active && b.sid === "76561198000000009"), "мут виден в банлисте", r.j.bans.slice(0, 2));
+    r = await call(W, "/api/admin/ban", { target: "76561198000000009", reason: "xx", mins: 30, kind: "gag" }); ok(r.s === 403, "игрок не может выдавать наказания", r.s);
     let html = await (await fetch(B + "/", { headers: { cookie: W } })).text(); ok(/"clans":\{"clans":\[/.test(html) && /"jackpot":\{"round"/.test(html) && /"wheel":\{"canSpin"/.test(html) && /"earn":\{"base"/.test(html), "кланы, джекпот, Фортуна и ТК за игру вписаны в страницу");
   }
   // журнал сходится с балансом

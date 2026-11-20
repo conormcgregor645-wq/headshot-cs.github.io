@@ -78,6 +78,31 @@ let fails = 0; const ok = (c, n, x) => { if (!c) fails++; console.log((c ? "  ok
   r = CT.unban(admin, bl[0].id); ok(!r.error && !r.ban.active && r.ban.lifted && !CT.activeBan(sidN(105)), "разбан");
   ok(CT.unban(admin, bl[0].id).code === 404, "повторный разбан — ошибка");
   T += 8 * 864e5; ok(!CT.activeBan(sidN(107)) && CT.listBans().find(b => b.sid === sidN(107)).active === false, "бан на 7 дней истекает");
+  // ---------- мут и гег ----------
+  {
+    const sanc = []; const CT2 = C.makeControl({ db, tx: fn => tx(db, fn), stats: ST, month: GL.month, rcon, servers: [{ host: "127.0.0.1", port: 27015 }], now, log: { log() {}, error() {} }, onSanction: () => sanc.push(1) });
+    sent.length = 0;
+    r = await CT2.ban(admin, { target: "P8", reason: "Мат в голосовом", mins: 60, kind: "mute" });
+    ok(!r.error && r.ban.kind === "mute" && r.ban.kindRu === "Мут" && r.ban.mins === 60 && r.ban.until === T + 3600e3 && r.kicked === false && !sent.some(c => c.startsWith("kickid")) && sanc.length === 1, "мут на час: без кика, игра узнаёт сразу", { r, sent });
+    ok(!CT2.activeBan(sidN(108)) && CT2.activeMute(sidN(108)) && !CT2.activeGag(sidN(108)), "мут — не бан и не гег");
+    ok((await CT2.ban(admin, { target: "P8", reason: "ещё", mins: 30, kind: "mute" })).code === 409, "второй мут не выдаётся");
+    ok((await CT2.ban(admin, { target: "P8", reason: "ещё", mins: 30, kind: "silence" })).code === 409, "мут+гег при действующем муте — нельзя");
+    r = await CT2.ban(admin, { target: "P8", reason: "Спам в чате", mins: 0, kind: "gag" });
+    ok(!r.error && r.ban.perm && CT2.activeGag(sidN(108)), "гег навсегда поверх мута");
+    r = await CT2.ban(admin, { target: "P9", reason: "Оскорбления", mins: 1440, kind: "silence" });
+    ok(!r.error && CT2.activeMute(sidN(109)) && CT2.activeGag(sidN(109)), "мут и гег сразу");
+    ok((await CT2.ban(admin, { target: "P9", reason: "x", mins: 10, kind: "wat" })).error && (await CT2.ban(admin, { target: "P9", reason: "xx", mins: -5, kind: "gag" })).error, "неверный тип или срок отклоняются");
+    let S2 = CT2.activeSanctions(); const s8 = S2.find(x => x.sid === sidN(108)), s9 = S2.find(x => x.sid === sidN(109));
+    ok(S2.length === 2 && s8.mute.until === T + 3600e3 && s8.gag.until === 0 && s9.mute.until === T + 86400e3 && s9.gag.until === T + 86400e3, "действующие муты и геги для игры", S2);
+    ok(CT2.listBans().filter(b => b.kind !== "ban").length === 3 && CT2.listBans().some(b => b.kind === "silence" && b.kindRu === "Мут и гег"), "в банлисте видно тип наказания");
+    // бан не выдаётся из-за мута, и наоборот
+    r = await CT2.ban(admin, { target: "P9", reason: "Читы", days: 1 }); ok(!r.error && r.ban.kind === "ban", "бан при действующем муте выдаётся");
+    // снятие и истечение
+    const g = CT2.listBans().find(b => b.kind === "gag" && b.sid === sidN(108));
+    sanc.length = 0; r = CT2.unban(admin, g.id); ok(!r.error && !CT2.activeGag(sidN(108)) && sanc.length === 1, "гег снят, игра узнаёт сразу");
+    T += 3601e3; S2 = CT2.activeSanctions();
+    ok(!CT2.activeMute(sidN(108)) && !S2.find(x => x.sid === sidN(108)) && S2.find(x => x.sid === sidN(109)), "мут на час истёк сам");
+  }
 
   // ---------- команды сервера ----------
   statusText = "    1      BOT    0    0     active      0 'Bot'\n    5    00:10   20    0     active 786432 1.1.1.1:1 'P5'\n";

@@ -49,6 +49,14 @@ ST=$(curl -fsS -m 5 $SITE/api/statuses 2>/dev/null | jq '.statuses | length' 2>/
 [ -n "$ST" ] && ok "статусов на сайте сейчас: $ST" || bad "сайт не отдаёт статусы"
 SV=$(curl -fsS -m 8 $SITE/api/servers 2>/dev/null | jq -r '.servers[] | "\(.name // "сервер"): \(if .online == false then "выключен" else "\(.players // 0)/\(.max // 0) игроков, карта \(.map // "?")" end)"' 2>/dev/null)
 [ -n "$SV" ] && ok "список серверов на сайте: $(printf '%s' "$SV" | paste -sd ';' -)" || warn "сайт не показывает серверы (/api/servers пуст)"
+PS=$(curl -fsS -m 5 $SITE/api/pass 2>/dev/null | jq -r 'if .season then "\(.season.n), \(.levels) уровней" else "сезон не идёт" end' 2>/dev/null)
+[ -n "$PS" ] && ok "боевой пропуск: $PS" || bad "сайт не отдаёт боевой пропуск (/api/pass) — запусти tasher-update"
+EV=$(curl -fsS -m 5 $SITE/api/events 2>/dev/null | jq -r '[.active[].title] | if length>0 then "идёт: " + join(", ") else "сейчас ничего, ближайшее — " end' 2>/dev/null)
+[ -n "$EV" ] && ok "события: $EV$(curl -fsS -m 5 $SITE/api/events 2>/dev/null | jq -r 'if (.active|length)==0 and (.upcoming|length)>0 then .upcoming[0].title else "" end' 2>/dev/null)" || bad "сайт не отдаёт события (/api/events)"
+MKT=$(curl -fsS -m 5 "$SITE/api/market" 2>/dev/null | jq -r '.all' 2>/dev/null)
+[ -n "$MKT" ] && [ "$MKT" != null ] && ok "торговая площадка: лотов $MKT" || bad "торговая площадка не отвечает (/api/market)"
+LGN=$(curl -fsS -m 5 "$SITE/api/leagues" 2>/dev/null | jq -r '.total' 2>/dev/null)
+[ -n "$LGN" ] && [ "$LGN" != null ] && ok "лиги: прошли калибровку $LGN игроков" || bad "лиги не отвечают (/api/leagues)"
 STK=$(getenv START_TK); [ "${STK:-0}" -gt 0 ] 2>/dev/null && ok "бонус новым игрокам: $STK ТК" || warn "бонус новым игрокам выключен (START_TK=${STK:-0}) — его включает vip-setup.sh"
 
 # ---------------------------------------------------------------- 3
@@ -83,12 +91,12 @@ has "^TASHER Style" && ok "TASHER Style загружен" || bad "TASHER Style �
 VER=$(python3 - "$CSS/plugins/TasherStyle/TasherStyle.dll" <<'PY' 2>/dev/null
 import sys,re
 b=open(sys.argv[1],'rb').read()
-for v in ("1.2.0","1.1.0","1.0.0"):
+for v in ("1.3.0","1.2.0","1.1.0","1.0.0"):
     if v.encode('utf-16-le') in b: print(v); break
 PY
 )
 case "$VER" in
-  1.2.0) ok "версия TASHER Style 1.2.0 (эффекты, !rank !top !tk !quests, приветствие)";;
+  1.3.0) ok "версия TASHER Style 1.3.0 (эффекты, команды, приветствие, мут и гег, лиги, пропуск)";;
   "") warn "не удалось узнать версию TASHER Style";;
   *) bad "TASHER Style старой версии ($VER) — запусти vip-setup.sh";;
 esac
@@ -105,8 +113,8 @@ CFG=$CSS/configs/plugins/TasherStyle/TasherStyle.json
 # ---------------------------------------------------------------- 5
 head_ "5/7 База игры (статусы, стили, данные для команд)"
 if ! sq "SELECT 1" >/dev/null; then bad "MySQL не отвечает"; else
-  T=$(sq "SELECT GROUP_CONCAT(TABLE_NAME) FROM information_schema.TABLES WHERE TABLE_SCHEMA='weaponpaints' AND TABLE_NAME IN ('vip_users','tasher_style','tasher_player','tasher_top','wp_player_skins')")
-  for t in vip_users tasher_style tasher_player tasher_top wp_player_skins; do
+  T=$(sq "SELECT GROUP_CONCAT(TABLE_NAME) FROM information_schema.TABLES WHERE TABLE_SCHEMA='weaponpaints' AND TABLE_NAME IN ('vip_users','tasher_style','tasher_player','tasher_top','tasher_punish','wp_player_skins')")
+  for t in vip_users tasher_style tasher_player tasher_top tasher_punish wp_player_skins; do
     case ",$T," in *",$t,"*) ;; *) bad "нет таблицы $t";; esac
   done
   FX=$(sq "SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA='weaponpaints' AND TABLE_NAME='tasher_style' AND COLUMN_NAME IN ('kill_fx','kill_snd','trail','tracer')")
@@ -124,6 +132,9 @@ if ! sq "SELECT 1" >/dev/null; then bad "MySQL не отвечает"; else
   elif [ "${ST:-0}" -gt 0 ]; then bad "сайт не пишет данные для команд в игре (tasher_player пуст) — journalctl -u tasher | grep info"
   else warn "данных для команд пока нет (на сервере никого и статусов нет)"; fi
   NW=$(sq "SELECT COUNT(DISTINCT steamid) FROM weaponpaints.wp_player_skins"); note "игроков со скинами с сайта: ${NW:-0}"
+  NL=$(sq "SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA='weaponpaints' AND TABLE_NAME='tasher_player' AND COLUMN_NAME IN ('league','sr','league_info','pass')")
+  [ "$NL" = 4 ] && ok "колонки лиг и пропуска для !rank и !pass есть" || bad "нет колонок лиг и пропуска в tasher_player — запусти vip-setup.sh"
+  NM=$(sq "SELECT COUNT(*) FROM weaponpaints.tasher_punish"); note "действующих мутов и гегов в игре: ${NM:-0}"
 fi
 
 # ---------------------------------------------------------------- 6

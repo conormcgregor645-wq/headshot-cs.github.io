@@ -78,7 +78,7 @@ function matches(q, ev) {
   return true;
 }
 
-function makeQuests({ db, tx, addMoney, now = Date.now, onDone = () => {}, log = console }) {
+function makeQuests({ db, tx, addMoney, eventMult = () => 1, now = Date.now, onDone = () => {}, log = console }) {
   const get = db.prepare("SELECT n, done FROM quest_prog WHERE sid=? AND day=? AND qid=?");
   const up = db.prepare("INSERT INTO quest_prog(sid,day,qid,n,done) VALUES(?,?,?,?,0) ON CONFLICT(sid,day,qid) DO UPDATE SET n=MIN(?, n+excluded.n)");
   const setDone = db.prepare("UPDATE quest_prog SET done=1, n=? WHERE sid=? AND day=? AND qid=? AND done=0");
@@ -106,11 +106,12 @@ function makeQuests({ db, tx, addMoney, now = Date.now, onDone = () => {}, log =
           up.run(sid, day, q.id, 1, q.goal);
           const n = get.get(sid, day, q.id).n;
           if (n >= q.goal && setDone.run(q.goal, sid, day, q.id).changes) {
-            pay(sid, q.reward, `Задание: ${q.n}`, `${day}:${q.id}`);
-            out.push({ sid, q, reward: q.reward });
+            const k = eventMult(t), rw = q.reward * k; // «Пятница заданий» — награды ×2
+            pay(sid, rw, `Задание: ${q.n}${k > 1 ? ` (×${k})` : ""}`, `${day}:${q.id}`);
+            out.push({ sid, q, reward: rw });
             // все три задания дня — бонус
             const all = qs.every(x => x.id === q.id || (get.get(sid, day, x.id) || {}).done);
-            if (all && insDone.run(sid, day, "all").changes) { pay(sid, ALL_BONUS, "Все задания дня", `${day}:all`); out.push({ sid, q: { id: "all", n: "Все задания дня" }, reward: ALL_BONUS }); }
+            if (all && insDone.run(sid, day, "all").changes) { pay(sid, ALL_BONUS * k, "Все задания дня", `${day}:all`); out.push({ sid, q: { id: "all", n: "Все задания дня" }, reward: ALL_BONUS * k }); }
           }
         });
       } catch (e) { log.error("[quests]", e.message); }
@@ -139,13 +140,13 @@ function makeQuests({ db, tx, addMoney, now = Date.now, onDone = () => {}, log =
 
   // задания дня с прогрессом игрока (для сайта и для игры)
   function state(sid, t = now()) {
-    const day = mskDay(t);
+    const day = mskDay(t), k = eventMult(t);
     const list = forDay(day).map(q => {
       const p = sid ? get.get(sid, day, q.id) : null;
-      return { id: q.id, n: q.n, lv: q.lv, lvn: LEVEL_RU[q.lv], goal: q.goal, have: p ? Math.min(q.goal, p.n) : 0, done: !!(p && p.done), reward: q.reward };
+      return { id: q.id, n: q.n, lv: q.lv, lvn: LEVEL_RU[q.lv], goal: q.goal, have: p ? Math.min(q.goal, p.n) : 0, done: !!(p && p.done), reward: q.reward * k };
     });
     const bonus = !!(sid && get.get(sid, day, "all"));
-    return { day, list, bonus, bonusTk: ALL_BONUS, ends: dayEnd(t) };
+    return { day, list, bonus, bonusTk: ALL_BONUS * k, ends: dayEnd(t), x: k };
   }
   return { apply, roundWin, minute, state };
 }

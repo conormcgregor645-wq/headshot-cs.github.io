@@ -36,6 +36,9 @@ function parseLine(line) {
   if ((r = s.match(/^(".*") switched from team <(\w*)> to <(\w*)>/))) { const a = who(r[1]); if (!a) return null; a.team = r[3] === "CT" ? "ct" : r[3] === "TERRORIST" ? "t" : ""; return { t, e: "team", a }; }
   if ((r = s.match(/^(".*") triggered "(Planted_The_Bomb|Defused_The_Bomb)"/))) { const a = who(r[1]); return a ? { t, e: r[2] === "Planted_The_Bomb" ? "plant" : "defuse", a } : null; }
   if ((r = s.match(/^Team "(CT|TERRORIST)" triggered "SFUI_Notice_\w+"/))) return { t, e: "round", win: r[1] === "CT" ? "ct" : "t" };
+  // счёт команды после раунда: Team "CT" scored "3" with "5" players
+  if ((r = s.match(/^Team "(CT|TERRORIST)" scored "(\d+)" with "\d+" players/))) return { t, e: "score", team: r[1] === "CT" ? "ct" : "t", n: +r[2] };
+  if ((r = s.match(/^(?:Started|Loading) map "([\w-]+)"/))) return { t, e: "map", map: r[1] };
   if ((r = s.match(/^World triggered "(Warmup_Start|Warmup_End|Match_Start|Round_Start|Round_End|Game_Commencing)"/))) return { t, e: r[1].toLowerCase() };
   if (/^Log file closed/.test(s)) return { t, e: "logclose" };
   return null;
@@ -75,7 +78,9 @@ function makeStats(db, { bots = true } = {}) {
   const seen = (p, t) => { if (p && p.sid) upPlayer.run(p.sid, String(p.n).slice(0, 64), t, t); };
 
   // состояние текущей карты (в памяти): разминка, команды, сессии, счёт на карте для списка игроков
-  const S = { warm: false, team: new Map(), sess: new Map(), live: new Map(), lastT: 0, uid: new Map() };
+  // nteam: ник -> сторона для всех на сервере (и ботов) — для окна сервера на сайте; score — счёт текущего матча
+  const S = { warm: false, team: new Map(), sess: new Map(), live: new Map(), lastT: 0, uid: new Map(), nteam: new Map(), score: { ct: 0, t: 0 } };
+  const resetMatch = () => { S.score = { ct: 0, t: 0 }; };
   const live = p => { const k = p.sid || "bot:" + p.n; let x = S.live.get(k); if (!x) S.live.set(k, x = { n: p.n, k: 0, d: 0 }); x.n = p.n; return x; };
   function closeSess(sid, t) { const st = S.sess.get(sid); if (st == null) return; S.sess.delete(sid); add(sid, "pt", Math.round(Math.min(Math.max(0, t - st), MAX_SESSION) / 1000), t); }
   function closeAll(t) { for (const sid of [...S.sess.keys()]) closeSess(sid, t); }
@@ -86,13 +91,17 @@ function makeStats(db, { bots = true } = {}) {
     // большая пауза в журнале — сервер перезапускался: закрываем сессии временем последней строки
     if (S.lastT && t - S.lastT > GAP) { closeAll(S.lastT); S.warm = false; }
     S.lastT = Math.max(S.lastT, t);
+    for (const p of [ev.a, ev.v]) if (p && p.team && ev.e !== "leave") S.nteam.set(p.n, p.team);
     for (const p of [ev.a, ev.v]) if (p) { seen(p, t); if (p.sid && ev.e !== "leave") S.uid.set(p.sid, { uid: p.uid, n: p.n }); if (p.sid && p.team) S.team.set(p.sid, p.team); if (p.sid && !S.sess.has(p.sid) && ev.e !== "leave" && ev.e !== "connect") S.sess.set(p.sid, t); }
     switch (ev.e) {
-      case "warmup_start": S.warm = true; break;
-      case "warmup_end": case "match_start": S.warm = false; if (ev.e === "match_start") S.live.clear(); break;
-      case "logclose": closeAll(t); S.live.clear(); S.uid.clear(); break;
+      case "warmup_start": S.warm = true; resetMatch(); break;
+      case "warmup_end": case "match_start": S.warm = false; resetMatch(); if (ev.e === "match_start") S.live.clear(); break;
+      case "map": resetMatch(); S.live.clear(); break;
+      case "score": S.score[ev.team] = ev.n; break;
+      case "team": if (ev.a.team) S.nteam.set(ev.a.n, ev.a.team); else S.nteam.delete(ev.a.n); break;
+      case "logclose": closeAll(t); S.live.clear(); S.uid.clear(); S.nteam.clear(); resetMatch(); break;
       case "enter": if (ev.a.sid) { closeSess(ev.a.sid, t); S.sess.set(ev.a.sid, t); } break;
-      case "leave": if (ev.a.sid) { closeSess(ev.a.sid, t); S.team.delete(ev.a.sid); S.uid.delete(ev.a.sid); } S.live.delete(ev.a.sid || "bot:" + ev.a.n); break;
+      case "leave": if (ev.a.sid) { closeSess(ev.a.sid, t); S.team.delete(ev.a.sid); S.uid.delete(ev.a.sid); } S.live.delete(ev.a.sid || "bot:" + ev.a.n); S.nteam.delete(ev.a.n); break;
       case "kill": {
         if (S.warm) break;
         const { a, v } = ev, same = a.team && a.team === v.team, self = (a.sid && a.sid === v.sid) || (a.bot && v.bot && a.n === v.n);
@@ -134,12 +143,15 @@ function makeStats(db, { bots = true } = {}) {
       w: db.prepare("SELECT w, k FROM gweapons WHERE sid=? ORDER BY k DESC LIMIT 4").all(sid).map(x => [x.w, x.k]) };
   }
   // остановка/запуск сервера (из системного журнала): закрываем сессии, счёт на карте сбрасываем
-  function serverStop(t) { closeAll(Math.max(S.lastT || t, Math.min(t, (S.lastT || t) + MAX_SESSION))); S.live.clear(); S.team.clear(); S.uid.clear(); S.warm = false; S.lastT = Math.max(S.lastT, t); }
+  function serverStop(t) { closeAll(Math.max(S.lastT || t, Math.min(t, (S.lastT || t) + MAX_SESSION))); S.live.clear(); S.team.clear(); S.uid.clear(); S.nteam.clear(); resetMatch(); S.warm = false; S.lastT = Math.max(S.lastT, t); }
+  // для окна сервера: сторона игрока по нику и счёт матча
+  const teamOf = name => S.nteam.get(name) || "";
+  const match = () => ({ ct: S.score.ct, t: S.score.t, warm: S.warm });
   const liveScore = name => { for (const x of S.live.values()) if (x.n === name) return { k: x.k, d: x.d }; return null; };
   // кто из игроков сейчас на сервере (по журналу): SteamID -> {uid, n}
   const online = () => S.uid;
   const sidByName = name => { let f = null; for (const [sid, x] of S.uid) if (x.n === name) { if (f) return null; f = sid; } return f; };
-  return { apply, serverStop, top, player, liveScore, online, sidByName, state: S, month };
+  return { apply, serverStop, top, player, liveScore, online, sidByName, teamOf, match, state: S, month };
 }
 
 module.exports = { parseLine, weaponName, makeStats, month, who };

@@ -167,7 +167,8 @@ for i in $(seq 1 12); do
   # таблица и все 4 колонки эффектов (их добавляет TASHER Style 1.1)
   # и таблицы для команд !rank/!top/!tk/!quests (TASHER Style 1.2)
   [ "$(mysql -N -e "SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA='weaponpaints' AND TABLE_NAME='tasher_style' AND COLUMN_NAME IN ('kill_fx','kill_snd','trail','tracer')")" = 4 ] && \
-  [ "$(mysql -N -e "SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA='weaponpaints' AND TABLE_NAME IN ('tasher_player','tasher_top')")" = 2 ] && { T=1; break; }; sleep 5
+  [ "$(mysql -N -e "SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA='weaponpaints' AND TABLE_NAME IN ('tasher_player','tasher_top','tasher_punish')")" = 3 ] && \
+  [ "$(mysql -N -e "SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA='weaponpaints' AND TABLE_NAME='tasher_player' AND COLUMN_NAME IN ('league','sr','league_info','pass')")" = 4 ] && { T=1; break; }; sleep 5
 done
 if [ -z "$T" ]; then
   printf '%s\n' "$J" | grep -iE "tasher|mysql" | tail -10 | cut -c1-240
@@ -192,4 +193,4 @@ echo "статусов на сайте: $SITE, в базе плагина: $DBN"
 mysql -N -e "SELECT account_id, \`group\`, FROM_UNIXTIME(expires) FROM weaponpaints.vip_users WHERE sid=0 ORDER BY expires DESC LIMIT 10" | sed 's/^/  /'
 sleep 5; echo "стилей в игре (теги, цвета, дым, эффекты): $(mysql -N -e "SELECT COUNT(*) FROM weaponpaints.tasher_style")"
 echo "игроков для !rank/!tk/!quests: $(mysql -N -e "SELECT COUNT(*) FROM weaponpaints.tasher_player") (сайт обновляет раз в 30 секунд)"
-printf '\n\033[1;32m=== ГОТОВО ===\033[0m\nКопия прежнего состояния: %s\nВ игре: !vip — меню привилегии. Статусы выдаются с сайта (магазин, админка, итоги месяца) и действуют сразу.\nКоманды в чате игры: !rank !top !tk !quests\nПроверить всё одной командой: tasher-check\n' "$BK"
+printf '\n\033[1;32m=== ГОТОВО ===\033[0m\nКопия прежнего состояния: %s\nВ игре: !vip — меню привилегии. Статусы выдаются с сайта (магазин, админка, итоги месяца) и действуют сразу.\nКоманды в чате игры: !rank !top !tk !quests !pass\nПроверить всё одной командой: tasher-check\n' "$BK"

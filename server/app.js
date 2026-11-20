@@ -26,6 +26,10 @@ const { makeClans } = require("./lib/clans");
 const STYLE = require("./lib/style");
 const { makeQuests } = require("./lib/quests");
 const INFO = require("./lib/gameinfo");
+const { makeMarket } = require("./lib/market");
+const SKILLM = require("./lib/skill");
+const { makeEvents } = require("./lib/events");
+const { makePass } = require("./lib/pass");
 
 // ---------- настройки ----------
 const ENV = process.env;
@@ -69,11 +73,14 @@ const PAINTS_N = WP.loadPaints(CFG.wpPaints);
 // после записи скинов плагин сам применяет их в игре (таблица wp_player_refresh, см. lib/wp.js)
 const wpSync = WP.makeSync({ cnf: CFG.wpCnf, bin: CFG.mysqlBin });
 const STATS = GL.makeStats(db, { bots: CFG.statsBots });
+// лига игрока сменилась — новый тег в чате игры (не чаще раза в 5 секунд)
+let styleT = null;
+const SKILL = SKILLM.makeSkill({ db, onLeague: () => { if (styleT) return; styleT = setTimeout(() => { styleT = null; styleSync(); }, 5000); styleT.unref(); } });
 // ники на сайте тоже приводим к чистому виду
 { const fix = db.prepare("UPDATE users SET name=? WHERE id=?"); for (const r of db.prepare("SELECT id, name FROM users").all()) { const c = cleanNick(r.name); if (c !== r.name) fix.run(c, r.id); } }
 // статусы -> VIP-плагин в игре (та же база, что и скины; после записи игроку на сервере статус применяется сразу)
 let vipSync = () => null, styleSync = () => null;
-const CTL = makeControl({ db, tx: fn => tx(db, fn), stats: STATS, month: GL.month, rcon: { pass: CFG.gameRcon, exec: A2S.rconExec, parseStatus: RCON.parseStatus }, servers: CFG.gameServers, maps: CFG.gameMaps, onStatusChange: () => { vipSync(); styleSync(); } });
+const CTL = makeControl({ db, tx: fn => tx(db, fn), stats: STATS, month: GL.month, rcon: { pass: CFG.gameRcon, exec: A2S.rconExec, parseStatus: RCON.parseStatus }, servers: CFG.gameServers, maps: CFG.gameMaps, onStatusChange: () => { vipSync(); styleSync(); }, onSanction: () => infoSoon(true) });
 vipSync = VIP.makeVipSync({ cnf: CFG.wpCnf, bin: CFG.mysqlBin, getStatuses: () => CTL.statuses(),
   reload: sid => CFG.gameServers.length && CFG.gameRcon ? A2S.rconExec(CFG.gameServers[0], CFG.gameRcon, "css_reload_vip_player " + sid, 3000) : null });
 if (CFG.wpCnf && require.main === module) { setTimeout(() => vipSync(), 3000).unref(); setInterval(() => vipSync(), 60e3).unref(); } // раз в минуту: истёкшие статусы и выдачи, сделанные пока сервер был недоступен
@@ -185,7 +192,7 @@ get("/api/health", () => ({ ok: true, t: now() }));
 
 get("/api/me", ctx => {
   if (!ctx.user) return { user: null };
-  return { user: pubUser(ctx.user), items: userItems(ctx.user.id), loadout: userLoadout(ctx.user.id), cos: userCos(ctx.user), purchases: userPurchases(ctx.user.id), wheel: WHEEL.state(ctx.user), earn: EARN.today(ctx.user.steamid), quests: QUESTS.state(ctx.user.steamid) };
+  return { user: pubUser(ctx.user), items: userItems(ctx.user.id), loadout: userLoadout(ctx.user.id), cos: userCos(ctx.user), purchases: userPurchases(ctx.user.id), wheel: WHEEL.state(ctx.user), earn: EARN.today(ctx.user.steamid), quests: QUESTS.state(ctx.user.steamid), pass: PASS.state(ctx.user.steamid) };
 });
 
 // надеть / снять предмет за сторону (ct или t)
@@ -241,6 +248,28 @@ post("/api/items/sell", ctx => {
   syncGame(u); return out;
 });
 
+// ---------- торговая площадка ----------
+const MARKET = makeMarket({ db, tx: fn => tx(db, fn), addMoney, itemValue: G.itemValue, catOf: w => W_CAT.get(w) || "" });
+const mkCall = f => { try { return f(); } catch (e) { if (!(e instanceof HttpError) && Number.isInteger(e.code)) bad(e.message, e.code); throw e; } };
+get("/api/market", ctx => { const g = k => String(ctx.query.get(k) || ""); return { ...MARKET.browse({ q: g("q"), cat: g("cat"), r: g("r"), sort: g("sort"), offset: +g("offset") || 0 }), feed: MARKET.feed(), fee: MARKET.FEE }; });
+get("/api/market/my", ctx => { const u = needUser(ctx); return MARKET.mine(u); });
+post("/api/market/list", ctx => {
+  const u = needUser(ctx); rateLimit("mk:" + u.id, 20, 60e3);
+  const r = mkCall(() => MARKET.listItem(u, ctx.body.id, ctx.body.price));
+  if (r.unequipped) syncGame(u);
+  return { ...r, items: userItems(u.id), loadout: userLoadout(u.id), my: MARKET.mine(u) };
+});
+post("/api/market/cancel", ctx => {
+  const u = needUser(ctx); rateLimit("mk:" + u.id, 20, 60e3);
+  mkCall(() => MARKET.cancel(u, ctx.body.id));
+  return { items: userItems(u.id), my: MARKET.mine(u) };
+});
+post("/api/market/buy", ctx => {
+  const u = needUser(ctx); rateLimit("mkb:" + u.id, 10, 10e3);
+  const r = mkCall(() => MARKET.buy(u, ctx.body.id, ctx.body.price));
+  return { tk: r.tk, item: r.item, price: r.price, items: userItems(u.id), my: MARKET.mine(u) };
+});
+
 post("/api/upgrade", ctx => {
   const u = needUser(ctx); rateLimit("up:" + u.id, 6, 10e3);
   const t = G.upTarget(ctx.body.target); if (!t) bad("Цель апгрейда не найдена");
@@ -268,7 +297,9 @@ async function pollServers() {
   try {
     // забаненный на сервере (например, бан выдан, пока сервер был недоступен) — выгоняем
     const r = await A2S.poll(CFG.gameServers, 1500, CFG.gameRcon, (s, st) => { for (const p of st) if (!p.bot) { const sid = STATS.sidByName(p.n); if (sid) CTL.enforce(sid, p.id); } });
-    for (const s of r) for (const p of s.list) { const x = STATS.liveScore(p.n); if (x) { p.k = x.k; p.d = x.d; } } // счёт на текущей карте из журнала
+    // счёт на карте и сторона игрока — из журнала (журнал у нас один: первого сервера)
+    for (const s of r) for (const p of s.list) { const x = STATS.liveScore(p.n); if (x) { p.k = x.k; p.d = x.d; } }
+    if (r[0] && r[0].online && CFG.gameLogUnit) { for (const p of r[0].list) p.team = STATS.teamOf(p.n); r[0].score = STATS.match(); }
     GS = r;
   } catch (e) {}
 }
@@ -276,11 +307,14 @@ if (CFG.gameServers.length && require.main === module) { pollServers(); setInter
 get("/api/servers", async () => { if (!GS && CFG.gameServers.length) await pollServers(); return { servers: GS || [] }; });
 
 // ---------- статистика игроков ----------
+// лига игрока: sr — сила, lg — номер лиги (null — калибровка), cl — сколько событий осталось до конца калибровки
+const withSkill = p => { if (!p) return p; const k = SKILL.info(p.sid); return { ...p, sr: k.sr, lg: k.lg, cl: k.left, nx: k.next }; };
+get("/api/leagues", () => SKILL.board(20));
 let TOP_CACHE = { t: 0, period: "", v: null };
 function statsTop(period) {
   if (TOP_CACHE.v && TOP_CACHE.period === period && now() - TOP_CACHE.t < 5000) return TOP_CACHE.v;
-  const online = new Set((GS || []).flatMap(s => s.list.map(p => p.n)));
-  const v = STATS.top(period, 200).map(p => ({ ...p, on: online.has(p.n) }));
+  const online = new Set((GS || []).flatMap(s => s.list.filter(p => !p.bot).map(p => p.n)));
+  const v = STATS.top(period, 200).map(p => withSkill({ ...p, on: online.has(p.n) }));
   TOP_CACHE = { t: now(), period, v }; return v;
 }
 get("/api/stats", ctx => {
@@ -290,7 +324,7 @@ get("/api/stats", ctx => {
 get("/api/stats/player", ctx => {
   const sid = String(ctx.query.get("sid") || ""); if (!/^\d{17}$/.test(sid)) bad("Неверный SteamID");
   const p = STATS.player(sid); if (!p) bad("Игрок ещё не играл на сервере", 404);
-  return { player: p };
+  return { player: withSkill(p) };
 });
 if (CFG.gameLogUnit && require.main === module) {
   const curRow = db.prepare("SELECT v FROM meta WHERE k='jcursor'").get();
@@ -304,9 +338,12 @@ if (CFG.gameLogUnit && require.main === module) {
       try {
         EARN.apply(ev, warm);
         QUESTS.apply(ev, warm);
+        SKILL.apply(ev, warm);
+        PASS.apply(ev, warm);
         if (ev && ev.e === "round" && !warm) {
-          const winners = [...STATS.state.team].filter(([sid, team]) => team === ev.win && STATS.state.sess.has(sid)).map(([sid]) => sid);
-          EARN.roundWin(winners, ev.t || t); QUESTS.roundWin(winners, ev.t || t);
+          const inGame = [...STATS.state.team].filter(([sid, team]) => team && STATS.state.sess.has(sid));
+          const winners = inGame.filter(([, team]) => team === ev.win).map(([sid]) => sid), losers = inGame.filter(([, team]) => team !== ev.win).map(([sid]) => sid);
+          EARN.roundWin(winners, ev.t || t); QUESTS.roundWin(winners, ev.t || t); SKILL.round(winners, losers); PASS.roundWin(winners, ev.t || t);
         }
       } catch (e) { console.error("[earn]", e.message); }
       // зашёл игрок — данные для !rank/!tk/!quests нужны ему сразу
@@ -322,21 +359,79 @@ if (CFG.gameLogUnit && require.main === module) { setTimeout(runAllAwards, 15e3)
 
 // ---------- ТК за игру ----------
 const statusTier = (() => { let m = new Map(), at = 0; return sid => { if (now() - at > 30e3) { m = new Map(CTL.statuses().map(s => [s.sid, s.t])); at = now(); } return m.get(sid) || null; }; })();
-const EARN = makeEarn({ db, tx: fn => tx(db, fn), addMoney, statusOf: statusTier });
+const EVENTS = makeEvents({ db });
+// ---------- боевой пропуск ----------
+const PASS = makePass({ db, tx: fn => tx(db, fn), addMoney, giveItem, rollCase: G.rollCase, caseByK: k => G.CASE_BY_K.get(k), cosById: id => COSM.get(id),
+  addGrant: (...a) => CTL.addGrant(...a), onGrant: () => { vipSync(); styleSync(); }, eventMult: t => EVENTS.mult("xp", t) });
+// новый сезон пропуска — мягкий сброс лиг (один раз; первый сезон только запоминаем)
+function seasonCheck() {
+  const ss = PASS.season(); if (!ss) return;
+  const m = db.prepare("SELECT v FROM meta WHERE k='season'").get();
+  if (m && m.v === ss.id) return;
+  if (m) { SKILL.softReset(0.5); console.log(`[season] начался ${ss.n}: лиги сброшены наполовину`); }
+  db.prepare("INSERT OR REPLACE INTO meta(k,v) VALUES('season',?)").run(ss.id);
+}
+try { seasonCheck(); } catch (e) { console.error("[season]", e.message); }
+if (require.main === module) setInterval(() => { try { seasonCheck(); } catch (e) {} }, 3600e3).unref();
+const passCall = f => { try { return f(); } catch (e) { if (!(e instanceof HttpError) && Number.isInteger(e.code)) bad(e.message, e.code); throw e; } };
+get("/api/pass", ctx => PASS.state(ctx.user ? ctx.user.steamid : null));
+post("/api/pass/buy", ctx => { const u = needUser(ctx); rateLimit("pass:" + u.id, 10, 60e3); const r = passCall(() => PASS.buyPremium(u)); infoSoon(); return { ...r, pass: PASS.state(u.steamid), purchases: userPurchases(u.id) }; });
+post("/api/pass/claim", ctx => {
+  const u = needUser(ctx); rateLimit("pass:" + u.id, 30, 60e3);
+  const r = passCall(() => PASS.claim(u, ctx.body || {}));
+  const fresh = db.prepare("SELECT * FROM users WHERE id=?").get(u.id);
+  infoSoon();
+  return { ...r, pass: PASS.state(u.steamid), user: pubUser(fresh), items: userItems(u.id), cos: userCos(fresh), statuses: r.status ? CTL.statuses() : undefined };
+});
+get("/api/events", () => EVENTS.state());
+get("/api/admin/events", ctx => { needAdmin(ctx); return { events: EVENTS.list(), kinds: Object.entries(EVENTS.KINDS).map(([k, v]) => ({ k, n: v.n })) }; });
+post("/api/admin/events", ctx => {
+  const a = needAdmin(ctx); const b = ctx.body || {};
+  const r = b.act === "create" ? EVENTS.create(a, b) : b.act === "toggle" ? EVENTS.toggle(b.id, !!b.on) : b.act === "remove" ? EVENTS.remove(b.id) : { error: "Неизвестное действие" };
+  if (r.error) bad(r.error, r.code || 400);
+  console.log(`[admin] ${a.name}(${a.id}) события: ${b.act} ${b.id || b.title || ""}`);
+  setImmediate(eventTick);
+  return { ...r, state: EVENTS.state() };
+});
+// начало и конец события — объявление в чате игры; пока идёт — напоминание раз в 30 минут
+// то, что уже идёт при запуске сайта, не объявляем как «началось»; события, добавленные админом позже, — объявляем
+let evPrev = (() => { try { return new Map(EVENTS.active().map(a => [a.id, a])); } catch (e) { return new Map(); } })(), evRemind = 0;
+const evUntil = t => new Date(t + 3 * 3600e3).toISOString().slice(11, 16);
+async function eventTick() {
+  let act; try { act = EVENTS.active(); } catch (e) { return; }
+  const ids = new Map(act.map(a => [a.id, a]));
+  const say = [];
+  for (const [id, a] of ids) if (!evPrev.has(id)) say.push(`[TASHER] Началось событие ${a.title}: ${a.what} до ${evUntil(a.to)} МСК`);
+  for (const [id, a] of evPrev) if (!ids.has(id)) say.push(`[TASHER] Событие ${a.title} закончилось. Следующие — на tashercs.ru`);
+  if (!say.length && ids.size && now() - evRemind > 30 * 60e3) say.push(...[...ids.values()].map(a => `[TASHER] Идёт событие ${a.title}: ${a.what} до ${evUntil(a.to)} МСК`));
+  evPrev = ids;
+  if (!say.length || !CFG.gameServers.length || !CFG.gameRcon) return;
+  evRemind = now();
+  for (const m of say) { try { await A2S.rconExec(CFG.gameServers[0], CFG.gameRcon, "say " + require("./lib/control").consoleText(m, 180), 3000); } catch (e) {} }
+}
+if (require.main === module) { setTimeout(eventTick, 3000).unref(); setInterval(eventTick, 30e3).unref(); }
+const EARN = makeEarn({ db, tx: fn => tx(db, fn), addMoney, statusOf: statusTier, eventMult: t => EVENTS.mult("tk", t) });
 if (CFG.gameLogUnit && require.main === module) {
   // минута в игре: всем, кто сейчас на сервере (если сервер живой — журнал писался за последние 3 минуты)
-  setInterval(() => { try { if (now() - STATS.state.lastT < 180e3) { const on = [...STATS.state.sess.keys()]; EARN.minute(on, now()); QUESTS.minute(on, now()); } } catch (e) { console.error("[earn]", e.message); } }, 60e3).unref();
+  setInterval(() => { try { if (now() - STATS.state.lastT < 180e3) { const on = [...STATS.state.sess.keys()]; EARN.minute(on, now()); QUESTS.minute(on, now()); PASS.minute(on, now()); } } catch (e) { console.error("[earn]", e.message); } }, 60e3).unref();
   setInterval(() => { try { EARN.flush(); } catch (e) { console.error("[earn]", e.message); } }, 30e3).unref();
 }
 
 // ---------- ежедневные задания ----------
-const QUESTS = makeQuests({ db, tx: fn => tx(db, fn), addMoney, onDone: done => {
-  for (const d of done) console.log(`[quests] ${d.sid} выполнил «${d.q.n}» +${d.reward} ТК`);
+const QUESTS = makeQuests({ db, tx: fn => tx(db, fn), addMoney, eventMult: t => EVENTS.mult("quest", t), onDone: done => {
+  for (const d of done) { console.log(`[quests] ${d.sid} выполнил «${d.q.n}» +${d.reward} ТК`); try { PASS.quest(d.sid, d.q.id === "all" ? "all" : d.q.lv); } catch (e) { console.error("[pass]", e.message); } }
   infoSoon(); // плагин сразу напишет игроку «Задание выполнено»
 } });
 get("/api/quests", ctx => ({ quests: QUESTS.state(ctx.user ? ctx.user.steamid : null) }));
 
 // ---------- данные для команд в игре (!rank, !top, !tk, !quests) и приветствия статусов ----------
+const ruPlural = (n, a, b, c) => { const m = n % 10, h = n % 100; return m === 1 && h !== 11 ? a : m >= 2 && m <= 4 && (h < 12 || h > 14) ? b : c; };
+// лига для команды !rank: название и строка «до следующей лиги» или «калибровка»
+function leagueFor(sid) {
+  const k = SKILL.info(sid);
+  if (k.lg == null) return { league: "", sr: k.sr, leagueInfo: `калибровка: ещё ${k.left} ${ruPlural(k.left, "событие", "события", "событий")} (убийства и смерти)` };
+  return { league: SKILLM.LEAGUES[k.lg].n, sr: k.sr, leagueInfo: k.next ? `до лиги ${k.next.n}: ${k.next.need} очк.` : "высшая лига" };
+}
 function infoRows() {
   const st = new Map(CTL.statuses().map(s => [s.sid, s.t]));
   const top = STATS.top(GL.month(now()), 2000), place = new Map(top.map((p, i) => [p.sid, i + 1]));
@@ -345,14 +440,19 @@ function infoRows() {
   const players = [...sids].map(sid => {
     const p = STATS.player(sid) || {}, u = user.get(sid), on = STATS.state.uid.get(sid);
     return { sid, n: (on && on.n) || p.n || (u && u.name) || "", tier: st.get(sid) || "", place: place.get(sid) || 0, pts: p.pts || 0, k: p.mk || 0, d: p.md || 0, hs: p.mhs || 0,
-      tk: u ? u.tk : null, pending: Math.floor((pend.get(sid) || {}).tk || 0), earn: EARN.today(sid), quests: QUESTS.state(sid) };
+      tk: u ? u.tk : null, pending: Math.floor((pend.get(sid) || {}).tk || 0), earn: EARN.today(sid), quests: QUESTS.state(sid), ...leagueFor(sid), pass: PASS.brief(sid) };
   });
-  return { players, top: top.slice(0, 10).map(p => ({ sid: p.sid, n: p.n, pts: p.pts, k: p.mk, d: p.md })) };
+  return { players, top: top.slice(0, 10).map(p => ({ sid: p.sid, n: p.n, pts: p.pts, k: p.mk, d: p.md })), sanctions: CTL.activeSanctions() };
 }
 const infoSync = INFO.makeInfoSync({ cnf: CFG.wpCnf, bin: CFG.mysqlBin, collect: infoRows,
   reload: () => CFG.gameServers.length && CFG.gameRcon ? A2S.rconExec(CFG.gameServers[0], CFG.gameRcon, "css_tasher_style_reload", 3000) : null });
 let infoT = null;
-function infoSoon() { if (infoT || !CFG.wpCnf) return; infoT = setTimeout(() => { infoT = null; infoSync(); }, 3000); infoT.unref(); }
+// fast — мут или гег: применить в игре почти сразу
+function infoSoon(fast) {
+  if (!CFG.wpCnf) return;
+  if (fast) { clearTimeout(infoT); infoT = null; setImmediate(() => infoSync(true)); return; }
+  if (infoT) return; infoT = setTimeout(() => { infoT = null; infoSync(); }, 3000); infoT.unref();
+}
 if (CFG.wpCnf && require.main === module) { setTimeout(() => infoSync(), 5000).unref(); setInterval(() => infoSync(), 30e3).unref(); }
 
 // ---------- Фортуна ----------
@@ -415,6 +515,7 @@ function styleRows() {
   const st = new Map(CTL.statuses().map(s => [s.sid, s.t])), rows = new Map();
   const row = sid => { let r = rows.get(sid); if (!r) rows.set(sid, r = { sid, tier: st.get(sid) || null, clanTag: "", clanColor: "", nick: "", tag: "", smokeHex: "", killFx: "", killSnd: "", trailHex: "", tracerHex: "" }); return r; };
   for (const sid of st.keys()) row(sid);
+  for (const k of db.prepare("SELECT sid, sr FROM skill WHERE n>=?").all(SKILLM.CALIB)) row(k.sid).league = SKILLM.leagueIdx(k.sr);
   for (const c of db.prepare("SELECT u.steamid sid, c.tag, c.color FROM clan_members m JOIN clans c ON c.id=m.clan_id JOIN users u ON u.id=m.user_id").all()) { const r = row(c.sid); r.clanTag = c.tag; r.clanColor = c.color; }
   for (const u of db.prepare("SELECT steamid, cos_eq, cos_tag FROM users WHERE cos_eq<>'{}' OR cos_tag<>''").all()) {
     let eq = {}; try { eq = JSON.parse(u.cos_eq || "{}"); } catch (e) {}
@@ -728,14 +829,14 @@ function serveIndex(req, res) {
     INDEX = { mtime: st.mtimeMs, a: html.slice(0, i), b: html.slice(i), tag: sha(html).slice(0, 16) };
   }
   const u = sessionUser(req);
-  const data = u ? { user: pubUser(u), items: userItems(u.id), loadout: userLoadout(u.id), cos: userCos(u), purchases: userPurchases(u.id), wheel: WHEEL.state(u), earn: EARN.today(u.steamid), quests: QUESTS.state(u.steamid) } : { user: null, quests: QUESTS.state(null) };
+  const data = u ? { user: pubUser(u), items: userItems(u.id), loadout: userLoadout(u.id), cos: userCos(u), purchases: userPurchases(u.id), wheel: WHEEL.state(u), earn: EARN.today(u.steamid), quests: QUESTS.state(u.steamid), pass: PASS.state(u.steamid) } : { user: null, quests: QUESTS.state(null), pass: PASS.state(null) };
   // джекпот без отметки времени сервера — иначе страница никогда не отдавалась бы из кэша (время сверит первый опрос)
-  data.clans = clansOut(u); { const v = JP.view(u); delete v.now; data.jackpot = v; }
-  if (GS) data.servers = GS;
+  data.clans = clansOut(u); { const ev = EVENTS.state(); delete ev.now; data.events = ev; } { const v = JP.view(u); delete v.now; data.jackpot = v; }
+  if (GS) data.servers = GS; else if (CFG.gameServers.length) data.servers = []; // опрос ещё не прошёл — страница сама запросит список
   data.bans = CTL.listBans(); data.statuses = CTL.statuses(); data.awards = CTL.listAwards();
   // статистика призёров прошлых месяцев (для их профилей и медалей), даже если в этом месяце они не играли
-  if (CFG.gameLogUnit) data.awardsP = [...new Set(data.awards.map(a => a.sid))].slice(0, 60).map(sid => STATS.player(sid)).filter(Boolean);
-  if (CFG.gameLogUnit) { data.stats = { period: GL.month(now()), players: statsTop(GL.month(now())).slice(0, 100) }; if (u) data.myStats = STATS.player(u.steamid); }
+  if (CFG.gameLogUnit) data.awardsP = [...new Set(data.awards.map(a => a.sid))].slice(0, 60).map(sid => withSkill(STATS.player(sid))).filter(Boolean);
+  if (CFG.gameLogUnit) { data.stats = { period: GL.month(now()), players: statsTop(GL.month(now())).slice(0, 100) }; if (u) data.myStats = withSkill(STATS.player(u.steamid)) || null; data.leagues = SKILL.board(10); if (u) data.mySkill = SKILL.info(u.steamid); }
   const js = JSON.stringify(data).replace(/</g, "\\u003c").replace(/\u2028|\u2029/g, "");
   // страница личная: браузер каждый раз сверяется с сервером и не качает её заново, если ничего не изменилось
   const etag = '"' + INDEX.tag + "-" + sha(js).slice(0, 16) + '"';

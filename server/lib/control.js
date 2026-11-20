@@ -28,7 +28,7 @@ const prevMonth = p => { const [y, m] = p.split("-").map(Number); return m === 1
 // текст для консоли сервера: без кавычек, точек с запятой и переводов строк (иначе можно дописать свою команду)
 const consoleText = (v, max) => String(v == null ? "" : v).replace(/[\u0000-\u001f\u007f\u2028\u2029"';\\]/g, " ").replace(/\s+/g, " ").trim().slice(0, max);
 
-function makeControl({ db, tx, stats, month, rcon, servers, maps, log = console, now = Date.now, onStatusChange = () => {} }) {
+function makeControl({ db, tx, stats, month, rcon, servers, maps, log = console, now = Date.now, onStatusChange = () => {}, onSanction = () => {} }) {
   const MAPS = (maps && maps.length ? maps : DEFAULT_MAPS).filter(m => /^[a-z0-9_]{3,40}$/.test(m));
   const srv0 = () => servers[0] || null;
 
@@ -52,14 +52,31 @@ function makeControl({ db, tx, stats, month, rcon, servers, maps, log = console,
     return { error: `Игрок «${n}» не найден. Укажи SteamID (STEAM_1:…, 7656… или ссылку на профиль)` };
   }
 
-  // ---------- баны ----------
-  const activeBanQ = db.prepare("SELECT * FROM bans WHERE sid=? AND lifted_at IS NULL AND (until=0 OR until>?) ORDER BY id DESC LIMIT 1");
+  // ---------- баны, муты, геги ----------
+  // kind: ban — не пускать на сервер; mute — без голоса; gag — без чата; silence — мут и гег сразу
+  const KINDS = { ban: "Бан", mute: "Мут", gag: "Гег", silence: "Мут и гег" };
+  const activeBanQ = db.prepare("SELECT * FROM bans WHERE sid=? AND kind='ban' AND lifted_at IS NULL AND (until=0 OR until>?) ORDER BY id DESC LIMIT 1");
   const activeBan = sid => activeBanQ.get(sid, now()) || null;
+  const activeOfQ = db.prepare("SELECT * FROM bans WHERE sid=? AND kind IN (SELECT value FROM json_each(?)) AND lifted_at IS NULL AND (until=0 OR until>?) ORDER BY until=0 DESC, until DESC LIMIT 1");
+  const activeMute = sid => activeOfQ.get(sid, '["mute","silence"]', now()) || null;
+  const activeGag = sid => activeOfQ.get(sid, '["gag","silence"]', now()) || null;
   const pubBan = b => {
-    const t = now(), active = !b.lifted_at && (b.until === 0 || b.until > t);
-    return { id: b.id, sid: b.sid, sid2: toSteam2(b.sid), n: b.name || "Игрок", reason: b.reason, d: b.created_at, until: b.until, perm: b.until === 0,
-      days: b.until ? Math.max(1, Math.round((b.until - b.created_at) / DAY)) : 0, by: b.by_name || "Админ", active, lifted: !!b.lifted_at };
+    const t = now(), active = !b.lifted_at && (b.until === 0 || b.until > t), kind = KINDS[b.kind] ? b.kind : "ban";
+    const mins = b.until ? Math.max(1, Math.round((b.until - b.created_at) / 60e3)) : 0;
+    return { id: b.id, kind, kindRu: KINDS[kind], sid: b.sid, sid2: toSteam2(b.sid), n: b.name || "Игрок", reason: b.reason, d: b.created_at, until: b.until, perm: b.until === 0,
+      days: b.until ? Math.max(1, Math.round((b.until - b.created_at) / DAY)) : 0, mins, by: b.by_name || "Админ", active, lifted: !!b.lifted_at };
   };
+  // все действующие муты и геги (для плагина в игре): sid -> {mute, gag} с причиной и сроком
+  function activeSanctions() {
+    const t = now(), out = new Map();
+    for (const b of db.prepare("SELECT * FROM bans WHERE kind IN ('mute','gag','silence') AND lifted_at IS NULL AND (until=0 OR until>?) ORDER BY id").all(t)) {
+      const x = out.get(b.sid) || { sid: b.sid, n: b.name }; out.set(b.sid, x);
+      const put = k => { const cur = x[k]; if (!cur || (cur.until !== 0 && (b.until === 0 || b.until > cur.until))) x[k] = { until: b.until, reason: b.reason }; };
+      if (b.kind === "mute" || b.kind === "silence") put("mute");
+      if (b.kind === "gag" || b.kind === "silence") put("gag");
+    }
+    return [...out.values()];
+  }
   const listBans = (limit = 300) => db.prepare("SELECT * FROM bans ORDER BY id DESC LIMIT ?").all(limit).map(pubBan);
 
   async function rconCmd(cmd) {
@@ -95,26 +112,37 @@ function makeControl({ db, tx, stats, month, rcon, servers, maps, log = console,
   }
   setInterval(() => { const t = now(); for (const [k, v] of lastKick) if (t - v > 60e3) lastKick.delete(k); }, 60e3).unref();
 
+  // срок: mins (минуты, для мута и гега) или days (дни); 0 — навсегда
   async function ban(admin, body) {
+    const kind = body.kind == null ? "ban" : String(body.kind); if (!KINDS[kind]) return { error: "Неизвестный тип наказания" };
     const r = resolve(body.target); if (r.error) return { error: r.error };
     const reason = consoleText(body.reason, 100); if (reason.length < 2) return { error: "Укажи причину" };
-    const days = Number(body.days); if (!Number.isInteger(days) || days < 0 || days > 3650) return { error: "Срок: от 1 до 3650 дней или 0 — навсегда" };
+    let ms;
+    if (body.mins != null) { const m = Number(body.mins); if (!Number.isInteger(m) || m < 0 || m > 3650 * 1440) return { error: "Срок: от 1 минуты до 10 лет или 0 — навсегда" }; ms = m * 60e3; }
+    else { const days = Number(body.days); if (!Number.isInteger(days) || days < 0 || days > 3650) return { error: "Срок: от 1 до 3650 дней или 0 — навсегда" }; ms = days * DAY; }
     const name = cleanNick(body.name) || r.name || "Игрок";
-    if (activeBan(r.sid)) return { error: `У ${name} уже есть активный бан`, code: 409 };
+    if (kind === "ban" && activeBan(r.sid)) return { error: `У ${name} уже есть активный бан`, code: 409 };
+    if ((kind === "mute" || kind === "silence") && activeMute(r.sid)) return { error: `У ${name} уже есть активный мут`, code: 409 };
+    if ((kind === "gag" || kind === "silence") && activeGag(r.sid)) return { error: `У ${name} уже есть активный гег`, code: 409 };
     const t = now();
-    const id = db.prepare("INSERT INTO bans(sid,name,reason,created_at,until,by_id,by_name) VALUES(?,?,?,?,?,?,?)")
-      .run(r.sid, name, reason, t, days ? t + days * DAY : 0, admin.id, admin.name || ("Player" + admin.id)).lastInsertRowid;
-    log.log(`[admin] ${admin.name}(${admin.id}) бан ${name} ${r.sid} на ${days || "∞"} дн.: ${reason}`);
-    lastKick.delete(r.sid);
-    // если игрок сейчас на сервере — сразу выгоняем (номер по журналу, а если сайт его ещё не видел — по нику в status)
-    const kicked = rcon.pass ? await enforce(r.sid) : false;
-    return { ban: pubBan(db.prepare("SELECT * FROM bans WHERE id=?").get(id)), kicked };
+    const id = db.prepare("INSERT INTO bans(sid,name,reason,created_at,until,by_id,by_name,kind) VALUES(?,?,?,?,?,?,?,?)")
+      .run(r.sid, name, reason, t, ms ? t + ms : 0, admin.id, admin.name || ("Player" + admin.id), kind).lastInsertRowid;
+    log.log(`[admin] ${admin.name}(${admin.id}) ${KINDS[kind].toLowerCase()} ${name} ${r.sid} на ${ms ? Math.round(ms / 60e3) + " мин." : "∞"}: ${reason}`);
+    const out = { ban: pubBan(db.prepare("SELECT * FROM bans WHERE id=?").get(id)), kicked: false };
+    if (kind === "ban") {
+      lastKick.delete(r.sid);
+      // если игрок сейчас на сервере — сразу выгоняем (номер по журналу, а если сайт его ещё не видел — по нику в status)
+      out.kicked = rcon.pass ? await enforce(r.sid) : false;
+    } else onSanction();
+    return out;
   }
   function unban(admin, id) {
     const r = db.prepare("UPDATE bans SET lifted_at=?, lifted_by=? WHERE id=? AND lifted_at IS NULL").run(now(), admin.name || ("Player" + admin.id), Number.isInteger(id) ? id : -1);
     if (!r.changes) return { error: "Бан не найден или уже снят", code: 404 };
-    log.log(`[admin] ${admin.name}(${admin.id}) снял бан #${id}`);
-    return { ban: pubBan(db.prepare("SELECT * FROM bans WHERE id=?").get(id)) };
+    const b = db.prepare("SELECT * FROM bans WHERE id=?").get(id);
+    log.log(`[admin] ${admin.name}(${admin.id}) снял ${(KINDS[b.kind] || "Бан").toLowerCase()} #${id}`);
+    if (b.kind !== "ban") onSanction();
+    return { ban: pubBan(b) };
   }
 
   // ---------- статусы ----------
@@ -219,7 +247,7 @@ function makeControl({ db, tx, stats, month, rcon, servers, maps, log = console,
     return { error: "Неизвестное действие" };
   }
 
-  return { addGrant, resolve, activeBan, listBans, ban, unban, enforce, statuses, grant, revoke, runAwards, listAwards, serverInfo, serverAct, MAPS };
+  return { addGrant, resolve, activeBan, activeMute, activeGag, activeSanctions, listBans, ban, unban, enforce, statuses, grant, revoke, runAwards, listAwards, serverInfo, serverAct, MAPS };
 }
 
 module.exports = { makeControl, toSid64, toSteam2, prevMonth, consoleText, TIERS, DEFAULT_MAPS };

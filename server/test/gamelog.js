@@ -88,4 +88,23 @@ const zl = GL.parseLine("L 11/18/2026 - 23:59:00: \"Z\u0351\u0352\u0353a\u0300\u
 ok(zl && zl.a.n === "Z\u0353\u00e0lgo" && zl.a.uid === 6, "ник очищен от залго и невидимых символов", zl && [...zl.a.n].map(c => c.codePointAt(0).toString(16)));
 const empty = GL.parseLine("L 11/18/2026 - 23:59:00: \"\u3164\u200b<7><[U:1:10]><>\" entered the game"); ok(empty && empty.a.n === "Игрок", "пустой ник заменяется", empty && empty.a.n);
 ok(GL.parseLine("garbage") === null && GL.parseLine("L 11/18/2026 - 23:55:12: something else") === null, "лишние строки пропускаются");
+// окно сервера: стороны игроков (и ботов) и счёт матча
+{
+  const { DatabaseSync } = require("node:sqlite");
+  const M = GL.makeStats(new DatabaseSync(":memory:"));
+  const L = x => M.apply(GL.parseLine("L 11/19/2026 - 20:00:00: " + x));
+  ok(JSON.stringify(GL.parseLine('L 11/19/2026 - 20:00:00: Team "CT" scored "7" with "5" players')) === JSON.stringify({ t: new Date(2026, 10, 19, 20).getTime(), e: "score", team: "ct", n: 7 }), "строка счёта команды");
+  ok(GL.parseLine('L 11/19/2026 - 20:00:00: Started map "de_mirage" (CRC "0")').map === "de_mirage", "строка смены карты");
+  L('World triggered "Warmup_Start"'); ok(M.match().warm, "разминка");
+  L('World triggered "Match_Start" on "de_dust2"');
+  L('"A<2><[U:1:11]><Unassigned>" switched from team <Unassigned> to <CT>');
+  L('"B<3><[U:1:12]><CT>" switched from team <CT> to <TERRORIST>');
+  L('"Bot<9><BOT><TERRORIST>" [0 0 0] killed "A<2><[U:1:11]><CT>" [1 1 1] with "glock"');
+  L('Team "CT" scored "3" with "5" players'); L('Team "TERRORIST" scored "5" with "5" players');
+  ok(M.teamOf("A") === "ct" && M.teamOf("B") === "t" && M.teamOf("Bot") === "t" && M.teamOf("Нет") === "", "стороны игроков и ботов");
+  ok(JSON.stringify(M.match()) === JSON.stringify({ ct: 3, t: 5, warm: false }), "счёт матча", M.match());
+  L('"B<3><[U:1:12]><TERRORIST>" switched from team <TERRORIST> to <Spectator>'); ok(M.teamOf("B") === "", "ушёл в наблюдатели — без команды");
+  L('"A<2><[U:1:11]><CT>" disconnected (reason "x")'); ok(M.teamOf("A") === "", "вышел — сторона забыта");
+  L('Started map "de_inferno"'); ok(M.match().ct === 0 && M.match().t === 0, "новая карта — счёт с нуля");
+}
 console.log(fails ? `\nОШИБОК: ${fails}` : "\nСтатистика считается верно"); process.exit(fails ? 1 : 0);
