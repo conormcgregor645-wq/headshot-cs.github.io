@@ -53,7 +53,7 @@ public record PlayerStyle(string ChatTag, string NameColor, string ScoreTag, str
 public partial class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
 {
     public override string ModuleName => "TASHER Style";
-    public override string ModuleVersion => "1.2.0";
+    public override string ModuleVersion => "1.3.0";
     public override string ModuleAuthor => "tashercs.ru";
 
     public StyleConfig Config { get; set; } = new();
@@ -77,6 +77,7 @@ public partial class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
         RegisterListener<Listeners.OnEntitySpawned>(OnEntitySpawned);
         LoadEffects();
         LoadInfo();
+        LoadPunish();
         RegisterEventHandler<EventPlayerSpawn>((e, _) =>
         {
             if (e.Userid is { } p) Server.NextFrame(() => ApplyScoreboard(p));
@@ -120,6 +121,7 @@ public partial class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
                 }
                 _fxColumns = ok;
                 await CreateInfoTablesAsync(c);
+                await CreatePunishTableAsync(c);
             }
             catch (Exception e) { Logger.LogError("[TASHER Style] база недоступна: {Error}", e.Message); }
             ReloadAsync();
@@ -171,6 +173,9 @@ public partial class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
                     // данные для !rank, !top, !tk, !quests и приветствия
                     try { await LoadInfoAsync(c); }
                     catch (Exception e) { Logger.LogError("[TASHER Style] не удалось прочитать данные игроков: {Error}", e.Message); }
+                    // мут и гег
+                    try { await LoadPunishAsync(c); }
+                    catch (Exception e) { Logger.LogError("[TASHER Style] не удалось прочитать муты и геги: {Error}", e.Message); }
                 } while (Interlocked.Exchange(ref _reloadAgain, 0) == 1);
             }
             catch (Exception e) { Logger.LogError("[TASHER Style] база недоступна: {Error}", e.Message); }
@@ -185,7 +190,9 @@ public partial class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
     {
         if (player is not { IsValid: true } || player.IsBot || player.IsHLTV) return HookResult.Continue;
         var message = info.GetArg(1);
-        if (string.IsNullOrWhiteSpace(message) || IsChatTrigger(message)) return HookResult.Continue;
+        if (string.IsNullOrWhiteSpace(message)) return HookResult.Continue;
+        if (BlockGagged(player, message)) return HookResult.Handled;
+        if (IsChatTrigger(message)) return HookResult.Continue;
         var s = StyleOf(player);
         if (s == null || (string.IsNullOrEmpty(s.ChatTag) && string.IsNullOrEmpty(s.NameColor))) return HookResult.Continue;
 
