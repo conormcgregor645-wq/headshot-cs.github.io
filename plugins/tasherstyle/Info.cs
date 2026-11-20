@@ -29,6 +29,18 @@ public class QuestDay
     [JsonPropertyName("bt")] public int Bt { get; set; }
 }
 
+public class PassInfo
+{
+    [JsonPropertyName("s")] public string S { get; set; } = "";
+    [JsonPropertyName("lv")] public int Lv { get; set; }
+    [JsonPropertyName("xp")] public int Xp { get; set; }
+    [JsonPropertyName("need")] public int Need { get; set; }
+    [JsonPropertyName("max")] public int Max { get; set; }
+    [JsonPropertyName("prem")] public int Prem { get; set; }
+    [JsonPropertyName("un")] public int Un { get; set; }
+    [JsonPropertyName("to")] public long To { get; set; }
+}
+
 public record PlayerInfo(string Name, string Tier, int Place, int Pts, int Kills, int Deaths, int Hs,
     long Tk, int TkPending, int EarnToday, int EarnCap, string EarnMult, QuestDay? Quests,
     string League = "", int Sr = 0, string LeagueInfo = "", string Pass = "");
@@ -150,6 +162,12 @@ public partial class TasherStyle
 
     private PlayerInfo? InfoOf(CCSPlayerController p) => _info.TryGetValue(p.SteamID, out var i) ? i : null;
 
+    private static PassInfo? PassOf(PlayerInfo? i)
+    {
+        if (i == null || i.Pass.Length == 0) return null;
+        try { return JsonSerializer.Deserialize<PassInfo>(i.Pass); } catch { return null; }
+    }
+
     // --- выполненные задания: сообщаем игроку сразу, как сайт засчитал ---
     private void NotifyQuests(Dictionary<ulong, PlayerInfo> before, Dictionary<ulong, PlayerInfo> after)
     {
@@ -157,6 +175,10 @@ public partial class TasherStyle
         {
             if (p is not { IsValid: true, IsBot: false, IsHLTV: false }) continue;
             if (!before.TryGetValue(p.SteamID, out var a) || !after.TryGetValue(p.SteamID, out var b)) continue;
+            // новый уровень боевого пропуска
+            var pa = PassOf(a); var pb = PassOf(b);
+            if (pa != null && pb != null && pa.S == pb.S && pb.Lv > pa.Lv)
+                p.PrintToChat($"{Prefix}{ChatColors.Gold}Новый уровень пропуска: {pb.Lv}!{ChatColors.Default} Награда ждёт на {ChatColors.Lime}{Config.Site}");
             if (a.Quests is not { } qa || b.Quests is not { } qb || qa.L.Count != qb.L.Count) continue;
             // другой день — другие задания, ничего не сравниваем
             var sameDay = true;
@@ -175,7 +197,7 @@ public partial class TasherStyle
     {
         var p = Utilities.GetPlayers().FirstOrDefault(x => x is { IsValid: true, IsBot: false } && x.SteamID == sid);
         if (p == null) return;
-        p.PrintToChat($"{Prefix}Команды: {ChatColors.Lime}!rank !top !tk !quests{ChatColors.Default} — рейтинг, баланс и задания дня");
+        p.PrintToChat($"{Prefix}Команды: {ChatColors.Lime}!rank !top !tk !quests !pass{ChatColors.Default} — рейтинг, баланс, задания и пропуск");
         var info = InfoOf(p);
         if (info == null || info.Tier.Length == 0) return;
         var now = DateTime.UtcNow;
@@ -271,6 +293,20 @@ public partial class TasherStyle
         player.PrintToChat(q.B == 1
             ? $" {ChatColors.Lime}Бонус за все три получен: +{q.Bt} ТК"
             : $" За все три задания — ещё {ChatColors.Gold}+{q.Bt} ТК");
+    }
+
+    [ConsoleCommand("css_pass", "Боевой пропуск")]
+    public void OnPass(CCSPlayerController? player, CommandInfo cmd)
+    {
+        if (player is not { IsValid: true } || player.IsBot) return;
+        if (!InfoReady(player, out var i)) return;
+        var ps = PassOf(i);
+        if (ps == null) { player.PrintToChat($"{Prefix}Сейчас сезон боевого пропуска не идёт."); return; }
+        var days = Math.Max(0, (int)((ps.To - DateTimeOffset.UtcNow.ToUnixTimeSeconds()) / 86400));
+        player.PrintToChat($"{Prefix}{ChatColors.Gold}{ps.S}{ChatColors.Default}: уровень {ChatColors.Lime}{ps.Lv}/{ps.Max}{ChatColors.Default}" +
+            (ps.Lv >= ps.Max ? " — максимум!" : $" · {ps.Xp}/{ps.Need} опыта до следующего"));
+        player.PrintToChat($"{Prefix}{(ps.Prem == 1 ? $"{ChatColors.Gold}Премиум" : "Бесплатный")}{ChatColors.Default} · до конца сезона {days} дн." +
+            (ps.Un > 0 ? $" · ждут наград: {ChatColors.Lime}{ps.Un}{ChatColors.Default} — забери на {Config.Site}" : ""));
     }
 
     [ConsoleCommand("css_daily", "Задания дня")]
