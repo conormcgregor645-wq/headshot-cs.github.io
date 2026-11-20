@@ -183,6 +183,7 @@ if [ -f /etc/tasher.env ] && [ ! -f /etc/tasher/.start_tk_3000 ]; then
 fi
 # свежая версия команды tasher-update
 [ -f /opt/tasher/server/deploy/update.sh ] && install -m 755 /opt/tasher/server/deploy/update.sh /usr/local/bin/tasher-update
+[ -f /opt/tasher/server/deploy/self-check.sh ] && install -m 755 /opt/tasher/server/deploy/self-check.sh /usr/local/bin/tasher-check
 systemctl restart tasher; sleep 6
 SITE=$(curl -fsS http://127.0.0.1:8080/api/statuses | jq '.statuses | length' 2>/dev/null || echo "?")
 DBN=$(mysql -N -e "SELECT COUNT(*) FROM weaponpaints.vip_users WHERE sid=0")
@@ -191,4 +192,4 @@ echo "статусов на сайте: $SITE, в базе плагина: $DBN"
 mysql -N -e "SELECT account_id, \`group\`, FROM_UNIXTIME(expires) FROM weaponpaints.vip_users WHERE sid=0 ORDER BY expires DESC LIMIT 10" | sed 's/^/  /'
 sleep 5; echo "стилей в игре (теги, цвета, дым, эффекты): $(mysql -N -e "SELECT COUNT(*) FROM weaponpaints.tasher_style")"
 echo "игроков для !rank/!tk/!quests: $(mysql -N -e "SELECT COUNT(*) FROM weaponpaints.tasher_player") (сайт обновляет раз в 30 секунд)"
-printf '\n\033[1;32m=== ГОТОВО ===\033[0m\nКопия прежнего состояния: %s\nВ игре: !vip — меню привилегии. Статусы выдаются с сайта (магазин, админка, итоги месяца) и действуют сразу.\nКоманды в чате игры: !rank !top !tk !quests\n' "$BK"
+printf '\n\033[1;32m=== ГОТОВО ===\033[0m\nКопия прежнего состояния: %s\nВ игре: !vip — меню привилегии. Статусы выдаются с сайта (магазин, админка, итоги месяца) и действуют сразу.\nКоманды в чате игры: !rank !top !tk !quests\nПроверить всё одной командой: tasher-check\n' "$BK"
