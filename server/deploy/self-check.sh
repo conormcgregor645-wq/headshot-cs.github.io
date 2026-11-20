@@ -106,6 +106,10 @@ has "weapon ?paints" && ok "WeaponPaints (скины) загружен" || bad "
 CNT=$(printf '%s\n' "$LOADED" | grep -c .)
 note "всего загружено плагинов: $CNT"
 ERRS=$(printf '%s\n' "$J" | grep -iE "\[(TASHER|VIP)|TasherStyle|VIPCore|WeaponPaints" | grep -iE "exception|error|ошибк|не удалось|недоступна" | tail -8)
+if printf '%s\n' "$J" | grep -q "WeaponPaints.*Error while loading required plugins"; then
+  bad "WeaponPaints без библиотеки меню CS2MenuManager — скины с сайта применяются только после перезахода. Запусти vip-setup.sh"
+  ERRS=$(printf '%s\n' "$ERRS" | grep -v "Error while loading required plugins")
+fi
 [ -z "$ERRS" ] && ok "ошибок плагинов в журнале нет" || { bad "ошибки плагинов в журнале (последние):"; printf '%s\n' "$ERRS" | cut -c1-220 | sed 's/^/            /'; }
 CFG=$CSS/configs/plugins/TasherStyle/TasherStyle.json
 [ -f "$CFG" ] && jq -e '.Password|length>0' "$CFG" >/dev/null 2>&1 && ok "настройки TASHER Style на месте" || bad "нет настроек TASHER Style ($CFG) — запусти vip-setup.sh"
@@ -170,9 +174,11 @@ else bad "нет базы сайта $DBP"; fi
 head_ "7/7 Журнал сайта (ошибки за 24 часа)"
 SJ=$(journalctl -u tasher --since "-24h" --no-pager -o cat 2>/dev/null | grep -iE "error|ошибк|не прошла|не удалось|exception|ECONN|EPIPE" | grep -v "ExperimentalWarning" | tail -8)
 [ -z "$SJ" ] && ok "ошибок нет" || { warn "в журнале сайта есть ошибки (последние):"; printf '%s\n' "$SJ" | cut -c1-220 | sed 's/^/            /'; }
+# предупреждения о связи с игрой — только с последнего запуска сайта (старые уже не важны)
+TS=$(systemctl show tasher -p ActiveEnterTimestamp --value 2>/dev/null); TSS=""; [ -n "$TS" ] && TSS="@$(date -d "$TS" +%s 2>/dev/null)"
 for k in vip style info; do
-  L=$(journalctl -u tasher --since "-24h" --no-pager -o cat 2>/dev/null | grep -F "[$k]" | tail -1)
-  [ -n "$L" ] && note "последнее [$k]: $(printf '%s' "$L" | cut -c1-160)"
+  L=$(journalctl -u tasher ${TSS:+--since "$TSS"} --no-pager -o cat 2>/dev/null | grep -F "[$k]" | grep -E "нет|не прошла|не удалось" | tail -1)
+  [ -n "$L" ] && warn "с запуска сайта: $(printf '%s' "$L" | cut -c1-160)"
 done
 
 echo

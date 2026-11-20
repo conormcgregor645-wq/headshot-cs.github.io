@@ -13,6 +13,10 @@ TASHER_ZIP="${VIP_TASHER_ZIP:-https://github.com/conormcgregor645-wq/headshot-cs
 MODS="VIP_Health VIP_Armor VIP_Money VIP_Grenades VIP_DefuseKit VIP_Healthshot VIP_Zeus VIP_WeaponsMenu VIP_RegenHealth VIP_Vampirism"
 # теги в чате и цвет дыма теперь делает TASHER Style (с учётом клана и купленного на сайте), модули VIP_Tag и VIP_SmokeColor не ставим
 STYLE_ZIP="${TASHER_STYLE_ZIP:-https://github.com/conormcgregor645-wq/headshot-cs.github.io/releases/download/tasherstyle/TasherStyle.zip}"
+# общая библиотека меню CS2MenuManager (форк mrc4tt) — без неё WeaponPaints не регистрирует свои команды (в том числе
+# css_wp_refresh, которой сайт мгновенно применяет скины). Берём последний релиз, если GitHub не ответил — проверенную 1.0.45
+MM_REPO="${MM_REPO:-mrc4tt/CS2MenuManager}"
+MM_FALLBACK="https://github.com/mrc4tt/CS2MenuManager/releases/download/1.0.45/CS2MenuManager-1.0.45.zip"
 BK=/root/vip-backup-$(date +%Y%m%d-%H%M%S)
 log() { printf '\n\033[1;32m=== %s ===\033[0m\n' "$*"; }
 die() { printf '\n\033[1;31mОШИБКА: %s\033[0m\n' "$*"; exit 1; }
@@ -50,6 +54,13 @@ TA="$TMP/t/addons/counterstrikesharp"
 [ -f "$TA/plugins/VIPCore/VIPCore.dll" ] && [ -f "$TA/plugins/VIPCore/CS2MenuManager.dll" ] && [ -f "$TA/shared/CS2MenuManager/config.toml" ] || die "в сборке TASHER не хватает файлов"
 curl -fsSL -o "$TMP/style.zip" "$STYLE_ZIP" || die "не скачал TASHER Style ($STYLE_ZIP)"
 mkdir "$TMP/s"; unzip -q -o "$TMP/style.zip" -d "$TMP/s"
+MM_URL=$(curl -fsSL "https://api.github.com/repos/$MM_REPO/releases/latest" 2>/dev/null | jq -r '[.assets[] | select(.name | test("^CS2MenuManager-.*\\.zip$")) | .browser_download_url][0] // empty' 2>/dev/null || true)
+[ -n "$MM_URL" ] || MM_URL="$MM_FALLBACK"
+curl -fsSL -o "$TMP/mm.zip" "$MM_URL" || curl -fsSL -o "$TMP/mm.zip" "$MM_FALLBACK" || die "не скачал CS2MenuManager"
+mkdir "$TMP/mm"; unzip -q -o "$TMP/mm.zip" -d "$TMP/mm"
+MMA=$(find "$TMP/mm" -maxdepth 4 -type d -path '*counterstrikesharp/shared/CS2MenuManager' | head -1)
+[ -n "$MMA" ] && [ -f "$MMA/CS2MenuManager.dll" ] || die "в архиве CS2MenuManager нет CS2MenuManager.dll"
+echo "библиотека меню: $(basename "$MM_URL" .zip)"
 SA="$TMP/s/addons/counterstrikesharp/plugins/TasherStyle"
 [ -f "$SA/TasherStyle.dll" ] && [ -f "$SA/MySqlConnector.dll" ] || die "в архиве TASHER Style не хватает файлов"
 echo "архивы в порядке"
@@ -82,8 +93,10 @@ for m in $MODS; do cp -r "$TMP/m/$m" "$PLG/"; done
 rm -rf "$PLG/VIPCore"
 cp -r "$TA/plugins/VIPCore" "$PLG/"
 cp -r "$SA" "$PLG/TasherStyle"
-cp -r "$TA/shared/CS2MenuManager" "$CSS/shared/"
-echo "установлено: ядро и модули: $MODS"
+# библиотека меню целиком (нужна WeaponPaints и VIP), поверх — наши настройки меню (WASD, игрок стоит на месте)
+cp -r "$MMA" "$CSS/shared/CS2MenuManager"
+cp "$TA/shared/CS2MenuManager/config.toml" "$CSS/shared/CS2MenuManager/config.toml"
+echo "установлено: ядро и модули: $MODS, библиотека меню"
 
 log "4/6 Настройки статусов (VIP, PREMIUM, ELITE, LEGEND, TITAN, KING)"
 IP=$(curl -fsS4 --max-time 5 https://api.ipify.org 2>/dev/null || echo 0.0.0.0)
@@ -153,6 +166,12 @@ if [ -z "$OKC" ]; then
   printf '%s\n' "$J" | grep -iE "vip|tasher|exception|error" | grep -v "Finished loading" | tail -20 | cut -c1-240
   restore; die "плагины загрузились не полностью — вернул как было. Пришли вывод выше"
 fi
+# скины: WeaponPaints должен загрузиться целиком (с библиотекой меню), иначе сайт не применяет скины сразу
+sleep 3; J=$(journalctl -u cs2 --since "$SINCE" --no-pager -o cat)
+if printf '%s' "$J" | grep -q "Error while loading required plugins"; then
+  printf '%s\n' "$J" | grep -iE "weaponpaints|menumanager" | tail -10 | cut -c1-240
+  printf '\n\033[1;33mВНИМАНИЕ: WeaponPaints не нашёл библиотеку меню — скины с сайта применятся только после перезахода. Пришли вывод выше\033[0m\n'
+else echo "WeaponPaints: загружен полностью, скины с сайта применяются сразу"; fi
 T=""
 for i in $(seq 1 12); do
   [ "$(mysql -N -e "SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA='weaponpaints' AND TABLE_NAME='vip_users'")" = 1 ] && { T=1; break; }; sleep 5
