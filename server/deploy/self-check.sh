@@ -57,7 +57,7 @@ MKT=$(curl -fsS -m 5 "$SITE/api/market" 2>/dev/null | jq -r '.all' 2>/dev/null)
 [ -n "$MKT" ] && [ "$MKT" != null ] && ok "торговая площадка: лотов $MKT" || bad "торговая площадка не отвечает (/api/market)"
 LGN=$(curl -fsS -m 5 "$SITE/api/leagues" 2>/dev/null | jq -r '.total' 2>/dev/null)
 [ -n "$LGN" ] && [ "$LGN" != null ] && ok "лиги: прошли калибровку $LGN игроков" || bad "лиги не отвечают (/api/leagues)"
-FUNV=$(curl -fsS -m 5 "$SITE/api/fun" 2>/dev/null | jq -r 'if .ace then "эйс \(.ace.tk) ТК, награды за голову сейчас: \(.bounties|length)" else empty end' 2>/dev/null)
+FUNV=$(curl -fsS -m 5 "$SITE/api/fun" 2>/dev/null | jq -r 'if .ace then "эйс \(.ace.tk) ТК, особый раунд \(.special.tk) ТК, режимов: \(.modes|length)" else empty end' 2>/dev/null)
 [ -n "$FUNV" ] && ok "игровые бонусы: $FUNV" || bad "сайт не отдаёт игровые бонусы (/api/fun) — запусти tasher-update"
 STK=$(getenv START_TK); [ "${STK:-0}" -gt 0 ] 2>/dev/null && ok "бонус новым игрокам: $STK ТК" || warn "бонус новым игрокам выключен (START_TK=${STK:-0}) — его включает vip-setup.sh"
 
@@ -171,7 +171,7 @@ console.log([pl.n,ed.n,ed.s,g.n,g.s,pr.n,pr.d,q.n,q.s,wh.n,nu.n,sh.n,sh.s,fd.n,f
     note "сегодня играли: $1 · заработали ТК за игру: $2 игроков (до множителя $3 ТК), зачислено $4 раз на $5 ТК"
     note "задания: прогресс у $6 игроков, выполнено $7, выплачено $8 раз на $9 ТК"
     note "Фортуна: прокруток ${10} · новых игроков на сайте: ${11} · покупок в магазине: ${12} на ${13} ₽"
-    note "бонусы (первая кровь, эйс, награды за голову, особые раунды): ${14} игроков, ${15} ТК до множителя"
+    note "бонусы (первая кровь, эйс, особые раунды): ${14} игроков, ${15} ТК до множителя"
     if [ "$1" -gt 0 ] && [ "$2" = 0 ]; then bad "сегодня на сервере играли, но ТК за игру не начислялись — journalctl -u tasher | grep earn"
     elif [ "$1" -gt 0 ]; then ok "ТК за игру начисляются"; else note "сегодня на сервере ещё не играли — ТК и задания проверятся после игры"; fi
     if [ "$1" -gt 0 ] && [ "$6" = 0 ]; then warn "сегодня играли, но прогресса по заданиям нет — сыграй пару раундов и проверь ещё раз"

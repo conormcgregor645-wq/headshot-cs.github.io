@@ -297,20 +297,19 @@ const call = async (cookie, p, body, h = {}) => { const r = await fetch(B + p, b
   // чужие cookie с битой кодировкой не ломают сайт
   r = await fetch(B + "/", { headers: { cookie: "bad=%E0%A4%A; tsid=%; x=%zz" } }); ok(r.status === 200, "битые cookie: страница открывается", r.status);
   r = await call("bad=%E0%A4%A; tsid=%", "/api/me"); ok(r.s === 200 && r.j.user === null, "битые cookie: запрос отвечает как гостю", r);
-  // игровые бонусы: эйс, награда за голову и особый раунд — объявления в чат игры по журналу
+  // игровые бонусы: эйс молча, итог особого раунда — в чат игры
   {
     const F = '"Funny<7><[U:1:222]><CT>"', bot = i => `"Bot${i}<${20 + i}><BOT><TERRORIST>"`;
     RCMDS.length = 0;
     jadd(lnow() + '"Funny<7><[U:1:222]><>" entered the game'); jadd(lnow() + '"Funny<7><[U:1:222]>" switched from team <Unassigned> to <CT>');
     jadd(lnow() + 'World triggered "Round_Start"');
-    for (let i = 0; i < 5; i++) jadd(lnow() + `${F} [1 2 3] killed ${bot(i)} [4 5 6] with "ak47"`);
-    jadd("TASHERFUN special_win knife ct");
+    for (let i = 0; i < 6; i++) jadd(lnow() + `${F} [1 2 3] killed ${bot(i)} [4 5 6] with "ak47"`);
+    jadd("TASHERFUN special_win invis ct");
     await new Promise(z => setTimeout(z, 1500));
-    ok(RCMDS.some(c => /^say \[TASHER\] Награда за голову: Funny — 5 убийств подряд\. Кто остановит — получит 50 ТК$/.test(c)), "награда за голову объявлена в игре", RCMDS);
-    ok(RCMDS.some(c => /^say \[TASHER\] ЭЙС! Funny: 5 убийств за раунд — \+30 ТК$/.test(c)), "эйс объявлен в игре", RCMDS);
-    ok(RCMDS.some(c => /^say \[TASHER\] Особый раунд «Только ножи» выиграл спецназ: \+50 ТК каждому игроку команды$/.test(c)), "особый раунд: строка плагина принята", RCMDS);
+    const says = RCMDS.filter(c => /^say /.test(c));
+    ok(says.length === 1 && /^say \[TASHER\] Особый раунд «Невидимки» выиграл спецназ: \+50 ТК каждому игроку команды$/.test(says[0]), "в чат игры — только итог особого раунда (эйс и серии молча)", RCMDS);
     const fu = (await call("", "/api/fun")).j;
-    ok(fu.bounties.length === 1 && fu.bounties[0].n === "Funny" && fu.bounties[0].k === 5 && fu.modes.knife === "Только ножи" && fu.ace.tk === 100, "/api/fun: правила и награды за голову", fu);
+    ok(fu.modes.wh === "Все с ВХ" && Object.keys(fu.modes).length === 13 && fu.ace.tk === 100 && !fu.bounties && !fu.bounty, "/api/fun: правила бонусов, награды за голову нет", fu);
   }
   // владельцы берутся из настроек: после перезапуска с другим списком роли меняются
   await new Promise(z => { srv.once("exit", z); srv.kill(); }); srv = start("76561190000000002"); await up();

@@ -395,7 +395,7 @@ const bal = u => db.prepare("SELECT tk, rub FROM users WHERE id=?").get(u.id);
   T1 = Date.UTC(2027, 1, 5); ok(P.state(sid).season === null && P.addXp(sid, 100, T1) === 0 && thr(() => P.claim(u, { all: true }), /закончился/), "после конца сезона опыт и награды закрыты");
 }
 
-// ---------- игровые бонусы: первая кровь, эйс, награда за голову, особые раунды ----------
+// ---------- игровые бонусы: первая кровь, эйс, особые раунды ----------
 {
   console.log("Игровые бонусы");
   const said = [], xps = [], pend = sid => (db.prepare("SELECT tk FROM earn_pending WHERE sid=?").get(sid) || {}).tk || 0;
@@ -405,66 +405,44 @@ const bal = u => db.prepare("SELECT tk, rub FROM users WHERE id=?").get(u.id);
   const P = (sid, n, tm, uid) => ({ n, uid, sid, bot: false, team: tm }), B = (n, tm, uid) => ({ n, uid, sid: null, bot: true, team: tm });
   const me = P(hs, "Хантер", "ct", 2), en = P(other, "Враг", "t", 3), en2 = P(third, "Враг2", "t", 4), bot = i => B("Bot" + i, "t", 10 + i);
   const kill = (a, v, dt = 1000) => { T2 += dt; F.apply({ t: T2, e: "kill", a, v, w: "ak47", hs: false }, false); };
+  const rs = () => F.apply({ t: T2, e: "round_start" }, false);
   const tk0 = () => bal(u).tk;
   let b0 = tk0();
-  F.apply({ t: T2, e: "round_start" }, false);
-  kill(me, en); ok(tk0() === b0 + 20, "первая кровь по игроку: +20 ТК", tk0() - b0);
+  rs(); kill(me, en); ok(tk0() === b0 + 20, "первая кровь по игроку: +20 ТК", tk0() - b0);
   kill(me, bot(1)); ok(tk0() === b0 + 20, "второе убийство — не первая кровь");
-  F.apply({ t: T2, e: "round_start" }, false); b0 = tk0();
-  kill(me, bot(2)); ok(tk0() === b0 + 5, "первая кровь по боту: +5 ТК", tk0() - b0);
-  // эйс: среди убитых 2 игрока — 100 ТК
-  F.apply({ t: T2, e: "round_start" }, false); b0 = tk0(); said.length = 0; xps.length = 0;
-  kill(en, B("BotC", "ct", 9)); // первая кровь у врага (не у нас)
+  rs(); b0 = tk0(); kill(me, bot(2)); ok(tk0() === b0 + 5, "первая кровь по боту: +5 ТК", tk0() - b0);
+  rs(); b0 = tk0(); kill(en, me); ok(tk0() === b0 && pend(other) === 20, "первая кровь у незарегистрированного — копится", pend(other));
+  // эйс: среди убитых 2 игрока — 100 ТК, молча (в чат ничего)
+  rs(); b0 = tk0(); said.length = 0; xps.length = 0;
+  kill(en, B("BotC", "ct", 9));
   kill(me, en); kill(me, en2); kill(me, bot(4)); kill(me, bot(5));
   ok(tk0() === b0, "до пятого убийства эйса нет");
   kill(me, bot(6));
-  ok(tk0() === b0 + 100 && said.some(m => /ЭЙС! Хантер: 5 убийств за раунд — \+100 ТК/.test(m)) && xps.some(x => x[0] === hs && x[1] === 100), "эйс: +100 ТК, +100 опыта и объявление", { d: tk0() - b0, said });
-  // серия: 7 убийств подряд без смерти (5 из прошлого раунда + ...)
-  ok(F.bounties().some(x => x.n === "Хантер" && x.k === 8), "серия идёт через раунды (3 + 5)", F.bounties());
-  ok(said.some(m => /Награда за голову: Хантер — 5 убийств подряд\. Кто остановит — получит 1\d0 ТК/.test(m)), "награда за голову объявлена на 5 убийствах", said);
-  // эйс только по ботам — 30 ТК
-  F.apply({ t: T2, e: "round_start" }, false); b0 = tk0();
-  for (let i = 0; i < 5; i++) kill(me, bot(20 + i));
+  ok(tk0() === b0 + 100 && xps.some(x => x[0] === hs && x[1] === 100) && !said.length, "эйс: +100 ТК и +100 опыта, без сообщений в чат", { d: tk0() - b0, said });
+  rs(); b0 = tk0(); for (let i = 0; i < 5; i++) kill(me, bot(20 + i));
   ok(tk0() === b0 + 5 + 30, "эйс по одним ботам: 30 ТК (+5 первая кровь)", tk0() - b0);
-  ok(said.some(m => /Награда за Хантер растёт/.test(m)), "рост награды объявлен", said.slice(-4));
-  // враг снимает голову — ему награда (не зарегистрирован: копится)
-  const s = F._streak.get(hs), val = FM.bountyValue(s), p0 = pend(other); said.length = 0;
-  ok(s.n === 13 && s.humans === 3 && val === 50 + 10 * 8 + 20 * 3, "стоимость головы: 50 + 10 за убийство сверх 5 + 20 за живых", { s, val });
-  kill(en, me);
-  ok(pend(other) === p0 + val && said.some(m => new RegExp(`Враг снимает награду за голову Хантер \\(13 подряд\\): \\+${val} ТК`).test(m)) && !F._streak.has(hs), "награда за голову — убившему, серия сброшена", { said, d: pend(other) - p0 });
-  // тимкилл и самоубийство — без награды
-  for (let i = 0; i < 5; i++) kill(en, P(sidN(9200 + i), "Ж" + i, "ct", 50 + i));
-  const p1 = pend(en2.sid);
-  kill(en2, en); ok(pend(en2.sid) === p1 && !F._streak.has(other), "тимкилл обрывает серию без награды");
-  for (let i = 0; i < 5; i++) kill(me, bot(60 + i));
-  F.apply({ t: T2, e: "suicide", a: me }, false); ok(!F._streak.has(hs), "самоубийство обрывает серию");
-  // бот с серией: награда маленькая
-  const bb = bot(70); for (let i = 0; i < 6; i++) kill(bb, P(sidN(9300 + i), "Ц" + i, "ct", 80 + i));
-  b0 = tk0(); kill(me, bb); ok(tk0() === b0 + FM.BOUNTY.botBase + FM.BOUNTY.botPerKill, "голова бота: 30 ТК", tk0() - b0);
-  // разминка не считается и сбрасывает серии
-  for (let i = 0; i < 5; i++) kill(me, bot(90 + i));
-  F.apply({ t: T2, e: "kill", a: en, v: me }, true); ok(!F._streak.size, "в разминке серии сбрасываются");
+  // тимкилл и самоубийство не считаются
+  rs(); const p1 = pend(third); kill(en2, en); ok(pend(third) === p1, "тимкилл — не первая кровь");
+  rs(); b0 = tk0(); kill(me, me); kill(me, en); ok(tk0() === b0 + 20, "самоубийство — не первая кровь");
+  // разминка не считается
+  rs(); b0 = tk0(); F.apply({ t: T2 += 1000, e: "kill", a: me, v: en, w: "ak47" }, true); ok(tk0() === b0, "в разминке бонусов нет");
   // особый раунд: победителям по 50 ТК и 30 опыта
-  team = [[hs, "ct"], [other, "t"], [third, "ct"]]; said.length = 0; xps.length = 0; b0 = tk0(); const p2 = pend(third);
-  ok(F.marker("TASHERFUN special_win knife ct", T2 += 60e3) && tk0() === b0 + 50 && pend(third) === p2 + 50 && pend(other) === pend(other), "особый раунд: +50 ТК победившей команде", tk0() - b0);
-  ok(said.some(m => /Особый раунд «Только ножи» выиграл спецназ: \+50 ТК каждому/.test(m)) && xps.filter(x => x[1] === 30).length === 2, "объявление и опыт за особый раунд", said);
-  ok(F.marker("TASHERFUN special_win knife ct", T2 + 5e3) === null, "повтор в том же раунде не платит");
+  team = [[hs, "ct"], [other, "t"], [third, "ct"]]; said.length = 0; xps.length = 0; b0 = tk0(); const p2 = pend(third), po = pend(other);
+  ok(F.marker("TASHERFUN special_win wh ct", T2 += 60e3) && tk0() === b0 + 50 && pend(third) === p2 + 50 && pend(other) === po, "особый раунд «Все с ВХ»: +50 ТК победившей команде", tk0() - b0);
+  ok(said.some(m => /Особый раунд «Все с ВХ» выиграл спецназ: \+50 ТК каждому/.test(m)) && xps.filter(x => x[1] === 30).length === 2, "объявление и опыт за особый раунд", said);
+  ok(F.marker("TASHERFUN special_win wh ct", T2 + 5e3) === null, "повтор в том же раунде не платит");
   ok(F.marker("TASHERFUN special_win rm_rf ct", T2 + 60e3) === null && F.marker("TASHERFUN special_win knife x", T2 + 90e3) === null && F.marker("xTASHERFUN special_win knife ct", T2 + 120e3) === null, "чужие строки не принимаются");
   ok(F.marker("TASHERFUN special_win awp t", T2 + 200e3, true) === null, "в разминке не платит");
+  ok(["invis", "hs", "bhop", "vampire", "ammo"].every(k => FM.MODES[k]) && Object.keys(FM.MODES).length === 13, "все 13 режимов известны сайту");
   // «Счастливый час» ×2 и дневной лимит
-  mult = 2; F.apply({ t: T2, e: "round_start" }, false); b0 = tk0(); kill(me, en);
+  mult = 2; rs(); b0 = tk0(); kill(me, en);
   ok(tk0() === b0 + 40, "первая кровь в «Счастливый час» ×2", tk0() - b0);
   db.prepare("UPDATE fun_day SET tk=? WHERE sid=?").run(FM.DAY_CAP - 10, hs);
-  F.apply({ t: T2, e: "round_start" }, false); b0 = tk0(); kill(me, en);
-  ok(tk0() === b0 + 20, "упёрлись в лимит: начислено только до лимита (10 × 2)", tk0() - b0);
-  F.apply({ t: T2, e: "round_start" }, false); b0 = tk0(); kill(me, en); ok(tk0() === b0, "после лимита — ничего");
+  rs(); b0 = tk0(); kill(me, en); ok(tk0() === b0 + 20, "упёрлись в лимит: начислено только до лимита (10 × 2)", tk0() - b0);
+  rs(); b0 = tk0(); kill(me, en); ok(tk0() === b0, "после лимита — ничего");
   const led = db.prepare("SELECT meta FROM ledger WHERE user_id=? AND kind='fun'").all(u.id).map(r => JSON.parse(r.meta).what);
-  ok(led.includes("Первая кровь в раунде") && led.includes("Эйс: 5 убийств за раунд") && led.includes("Победа в особом раунде «Только ножи»"), "история счёта: понятные записи", led);
-  // старые строки журнала (после перезапуска) — без сообщений в чат
-  said.length = 0; T2 += 3600e3; const old = T2 - 3 * 3600e3;
-  F.apply({ t: old, e: "round_start" }, false); for (let i = 0; i < 5; i++) F.apply({ t: old + i, e: "kill", a: en2, v: B("BotO" + i, "ct", 100 + i), w: "ak47" }, false);
-  ok(!said.length && F._streak.get(third).n === 5, "перечитанный журнал — молча", said);
-  F.apply({ t: T2, e: "map", map: "de_mirage" }, false); ok(!F._streak.size && !F.bounties().length, "новая карта — серии сначала");
+  ok(led.includes("Первая кровь в раунде") && led.includes("Эйс: 5 убийств за раунд") && led.includes("Победа в особом раунде «Все с ВХ»"), "история счёта: понятные записи", led);
+  ok(!("bounties" in F) && !("bounty" in F.info()), "награды за голову нет");
 }
 
 db.close(); fs.rmSync(dir, { recursive: true, force: true });

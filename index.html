@@ -294,10 +294,6 @@ footer nav{flex-direction:row;gap:16px;flex-wrap:wrap}
 .ipbar{display:flex;align-items:center;gap:6px;background:var(--ink);border:1px solid var(--line);border-radius:12px;padding:5px 5px 5px 14px}
 .ipbar code{font-family:var(--f-mono);font-size:14px;margin-right:6px}
 .teams{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:0 14px}
-.srv-bounty{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:0 14px 10px;padding:9px 12px;border:1px solid color-mix(in srgb,#f5c451 40%,var(--line));border-radius:12px;background:color-mix(in srgb,#f5c451 8%,transparent);font-size:12.5px}
-.srv-bounty b{color:#f5c451;margin-right:4px}
-.srv-bounty span{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:999px;background:var(--ink);border:1px solid var(--line);min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.srv-bounty span i{font-style:normal;font-weight:800;color:#f5c451}
 .wf-card .q-fun li b{display:inline;margin:0;font:inherit;font-weight:800;letter-spacing:0;color:#f5c451;white-space:nowrap}
 .team{background:var(--panel-2);border-radius:14px;padding:12px;min-width:0}
 .team-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-weight:800}
@@ -3080,7 +3076,7 @@ html.on-server #v-jackpot,html.on-server #v-wheel{position:relative}
             <details><summary>Оплатил, но привилегии нет</summary><p>Привилегия выдаётся за 1–5 минут. Перезайди на сервер. Если через 15 минут её нет, создай обращение в теме «Оплата» и укажи почту из чека.</p></details>
             <details><summary>Скины не видно на сервере</summary><p>Проверь в инвентаре, что скин надет. Скины применяются после возрождения. Вывести их в Steam нельзя, они работают только на наших серверах.</p></details>
             <details><summary>Бан выдан по ошибке</summary><p>Выбери тему «Бан или мут». Если есть демка или запись экрана, приложи ссылку на неё.</p></details>
-            <details><summary>Не начислились ТК</summary><p>ТК начисляются за игру на сервере: 5 ТК за убийство игрока (+1 за хедшот), 1 ТК за убийство бота, 2 за помощь, 3 за установку бомбы, 5 за разминирование, 2 за победу команды в раунде и 1 ТК за каждую минуту в игре. Разминка не считается. Статус увеличивает начисление: VIP ×1.1, PREMIUM ×1.2, ELITE ×1.3, LEGEND ×1.5, TITAN ×1.75, KING ×2. Лимит — 2000 ТК в сутки (до множителя). Сверху — бонусы: первая кровь в раунде (+20 ТК), эйс (+100 ТК), награда за голову игрока с серией от 5 убийств (от 50 ТК) и победа в особом раунде (+50 ТК), их лимит — ещё 1500 ТК в сутки. На счёт ТК приходят примерно раз в 30 секунд; если ты ещё не входил на сайт, накопленное придёт при первом входе через Steam.</p></details>
+            <details><summary>Не начислились ТК</summary><p>ТК начисляются за игру на сервере: 5 ТК за убийство игрока (+1 за хедшот), 1 ТК за убийство бота, 2 за помощь, 3 за установку бомбы, 5 за разминирование, 2 за победу команды в раунде и 1 ТК за каждую минуту в игре. Разминка не считается. Статус увеличивает начисление: VIP ×1.1, PREMIUM ×1.2, ELITE ×1.3, LEGEND ×1.5, TITAN ×1.75, KING ×2. Лимит — 2000 ТК в сутки (до множителя). Сверху — бонусы: первая кровь в раунде (+20 ТК), эйс (+100 ТК) и победа в особом раунде (+50 ТК), их лимит — ещё 1500 ТК в сутки. На счёт ТК приходят примерно раз в 30 секунд; если ты ещё не входил на сайт, накопленное придёт при первом входе через Steam.</p></details>
           </section>
           <section class="tk-mine" id="tkMine"></section>
         </aside>
@@ -3119,8 +3115,8 @@ html.on-server #v-jackpot,html.on-server #v-wheel{position:relative}
         </form>
         <form class="box adm-form" id="fSpec">
           <h3>Особый раунд</h3>
-          <div class="fgrid"><label class="fld">Режим<select id="specSel"><option value="random">Случайный</option><option value="knife">Только ножи</option><option value="deagle">Дуэль на Deagle</option><option value="awp">Только AWP</option><option value="scout">Скауты в низкой гравитации</option><option value="zeus">Только Zeus</option><option value="onehp">1 HP: пистолеты</option><option value="nades">Война гранат</option><option value="off">Отменить назначенный</option></select></label></div>
-          <div class="frow"><span class="fmsg" id="specMsg">Сам сервер устраивает особый раунд примерно раз в 6–8 раундов</span><button class="steam" type="submit">Назначить на следующий раунд</button></div>
+          <div class="fgrid"><label class="fld">Режим<select id="specSel"><option value="random">Случайный</option><option value="knife">Только ножи</option><option value="deagle">Дуэль на Deagle</option><option value="awp">Только AWP</option><option value="scout">Скауты в низкой гравитации</option><option value="zeus">Только Zeus</option><option value="onehp">1 HP: пистолеты</option><option value="nades">Война гранат</option><option value="invis">Невидимки</option><option value="wh">Все с ВХ</option><option value="hs">Только в голову</option><option value="bhop">Распрыжка</option><option value="vampire">Вампиры</option><option value="ammo">Бесконечные патроны</option><option value="off">Отменить назначенный</option></select></label></div>
+          <div class="frow"><span class="fmsg" id="specMsg">Сам сервер устраивает особый раунд раз в 2–3 раунда</span><button class="steam" type="submit">Назначить на следующий раунд</button></div>
         </form>
       </section>
 
@@ -3356,7 +3352,6 @@ html.on-server #v-jackpot,html.on-server #v-wheel{position:relative}
   <div class="srv-sheet" role="dialog" aria-modal="true" aria-labelledby="smName">
     <button class="x srv-x" id="smClose" aria-label="Закрыть">✕</button>
     <div class="srv-top" id="smTop"></div>
-    <div class="srv-bounty" id="smBounty" hidden></div>
     <div class="teams" id="smTeams"></div>
     <div class="specs" id="smSpecs"></div>
   </div>
@@ -3545,7 +3540,7 @@ function srvCounts(){totalOnline=SERVERS.reduce((a,s)=>a+s.cur,0);$("online").te
   const n=SERVERS.length;$("pubCount").textContent=n+" "+plural(n,"сервер","сервера","серверов");$("pmServers").textContent=n}
 // настоящие серверы: сайт на VPS вписывает их в страницу и отдаёт свежие по /api/servers
 const mapName=id=>{const m=String(id||"").replace(/^[a-z]+_/,"");return m?({dust2:"Dust2",mirage:"Mirage",inferno:"Inferno",ancient:"Ancient",nuke:"Nuke",anubis:"Anubis",vertigo:"Vertigo",overpass:"Overpass",train:"Train"}[m]||m[0].toUpperCase()+m.slice(1)):"—"};
-function srvServersSet(l){SERVERS.length=0;l.forEach((x,i)=>SERVERS.push({name:String(x.name||"Сервер").slice(0,64),map:x.online?mapName(x.map):"Офлайн",mapId:x.online?String(x.map||""):"не отвечает",port:i,ip:String(x.addr||""),cur:x.online?Math.max(0,x.players|0):0,max:Math.max(1,x.max|0||10),t:0,ct:0,real:1,on:!!x.online,list:Array.isArray(x.list)?x.list.filter(p=>p&&typeof p.n==="string"):[],score:x.score&&Number.isInteger(x.score.ct)&&Number.isInteger(x.score.t)?{ct:x.score.ct,t:x.score.t,warm:!!x.score.warm}:null,bounty:Array.isArray(x.bounty)?x.bounty.filter(z=>z&&typeof z.n==="string").slice(0,5).map(z=>({n:z.n.slice(0,40),k:z.k|0,v:z.v|0,bot:!!z.bot})):[]}));
+function srvServersSet(l){SERVERS.length=0;l.forEach((x,i)=>SERVERS.push({name:String(x.name||"Сервер").slice(0,64),map:x.online?mapName(x.map):"Офлайн",mapId:x.online?String(x.map||""):"не отвечает",port:i,ip:String(x.addr||""),cur:x.online?Math.max(0,x.players|0):0,max:Math.max(1,x.max|0||10),t:0,ct:0,real:1,on:!!x.online,list:Array.isArray(x.list)?x.list.filter(p=>p&&typeof p.n==="string"):[],score:x.score&&Number.isInteger(x.score.ct)&&Number.isInteger(x.score.t)?{ct:x.score.ct,t:x.score.t,warm:!!x.score.warm}:null}));
   maps=["Все",...new Set(SERVERS.map(s=>s.map))];if(!maps.includes(mapF))mapF="Все";$("mapFilter").innerHTML=maps.map(m=>`<button data-m="${esc(m)}" aria-pressed="${m===mapF}">${esc(m)}</button>`).join("");srvCounts();
   const sm=$("srvModal");if(!sm.hidden&&SERVERS[sm.dataset.i])openServer(+sm.dataset.i,1)}
 const REAL_SRV=!!(window.TSRV&&Array.isArray(window.TSRV.servers));
@@ -3580,15 +3575,13 @@ function openServer(i,keep){const s=SERVERS[i];if(!s)return;const sm=$("srvModal
   const team=(nm,col,list)=>`<div class="team"><div class="team-h"><span><i style="background:var(--${col})"></i>${nm}</span><small>${list.length}/16</small></div><div class="plist">${list.map(x=>prow(x,1)).join("")||'<div class="note">Пусто</div>'}</div></div>`;
   $("smTeams").innerHTML=team("Террористы","t",r.T)+team("Спецназ","ct",r.CT);
   $("smSpecs").innerHTML=r.S.length?`<div class="team-h"><span>Наблюдатели</span><small>${r.S.length}</small></div><div class="plist">${r.S.map(x=>prow(x,0)).join("")}</div>`:"";
-  $("smSpecs").hidden=!r.S.length;$("smBounty").hidden=true;sm.hidden=false;$("smClose").focus()}
+  $("smSpecs").hidden=!r.S.length;sm.hidden=false;$("smClose").focus()}
 // настоящий сервер: игроки из опроса RCON, стороны и счёт матча — из журнала сервера
 function openRealServer(s,i,keep){const sm=$("srvModal");sm.style.setProperty("--mc",MAPC[s.map]||"var(--accent)");sm.style.setProperty("--mimg",MAPIMG[s.map]?`url(${MAPIMG[s.map]})`:"none");
   const sc=s.score,hum=s.list.filter(p=>!p.bot).length,bots=s.list.filter(p=>p.bot).length;
   const sub=!s.on?"Сервер сейчас не отвечает":[sc?(sc.warm?"Разминка":`Раунд ${sc.ct+sc.t+1}`):"",`${s.cur}/${s.max} игроков`,bots?`${bots} ${plural(bots,"бот","бота","ботов")}`:""].filter(Boolean).join(" · ");
   $("smTop").innerHTML=`<small>${esc(s.mapId)}</small><h3 id="smName">${esc(s.name)}</h3>${s.on&&sc?`<div class="srv-score" aria-label="Счёт: террористы ${sc.t}, спецназ ${sc.ct}"><span class="t">${sc.t}</span><i>:</i><span class="ct">${sc.ct}</span></div>`:""}<div class="srv-sub">${sub}</div>
     <div class="srv-go">${s.on?`<button class="steam srv-conn" data-connect="${i}">${ICON_PLAY}<span>Подключиться</span></button>`:""}<div class="ipbar"><code>${esc(s.ip)}</code><button class="icon-btn" data-copy="${i}" title="Скопировать команду подключения" aria-label="Скопировать команду подключения">${ICON_COPY}</button></div></div>`;
-  const bn=s.on&&Array.isArray(s.bounty)?s.bounty:[];
-  $("smBounty").innerHTML=bn.length?`<b>Награда за голову</b>${bn.map(b=>`<span title="Убей его и получи ТК">${esc(b.n)}${b.bot?' <em class="sp-bot">бот</em>':""} · ${b.k|0} подряд · <i>${fmt(b.v|0)} ТК</i></span>`).join("")}`:"";$("smBounty").hidden=!bn.length;
   const mins=t=>{const m=Math.floor((t|0)/60);return m<60?m+" мин":Math.floor(m/60)+" ч "+(m%60)+" мин"};
   const row=p=>{const kd=p.k!=null?`${p.k|0} / ${p.d|0}`:"—",pr=!p.bot&&P(p.n),inner=`<span class="sp-n">${esc(p.n)}${p.bot?' <em class="sp-bot">бот</em>':""}</span><span class="sp-kd" title="Убийства / смерти на этой карте">${kd}</span><span class="tm">${p.bot?"":mins(p.t)}</span>`;
     return pr?`<button class="prow" data-p="${esc(p.n)}">${inner}</button>`:`<div class="prow">${inner}</div>`};
@@ -4647,8 +4640,8 @@ function qsNav(){const e=$("qNav");if(!e)return;const q=qsData();if(!q||!logged&
 function qsLeft(){const q=qsData(),end=q&&q.ends?q.ends:(()=>{const d=new Date(Date.now()+3*3600e3);d.setUTCHours(24,0,0,0);return d.getTime()-3*3600e3})();
   const ms=Math.max(0,end-Date.now()),h=Math.floor(ms/3600e3),m=Math.floor(ms%3600e3/60e3);return h?`${h} ч ${m} мин`:`${m} мин`}
 // игровые бонусы (значения с сайта, до загрузки — такие же по умолчанию)
-const FUNI={fb:20,ace:100,aceK:5,bounty:50,from:5,special:50};
-if(SRV)setTimeout(()=>{fetch("/api/fun",{credentials:"same-origin"}).then(r=>r.ok?r.json():null).then(d=>{if(!d||!d.ace)return;Object.assign(FUNI,{fb:d.firstBlood.human|0,ace:d.ace.tk|0,aceK:d.ace.kills|0,bounty:d.bounty.base|0,from:d.bounty.from|0,special:d.special.tk|0});if(curView==="quests")drawQuests()}).catch(()=>{})},1500);
+const FUNI={fb:20,ace:100,aceK:5,special:50};
+if(SRV)setTimeout(()=>{fetch("/api/fun",{credentials:"same-origin"}).then(r=>r.ok?r.json():null).then(d=>{if(!d||!d.ace)return;Object.assign(FUNI,{fb:d.firstBlood.human|0,ace:d.ace.tk|0,aceK:d.ace.kills|0,special:d.special.tk|0});if(curView==="quests")drawQuests()}).catch(()=>{})},1500);
 function drawQuests(){const q=qsData(),box=$("qBody");if(!box)return;
   if(!q){box.innerHTML=`<div class="page-head"><h1>Задания дня</h1><p>Задания загружаются…</p></div>`;return}
   const guest=SRV&&!logged,done=q.list.filter(x=>x.done).length,sum=q.list.reduce((s,x)=>s+x.reward,0)+q.bonusTk;
@@ -4665,7 +4658,7 @@ function drawQuests(){const q=qsData(),box=$("qBody");if(!box)return;
   <aside class="q-side">
     <div class="wf-card"><small>Новые задания через</small><b id="qLeft">${qsLeft()}</b><span class="q-mu">Обновляются в 00:00 по Москве</span></div>
     <div class="wf-card"><small>Можно получить сегодня</small><b>${fmt(sum)} ТК</b>${guest?`<button class="steam" data-login>Войти через Steam</button><span class="q-mu">Чтобы видеть свой прогресс</span>`:""}</div>
-    <div class="wf-card"><small>Бонусы на сервере</small><ul class="q-fun"><li><b>+${FUNI.fb} ТК</b> за первую кровь в раунде</li><li><b>+${FUNI.ace} ТК</b> за эйс — ${FUNI.aceK} убийств за раунд</li><li><b>от ${FUNI.bounty} ТК</b> за голову игрока с серией от ${FUNI.from} убийств подряд</li><li><b>+${FUNI.special} ТК</b> команде, выигравшей особый раунд: только ножи, AWP, Zeus, 1 HP…</li></ul></div>
+    <div class="wf-card"><small>Бонусы на сервере</small><ul class="q-fun"><li><b>+${FUNI.fb} ТК</b> за первую кровь в раунде</li><li><b>+${FUNI.ace} ТК</b> за эйс — ${FUNI.aceK} убийств за раунд</li><li><b>+${FUNI.special} ТК</b> команде, выигравшей особый раунд — они раз в 2–3 раунда: все с ВХ, невидимки, только в голову, распрыжка, вампиры, ножи, AWP…</li></ul></div>
     <div class="wf-card"><small>Как это работает</small><ul><li>Считается только игра на нашем сервере, разминка не в счёт.</li><li>Убийства своих и самоубийства не засчитываются.</li><li>В игре: <code>!quests</code> — задания, <code>!rank</code> — место в рейтинге, <code>!tk</code> — баланс, <code>!top</code> — топ-10.</li><li>Если ещё не заходил на сайт, награды копятся и придут при первом входе через Steam.</li></ul></div>
   </aside></div>`}
 setInterval(()=>{const e=$("qLeft");if(e)e.textContent=qsLeft();const q=qsData();if(SRV&&q&&q.ends&&Date.now()>q.ends+5e3&&!qsBusy){qsBusy=1;api("/api/quests").then(r=>qsSet(r.quests)).catch(()=>{}).finally(()=>{qsBusy=0})}},30e3);

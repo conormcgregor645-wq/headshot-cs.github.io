@@ -300,7 +300,7 @@ async function pollServers() {
     const r = await A2S.poll(CFG.gameServers, 1500, CFG.gameRcon, (s, st) => { for (const p of st) if (!p.bot) { const sid = STATS.sidByName(p.n); if (sid) CTL.enforce(sid, p.id); } });
     // счёт на карте и сторона игрока — из журнала (журнал у нас один: первого сервера)
     for (const s of r) for (const p of s.list) { const x = STATS.liveScore(p.n); if (x) { p.k = x.k; p.d = x.d; } }
-    if (r[0] && r[0].online && CFG.gameLogUnit) { for (const p of r[0].list) p.team = STATS.teamOf(p.n); r[0].score = STATS.match(); r[0].bounty = FUN.bounties(); }
+    if (r[0] && r[0].online && CFG.gameLogUnit) { for (const p of r[0].list) p.team = STATS.teamOf(p.n); r[0].score = STATS.match(); }
     GS = r;
   } catch (e) {}
 }
@@ -377,7 +377,7 @@ function seasonCheck() {
 }
 try { seasonCheck(); } catch (e) { console.error("[season]", e.message); }
 if (require.main === module) setInterval(() => { try { seasonCheck(); } catch (e) {} }, 3600e3).unref();
-// ---------- игровые бонусы: первая кровь, эйс, награда за голову, особые раунды ----------
+// ---------- игровые бонусы: первая кровь, эйс, особые раунды ----------
 // сообщения в чат игры — по очереди, чтобы не перепутался порядок
 const gameSay = (() => { let q = Promise.resolve(); return m => {
   if (!CFG.gameServers.length || !CFG.gameRcon || require.main !== module) return;
@@ -385,7 +385,7 @@ const gameSay = (() => { let q = Promise.resolve(); return m => {
 }; })();
 const FUN = makeFun({ db, tx: fn => tx(db, fn), addMoney, addXp: (sid, v, t) => PASS.addXp(sid, v, t), eventMult: t => EVENTS.mult("tk", t),
   inGame: () => [...STATS.state.team].filter(([sid, team]) => team && STATS.state.sess.has(sid)), say: gameSay });
-get("/api/fun", () => ({ ...FUN.info(), bounties: FUN.bounties() }));
+get("/api/fun", () => FUN.info());
 const passCall = f => { try { return f(); } catch (e) { if (!(e instanceof HttpError) && Number.isInteger(e.code)) bad(e.message, e.code); throw e; } };
 get("/api/pass", ctx => PASS.state(ctx.user ? ctx.user.steamid : null));
 post("/api/pass/buy", ctx => { const u = needUser(ctx); rateLimit("pass:" + u.id, 10, 60e3); const r = passCall(() => PASS.buyPremium(u)); infoSoon(); return { ...r, pass: PASS.state(u.steamid), purchases: userPurchases(u.id) }; });
