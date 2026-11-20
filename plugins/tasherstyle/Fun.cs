@@ -1,9 +1,11 @@
-// Особые раунды и серии убийств.
-// Особый раунд — примерно раз в 6–8 раундов (не в разминку, не в пистолетный и не в овертайм): у всех одинаковое оружие
-// (только ножи, Deagle, AWP, скауты в низкой гравитации, Zeus, 1 HP, гранаты), закупка и подбор чужого оружия запрещены.
+// Особые раунды и звуки серий убийств.
+// Особый раунд — раз в 2–3 раунда (не в разминку, не в пистолетный и не в овертайм). Режимы двух видов:
+//  • одинаковое оружие у всех (ножи, Deagle, AWP, скауты, Zeus, 1 HP, гранаты, невидимки с ножами) — закупка и подбор чужого запрещены;
+//  • правило поверх обычной игры (все с ВХ, только в голову, распрыжка, вампиры, бесконечные патроны) — закупка как обычно.
 // Итог раунда плагин пишет в консоль строкой «TASHERFUN special_win <режим> <ct|t>» — сайт читает журнал и начисляет ТК победителям.
-// Серии: «двойное / тройное / ультра / эйс» — надпись и звук убившему, тройное и больше — в чат всем, эйс — звук всем.
-// Первая кровь — в чат. ТК за первую кровь, эйс и награду за голову начисляет сайт по журналу.
+// Серии: двойное / тройное / ультра / эйс — только звук и только самому убившему, без надписей.
+using System.Drawing;
+using System.Globalization;
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Admin;
@@ -19,8 +21,9 @@ namespace TasherStyle;
 
 public partial class TasherStyle
 {
-    // Allow — номера предметов (item definition index), которые можно держать и подбирать, кроме ножа, бомбы, брони и щипцов
-    private sealed record SpecialMode(string Name, string Hint, string[] Give, ushort[] Allow, bool Armor, int Hp = 0, float Gravity = 0f);
+    // Allow — номера предметов (item definition index), которые можно держать и подбирать, кроме ножа, бомбы, брони и щипцов.
+    // Free — оружие обычное (закупка разрешена), режим меняет только правила.
+    private sealed record SpecialMode(string Name, string Hint, string[] Give, ushort[] Allow, bool Armor, int Hp = 0, float Gravity = 0f, bool Free = false, string NeedCvar = "");
 
     private static readonly Dictionary<string, SpecialMode> SpecialModes = new()
     {
@@ -31,19 +34,26 @@ public partial class TasherStyle
         ["zeus"] = new("Только Zeus", "у всех Zeus и нож", new[] { "weapon_taser" }, new ushort[] { 31 }, false),
         ["onehp"] = new("1 HP: пистолеты", "у всех P250 и 1 HP — любое попадание смертельно", new[] { "weapon_p250" }, new ushort[] { 36 }, false, 1),
         ["nades"] = new("Война гранат", "у всех бесконечные HE-гранаты и броня", new[] { "weapon_hegrenade" }, new ushort[] { 44 }, true),
+        ["invis"] = new("Невидимки", "все почти невидимы, у всех только нож — слушай шаги", Array.Empty<string>(), Array.Empty<ushort>(), false),
+        ["wh"] = new("Все с ВХ", "все видят всех сквозь стены, оружие обычное", Array.Empty<string>(), Array.Empty<ushort>(), false, Free: true),
+        ["hs"] = new("Только в голову", "урон проходит только в голову, оружие обычное", Array.Empty<string>(), Array.Empty<ushort>(), false, Free: true, NeedCvar: "mp_damage_headshot_only"),
+        ["bhop"] = new("Распрыжка", "зажми пробел — прыжки сами, оружие обычное", Array.Empty<string>(), Array.Empty<ushort>(), false, Free: true, NeedCvar: "sv_autobunnyhopping"),
+        ["vampire"] = new("Вампиры", "нанесённый урон лечит тебя (до 150 HP), оружие обычное", Array.Empty<string>(), Array.Empty<ushort>(), false, Free: true),
+        ["ammo"] = new("Бесконечные патроны", "перезаряжаться не нужно, оружие обычное", Array.Empty<string>(), Array.Empty<ushort>(), false, Free: true),
     };
     private const ushort DefC4 = 49, DefHe = 44;
     private static readonly ushort[] AlwaysAllowed = { DefC4, 50, 51, 55 }; // бомба, броня, броня со шлемом, щипцы
     private static bool IsKnifeDef(ushort d) => d is 41 or 42 or 59 or 80 || d is >= 500 and < 600;
-    private static bool AllowedIn(SpecialMode m, ushort d) => IsKnifeDef(d) || Array.IndexOf(AlwaysAllowed, d) >= 0 || Array.IndexOf(m.Allow, d) >= 0;
+    private static bool AllowedIn(SpecialMode m, ushort d) => m.Free || IsKnifeDef(d) || Array.IndexOf(AlwaysAllowed, d) >= 0 || Array.IndexOf(m.Allow, d) >= 0;
 
     private SpecialMode? _special;
     private string _specialKind = "", _lastSpecial = "";
     private string? _forcedSpecial;
     private DateTime _specialAt;
-    private int _sinceSpecial, _specialGap = 7;
-    private float _gravOrig = 800f;
-    private bool _gravSet, _acqHooked;
+    private int _sinceSpecial, _specialGap = 2;
+    private bool _acqHooked;
+    private readonly Dictionary<string, string> _cvarOrig = new();
+    private readonly Dictionary<int, (CBaseModelEntity R, CBaseModelEntity G)> _glows = new();
     private readonly HashSet<int> _resetNext = new(); // кто дожил до конца особого раунда — в следующем раунде забираем «подарочное» оружие
     private readonly Dictionary<int, int> _roundKills = new();
     private bool _firstBlood;
@@ -53,12 +63,12 @@ public partial class TasherStyle
     {
         _specialGap = NextGap();
         RegisterEventHandler<EventRoundStart>(FunRoundStart);
-        RegisterEventHandler<EventRoundFreezeEnd>((_, _) => { if (_special != null) foreach (var p in Utilities.GetPlayers()) ArmPlayer(p, false); return HookResult.Continue; });
+        RegisterEventHandler<EventRoundFreezeEnd>((_, _) => { if (_special is { Free: false }) foreach (var p in Utilities.GetPlayers()) ArmPlayer(p, false); return HookResult.Continue; });
         RegisterEventHandler<EventRoundEnd>(FunRoundEnd);
         RegisterEventHandler<EventPlayerDeath>(FunPlayerDeath);
         RegisterEventHandler<EventPlayerSpawn>((e, _) =>
         {
-            // зашёл посреди особого раунда (до конца закупки) — выдаём то же, что у всех
+            // зашёл посреди особого раунда — выдаём то же, что у всех
             if (_special != null && (DateTime.UtcNow - _specialAt).TotalSeconds > 1 && e.Userid is { IsValid: true } p)
             { var slot = p.Slot; AddTimer(0.3f, () => { var x = Utilities.GetPlayerFromSlot(slot); if (x != null) ArmPlayer(x, true); }, TimerFlags.STOP_ON_MAPCHANGE); }
             return HookResult.Continue;
@@ -66,7 +76,7 @@ public partial class TasherStyle
         RegisterEventHandler<EventItemPickup>((e, _) =>
         {
             // запасной вариант, если запрет через игру недоступен: подобрал чужое — отбираем
-            if (_special is { } m && e.Userid is { IsValid: true } p && e.Defindex is >= 0 and <= ushort.MaxValue && !AllowedIn(m, (ushort)e.Defindex))
+            if (_special is { Free: false } m && e.Userid is { IsValid: true } p && e.Defindex is >= 0 and <= ushort.MaxValue && !AllowedIn(m, (ushort)e.Defindex))
             { var slot = p.Slot; AddTimer(0.1f, () => { var x = Utilities.GetPlayerFromSlot(slot); if (x != null) ArmPlayer(x, false); }, TimerFlags.STOP_ON_MAPCHANGE); }
             return HookResult.Continue;
         });
@@ -85,12 +95,39 @@ public partial class TasherStyle
             }
             return HookResult.Continue;
         });
+        RegisterEventHandler<EventPlayerHurt>((e, _) =>
+        {
+            // «Вампиры»: нанесённый урон возвращается здоровьем
+            if (_specialKind != "vampire" || e.DmgHealth <= 0) return HookResult.Continue;
+            var a = e.Attacker; var v = e.Userid;
+            if (a is not { IsValid: true } || v is not { IsValid: true } || a.Slot == v.Slot || a.Team == v.Team || !IsAlive(a)) return HookResult.Continue;
+            var pawn = a.PlayerPawn.Value!;
+            var hp = Math.Min(150, pawn.Health + e.DmgHealth);
+            if (hp > pawn.Health) { pawn.Health = hp; Utilities.SetStateChanged(pawn, "CBaseEntity", "m_iHealth"); }
+            return HookResult.Continue;
+        });
+        RegisterEventHandler<EventWeaponFire>((e, _) =>
+        {
+            // «Бесконечные патроны»: после выстрела возвращаем патрон в магазин
+            if (_specialKind != "ammo" || e.Userid is not { IsValid: true } p) return HookResult.Continue;
+            var w = p.PlayerPawn.Value?.WeaponServices?.ActiveWeapon.Value;
+            if (w is not { IsValid: true }) return HookResult.Continue;
+            var n = w.DesignerName;
+            if (n.Contains("knife") || n.Contains("bayonet") || n.Contains("grenade") || n.Contains("flashbang") || n.Contains("molotov") || n.Contains("decoy") || n.Contains("taser") || n.Contains("c4")) return HookResult.Continue;
+            Server.NextFrame(() =>
+            {
+                if (_specialKind != "ammo" || !w.IsValid) return;
+                w.Clip1 += 1; Utilities.SetStateChanged(w, "CBasePlayerWeapon", "m_iClip1");
+            });
+            return HookResult.Continue;
+        });
         RegisterListener<Listeners.OnMapStart>(_ =>
         {
+            _glows.Clear(); // сущности прошлой карты уже удалены
             RestoreSpecial(); _forcedSpecial = null; _resetNext.Clear(); _sinceSpecial = 0; _specialGap = NextGap(); _rulesProxy = null;
             _roundKills.Clear(); _firstBlood = false;
         });
-        AddCommand("css_special", "Следующий раунд — особый: css_special <knife|deagle|awp|scout|zeus|onehp|nades|random|off>", CmdSpecial);
+        AddCommand("css_special", "Следующий раунд — особый: css_special <режим|random|off>", CmdSpecial);
         // запрет закупки и подбора чужого оружия на время особого раунда
         try { VirtualFunctions.CCSPlayer_ItemServices_CanAcquireFunc.Hook(OnCanAcquire, HookMode.Pre); _acqHooked = true; }
         catch (Exception ex) { Logger.LogWarning("Особые раунды: запрет закупки недоступен ({Err}) — лишнее оружие будет отбираться после закупки", ex.Message); }
@@ -104,7 +141,7 @@ public partial class TasherStyle
 
     private int NextGap()
     {
-        int a = Math.Clamp(Config.SpecialEveryMin, 2, 50), b = Math.Clamp(Config.SpecialEveryMax, a, 50);
+        int a = Math.Clamp(Config.SpecialEveryMin, 1, 50), b = Math.Clamp(Config.SpecialEveryMax, a, 50);
         return Random.Shared.Next(a, b + 1);
     }
 
@@ -138,6 +175,33 @@ public partial class TasherStyle
         try { var c = ConVar.Find(name); if (c == null) return def; int v = c.GetPrimitiveValue<int>(); return v; } catch { return def; }
     }
 
+    // текущее значение квара строкой (для возврата после раунда)
+    private static string? ReadCvar(string name)
+    {
+        try
+        {
+            var c = ConVar.Find(name); if (c == null) return null;
+            switch (c.Type.ToString())
+            {
+                case "Bool": { bool v = c.GetPrimitiveValue<bool>(); return v ? "1" : "0"; }
+                case "Int32": { int v = c.GetPrimitiveValue<int>(); return v.ToString(CultureInfo.InvariantCulture); }
+                case "Float32": { float v = c.GetPrimitiveValue<float>(); return v.ToString(CultureInfo.InvariantCulture); }
+                default: return null;
+            }
+        }
+        catch { return null; }
+    }
+
+    private void SetCvar(string name, string value, string fallback)
+    {
+        if (!_cvarOrig.ContainsKey(name))
+        {
+            var cur = ReadCvar(name);
+            _cvarOrig[name] = cur == null || cur == value ? fallback : cur;
+        }
+        Server.ExecuteCommand($"{name} {value}");
+    }
+
     private static int HumansInTeams() => Utilities.GetPlayers().Count(p => p is { IsValid: true, IsBot: false, IsHLTV: false } && p.Team is CsTeam.Terrorist or CsTeam.CounterTerrorist);
 
     private void PlayTo(CCSPlayerController p, string key)
@@ -145,10 +209,8 @@ public partial class TasherStyle
         if (Config.StreakSounds.TryGetValue(key, out var snd) && IsSafeSound(snd) && p is { IsValid: true, IsBot: false, IsHLTV: false })
             p.ExecuteClientCommand($"play {snd}");
     }
-    private void PlayAll(string key)
-    {
-        foreach (var p in Utilities.GetPlayers()) PlayTo(p, key);
-    }
+
+    private static bool ModeReady(SpecialMode m) => m.NeedCvar.Length == 0 || ConVar.Find(m.NeedCvar) != null;
 
     // ---------- начало раунда: решаем, особый ли он ----------
     private HookResult FunRoundStart(EventRoundStart e, GameEventInfo info)
@@ -161,7 +223,7 @@ public partial class TasherStyle
         if (_resetNext.Count > 0)
         {
             var slots = _resetNext.ToArray(); _resetNext.Clear();
-            AddTimer(0.2f, () => { if (_special != null) return; foreach (var s in slots) { var p = Utilities.GetPlayerFromSlot(s); if (p != null) ResetLoadout(p); } }, TimerFlags.STOP_ON_MAPCHANGE);
+            AddTimer(0.2f, () => { if (_special is { Free: false }) return; foreach (var s in slots) { var p = Utilities.GetPlayerFromSlot(s); if (p != null) ResetLoadout(p); } }, TimerFlags.STOP_ON_MAPCHANGE);
         }
         if (!Config.FunEnabled) return HookResult.Continue;
         int round = rules.TotalRoundsPlayed + 1, max = ConInt("mp_maxrounds", 24), half = max / 2;
@@ -170,8 +232,9 @@ public partial class TasherStyle
         if (_forcedSpecial != null) { kind = _forcedSpecial; _forcedSpecial = null; }
         else if (round != 1 && round != half + 1 && (max <= 0 || round <= max) && _sinceSpecial >= _specialGap && HumansInTeams() >= Math.Max(1, Config.SpecialMinHumans))
         {
-            var pool = Config.SpecialModes.Where(k => SpecialModes.ContainsKey(k) && k != _lastSpecial).Distinct().ToList();
-            if (pool.Count == 0) pool = Config.SpecialModes.Where(SpecialModes.ContainsKey).Distinct().ToList();
+            var all = Config.SpecialModes.Where(k => SpecialModes.TryGetValue(k, out var x) && ModeReady(x)).Distinct().ToList();
+            var pool = all.Where(k => k != _lastSpecial).ToList();
+            if (pool.Count == 0) pool = all;
             if (pool.Count > 0) kind = pool[Random.Shared.Next(pool.Count)];
         }
         if (kind == null || !SpecialModes.TryGetValue(kind, out var m)) return HookResult.Continue;
@@ -183,50 +246,95 @@ public partial class TasherStyle
     private void StartSpecial(string kind, SpecialMode m)
     {
         _special = m; _specialKind = kind; _specialAt = DateTime.UtcNow;
-        if (m.Gravity > 0)
-        {
-            try { var c = ConVar.Find("sv_gravity"); float g = 800f; if (c != null) g = c.GetPrimitiveValue<float>(); _gravOrig = g is >= 400f and <= 2000f ? g : 800f; } catch { _gravOrig = 800f; }
-            Server.ExecuteCommand($"sv_gravity {m.Gravity.ToString(System.Globalization.CultureInfo.InvariantCulture)}");
-            _gravSet = true;
-        }
+        if (m.Gravity > 0) SetCvar("sv_gravity", m.Gravity.ToString(CultureInfo.InvariantCulture), "800");
+        if (kind == "hs") SetCvar("mp_damage_headshot_only", "1", "0");
+        if (kind == "bhop") { SetCvar("sv_autobunnyhopping", "1", "0"); SetCvar("sv_enablebunnyhopping", "1", "0"); }
         Server.PrintToChatAll($"{Prefix}{ChatColors.Gold}ОСОБЫЙ РАУНД: {m.Name}!{ChatColors.Default} {m.Hint}. Победившей команде — бонус ТК");
         foreach (var p in Utilities.GetPlayers())
             if (p is { IsValid: true, IsBot: false, IsHLTV: false }) p.PrintToCenter($"ОСОБЫЙ РАУНД: {m.Name}");
-        PlayAll("special");
+        foreach (var p in Utilities.GetPlayers()) PlayTo(p, "special");
         AddTimer(0.3f, () => { if (_special == m) foreach (var p in Utilities.GetPlayers()) ArmPlayer(p, true); }, TimerFlags.STOP_ON_MAPCHANGE);
         Logger.LogInformation("Особый раунд: {Kind}", kind);
     }
 
-    // выдать оружие режима; force — заново всем, иначе только если есть лишнее или не хватает нужного
+    // выдать оружие и свойства режима; force — заново, иначе только если есть лишнее или не хватает нужного
     private void ArmPlayer(CCSPlayerController p, bool force)
     {
         if (_special is not { } m || p is not { IsValid: true } || p.IsHLTV) return;
         if (p.Team is not (CsTeam.Terrorist or CsTeam.CounterTerrorist) || !IsAlive(p)) return;
         var pawn = p.PlayerPawn.Value!;
-        bool hasC4 = false, extra = false;
-        var have = new HashSet<ushort>();
-        var ws = pawn.WeaponServices;
-        if (ws != null)
-            foreach (var h in ws.MyWeapons)
-            {
-                var w = h.Value; if (w is not { IsValid: true }) continue;
-                var d = w.AttributeManager.Item.ItemDefinitionIndex;
-                if (d == DefC4) hasC4 = true; else if (!AllowedIn(m, d)) extra = true; else have.Add(d);
-            }
-        var missing = m.Allow.Any(a => !have.Contains(a)) && _specialKind != "nades"; // гранаты бросают — их отсутствие не повод всё перевыдавать
-        if (force || extra || missing)
+        if (!m.Free)
         {
-            p.RemoveWeapons();
-            p.GiveNamedItem(p.Team == CsTeam.Terrorist ? "weapon_knife_t" : "weapon_knife");
-            foreach (var g in m.Give) p.GiveNamedItem(g);
-            if (hasC4) p.GiveNamedItem("weapon_c4");
+            bool hasC4 = false, extra = false;
+            var have = new HashSet<ushort>();
+            var ws = pawn.WeaponServices;
+            if (ws != null)
+                foreach (var h in ws.MyWeapons)
+                {
+                    var w = h.Value; if (w is not { IsValid: true }) continue;
+                    var d = w.AttributeManager.Item.ItemDefinitionIndex;
+                    if (d == DefC4) hasC4 = true; else if (!AllowedIn(m, d)) extra = true; else have.Add(d);
+                }
+            var missing = m.Allow.Any(a => !have.Contains(a)) && _specialKind != "nades"; // гранаты бросают — их отсутствие не повод всё перевыдавать
+            if (force || extra || missing)
+            {
+                p.RemoveWeapons();
+                p.GiveNamedItem(p.Team == CsTeam.Terrorist ? "weapon_knife_t" : "weapon_knife");
+                foreach (var g in m.Give) p.GiveNamedItem(g);
+                if (hasC4) p.GiveNamedItem("weapon_c4");
+            }
+            if (force && m.Armor) p.GiveNamedItem("item_assaultsuit");
         }
-        if (force && m.Armor) p.GiveNamedItem("item_assaultsuit");
         if (m.Hp > 0)
         {
             pawn.Health = m.Hp; Utilities.SetStateChanged(pawn, "CBaseEntity", "m_iHealth");
             pawn.ArmorValue = 0; Utilities.SetStateChanged(pawn, "CCSPlayerPawn", "m_ArmorValue");
         }
+        if (!force) return;
+        if (_specialKind == "invis") SetAlpha(pawn, 25);
+        if (_specialKind == "wh") AddGlow(p);
+    }
+
+    private static void SetAlpha(CCSPlayerPawn pawn, int alpha)
+    {
+        try
+        {
+            pawn.RenderMode = alpha >= 255 ? RenderMode_t.kRenderNormal : RenderMode_t.kRenderTransAlpha;
+            pawn.Render = Color.FromArgb(alpha, 255, 255, 255);
+            Utilities.SetStateChanged(pawn, "CBaseModelEntity", "m_nRenderMode");
+            Utilities.SetStateChanged(pawn, "CBaseModelEntity", "m_clrRender");
+        }
+        catch { }
+    }
+
+    // «ВХ»: светящаяся копия модели игрока, видна всем сквозь стены
+    private void AddGlow(CCSPlayerController p)
+    {
+        RemoveGlow(p.Slot);
+        try
+        {
+            var pawn = p.PlayerPawn.Value; if (pawn is not { IsValid: true }) return;
+            var model = pawn.CBodyComponent?.SceneNode?.GetSkeletonInstance().ModelState.ModelName ?? "";
+            if (model.Length == 0) return;
+            var r = Utilities.CreateEntityByName<CBaseModelEntity>("prop_dynamic");
+            var g = Utilities.CreateEntityByName<CBaseModelEntity>("prop_dynamic");
+            if (r == null || g == null) { r?.Remove(); g?.Remove(); return; }
+            r.SetModel(model); r.Spawnflags = 256u; r.RenderMode = RenderMode_t.kRenderNone; r.DispatchSpawn();
+            g.SetModel(model); g.Spawnflags = 256u; g.RenderMode = RenderMode_t.kRenderTransAlpha; g.Render = Color.FromArgb(1, 255, 255, 255); g.DispatchSpawn();
+            g.Glow.GlowColorOverride = p.Team == CsTeam.Terrorist ? Color.FromArgb(255, 255, 170, 60) : Color.FromArgb(255, 90, 170, 255);
+            g.Glow.GlowRange = 5000; g.Glow.GlowRangeMin = 20; g.Glow.GlowTeam = -1; g.Glow.GlowType = 3;
+            r.AcceptInput("FollowEntity", pawn, r, "!activator");
+            g.AcceptInput("FollowEntity", r, g, "!activator");
+            _glows[p.Slot] = (r, g);
+        }
+        catch (Exception ex) { Logger.LogWarning("ВХ-подсветка не создалась: {Err}", ex.Message); }
+    }
+
+    private void RemoveGlow(int slot)
+    {
+        if (!_glows.Remove(slot, out var e)) return;
+        try { if (e.G.IsValid) e.G.Remove(); } catch { }
+        try { if (e.R.IsValid) e.R.Remove(); } catch { }
     }
 
     // после особого раунда: у выживших — нож и обычный пистолет, без бесплатной брони
@@ -249,26 +357,28 @@ public partial class TasherStyle
         // строка для сайта (он начисляет ТК победителям и пишет в чат)
         if (team != null) Console.WriteLine($"TASHERFUN special_win {_specialKind} {team}");
         _resetNext.Clear();
-        foreach (var p in Utilities.GetPlayers())
-            if (p is { IsValid: true, IsHLTV: false } && IsAlive(p)) _resetNext.Add(p.Slot);
+        if (!_special.Free)
+            foreach (var p in Utilities.GetPlayers())
+                if (p is { IsValid: true, IsHLTV: false } && IsAlive(p)) _resetNext.Add(p.Slot);
         RestoreSpecial();
         return HookResult.Continue;
     }
 
     private void RestoreSpecial()
     {
-        if (_gravSet)
-        {
-            Server.ExecuteCommand($"sv_gravity {_gravOrig.ToString(System.Globalization.CultureInfo.InvariantCulture)}");
-            _gravSet = false;
-        }
+        foreach (var (k, v) in _cvarOrig) Server.ExecuteCommand($"{k} {v}");
+        _cvarOrig.Clear();
+        foreach (var s in _glows.Keys.ToArray()) RemoveGlow(s);
+        if (_specialKind == "invis")
+            foreach (var p in Utilities.GetPlayers())
+                if (p is { IsValid: true } && p.PlayerPawn.Value is { IsValid: true } pawn) SetAlpha(pawn, 255);
         _special = null; _specialKind = "";
     }
 
     private HookResult OnCanAcquire(DynamicHook h)
     {
         var m = _special;
-        if (m == null) return HookResult.Continue;
+        if (m == null || m.Free) return HookResult.Continue;
         try
         {
             var method = h.GetParam<AcquireMethod>(2);
@@ -286,41 +396,32 @@ public partial class TasherStyle
         if (p != null && !AdminManager.PlayerHasPermissions(p, "@css/root")) { info.ReplyToCommand("[TASHER] Нет доступа"); return; }
         var arg = info.ArgCount > 1 ? info.GetArg(1).Trim().ToLowerInvariant() : "random";
         if (arg == "off") { _forcedSpecial = null; info.ReplyToCommand("[TASHER] Особый раунд отменён"); return; }
-        if (arg == "random") { var keys = SpecialModes.Keys.Where(k => k != _lastSpecial).ToList(); arg = keys[Random.Shared.Next(keys.Count)]; }
+        if (arg == "random") { var keys = SpecialModes.Where(x => x.Key != _lastSpecial && ModeReady(x.Value)).Select(x => x.Key).ToList(); arg = keys[Random.Shared.Next(keys.Count)]; }
         if (!SpecialModes.TryGetValue(arg, out var m)) { info.ReplyToCommand("[TASHER] Режимы: " + string.Join(", ", SpecialModes.Keys) + ", random, off"); return; }
+        if (!ModeReady(m)) { info.ReplyToCommand($"[TASHER] Режим {arg} на этом сервере недоступен (нет квара {m.NeedCvar})"); return; }
         _forcedSpecial = arg;
         info.ReplyToCommand($"[TASHER] Следующий раунд — особый: {m.Name} ({arg})");
         Server.PrintToChatAll($"{Prefix}Следующий раунд — {ChatColors.Gold}особый: {m.Name}");
     }
 
-    // ---------- первая кровь и серии за раунд ----------
+    // ---------- серии за раунд: только звук и только себе ----------
     private HookResult FunPlayerDeath(EventPlayerDeath e, GameEventInfo info)
     {
+        var v = e.Userid;
+        if (v is { IsValid: true }) RemoveGlow(v.Slot); // убитый больше не светится
         if (!Config.FunEnabled) return HookResult.Continue;
-        var a = e.Attacker; var v = e.Userid;
+        var a = e.Attacker;
         if (a is not { IsValid: true } || v is not { IsValid: true } || a.IsHLTV || a.Slot == v.Slot || a.Team == v.Team) return HookResult.Continue;
         var rules = Rules();
         if (rules == null || rules.WarmupPeriod) return HookResult.Continue;
-        if (!_firstBlood)
-        {
-            _firstBlood = true;
-            if (!a.IsBot) { Server.PrintToChatAll($"{Prefix}{ChatColors.Red}Первая кровь:{ChatColors.Default} {a.PlayerName}"); PlayTo(a, "first"); }
-        }
+        var first = !_firstBlood; _firstBlood = true;
         if (a.IsBot) return HookResult.Continue;
         var n = _roundKills[a.Slot] = _roundKills.GetValueOrDefault(a.Slot) + 1;
-        if (n < 2) return HookResult.Continue;
-        var txt = n switch { 2 => "ДВОЙНОЕ УБИЙСТВО", 3 => "ТРОЙНОЕ УБИЙСТВО", 4 => "УЛЬТРА-УБИЙСТВО", 5 => "ЭЙС!", _ => $"{n} УБИЙСТВ ЗА РАУНД!" };
-        a.PrintToCenter(txt);
-        if (n is 3 or 4) Server.PrintToChatAll($"{Prefix}{ChatColors.Gold}{a.PlayerName}{ChatColors.Default}: {txt.ToLowerInvariant()}");
-        if (n == 5) Server.PrintToChatAll($"{Prefix}{ChatColors.Gold}ЭЙС! {a.PlayerName}{ChatColors.Default} убил {n} противников за раунд");
-        // звук чуть позже, чтобы не слился со звуком убийства
+        var key = n >= 2 ? (n > 5 ? "5" : n.ToString()) : first ? "first" : null;
+        if (key == null) return HookResult.Continue;
+        // чуть позже, чтобы не слилось со звуком убийства
         var slot = a.Slot;
-        AddTimer(0.35f, () =>
-        {
-            if (n == 5) { PlayAll("5"); return; }
-            var x = Utilities.GetPlayerFromSlot(slot);
-            if (x != null) PlayTo(x, n > 5 ? "5" : n.ToString());
-        }, TimerFlags.STOP_ON_MAPCHANGE);
+        AddTimer(0.35f, () => { var x = Utilities.GetPlayerFromSlot(slot); if (x != null) PlayTo(x, key); }, TimerFlags.STOP_ON_MAPCHANGE);
         return HookResult.Continue;
     }
 }

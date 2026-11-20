@@ -1,5 +1,5 @@
 // TASHER Style: тег и цвет ника в чате, тег в таблице счёта, цвет дыма, эффекты (убийство, звук, трассеры, след гранат),
-// команды !rank !top !tk !quests, приветствие статусов с музыкой, особые раунды и серии убийств — по данным с сайта tashercs.ru.
+// команды !rank !top !tk !quests, приветствие статусов с музыкой, особые раунды и звуки серий — по данным с сайта tashercs.ru.
 // Сайт пишет готовые значения в таблицу tasher_style (база weaponpaints), плагин перечитывает её раз в 20 секунд
 // и сразу по команде сервера css_tasher_style_reload (сайт присылает её по RCON после покупки).
 using System.Collections.Concurrent;
@@ -48,11 +48,11 @@ public class StyleConfig : BasePluginConfig
     [JsonPropertyName("MaxBeams")] public int MaxBeams { get; set; } = 600;
     // особые раунды и серии убийств
     [JsonPropertyName("FunEnabled")] public bool FunEnabled { get; set; } = true;
-    [JsonPropertyName("SpecialEveryMin")] public int SpecialEveryMin { get; set; } = 6;
-    [JsonPropertyName("SpecialEveryMax")] public int SpecialEveryMax { get; set; } = 8;
+    [JsonPropertyName("SpecialEveryMin")] public int SpecialEveryMin { get; set; } = 2;
+    [JsonPropertyName("SpecialEveryMax")] public int SpecialEveryMax { get; set; } = 3;
     [JsonPropertyName("SpecialMinHumans")] public int SpecialMinHumans { get; set; } = 1;
-    [JsonPropertyName("SpecialModes")] public List<string> SpecialModes { get; set; } = new() { "knife", "deagle", "awp", "scout", "zeus", "onehp", "nades" };
-    // звуки серий (из самой игры): first — первая кровь, 2…5 — двойное…эйс, special — начало особого раунда
+    [JsonPropertyName("SpecialModes")] public List<string> SpecialModes { get; set; } = new() { "knife", "deagle", "awp", "scout", "zeus", "onehp", "nades", "invis", "wh", "hs", "bhop", "vampire", "ammo" };
+    // звуки серий (из самой игры, слышит только убивший): first — первая кровь, 2…5 — двойное…эйс; special — начало особого раунда (всем)
     [JsonPropertyName("StreakSounds")] public Dictionary<string, string> StreakSounds { get; set; } = new()
     {
         ["first"] = "sounds/ui/deathmatch_bonuskill.vsnd",
