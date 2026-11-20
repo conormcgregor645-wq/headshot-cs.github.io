@@ -213,6 +213,8 @@ function open(file) {
        sid TEXT NOT NULL, season TEXT NOT NULL, xp INTEGER NOT NULL DEFAULT 0, prem INTEGER NOT NULL DEFAULT 0, claimed TEXT NOT NULL DEFAULT '',
        day TEXT NOT NULL DEFAULT '', day_xp INTEGER NOT NULL DEFAULT 0, updated_at INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(sid, season)
      );`,
+    // 13: игровые бонусы (первая кровь, эйс, награда за голову, особые раунды) — суточный лимит
+    `CREATE TABLE fun_day(sid TEXT NOT NULL, day TEXT NOT NULL, tk INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(sid, day));`,
   ];
   for (let v = ver; v < MIG.length; v++) {
     db.exec("BEGIN");

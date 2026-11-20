@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # VIP-плагин для CS2 (VIPCore + модули): статусы VIP…KING с сайта дают бонусы в игре.
-# И плагин TASHER Style: тег и цвет ника в чате, тег в таблице счёта, цвет дыма — всё по данным сайта.
+# И плагин TASHER Style: тег и цвет ника в чате, тег в таблице счёта, цвет дыма, эффекты, команды, особые раунды и серии — по данным сайта.
 # Запуск от root:  bash /opt/tasher/server/deploy/vip-setup.sh
 # Статусы выдаёт только сайт (магазин, админка, итоги месяца) — он сам пишет их в базу плагина.
 # Делает копию; если плагин не загрузится — сам всё возвращает как было.
@@ -166,6 +166,9 @@ if [ -z "$OKC" ]; then
   printf '%s\n' "$J" | grep -iE "vip|tasher|exception|error" | grep -v "Finished loading" | tail -20 | cut -c1-240
   restore; die "плагины загрузились не полностью — вернул как было. Пришли вывод выше"
 fi
+if printf '%s\n' "$J" | grep -q "запрет закупки недоступен"; then
+  echo "  внимание: особые раунды работают без запрета закупки (лишнее оружие отбирается после закупки) — обнови CounterStrikeSharp"
+fi
 # скины: WeaponPaints должен загрузиться целиком (с библиотекой меню), иначе сайт не применяет скины сразу
 sleep 3; J=$(journalctl -u cs2 --since "$SINCE" --no-pager -o cat)
 if printf '%s' "$J" | grep -q "Error while loading required plugins"; then
@@ -212,4 +215,4 @@ echo "статусов на сайте: $SITE, в базе плагина: $DBN"
 mysql -N -e "SELECT account_id, \`group\`, FROM_UNIXTIME(expires) FROM weaponpaints.vip_users WHERE sid=0 ORDER BY expires DESC LIMIT 10" | sed 's/^/  /'
 sleep 5; echo "стилей в игре (теги, цвета, дым, эффекты): $(mysql -N -e "SELECT COUNT(*) FROM weaponpaints.tasher_style")"
 echo "игроков для !rank/!tk/!quests: $(mysql -N -e "SELECT COUNT(*) FROM weaponpaints.tasher_player") (сайт обновляет раз в 30 секунд)"
-printf '\n\033[1;32m=== ГОТОВО ===\033[0m\nКопия прежнего состояния: %s\nВ игре: !vip — меню привилегии. Статусы выдаются с сайта (магазин, админка, итоги месяца) и действуют сразу.\nКоманды в чате игры: !rank !top !tk !quests !pass\nПроверить всё одной командой: tasher-check\n' "$BK"
+printf '\n\033[1;32m=== ГОТОВО ===\033[0m\nКопия прежнего состояния: %s\nВ игре: !vip — меню привилегии. Статусы выдаются с сайта (магазин, админка, итоги месяца) и действуют сразу.\nКоманды в чате игры: !rank !top !tk !quests !pass\nОсобые раунды — сами раз в 6–8 раундов; назначить вручную: админка сайта → Сервер → «Особый раунд»\nПроверить всё одной командой: tasher-check\n' "$BK"

@@ -1,4 +1,5 @@
 "use strict";
+const { MODES: FUN_MODES } = require("./fun");
 // Управление сервером с сайта: баны (действуют в игре), статусы игроков, итоги месяца, команды RCON.
 const { cleanNick } = require("./nick");
 
@@ -236,6 +237,14 @@ function makeControl({ db, tx, stats, month, rcon, servers, maps, log = console,
         await rconCmd("mp_restartgame 3");
         log.log(`[admin] ${by}(${admin.id}) рестарт матча`);
         return { ok: true, msg: "Матч перезапустится через 3 секунды" };
+      }
+      case "special": {
+        const k = String(body.kind || "");
+        if (k !== "random" && k !== "off" && !FUN_MODES[k]) return { error: "Неизвестный режим особого раунда" };
+        const out = await rconCmd(`css_special ${k}`);
+        if (/unknown command/i.test(out)) return { error: "На сервере старая версия плагина TASHER Style — запусти vip-setup.sh" };
+        log.log(`[admin] ${by}(${admin.id}) особый раунд: ${k}`);
+        return { ok: true, msg: k === "off" ? "Особый раунд отменён" : `Следующий раунд — особый: ${k === "random" ? "случайный режим" : FUN_MODES[k]}` };
       }
       case "say": {
         const text = consoleText(body.text, 120); if (!text) return { error: "Напиши сообщение" };

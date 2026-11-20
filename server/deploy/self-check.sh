@@ -57,6 +57,8 @@ MKT=$(curl -fsS -m 5 "$SITE/api/market" 2>/dev/null | jq -r '.all' 2>/dev/null)
 [ -n "$MKT" ] && [ "$MKT" != null ] && ok "торговая площадка: лотов $MKT" || bad "торговая площадка не отвечает (/api/market)"
 LGN=$(curl -fsS -m 5 "$SITE/api/leagues" 2>/dev/null | jq -r '.total' 2>/dev/null)
 [ -n "$LGN" ] && [ "$LGN" != null ] && ok "лиги: прошли калибровку $LGN игроков" || bad "лиги не отвечают (/api/leagues)"
+FUNV=$(curl -fsS -m 5 "$SITE/api/fun" 2>/dev/null | jq -r 'if .ace then "эйс \(.ace.tk) ТК, награды за голову сейчас: \(.bounties|length)" else empty end' 2>/dev/null)
+[ -n "$FUNV" ] && ok "игровые бонусы: $FUNV" || bad "сайт не отдаёт игровые бонусы (/api/fun) — запусти tasher-update"
 STK=$(getenv START_TK); [ "${STK:-0}" -gt 0 ] 2>/dev/null && ok "бонус новым игрокам: $STK ТК" || warn "бонус новым игрокам выключен (START_TK=${STK:-0}) — его включает vip-setup.sh"
 
 # ---------------------------------------------------------------- 3
@@ -91,15 +93,20 @@ has "^TASHER Style" && ok "TASHER Style загружен" || bad "TASHER Style �
 VER=$(python3 - "$CSS/plugins/TasherStyle/TasherStyle.dll" <<'PY' 2>/dev/null
 import sys,re
 b=open(sys.argv[1],'rb').read()
-for v in ("1.3.0","1.2.0","1.1.0","1.0.0"):
+for v in ("1.4.0","1.3.0","1.2.0","1.1.0","1.0.0"):
     if v.encode('utf-16-le') in b: print(v); break
 PY
 )
 case "$VER" in
-  1.3.0) ok "версия TASHER Style 1.3.0 (эффекты, команды, приветствие, мут и гег, лиги, пропуск)";;
+  1.4.0) ok "версия TASHER Style 1.4.0 (эффекты, команды, приветствие, мут и гег, лиги, пропуск, особые раунды, серии)";;
   "") warn "не удалось узнать версию TASHER Style";;
   *) bad "TASHER Style старой версии ($VER) — запусти vip-setup.sh";;
 esac
+NSR=$(printf '%s\n' "$J" | grep -c "^TASHERFUN special_win")
+note "особых раундов с запуска сервера: $NSR (сайт начисляет за них ТК по строке TASHERFUN в журнале)"
+if printf '%s\n' "$J" | grep -q "запрет закупки недоступен"; then
+  warn "особые раунды: игра не дала запретить закупку — лишнее оружие отбирается после закупки (лечится обновлением CounterStrikeSharp)"
+fi
 NV=$(printf '%s\n' "$LOADED" | grep -c '^\[VIP\]')
 [ "$NV" -ge 11 ] && ok "VIP: ядро и модули загружены ($NV шт.)" || bad "VIP загружен не полностью ($NV из 11) — запусти vip-setup.sh"
 has "weapon ?paints" && ok "WeaponPaints (скины) загружен" || bad "WeaponPaints не загружен — скины с сайта не применятся"
@@ -157,12 +164,14 @@ const pl=one("SELECT COUNT(*) n FROM gplayers WHERE last_seen>=?",start)||{n:0};
 const wh=one("SELECT COUNT(*) n FROM wheel WHERE last=?",day)||{n:0};
 const nu=one("SELECT COUNT(*) n FROM users WHERE created_at>=?",start)||{n:0};
 const sh=one("SELECT COUNT(*) n, COALESCE(-SUM(delta),0) s FROM ledger WHERE kind=? AND created_at>=?","shop",start)||{n:0,s:0};
-console.log([pl.n,ed.n,ed.s,g.n,g.s,pr.n,pr.d,q.n,q.s,wh.n,nu.n,sh.n,sh.s].join(" "))' 2>/dev/null)
+const fd=one("SELECT COUNT(*) n, COALESCE(SUM(tk),0) s FROM fun_day WHERE day=?",day)||{n:0,s:0};
+console.log([pl.n,ed.n,ed.s,g.n,g.s,pr.n,pr.d,q.n,q.s,wh.n,nu.n,sh.n,sh.s,fd.n,fd.s].join(" "))' 2>/dev/null)
   if [ -n "$REP" ]; then
     set -- $REP
     note "сегодня играли: $1 · заработали ТК за игру: $2 игроков (до множителя $3 ТК), зачислено $4 раз на $5 ТК"
     note "задания: прогресс у $6 игроков, выполнено $7, выплачено $8 раз на $9 ТК"
     note "Фортуна: прокруток ${10} · новых игроков на сайте: ${11} · покупок в магазине: ${12} на ${13} ₽"
+    note "бонусы (первая кровь, эйс, награды за голову, особые раунды): ${14} игроков, ${15} ТК до множителя"
     if [ "$1" -gt 0 ] && [ "$2" = 0 ]; then bad "сегодня на сервере играли, но ТК за игру не начислялись — journalctl -u tasher | grep earn"
     elif [ "$1" -gt 0 ]; then ok "ТК за игру начисляются"; else note "сегодня на сервере ещё не играли — ТК и задания проверятся после игры"; fi
     if [ "$1" -gt 0 ] && [ "$6" = 0 ]; then warn "сегодня играли, но прогресса по заданиям нет — сыграй пару раундов и проверь ещё раз"

@@ -207,6 +207,8 @@ const call = async (cookie, p, body, h = {}) => { const r = await fetch(B + p, b
     r = await call(O2, "/api/admin/server", { act: "kick", id: 3, n: "Victim", reason: "afk" }); ok(r.s === 200 && RCMDS.includes('kickid 3 "afk"'), "кик из админки", r);
     r = await call(O2, "/api/admin/server", { act: "map", map: "de_nuke" }); ok(r.s === 200 && RCMDS.includes("changelevel de_nuke"), "смена карты", r);
     r = await call(O2, "/api/admin/server", { act: "map", map: "quit" }); ok(r.s === 400, "карта не из списка", r);
+    r = await call(O2, "/api/admin/server", { act: "special", kind: "awp" }); ok(r.s === 200 && RCMDS.includes("css_special awp") && /Только AWP/.test(r.j.msg), "особый раунд из админки", [r, RCMDS.slice(-2)]);
+    { const n = RCMDS.length; r = await call(O2, "/api/admin/server", { act: "special", kind: "awp; quit" }); ok(r.s === 400 && RCMDS.length === n, "особый раунд: чужой режим не уходит на сервер", r); }
   }
   // магазин: статус за рубли с баланса уходит в VIP-плагин игры
   {
@@ -251,10 +253,10 @@ const call = async (cookie, p, body, h = {}) => { const r = await fetch(B + p, b
     await call(O4, "/api/admin/balance", { user: wid, cur: "tk", delta: 60000, reason: "тест кланов" });
     await call(O4, "/api/admin/balance", { user: wid, cur: "rub", delta: 100, reason: "тест тега" });
     fs.writeFileSync(SQLLOG, ""); RCMDS.length = 0;
-    const tk0 = (await call(W, "/api/me")).j.user.tk;
+    const me0 = (await call(W, "/api/me")).j.user, tk0 = me0.tk;
     r = await call(W, "/api/clans/create", { name: "Тестовый клан", tag: "tst", color: "#5aa9ff" });
     ok(r.s === 200 && r.j.my && r.j.my.lead && r.j.clans.some(c => c.t === "TST" && c.members.length === 1) && r.j.me.tk === tk0 - 50000, "клан создан, списано 50 000 ТК", r.j);
-    r = await call(W, "/api/cos/tag", { tag: "pro" }); ok(r.s === 200 && r.j.cos.tag === "PRO" && r.j.cos.eq.tag === "tag" && r.j.balance === 21, "свой тег в чате куплен за 79 ₽", r.j);
+    r = await call(W, "/api/cos/tag", { tag: "pro" }); ok(r.s === 200 && r.j.cos.tag === "PRO" && r.j.cos.eq.tag === "tag" && r.j.balance === me0.balance - 79, "свой тег в чате куплен за 79 ₽", r.j);
     await new Promise(z => setTimeout(z, 900));
     const sql = fs.readFileSync(SQLLOG, "utf8");
     ok(/INSERT INTO tasher_style \(steamid,chat_tag,name_color,score_tag,smoke,kill_fx,kill_snd,trail,tracer\) .*\(76561198000000009,'(\{\w+\}\[\w+\] )?\{lime\}\[PRO\]','\w*','PRO','\w*','','','',''\)/.test(sql), "тег уходит в игру (TASHER Style)", sql.slice(-500));
@@ -295,6 +297,21 @@ const call = async (cookie, p, body, h = {}) => { const r = await fetch(B + p, b
   // чужие cookie с битой кодировкой не ломают сайт
   r = await fetch(B + "/", { headers: { cookie: "bad=%E0%A4%A; tsid=%; x=%zz" } }); ok(r.status === 200, "битые cookie: страница открывается", r.status);
   r = await call("bad=%E0%A4%A; tsid=%", "/api/me"); ok(r.s === 200 && r.j.user === null, "битые cookie: запрос отвечает как гостю", r);
+  // игровые бонусы: эйс, награда за голову и особый раунд — объявления в чат игры по журналу
+  {
+    const F = '"Funny<7><[U:1:222]><CT>"', bot = i => `"Bot${i}<${20 + i}><BOT><TERRORIST>"`;
+    RCMDS.length = 0;
+    jadd(lnow() + '"Funny<7><[U:1:222]><>" entered the game'); jadd(lnow() + '"Funny<7><[U:1:222]>" switched from team <Unassigned> to <CT>');
+    jadd(lnow() + 'World triggered "Round_Start"');
+    for (let i = 0; i < 5; i++) jadd(lnow() + `${F} [1 2 3] killed ${bot(i)} [4 5 6] with "ak47"`);
+    jadd("TASHERFUN special_win knife ct");
+    await new Promise(z => setTimeout(z, 1500));
+    ok(RCMDS.some(c => /^say \[TASHER\] Награда за голову: Funny — 5 убийств подряд\. Кто остановит — получит 50 ТК$/.test(c)), "награда за голову объявлена в игре", RCMDS);
+    ok(RCMDS.some(c => /^say \[TASHER\] ЭЙС! Funny: 5 убийств за раунд — \+30 ТК$/.test(c)), "эйс объявлен в игре", RCMDS);
+    ok(RCMDS.some(c => /^say \[TASHER\] Особый раунд «Только ножи» выиграл спецназ: \+50 ТК каждому игроку команды$/.test(c)), "особый раунд: строка плагина принята", RCMDS);
+    const fu = (await call("", "/api/fun")).j;
+    ok(fu.bounties.length === 1 && fu.bounties[0].n === "Funny" && fu.bounties[0].k === 5 && fu.modes.knife === "Только ножи" && fu.ace.tk === 100, "/api/fun: правила и награды за голову", fu);
+  }
   // владельцы берутся из настроек: после перезапуска с другим списком роли меняются
   await new Promise(z => { srv.once("exit", z); srv.kill(); }); srv = start("76561190000000002"); await up();
   const A2 = await login("76561190000000001"), P2 = await login("76561190000000002");
