@@ -1,0 +1,326 @@
+// Особые раунды и серии убийств.
+// Особый раунд — примерно раз в 6–8 раундов (не в разминку, не в пистолетный и не в овертайм): у всех одинаковое оружие
+// (только ножи, Deagle, AWP, скауты в низкой гравитации, Zeus, 1 HP, гранаты), закупка и подбор чужого оружия запрещены.
+// Итог раунда плагин пишет в консоль строкой «TASHERFUN special_win <режим> <ct|t>» — сайт читает журнал и начисляет ТК победителям.
+// Серии: «двойное / тройное / ультра / эйс» — надпись и звук убившему, тройное и больше — в чат всем, эйс — звук всем.
+// Первая кровь — в чат. ТК за первую кровь, эйс и награду за голову начисляет сайт по журналу.
+using CounterStrikeSharp.API;
+using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Admin;
+using CounterStrikeSharp.API.Modules.Commands;
+using CounterStrikeSharp.API.Modules.Cvars;
+using CounterStrikeSharp.API.Modules.Memory;
+using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
+using CounterStrikeSharp.API.Modules.Timers;
+using CounterStrikeSharp.API.Modules.Utils;
+using Microsoft.Extensions.Logging;
+
+namespace TasherStyle;
+
+public partial class TasherStyle
+{
+    // Allow — номера предметов (item definition index), которые можно держать и подбирать, кроме ножа, бомбы, брони и щипцов
+    private sealed record SpecialMode(string Name, string Hint, string[] Give, ushort[] Allow, bool Armor, int Hp = 0, float Gravity = 0f);
+
+    private static readonly Dictionary<string, SpecialMode> SpecialModes = new()
+    {
+        ["knife"] = new("Только ножи", "закупки нет, у всех только нож", Array.Empty<string>(), Array.Empty<ushort>(), false),
+        ["deagle"] = new("Дуэль на Deagle", "у всех Desert Eagle и броня", new[] { "weapon_deagle" }, new ushort[] { 1 }, true),
+        ["awp"] = new("Только AWP", "у всех AWP и броня", new[] { "weapon_awp" }, new ushort[] { 9 }, true),
+        ["scout"] = new("Скауты в низкой гравитации", "у всех SSG 08, гравитация снижена", new[] { "weapon_ssg08" }, new ushort[] { 40 }, true, 0, 300f),
+        ["zeus"] = new("Только Zeus", "у всех Zeus и нож", new[] { "weapon_taser" }, new ushort[] { 31 }, false),
+        ["onehp"] = new("1 HP: пистолеты", "у всех P250 и 1 HP — любое попадание смертельно", new[] { "weapon_p250" }, new ushort[] { 36 }, false, 1),
+        ["nades"] = new("Война гранат", "у всех бесконечные HE-гранаты и броня", new[] { "weapon_hegrenade" }, new ushort[] { 44 }, true),
+    };
+    private const ushort DefC4 = 49, DefHe = 44;
+    private static readonly ushort[] AlwaysAllowed = { DefC4, 50, 51, 55 }; // бомба, броня, броня со шлемом, щипцы
+    private static bool IsKnifeDef(ushort d) => d is 41 or 42 or 59 or 80 || d is >= 500 and < 600;
+    private static bool AllowedIn(SpecialMode m, ushort d) => IsKnifeDef(d) || Array.IndexOf(AlwaysAllowed, d) >= 0 || Array.IndexOf(m.Allow, d) >= 0;
+
+    private SpecialMode? _special;
+    private string _specialKind = "", _lastSpecial = "";
+    private string? _forcedSpecial;
+    private DateTime _specialAt;
+    private int _sinceSpecial, _specialGap = 7;
+    private float _gravOrig = 800f;
+    private bool _gravSet, _acqHooked;
+    private readonly HashSet<int> _resetNext = new(); // кто дожил до конца особого раунда — в следующем раунде забираем «подарочное» оружие
+    private readonly Dictionary<int, int> _roundKills = new();
+    private bool _firstBlood;
+    private CCSGameRulesProxy? _rulesProxy;
+
+    private void LoadFun()
+    {
+        _specialGap = NextGap();
+        RegisterEventHandler<EventRoundStart>(FunRoundStart);
+        RegisterEventHandler<EventRoundFreezeEnd>((_, _) => { if (_special != null) foreach (var p in Utilities.GetPlayers()) ArmPlayer(p, false); return HookResult.Continue; });
+        RegisterEventHandler<EventRoundEnd>(FunRoundEnd);
+        RegisterEventHandler<EventPlayerDeath>(FunPlayerDeath);
+        RegisterEventHandler<EventPlayerSpawn>((e, _) =>
+        {
+            // зашёл посреди особого раунда (до конца закупки) — выдаём то же, что у всех
+            if (_special != null && (DateTime.UtcNow - _specialAt).TotalSeconds > 1 && e.Userid is { IsValid: true } p)
+            { var slot = p.Slot; AddTimer(0.3f, () => { var x = Utilities.GetPlayerFromSlot(slot); if (x != null) ArmPlayer(x, true); }, TimerFlags.STOP_ON_MAPCHANGE); }
+            return HookResult.Continue;
+        });
+        RegisterEventHandler<EventItemPickup>((e, _) =>
+        {
+            // запасной вариант, если запрет через игру недоступен: подобрал чужое — отбираем
+            if (_special is { } m && e.Userid is { IsValid: true } p && e.Defindex is >= 0 and <= ushort.MaxValue && !AllowedIn(m, (ushort)e.Defindex))
+            { var slot = p.Slot; AddTimer(0.1f, () => { var x = Utilities.GetPlayerFromSlot(slot); if (x != null) ArmPlayer(x, false); }, TimerFlags.STOP_ON_MAPCHANGE); }
+            return HookResult.Continue;
+        });
+        RegisterEventHandler<EventGrenadeThrown>((e, _) =>
+        {
+            // «Война гранат»: бросил — через секунду новая
+            if (_specialKind == "nades" && e.Userid is { IsValid: true } p && e.Weapon == "hegrenade")
+            {
+                var slot = p.Slot;
+                AddTimer(1.0f, () =>
+                {
+                    var x = Utilities.GetPlayerFromSlot(slot);
+                    if (_specialKind != "nades" || x is not { IsValid: true } || !IsAlive(x) || Has(x, DefHe)) return;
+                    x.GiveNamedItem("weapon_hegrenade");
+                }, TimerFlags.STOP_ON_MAPCHANGE);
+            }
+            return HookResult.Continue;
+        });
+        RegisterListener<Listeners.OnMapStart>(_ =>
+        {
+            RestoreSpecial(); _forcedSpecial = null; _resetNext.Clear(); _sinceSpecial = 0; _specialGap = NextGap(); _rulesProxy = null;
+            _roundKills.Clear(); _firstBlood = false;
+        });
+        AddCommand("css_special", "Следующий раунд — особый: css_special <knife|deagle|awp|scout|zeus|onehp|nades|random|off>", CmdSpecial);
+        // запрет закупки и подбора чужого оружия на время особого раунда
+        try { VirtualFunctions.CCSPlayer_ItemServices_CanAcquireFunc.Hook(OnCanAcquire, HookMode.Pre); _acqHooked = true; }
+        catch (Exception ex) { Logger.LogWarning("Особые раунды: запрет закупки недоступен ({Err}) — лишнее оружие будет отбираться после закупки", ex.Message); }
+    }
+
+    public override void Unload(bool hotReload)
+    {
+        RestoreSpecial();
+        if (_acqHooked) { try { VirtualFunctions.CCSPlayer_ItemServices_CanAcquireFunc.Unhook(OnCanAcquire, HookMode.Pre); } catch { } _acqHooked = false; }
+    }
+
+    private int NextGap()
+    {
+        int a = Math.Clamp(Config.SpecialEveryMin, 2, 50), b = Math.Clamp(Config.SpecialEveryMax, a, 50);
+        return Random.Shared.Next(a, b + 1);
+    }
+
+    private CCSGameRules? Rules()
+    {
+        try
+        {
+            if (_rulesProxy is not { IsValid: true })
+                _rulesProxy = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").FirstOrDefault();
+            return _rulesProxy?.GameRules;
+        }
+        catch { return null; }
+    }
+
+    private static bool IsAlive(CCSPlayerController p)
+    {
+        var pawn = p.PlayerPawn.Value;
+        return pawn is { IsValid: true } && pawn.LifeState == (byte)LifeState_t.LIFE_ALIVE;
+    }
+
+    private static bool Has(CCSPlayerController p, ushort def)
+    {
+        var ws = p.PlayerPawn.Value?.WeaponServices;
+        if (ws == null) return false;
+        foreach (var h in ws.MyWeapons) { var w = h.Value; if (w is { IsValid: true } && w.AttributeManager.Item.ItemDefinitionIndex == def) return true; }
+        return false;
+    }
+
+    private static int ConInt(string name, int def)
+    {
+        try { var c = ConVar.Find(name); if (c == null) return def; int v = c.GetPrimitiveValue<int>(); return v; } catch { return def; }
+    }
+
+    private static int HumansInTeams() => Utilities.GetPlayers().Count(p => p is { IsValid: true, IsBot: false, IsHLTV: false } && p.Team is CsTeam.Terrorist or CsTeam.CounterTerrorist);
+
+    private void PlayTo(CCSPlayerController p, string key)
+    {
+        if (Config.StreakSounds.TryGetValue(key, out var snd) && IsSafeSound(snd) && p is { IsValid: true, IsBot: false, IsHLTV: false })
+            p.ExecuteClientCommand($"play {snd}");
+    }
+    private void PlayAll(string key)
+    {
+        foreach (var p in Utilities.GetPlayers()) PlayTo(p, key);
+    }
+
+    // ---------- начало раунда: решаем, особый ли он ----------
+    private HookResult FunRoundStart(EventRoundStart e, GameEventInfo info)
+    {
+        _roundKills.Clear(); _firstBlood = false;
+        RestoreSpecial();
+        var rules = Rules();
+        if (rules == null || rules.WarmupPeriod) return HookResult.Continue;
+        // забрать у выживших оружие прошлого особого раунда
+        if (_resetNext.Count > 0)
+        {
+            var slots = _resetNext.ToArray(); _resetNext.Clear();
+            AddTimer(0.2f, () => { if (_special != null) return; foreach (var s in slots) { var p = Utilities.GetPlayerFromSlot(s); if (p != null) ResetLoadout(p); } }, TimerFlags.STOP_ON_MAPCHANGE);
+        }
+        if (!Config.FunEnabled) return HookResult.Continue;
+        int round = rules.TotalRoundsPlayed + 1, max = ConInt("mp_maxrounds", 24), half = max / 2;
+        _sinceSpecial++;
+        string? kind = null;
+        if (_forcedSpecial != null) { kind = _forcedSpecial; _forcedSpecial = null; }
+        else if (round != 1 && round != half + 1 && (max <= 0 || round <= max) && _sinceSpecial >= _specialGap && HumansInTeams() >= Math.Max(1, Config.SpecialMinHumans))
+        {
+            var pool = Config.SpecialModes.Where(k => SpecialModes.ContainsKey(k) && k != _lastSpecial).Distinct().ToList();
+            if (pool.Count == 0) pool = Config.SpecialModes.Where(SpecialModes.ContainsKey).Distinct().ToList();
+            if (pool.Count > 0) kind = pool[Random.Shared.Next(pool.Count)];
+        }
+        if (kind == null || !SpecialModes.TryGetValue(kind, out var m)) return HookResult.Continue;
+        _sinceSpecial = 0; _specialGap = NextGap(); _lastSpecial = kind;
+        StartSpecial(kind, m);
+        return HookResult.Continue;
+    }
+
+    private void StartSpecial(string kind, SpecialMode m)
+    {
+        _special = m; _specialKind = kind; _specialAt = DateTime.UtcNow;
+        if (m.Gravity > 0)
+        {
+            try { var c = ConVar.Find("sv_gravity"); float g = 800f; if (c != null) g = c.GetPrimitiveValue<float>(); _gravOrig = g is >= 400f and <= 2000f ? g : 800f; } catch { _gravOrig = 800f; }
+            Server.ExecuteCommand($"sv_gravity {m.Gravity.ToString(System.Globalization.CultureInfo.InvariantCulture)}");
+            _gravSet = true;
+        }
+        Server.PrintToChatAll($"{Prefix}{ChatColors.Gold}ОСОБЫЙ РАУНД: {m.Name}!{ChatColors.Default} {m.Hint}. Победившей команде — бонус ТК");
+        foreach (var p in Utilities.GetPlayers())
+            if (p is { IsValid: true, IsBot: false, IsHLTV: false }) p.PrintToCenter($"ОСОБЫЙ РАУНД: {m.Name}");
+        PlayAll("special");
+        AddTimer(0.3f, () => { if (_special == m) foreach (var p in Utilities.GetPlayers()) ArmPlayer(p, true); }, TimerFlags.STOP_ON_MAPCHANGE);
+        Logger.LogInformation("Особый раунд: {Kind}", kind);
+    }
+
+    // выдать оружие режима; force — заново всем, иначе только если есть лишнее или не хватает нужного
+    private void ArmPlayer(CCSPlayerController p, bool force)
+    {
+        if (_special is not { } m || p is not { IsValid: true } || p.IsHLTV) return;
+        if (p.Team is not (CsTeam.Terrorist or CsTeam.CounterTerrorist) || !IsAlive(p)) return;
+        var pawn = p.PlayerPawn.Value!;
+        bool hasC4 = false, extra = false;
+        var have = new HashSet<ushort>();
+        var ws = pawn.WeaponServices;
+        if (ws != null)
+            foreach (var h in ws.MyWeapons)
+            {
+                var w = h.Value; if (w is not { IsValid: true }) continue;
+                var d = w.AttributeManager.Item.ItemDefinitionIndex;
+                if (d == DefC4) hasC4 = true; else if (!AllowedIn(m, d)) extra = true; else have.Add(d);
+            }
+        var missing = m.Allow.Any(a => !have.Contains(a)) && _specialKind != "nades"; // гранаты бросают — их отсутствие не повод всё перевыдавать
+        if (force || extra || missing)
+        {
+            p.RemoveWeapons();
+            p.GiveNamedItem(p.Team == CsTeam.Terrorist ? "weapon_knife_t" : "weapon_knife");
+            foreach (var g in m.Give) p.GiveNamedItem(g);
+            if (hasC4) p.GiveNamedItem("weapon_c4");
+        }
+        if (force && m.Armor) p.GiveNamedItem("item_assaultsuit");
+        if (m.Hp > 0)
+        {
+            pawn.Health = m.Hp; Utilities.SetStateChanged(pawn, "CBaseEntity", "m_iHealth");
+            pawn.ArmorValue = 0; Utilities.SetStateChanged(pawn, "CCSPlayerPawn", "m_ArmorValue");
+        }
+    }
+
+    // после особого раунда: у выживших — нож и обычный пистолет, без бесплатной брони
+    private void ResetLoadout(CCSPlayerController p)
+    {
+        if (p is not { IsValid: true } || p.IsHLTV || p.Team is not (CsTeam.Terrorist or CsTeam.CounterTerrorist) || !IsAlive(p)) return;
+        var hasC4 = Has(p, DefC4);
+        p.RemoveWeapons();
+        p.GiveNamedItem(p.Team == CsTeam.Terrorist ? "weapon_knife_t" : "weapon_knife");
+        p.GiveNamedItem(p.Team == CsTeam.Terrorist ? "weapon_glock" : "weapon_usp_silencer");
+        if (hasC4) p.GiveNamedItem("weapon_c4");
+        var pawn = p.PlayerPawn.Value!;
+        pawn.ArmorValue = 0; Utilities.SetStateChanged(pawn, "CCSPlayerPawn", "m_ArmorValue");
+    }
+
+    private HookResult FunRoundEnd(EventRoundEnd e, GameEventInfo info)
+    {
+        if (_special == null) return HookResult.Continue;
+        var team = e.Winner == 3 ? "ct" : e.Winner == 2 ? "t" : null;
+        // строка для сайта (он начисляет ТК победителям и пишет в чат)
+        if (team != null) Console.WriteLine($"TASHERFUN special_win {_specialKind} {team}");
+        _resetNext.Clear();
+        foreach (var p in Utilities.GetPlayers())
+            if (p is { IsValid: true, IsHLTV: false } && IsAlive(p)) _resetNext.Add(p.Slot);
+        RestoreSpecial();
+        return HookResult.Continue;
+    }
+
+    private void RestoreSpecial()
+    {
+        if (_gravSet)
+        {
+            Server.ExecuteCommand($"sv_gravity {_gravOrig.ToString(System.Globalization.CultureInfo.InvariantCulture)}");
+            _gravSet = false;
+        }
+        _special = null; _specialKind = "";
+    }
+
+    private HookResult OnCanAcquire(DynamicHook h)
+    {
+        var m = _special;
+        if (m == null) return HookResult.Continue;
+        try
+        {
+            var method = h.GetParam<AcquireMethod>(2);
+            var d = h.GetParam<CEconItemView>(1).ItemDefinitionIndex;
+            if (method == AcquireMethod.PickUp && AllowedIn(m, d)) return HookResult.Continue;
+            h.SetReturn(AcquireResult.NotAllowedByProhibition);
+            return HookResult.Stop;
+        }
+        catch { return HookResult.Continue; }
+    }
+
+    // css_special <режим|random|off> — с консоли сервера (RCON, админка сайта) или админом с @css/root
+    private void CmdSpecial(CCSPlayerController? p, CommandInfo info)
+    {
+        if (p != null && !AdminManager.PlayerHasPermissions(p, "@css/root")) { info.ReplyToCommand("[TASHER] Нет доступа"); return; }
+        var arg = info.ArgCount > 1 ? info.GetArg(1).Trim().ToLowerInvariant() : "random";
+        if (arg == "off") { _forcedSpecial = null; info.ReplyToCommand("[TASHER] Особый раунд отменён"); return; }
+        if (arg == "random") { var keys = SpecialModes.Keys.Where(k => k != _lastSpecial).ToList(); arg = keys[Random.Shared.Next(keys.Count)]; }
+        if (!SpecialModes.TryGetValue(arg, out var m)) { info.ReplyToCommand("[TASHER] Режимы: " + string.Join(", ", SpecialModes.Keys) + ", random, off"); return; }
+        _forcedSpecial = arg;
+        info.ReplyToCommand($"[TASHER] Следующий раунд — особый: {m.Name} ({arg})");
+        Server.PrintToChatAll($"{Prefix}Следующий раунд — {ChatColors.Gold}особый: {m.Name}");
+    }
+
+    // ---------- первая кровь и серии за раунд ----------
+    private HookResult FunPlayerDeath(EventPlayerDeath e, GameEventInfo info)
+    {
+        if (!Config.FunEnabled) return HookResult.Continue;
+        var a = e.Attacker; var v = e.Userid;
+        if (a is not { IsValid: true } || v is not { IsValid: true } || a.IsHLTV || a.Slot == v.Slot || a.Team == v.Team) return HookResult.Continue;
+        var rules = Rules();
+        if (rules == null || rules.WarmupPeriod) return HookResult.Continue;
+        if (!_firstBlood)
+        {
+            _firstBlood = true;
+            if (!a.IsBot) { Server.PrintToChatAll($"{Prefix}{ChatColors.Red}Первая кровь:{ChatColors.Default} {a.PlayerName}"); PlayTo(a, "first"); }
+        }
+        if (a.IsBot) return HookResult.Continue;
+        var n = _roundKills[a.Slot] = _roundKills.GetValueOrDefault(a.Slot) + 1;
+        if (n < 2) return HookResult.Continue;
+        var txt = n switch { 2 => "ДВОЙНОЕ УБИЙСТВО", 3 => "ТРОЙНОЕ УБИЙСТВО", 4 => "УЛЬТРА-УБИЙСТВО", 5 => "ЭЙС!", _ => $"{n} УБИЙСТВ ЗА РАУНД!" };
+        a.PrintToCenter(txt);
+        if (n is 3 or 4) Server.PrintToChatAll($"{Prefix}{ChatColors.Gold}{a.PlayerName}{ChatColors.Default}: {txt.ToLowerInvariant()}");
+        if (n == 5) Server.PrintToChatAll($"{Prefix}{ChatColors.Gold}ЭЙС! {a.PlayerName}{ChatColors.Default} убил {n} противников за раунд");
+        // звук чуть позже, чтобы не слился со звуком убийства
+        var slot = a.Slot;
+        AddTimer(0.35f, () =>
+        {
+            if (n == 5) { PlayAll("5"); return; }
+            var x = Utilities.GetPlayerFromSlot(slot);
+            if (x != null) PlayTo(x, n > 5 ? "5" : n.ToString());
+        }, TimerFlags.STOP_ON_MAPCHANGE);
+        return HookResult.Continue;
+    }
+}

@@ -1,5 +1,5 @@
 // TASHER Style: тег и цвет ника в чате, тег в таблице счёта, цвет дыма, эффекты (убийство, звук, трассеры, след гранат),
-// команды !rank !top !tk !quests и приветствие статусов с музыкой — по данным с сайта tashercs.ru.
+// команды !rank !top !tk !quests, приветствие статусов с музыкой, особые раунды и серии убийств — по данным с сайта tashercs.ru.
 // Сайт пишет готовые значения в таблицу tasher_style (база weaponpaints), плагин перечитывает её раз в 20 секунд
 // и сразу по команде сервера css_tasher_style_reload (сайт присылает её по RCON после покупки).
 using System.Collections.Concurrent;
@@ -46,6 +46,22 @@ public class StyleConfig : BasePluginConfig
     [JsonPropertyName("Site")] public string Site { get; set; } = "tashercs.ru";
     // ограничение на число лучей эффектов одновременно (защита от перегрузки сервера)
     [JsonPropertyName("MaxBeams")] public int MaxBeams { get; set; } = 600;
+    // особые раунды и серии убийств
+    [JsonPropertyName("FunEnabled")] public bool FunEnabled { get; set; } = true;
+    [JsonPropertyName("SpecialEveryMin")] public int SpecialEveryMin { get; set; } = 6;
+    [JsonPropertyName("SpecialEveryMax")] public int SpecialEveryMax { get; set; } = 8;
+    [JsonPropertyName("SpecialMinHumans")] public int SpecialMinHumans { get; set; } = 1;
+    [JsonPropertyName("SpecialModes")] public List<string> SpecialModes { get; set; } = new() { "knife", "deagle", "awp", "scout", "zeus", "onehp", "nades" };
+    // звуки серий (из самой игры): first — первая кровь, 2…5 — двойное…эйс, special — начало особого раунда
+    [JsonPropertyName("StreakSounds")] public Dictionary<string, string> StreakSounds { get; set; } = new()
+    {
+        ["first"] = "sounds/ui/deathmatch_bonuskill.vsnd",
+        ["2"] = "sounds/ui/armsrace_kill_01.vsnd",
+        ["3"] = "sounds/ui/armsrace_kill_02.vsnd",
+        ["4"] = "sounds/ui/armsrace_kill_03.vsnd",
+        ["5"] = "sounds/ui/armsrace_final_kill_tone.vsnd",
+        ["special"] = "sounds/ui/bonus_alert_start.vsnd",
+    };
 }
 
 public record PlayerStyle(string ChatTag, string NameColor, string ScoreTag, string Smoke, string KillFx, string KillSnd, string Trail, string Tracer);
@@ -53,7 +69,7 @@ public record PlayerStyle(string ChatTag, string NameColor, string ScoreTag, str
 public partial class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
 {
     public override string ModuleName => "TASHER Style";
-    public override string ModuleVersion => "1.3.0";
+    public override string ModuleVersion => "1.4.0";
     public override string ModuleAuthor => "tashercs.ru";
 
     public StyleConfig Config { get; set; } = new();
@@ -78,6 +94,7 @@ public partial class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
         LoadEffects();
         LoadInfo();
         LoadPunish();
+        LoadFun();
         RegisterEventHandler<EventPlayerSpawn>((e, _) =>
         {
             if (e.Userid is { } p) Server.NextFrame(() => ApplyScoreboard(p));
