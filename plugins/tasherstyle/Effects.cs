@@ -14,6 +14,7 @@ public partial class TasherStyle
     private int _beams;
     private int _tick;
     private readonly List<GrenadeTrail> _trails = new();
+    private readonly Dictionary<ulong, DateTime> _lastTracer = new();
 
     private sealed class GrenadeTrail
     {
@@ -28,7 +29,7 @@ public partial class TasherStyle
         RegisterEventHandler<EventBulletImpact>(OnBulletImpact);
         RegisterEventHandler<EventPlayerDeath>(OnPlayerDeath);
         RegisterListener<Listeners.OnTick>(OnTick);
-        RegisterListener<Listeners.OnMapStart>(_ => { _beams = 0; _trails.Clear(); });
+        RegisterListener<Listeners.OnMapStart>(_ => { _beams = 0; _trails.Clear(); _lastTracer.Clear(); });
     }
 
     // "r,g,b" или "random" -> цвет
@@ -73,6 +74,10 @@ public partial class TasherStyle
         if (p is not { IsValid: true } || p.IsBot || p.IsHLTV) return HookResult.Continue;
         var s = StyleOf(p);
         if (s == null || s.Tracer.Length == 0 || !TryColor(s.Tracer, out var c)) return HookResult.Continue;
+        // Ограничиваем сетевые лучи: дробь и несколько impact одного выстрела не создают десятки сущностей.
+        var now = DateTime.UtcNow;
+        if (_lastTracer.TryGetValue(p.SteamID, out var last) && (now - last).TotalMilliseconds < 90) return HookResult.Continue;
+        _lastTracer[p.SteamID] = now;
         var pawn = p.PlayerPawn.Value;
         if (pawn is not { IsValid: true } || pawn.AbsOrigin is not { } o) return HookResult.Continue;
         float ex = o.X, ey = o.Y, ez = o.Z + (float)pawn.ViewOffset.Z;
@@ -80,7 +85,7 @@ public partial class TasherStyle
         var len = MathF.Sqrt(dx * dx + dy * dy + dz * dz);
         if (len < 48f) return HookResult.Continue;
         var k = 24f / len; // начинаем чуть впереди и ниже глаз, чтобы луч не закрывал прицел
-        Beam(ex + dx * k, ey + dy * k, ez + dz * k - 3f, e.X, e.Y, e.Z, c, 1.2f, 0.2f);
+        Beam(ex + dx * k, ey + dy * k, ez + dz * k - 3f, e.X, e.Y, e.Z, c, 0.9f, 0.12f);
         return HookResult.Continue;
     }
 
@@ -185,17 +190,17 @@ public partial class TasherStyle
     // --- след гранаты: каждые 4 тика луч от прошлой точки до текущей ---
     private void StartTrail(CBaseCSGrenadeProjectile g, Color c)
     {
-        if (g.AbsOrigin is not { } o || _trails.Count >= 64) return;
+        if (g.AbsOrigin is not { } o || _trails.Count >= 32) return;
         _trails.Add(new GrenadeTrail { G = g, C = c, X = o.X, Y = o.Y, Z = o.Z });
     }
 
     private void OnTick()
     {
-        if (_trails.Count == 0 || ++_tick % 4 != 0) return;
+        if (_trails.Count == 0 || ++_tick % 7 != 0) return;
         for (var i = _trails.Count - 1; i >= 0; i--)
         {
             var t = _trails[i];
-            if (!t.G.IsValid || t.G.AbsOrigin is not { } o || ++t.Age > 160) { _trails.RemoveAt(i); continue; }
+            if (!t.G.IsValid || t.G.AbsOrigin is not { } o || ++t.Age > 95) { _trails.RemoveAt(i); continue; }
             float dx = o.X - t.X, dy = o.Y - t.Y, dz = o.Z - t.Z;
             if (dx * dx + dy * dy + dz * dz < 4f)
             {
@@ -203,7 +208,7 @@ public partial class TasherStyle
                 continue;
             }
             t.Still = 0;
-            Beam(t.X, t.Y, t.Z, o.X, o.Y, o.Z, t.C, 2f, 1.2f);
+            Beam(t.X, t.Y, t.Z, o.X, o.Y, o.Z, t.C, 1.6f, 0.35f);
             t.X = o.X; t.Y = o.Y; t.Z = o.Z;
         }
     }
