@@ -171,7 +171,7 @@ const bal = u => db.prepare("SELECT tk, rub FROM users WHERE id=?").get(u.id);
   ok(f.killFx === "ring" && f.killSnd === "8bit" && f.trail === "255,255,255" && f.tracer === "235,75,75" && f.chat === "{grey}[Новенький]" && f.smoke === "", "эффекты: убийство, звук, след гранат, трассеры", f);
   const bad = STYLE.compose({ killFx: "x';DROP", killSnd: "play quit", trailHex: "red", tracerHex: "#12" });
   ok(!bad.killFx && !bad.killSnd && !bad.trail && !bad.tracer, "чужие значения эффектов не проходят", bad);
-  ok(/kill_fx,kill_snd,trail,tracer\) VALUES \(\d{17},'','','','','ring','8bit','255,255,255','235,75,75'\)/.test(STYLE.sqlFor([{ sid: sidN(2), killFx: "ring", killSnd: "8bit", trailHex: "#ffffff", tracerHex: "#eb4b4b" }], true)), "эффекты пишутся в таблицу плагина");
+  ok(/kill_fx,kill_snd,trail,tracer\) VALUES \(\d{17},'\{grey\}\[Новенький\]','','','','ring','8bit','255,255,255','235,75,75'\)/.test(STYLE.sqlFor([{ sid: sidN(2), killFx: "ring", killSnd: "8bit", trailHex: "#ffffff", tracerHex: "#eb4b4b" }], true)), "эффекты пишутся в таблицу плагина");
   ok(!/kill_fx/.test(STYLE.sqlFor([{ sid: sidN(2), killFx: "ring" }], false)), "старый плагин без колонок эффектов — пишем без них");
   const sql = STYLE.sqlFor([{ sid: sidN(1), tag: "a'b{red}" }, { sid: "123" }]);
   ok(!/\{red\}/.test(sql) && !/a'b/.test(sql) && (sql.match(/\(\d{17},/g) || []).length === 1, "в SQL нет кавычек и цветовых вставок из своего тега", sql);
