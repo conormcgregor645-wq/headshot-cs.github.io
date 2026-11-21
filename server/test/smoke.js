@@ -6,6 +6,9 @@ const fs = require("node:fs"), os = require("node:os"), path = require("node:pat
 const PORT = 8191, B = "http://localhost:" + PORT;
 const dir = fs.mkdtempSync(path.join(os.tmpdir(), "tasher-test-"));
 fs.writeFileSync(path.join(dir, "index.html"), "<!doctype html><html><head><title>t</title></head><body></body></html>");
+// Тестовый сервер обслуживает временный STATIC_DIR: копируем в него настоящий графический ресурс.
+fs.mkdirSync(path.join(dir, "assets"));
+fs.copyFileSync(path.join(__dirname, "../../assets/winter-ops-card.avif"), path.join(dir, "assets", "winter-ops-card.avif"));
 // поддельный клиент mysql: сохраняет присланный SQL в файл, чтобы проверить запись скинов в игру
 const SQLLOG = path.join(dir, "sql.log"), FAKE = path.join(dir, "mysql"), PAINTS = path.join(dir, "paints.json");
 // на проверку «есть ли таблица VIP-плагина» отвечает 1
@@ -110,6 +113,12 @@ const call = async (cookie, p, body, h = {}) => { const r = await fetch(B + p, b
   await call(A, "/api/admin/balance", { user: 1, cur: "tk", delta: 7, reason: "тест кэша" });
   x = await fetch(B + "/", { headers: { cookie: A, "if-none-match": et } }); ok(x.status === 200, "главная: новая страница после изменения баланса", x.status);
   require("node:fs").writeFileSync(require("node:path").join(dir, "a.txt"), "hello");
+  x = await fetch(B + "/assets/winter-ops-card.avif");
+  const artBytes = new Uint8Array(await x.arrayBuffer());
+  ok(x.status === 200 && x.headers.get("content-type") === "image/avif" &&
+    artBytes.length > 10000 && String.fromCharCode(...artBytes.slice(4, 8)) === "ftyp",
+    "зимняя карточка пропуска отдается сервером как валидное AVIF-изображение",
+    [x.status, x.headers.get("content-type"), artBytes.length]);
   x = await fetch(B + "/a.txt"); const lm = x.headers.get("last-modified"); await x.text();
   x = await fetch(B + "/a.txt", { headers: { "if-modified-since": lm } }); ok(x.status === 304, "файлы: 304, если не менялись", x.status);
   // выход

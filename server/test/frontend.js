@@ -16,4 +16,11 @@ assert.ok(!html.includes('${clanTag(p)}${lgChip(p)}'), "Лиги не должн
 assert.match(html, /#admTabs \[data-t="ev"\].*display:none!important/, "Вкладка событий должна быть скрыта");
 assert.match(html, /TASHER UPD — arena-style battle pass/, "Боевой пропуск должен получить новый дизайн");
 assert.match(html, /\$\{esc\(m\)\}<small>/, "Имя карты экранируется при вставке в HTML");
+const passArt = fs.readFileSync(path.join(__dirname, "../../assets/winter-ops-card.avif"));
+assert.ok(passArt.length > 10000, "Winter Ops card is missing or unusually small");
+assert.equal(passArt.toString("ascii", 4, 8), "ftyp", "Winter Ops card must be a valid ISO-BMFF/AVIF container");
+assert.match(html, /assets\/winter-ops-card\.avif/, "Pass must reference its bundled card image");
+assert.match(html, /ps-scene-visual/, "Pass must have a dedicated hero-art layout");
+assert.match(html, /ps-c-icon/, "Reward cards must contain styled icon containers");
+assert.match(html, /@media\(max-width:620px\)/, "Pass must define phone layout rules");
 console.log(`Frontend: ${scripts.length} inline JS block(s) parsed; UPD smoke checks passed`);

@@ -22,6 +22,9 @@ public class StyleConfig : BasePluginConfig
     [JsonPropertyName("Password")] public string Password { get; set; } = "";
     [JsonPropertyName("Database")] public string Database { get; set; } = "weaponpaints";
     [JsonPropertyName("ReloadSeconds")] public float ReloadSeconds { get; set; } = 20f;
+    // Официальное поле Premier в Tab. По умолчанию выключено: CSS предупреждает о риске бана GSLT.
+    // Даже при включении не работает с включённой защитой FollowCS2ServerGuidelines.
+    [JsonPropertyName("PremierScoreboardEnabled")] public bool PremierScoreboardEnabled { get; set; } = false;
     // звуки убийства: код с сайта -> файл звука из игры (слышит только убивший)
     [JsonPropertyName("KillSounds")] public Dictionary<string, string> KillSounds { get; set; } = new()
     {
@@ -69,7 +72,7 @@ public record PlayerStyle(string ChatTag, string NameColor, string ScoreTag, str
 public partial class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
 {
     public override string ModuleName => "TASHER Style";
-    public override string ModuleVersion => "1.4.3";
+    public override string ModuleVersion => "1.4.4";
     public override string ModuleAuthor => "tashercs.ru";
 
     public StyleConfig Config { get; set; } = new();
@@ -98,7 +101,7 @@ public partial class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
         LoadTestBots();
         RegisterEventHandler<EventPlayerSpawn>((e, _) =>
         {
-            if (e.Userid is { } p) Server.NextFrame(() => ApplyScoreboard(p));
+            if (e.Userid is { } p) Server.NextFrame(() => { ApplyScoreboard(p); ApplyPremierRanking(p); });
             return HookResult.Continue;
         });
         AddTimer(Math.Max(5f, Config.ReloadSeconds), ReloadAsync, CounterStrikeSharp.API.Modules.Timers.TimerFlags.REPEAT);
@@ -184,7 +187,7 @@ public partial class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
                         _styles = map;
                         Server.NextFrame(() =>
                         {
-                            foreach (var p in Utilities.GetPlayers()) ApplyScoreboard(p);
+                            foreach (var p in Utilities.GetPlayers()) { ApplyScoreboard(p); ApplyPremierRanking(p); }
                         });
                     }
                     catch (Exception e) { Logger.LogError("[TASHER Style] не удалось прочитать стили: {Error}", e.Message); }
@@ -261,13 +264,57 @@ public partial class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
         return false;
     }
 
+    // Отдельное штатное поле CS Rating (Premier) в Tab; это НЕ текст в Clan/ScoreTag.
+    // CSS предупреждает о возможном бане GSLT при изменении матчмейкинговых полей.
+    // Поэтому функция только по явному opt-in и не пытается обойти защиту CSS.
+    private bool _premierWarningLogged;
+    private void ApplyPremierRanking(CCSPlayerController player)
+    {
+        if (!Config.PremierScoreboardEnabled ||
+            player is not { IsValid: true, IsBot: false, IsHLTV: false }) return;
+        if (CoreConfig.FollowCS2ServerGuidelines)
+        {
+            if (!_premierWarningLogged)
+            {
+                _premierWarningLogged = true;
+                Logger.LogWarning("[TASHER Style] PremierScoreboardEnabled запрошен, но заблокирован FollowCS2ServerGuidelines. Защиту не отключаем из-за риска бана GSLT.");
+            }
+            return;
+        }
+        var info = InfoOf(player);
+        if (info == null) return; // без данных с сайта не подменяем личный рейтинг Steam
+        var pts = Math.Clamp(info.Pts, 0, 39999);
+        var kind = (sbyte)(pts > 0 ? 11 : 0); // 11 — Premier, 0 — без рейтинга
+        try
+        {
+            if (player.CompetitiveRanking != pts)
+            {
+                player.CompetitiveRanking = pts;
+                Utilities.SetStateChanged(player, "CCSPlayerController", "m_iCompetitiveRanking");
+            }
+            if (player.CompetitiveRankType != kind)
+            {
+                player.CompetitiveRankType = kind;
+                Utilities.SetStateChanged(player, "CCSPlayerController", "m_iCompetitiveRankType");
+            }
+        }
+        catch (Exception ex)
+        {
+            if (!_premierWarningLogged)
+            {
+                _premierWarningLogged = true;
+                Logger.LogWarning("[TASHER Style] CS2 не разрешил изменить Premier-отображение: {Error}", ex.Message);
+            }
+        }
+    }
+
     // --- тег в таблице счёта ---
     private void ApplyScoreboard(CCSPlayerController player)
     {
         if (player is not { IsValid: true } || player.IsBot || player.IsHLTV) return;
         var want = StyleOf(player)?.ScoreTag ?? "";
         var had = _appliedClan.TryGetValue(player.SteamID, out var prev) ? prev : null;
-        // UPD: сторонние Steam/клановые теги в Tab убираем; оставляем только серверный статус и очки.
+        // В Tab-клановом теге оставляем только привилегию, без очков рейтинга.
         if (want.Length == 0 && had == null && string.IsNullOrEmpty(player.Clan)) return;
         if (had == want && player.Clan == want) return;
         player.Clan = want;

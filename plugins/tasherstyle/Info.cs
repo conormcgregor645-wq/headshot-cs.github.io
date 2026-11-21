@@ -71,7 +71,7 @@ public partial class TasherStyle
             if (p is { IsValid: true, IsBot: false, IsHLTV: false })
             {
                 var sid = p.SteamID;
-                AddTimer(3f, () => Welcome(sid));
+                AddTimer(3f, () => { Welcome(sid); ApplyPremierRanking(p); });
             }
             return HookResult.Continue;
         });
@@ -157,7 +157,12 @@ public partial class TasherStyle
         var old = _info;
         var first = !_infoLoaded;
         _info = map; _top = top; _infoLoaded = true;
-        if (!first) Server.NextFrame(() => NotifyQuests(old, map));
+        // Сайт обновляет месячные очки; применяем в штатное поле Premier на главном потоке.
+        Server.NextFrame(() =>
+        {
+            foreach (var player in Utilities.GetPlayers()) ApplyPremierRanking(player);
+            if (!first) NotifyQuests(old, map);
+        });
     }
 
     private PlayerInfo? InfoOf(CCSPlayerController p) => _info.TryGetValue(p.SteamID, out var i) ? i : null;
