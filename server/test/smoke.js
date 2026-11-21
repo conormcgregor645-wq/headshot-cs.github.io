@@ -6,6 +6,9 @@ const fs = require("node:fs"), os = require("node:os"), path = require("node:pat
 const PORT = 8191, B = "http://localhost:" + PORT;
 const dir = fs.mkdtempSync(path.join(os.tmpdir(), "tasher-test-"));
 fs.writeFileSync(path.join(dir, "index.html"), "<!doctype html><html><head><title>t</title></head><body></body></html>");
+// Тестовый сервер обслуживает временный STATIC_DIR: копируем в него настоящий графический ресурс.
+fs.mkdirSync(path.join(dir, "assets"));
+fs.copyFileSync(path.join(__dirname, "../../assets/winter-ops-card.avif"), path.join(dir, "assets", "winter-ops-card.avif"));
 // поддельный клиент mysql: сохраняет присланный SQL в файл, чтобы проверить запись скинов в игру
 const SQLLOG = path.join(dir, "sql.log"), FAKE = path.join(dir, "mysql"), PAINTS = path.join(dir, "paints.json");
 // на проверку «есть ли таблица VIP-плагина» отвечает 1
