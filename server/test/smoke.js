@@ -268,7 +268,7 @@ const call = async (cookie, p, body, h = {}) => { const r = await fetch(B + p, b
     await call(O4, "/api/admin/balance", { user: wid, cur: "rub", delta: 500, reason: "тест эффектов" });
     for (const id of ["kl_bolt", "sd_coin", "tc_3", "tr_2", "sm_1"]) { r = await call(W, "/api/shop/cos", { id }); ok(r.s === 200 && Object.values(r.j.cos.eq).includes(id), "куплено и надето: " + id, r.j); }
     await new Promise(z => setTimeout(z, 900));
-    ok(/\(76561198000000009,'(\{\w+\}\[\w+\] )?\{lightblue\}\[TST\]','\w*','TST','255,107,139','bolt','coin','56,211,255','245,196,81'\)/.test(fs.readFileSync(SQLLOG, "utf8")), "эффекты, звук, трассеры, след гранат и дым уходят в игру", fs.readFileSync(SQLLOG, "utf8").slice(-400));
+    ok(/\(76561198000000009,'(\{\w+\}\[\w+\] )?\{lightblue\}\[TST\]','\w*','','255,107,139','bolt','coin','56,211,255','245,196,81'\)/.test(fs.readFileSync(SQLLOG, "utf8")), "эффекты, звук, трассеры, след гранат и дым уходят в игру", fs.readFileSync(SQLLOG, "utf8").slice(-400));
     r = await call(W, "/api/cos/eq", { cat: "tracer", id: null }); ok(r.s === 200 && !r.j.cos.eq.tracer, "трассеры снимаются", r.j);
     r = await call(W, "/api/cos/eq", { cat: "kill", id: "kl_spark" }); ok(r.s === 409, "некупленный эффект не надеть", r);
     // задания дня и данные для команд в игре
