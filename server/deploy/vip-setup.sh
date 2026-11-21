@@ -117,21 +117,14 @@ def nades(fl=1, smoke=0, he=0, fire=0):
     if he: ct["weapon_hegrenade"] = t["weapon_hegrenade"] = 1
     if fire: ct["weapon_incgrenade"] = 1; t["weapon_molotov"] = 1
     return {"CT": ct, "T": t}
-guns = {
-  "CT": {"M4A1-S + Desert Eagle": {"Weapons": ["weapon_m4a1_silencer", "weapon_deagle"], "Round": 1},
-         "M4A4 + Desert Eagle": {"Weapons": ["weapon_m4a1", "weapon_deagle"], "Round": 1},
-         "AWP + Desert Eagle": {"Weapons": ["weapon_awp", "weapon_deagle"], "Round": 1}},
-  "T": {"AK-47 + Desert Eagle": {"Weapons": ["weapon_ak47", "weapon_deagle"], "Round": 1},
-        "AWP + Desert Eagle": {"Weapons": ["weapon_awp", "weapon_deagle"], "Round": 1}},
-}
 groups = {
   "VIP":     {"Health": 105, "Armor": 100, "Money": "++300",  "Grenades": nades(1)},
   "PREMIUM": {"Health": 110, "Armor": 100, "Money": "++500",  "Grenades": nades(1, 1), "DefuseKit": True},
   "ELITE":   {"Health": 115, "Armor": 100, "Money": "++800",  "Grenades": nades(1, 1, 1, 1), "DefuseKit": True, "Healthshot": 1},
   "LEGEND":  {"Health": 120, "Armor": 100, "Money": "++1000", "Grenades": nades(1, 1, 1, 1), "DefuseKit": True, "Healthshot": 1, "Zeus": True},
-  "TITAN":   {"Health": 125, "Armor": 100, "Money": "++1500", "Grenades": nades(1, 1, 1, 1), "DefuseKit": True, "Healthshot": 2, "Zeus": True, "WeaponsMenu": guns,
+  "TITAN":   {"Health": 125, "Armor": 100, "Money": "++1500", "Grenades": nades(1, 1, 1, 1), "DefuseKit": True, "Healthshot": 2, "Zeus": True,
               "HealthRegen": {"Health": 5, "Delay": 5, "Interval": 2}, "Vampirism": 10},
-  "KING":    {"Health": 130, "Armor": 100, "Money": "++2000", "Grenades": nades(1, 1, 1, 1), "DefuseKit": True, "Healthshot": 2, "Zeus": True, "WeaponsMenu": guns,
+  "KING":    {"Health": 130, "Armor": 100, "Money": "++2000", "Grenades": nades(1, 1, 1, 1), "DefuseKit": True, "Healthshot": 2, "Zeus": True,
               "HealthRegen": {"Health": 5, "Delay": 5, "Interval": 2}, "Vampirism": 15},
 }
 json.dump(core, open(os.path.join(d, "vip_core.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=2)
