@@ -205,12 +205,8 @@ public partial class TasherStyle
         _greeted[sid] = now;
         var col = TagColors.ColorChar(TierColor.GetValueOrDefault(info.Tier, "default"), p.Team);
         Server.PrintToChatAll($" {col}[{info.Tier}] {p.PlayerName}{ChatColors.Default} заходит на сервер!");
-        // мелодия всем; если только что уже играла другая — не накладываем
-        if ((now - _lastGreetSound).TotalSeconds < 4) return;
-        if (!Config.GreetSounds.TryGetValue(info.Tier, out var snd) || !IsSafeSound(snd)) return;
-        _lastGreetSound = now;
-        foreach (var x in Utilities.GetPlayers())
-            if (x is { IsValid: true, IsBot: false, IsHLTV: false }) x.ExecuteClientCommand($"play {snd}");
+        // UPD: вход игрока сопровождается сообщением, без дополнительного звука.
+        // В игре слышны только приобретённые звуки убийства.
     }
 
     // --- команды ---
