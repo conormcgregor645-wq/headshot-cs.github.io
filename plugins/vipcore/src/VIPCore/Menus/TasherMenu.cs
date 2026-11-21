@@ -1,5 +1,6 @@
-// TASHER: своё меню !vip в стиле сайта — панель по центру экрана, как список закупки в CS2.
-// W/S — выбор, E — включить или выключить, Tab или R — закрыть. Пока меню открыто, игрок стоит на месте.
+// TASHER: меню !vip с тремя колонками-категориями в стиле закупки CS2 (center-HTML).
+// Полноэкранный Panorama-экран с мышью требует отдельного Workshop HUD addon.
+// W/S — по карточкам внутри колонки, A/D — между колонками, E — выбрать, Tab/R — закрыть. Пока меню открыто, игрок стоит на месте.
 // Панель отправляется игроку только при изменении (раз в несколько секунд — чтобы не погасла), а не каждый кадр,
 // поэтому меню не нагружает сервер и сеть и откликается сразу.
 using System.Text;
@@ -25,7 +26,6 @@ public class TasherMenu(string title, BasePlugin plugin) : IMenu
 
     private static readonly Dictionary<int, State> Open_ = new();
     private static BasePlugin? _hookedBy;
-    private const int Visible = 7;      // строк на экране, дальше — прокрутка
     private const int Refresh = 4;      // секунд: панель живёт 6 с, обновляем заранее
     private const int IdleClose = 30;   // секунд без нажатий — закрыть
 
@@ -103,8 +103,10 @@ public class TasherMenu(string title, BasePlugin plugin) : IMenu
             if ((pressed & (PlayerButtons.Scoreboard | PlayerButtons.Reload)) != 0) { Close(p, slot, st); continue; }
             if (opts.Count > 0)
             {
-                if ((pressed & PlayerButtons.Forward) != 0) { st.Index = (st.Index - 1 + opts.Count) % opts.Count; st.Dirty = true; }
-                if ((pressed & PlayerButtons.Back) != 0) { st.Index = (st.Index + 1) % opts.Count; st.Dirty = true; }
+                if ((pressed & PlayerButtons.Forward) != 0) { MoveSelection(st, 0, -1); st.Dirty = true; }
+                if ((pressed & PlayerButtons.Back) != 0) { MoveSelection(st, 0, 1); st.Dirty = true; }
+                if ((pressed & PlayerButtons.Moveleft) != 0) { MoveSelection(st, -1, 0); st.Dirty = true; }
+                if ((pressed & PlayerButtons.Moveright) != 0) { MoveSelection(st, 1, 0); st.Dirty = true; }
                 if ((pressed & PlayerButtons.Use) != 0)
                 {
                     var o = opts[Math.Clamp(st.Index, 0, opts.Count - 1)];
@@ -126,6 +128,49 @@ public class TasherMenu(string title, BasePlugin plugin) : IMenu
         }
     }
 
+    // Три постоянные категории: карточки не перепрыгивают при переключении состояний.
+    private static readonly string[] SectionNames = ["СНАРЯЖЕНИЕ", "БОЕВЫЕ", "БОНУСЫ"];
+    private static readonly string[] SectionColors = ["#8cd0ff", "#ffcf40", "#b5e853"];
+
+    private static int Category(string label)
+    {
+        var name = Clean(Tags.Replace(label, "")).ToLowerInvariant();
+        if (name.Contains("брон") || name.Contains("здоров") || name.Contains("сап") ||
+            name.Contains("armor") || name.Contains("health") || name.Contains("defuse")) return 0;
+        if (name.Contains("гранат") || name.Contains("zeus") || name.Contains("зевс") ||
+            name.Contains("флеш") || name.Contains("grenade") || name.Contains("шприц") ||
+            name.Contains("healthshot")) return 1;
+        return 2;
+    }
+
+    private static List<int>[] Sections(List<ChatMenuOption> opts)
+    {
+        var cols = new[] { new List<int>(), new List<int>(), new List<int>() };
+        for (var i = 0; i < opts.Count; i++) cols[Category(opts[i].Text)].Add(i);
+        return cols;
+    }
+
+    private static void MoveSelection(State st, int dx, int dy)
+    {
+        var cols = Sections(st.Menu.MenuOptions);
+        var col = Array.FindIndex(cols, c => c.Contains(st.Index));
+        if (col < 0) col = Array.FindIndex(cols, c => c.Count > 0);
+        if (col < 0) return;
+        var row = Math.Max(0, cols[col].IndexOf(st.Index));
+        if (dx != 0)
+        {
+            for (var i = 1; i <= cols.Length; i++)
+            {
+                var next = (col + dx * i % cols.Length + cols.Length) % cols.Length;
+                if (cols[next].Count == 0) continue;
+                st.Index = cols[next][Math.Min(row, cols[next].Count - 1)];
+                return;
+            }
+        }
+        else if (dy != 0 && cols[col].Count > 0)
+            st.Index = cols[col][(row + dy + cols[col].Count) % cols[col].Count];
+    }
+
     // ---------- вид ----------
     private static readonly Regex Tags = new("<[^>]+>", RegexOptions.Compiled);
     private const string Gold = "#ffcf40", Dim = "#8b93a1", Txt = "#e8ebf0", On = "#3ddc97", Off = "#ff5d5d", Na = "#5b6270";
@@ -136,57 +181,87 @@ public class TasherMenu(string title, BasePlugin plugin) : IMenu
         foreach (var ch in s) if (ch >= ' ' && ch != '[' && ch != ']') sb.Append(ch);
         return sb.ToString().Trim();
     }
-    private static string Esc(string s) => s.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;");
+    private static string Esc(string s) => s.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;").Replace("\"", "&quot;");
 
-    // «Здоровье <font color='#3cdc3c'>ВКЛ</font>» → название и состояние
     private static (string Name, string State) Split(string text)
     {
         var plain = Clean(Tags.Replace(text, ""));
-        foreach (var s in new[] { "ВКЛ", "ВЫКЛ", "НЕТ ДОСТУПА", "ON", "OFF", "NO ACCESS" })
-            if (plain.EndsWith(" " + s, StringComparison.Ordinal)) return (plain[..^(s.Length + 1)].Trim(), s);
+        foreach (var v in new[] { "ВКЛ", "ВЫКЛ", "НЕТ ДОСТУПА", "ON", "OFF", "NO ACCESS" })
+            if (plain.EndsWith(" " + v, StringComparison.OrdinalIgnoreCase))
+                return (plain[..^(v.Length + 1)].Trim(), v);
         return (plain, "");
     }
 
     private static string Icon(string name)
     {
         var n = name.ToLowerInvariant();
-        if (n.Contains("регенер") || n.Contains("реген")) return "↻";
+        if (n.Contains("реген")) return "↻";
         if (n.Contains("вампир")) return "♦";
         if (n.Contains("здоров") || n.Contains("health")) return "♥";
-        if (n.Contains("брон") || n.Contains("armor")) return "■";
+        if (n.Contains("брон") || n.Contains("armor")) return "▣";
         if (n.Contains("деньг") || n.Contains("money")) return "$";
-        if (n.Contains("шприц") || n.Contains("healthshot")) return "+";
+        if (n.Contains("шприц") || n.Contains("healthshot")) return "✚";
         if (n.Contains("zeus")) return "ϟ";
         if (n.Contains("сап") || n.Contains("defuse")) return "✂";
         if (n.Contains("флеш") || n.Contains("гранат")) return "✦";
-        return "•";
+        return "◆";
+    }
+
+    private static string Cell(List<ChatMenuOption> opts, int optionIndex, bool selected)
+    {
+        if (optionIndex < 0) return "<font color='#3b434d'> ──────────────── </font>";
+        var (name, state) = Split(opts[optionIndex].Text);
+        var enabled = state is "ВКЛ" or "ON";
+        var disabled = opts[optionIndex].Disabled || state is "НЕТ ДОСТУПА" or "NO ACCESS";
+        var status = disabled ? "✕" : enabled ? "●" : state.Length > 0 ? "○" : "◆";
+        var color = disabled ? Na : selected ? Gold : enabled ? On : Txt;
+        // Ограничиваем ширину карточки: длинные имена не портят остальные столбцы.
+        if (name.Length > 14) name = name[..13] + "…";
+        var label = $"{Icon(name)} {name}";
+        label = Esc(label);
+        var pad = new string(' ', Math.Max(0, 16 - name.Length));
+        var content = $"{status} {label}{pad}";
+        return selected
+            ? $"<font color='{Gold}'>▣ </font><font color='#ffffff'><b>{content}</b></font><font color='{Gold}'> ◀</font>"
+            : $"<font color='{color}'>  {content} </font>";
     }
 
     private static string Render(State st)
     {
-        var m = st.Menu; var opts = m.MenuOptions;
-        var group = Clean(Tags.Replace(m.Title, ""));
-        var sb = new StringBuilder();
-        sb.Append($"<font class='fontSize-l' color='{Gold}'>✦ TASHER</font><font class='fontSize-l' color='{Txt}'>  /  {Esc(group)}</font><br>");
-        sb.Append($"<font color='{Dim}'>━━━━━━━━━━━━━━━━━━━━</font><br>");
-        sb.Append($"<font class='fontSize-s' color='{Dim}'>бонусы привилегии</font><br>");
-        if (opts.Count == 0) sb.Append($"<font color='{Dim}'>бонусов нет</font><br>");
-        int first = Math.Clamp(st.Index - Visible / 2, 0, Math.Max(0, opts.Count - Visible));
-        for (int i = first; i < Math.Min(opts.Count, first + Visible); i++)
+        var opts = st.Menu.MenuOptions;
+        var group = Esc(Clean(Tags.Replace(st.Menu.Title, "")));
+        var cols = Sections(opts);
+        var count = Math.Max(3, cols.Max(c => c.Count));
+        var sb = new StringBuilder(1500);
+        sb.Append($"<font class='fontSize-l' color='{Gold}'>T A S H E R  ·  V I P</font><br>");
+        sb.Append($"<font color='{Txt}'>ПРИВИЛЕГИЯ: {group}</font><br>");
+        sb.Append($"<font color='{Dim}'>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</font><br>");
+        for (var col = 0; col < 3; col++)
         {
-            var (name, state) = Split(opts[i].Text);
-            var sel = i == st.Index;
-            var sc = state is "ВКЛ" or "ON" ? On : state is "ВЫКЛ" or "OFF" ? Off : Na;
-            var mark = state is "ВКЛ" or "ON" ? "● ВКЛ" : state is "ВЫКЛ" or "OFF" ? "○ ВЫКЛ" : state.Length > 0 ? "нет доступа" : "";
-            sb.Append(sel ? $"<font color='{Gold}'>▶ </font>" : "&nbsp;&nbsp;&nbsp;");
-            sb.Append($"<font color='{(sel ? Gold : Dim)}'>{Icon(name)} </font>");
-            sb.Append($"<font color='{(opts[i].Disabled ? Na : sel ? "#ffffff" : Txt)}'>{Esc(name)}</font>");
-            if (mark.Length > 0) sb.Append($"<font color='{Dim}'>  ·  </font><font color='{sc}'>{mark}</font>");
+            sb.Append($"<font class='fontSize-s' color='{SectionColors[col]}'>{SectionNames[col]}</font>");
+            if (col < 2) sb.Append("<font color='#4c515a'>  │  </font>");
+        }
+        sb.Append("<br>");
+        for (var row = 0; row < count; row++)
+        {
+            for (var col = 0; col < 3; col++)
+            {
+                var index = row < cols[col].Count ? cols[col][row] : -1;
+                sb.Append(Cell(opts, index, index >= 0 && index == st.Index));
+                if (col < 2) sb.Append("<font color='#4c515a'> │ </font>");
+            }
             sb.Append("<br>");
         }
-        if (opts.Count > Visible) sb.Append($"<font class='fontSize-s' color='{Dim}'>{st.Index + 1} из {opts.Count}</font><br>");
-        sb.Append($"<font color='{Dim}'>━━━━━━━━━━━━━━━━━━━━</font><br>");
-        sb.Append($"<font class='fontSize-s' color='{Dim}'>W / S  НАВИГАЦИЯ    E  ВЫБРАТЬ    TAB  ЗАКРЫТЬ</font>");
+        sb.Append($"<font color='{Dim}'>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</font><br>");
+        if (opts.Count > 0)
+        {
+            var selected = opts[Math.Clamp(st.Index, 0, opts.Count - 1)];
+            var (name, state) = Split(selected.Text);
+            var status = selected.Disabled ? "НЕДОСТУПНО" : state.Length > 0 ? state : "ВЫБРАТЬ";
+            sb.Append($"<font color='{Gold}'>{Esc(name)}</font><font color='{Dim}'>  ·  {Esc(status)}</font><br>");
+        }
+        else sb.Append($"<font color='{Dim}'>Доступных бонусов нет</font><br>");
+        sb.Append($"<font class='fontSize-s' color='{Dim}'>W/S  РЯД   A/D  КАТЕГОРИЯ   E  ВЫБОР   TAB/R  ЗАКРЫТЬ</font>");
         return sb.ToString();
     }
 }
