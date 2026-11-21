@@ -28,7 +28,8 @@ function windows(e, from, to) {
   return out;
 }
 
-function makeEvents({ db, now = Date.now }) {
+// UPD: временно отключено в production. Вернуть события можно через TASHER_EVENTS_ENABLED=1.
+function makeEvents({ db, now = Date.now, enabled = process.env.TASHER_EVENTS_ENABLED === "1" }) {
   const rows = () => db.prepare("SELECT * FROM events WHERE enabled=1 ORDER BY id").all().map(parse);
   function parse(r) {
     return { id: r.id, kind: r.kind, title: r.title, once: !!r.once, days: r.days ? r.days.split(",").map(Number) : [], start: r.start_min, end: r.end_min, from: r.from_at, to: r.to_at, enabled: !!r.enabled };
@@ -36,6 +37,7 @@ function makeEvents({ db, now = Date.now }) {
   const pub = (e, w) => ({ id: e.id, kind: e.kind, title: e.title, what: KINDS[e.kind].n, m: KINDS[e.kind].m, from: w[0], to: w[1] });
   // что идёт прямо сейчас
   function active(t = now()) {
+    if (!enabled) return [];
     const out = [];
     for (const e of rows()) { if (!KINDS[e.kind]) continue; const w = windows(e, t, t + 1).find(x => x[0] <= t && x[1] > t); if (w) out.push(pub(e, w)); }
     return out;
@@ -44,6 +46,7 @@ function makeEvents({ db, now = Date.now }) {
   function mult(what, t = now()) { let m = 1; for (const a of active(t)) if (KINDS[a.kind].what === what) m = Math.max(m, a.m); return m; }
   // ближайшие начала (на неделю вперёд), без уже идущих
   function upcoming(t = now(), limit = 6) {
+    if (!enabled) return [];
     const out = [];
     for (const e of rows()) { if (!KINDS[e.kind]) continue; for (const w of windows(e, t, t + 8 * DAY)) if (w[0] > t) out.push(pub(e, w)); }
     return out.sort((a, b) => a.from - b.from).slice(0, limit);

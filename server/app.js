@@ -28,6 +28,8 @@ const { makeQuests } = require("./lib/quests");
 const INFO = require("./lib/gameinfo");
 const { makeMarket } = require("./lib/market");
 const SKILLM = require("./lib/skill");
+// UPD: лиги выключены, данные оставляем для возможного возврата без потери истории.
+const LEAGUES_ENABLED = process.env.TASHER_LEAGUES_ENABLED === "1";
 const { makeEvents } = require("./lib/events");
 const { makePass } = require("./lib/pass");
 const { makeFun } = require("./lib/fun");
@@ -309,8 +311,8 @@ get("/api/servers", async () => { if (!GS && CFG.gameServers.length) await pollS
 
 // ---------- статистика игроков ----------
 // лига игрока: sr — сила, lg — номер лиги (null — калибровка), cl — сколько событий осталось до конца калибровки
-const withSkill = p => { if (!p) return p; const k = SKILL.info(p.sid); return { ...p, sr: k.sr, lg: k.lg, cl: k.left, nx: k.next }; };
-get("/api/leagues", () => SKILL.board(20));
+const withSkill = p => { if (!p || !LEAGUES_ENABLED) return p; const k = SKILL.info(p.sid); return { ...p, sr: k.sr, lg: k.lg, cl: k.left, nx: k.next }; };
+get("/api/leagues", () => LEAGUES_ENABLED ? SKILL.board(20) : { leagues: [], calib: 0, total: 0, top: [] });
 let TOP_CACHE = { t: 0, period: "", v: null };
 function statsTop(period) {
   if (TOP_CACHE.v && TOP_CACHE.period === period && now() - TOP_CACHE.t < 5000) return TOP_CACHE.v;
@@ -341,13 +343,13 @@ if (CFG.gameLogUnit && require.main === module) {
       try {
         EARN.apply(ev, warm);
         QUESTS.apply(ev, warm);
-        SKILL.apply(ev, warm);
+        if (LEAGUES_ENABLED) SKILL.apply(ev, warm);
         PASS.apply(ev, warm);
         FUN.apply(ev, warm);
         if (ev && ev.e === "round" && !warm) {
           const inGame = [...STATS.state.team].filter(([sid, team]) => team && STATS.state.sess.has(sid));
           const winners = inGame.filter(([, team]) => team === ev.win).map(([sid]) => sid), losers = inGame.filter(([, team]) => team !== ev.win).map(([sid]) => sid);
-          EARN.roundWin(winners, ev.t || t); QUESTS.roundWin(winners, ev.t || t); SKILL.round(winners, losers); PASS.roundWin(winners, ev.t || t);
+          EARN.roundWin(winners, ev.t || t); QUESTS.roundWin(winners, ev.t || t); if (LEAGUES_ENABLED) SKILL.round(winners, losers); PASS.roundWin(winners, ev.t || t);
         }
       } catch (e) { console.error("[earn]", e.message); }
       // зашёл игрок — данные для !rank/!tk/!quests нужны ему сразу
@@ -372,7 +374,7 @@ function seasonCheck() {
   const ss = PASS.season(); if (!ss) return;
   const m = db.prepare("SELECT v FROM meta WHERE k='season'").get();
   if (m && m.v === ss.id) return;
-  if (m) { SKILL.softReset(0.5); console.log(`[season] начался ${ss.n}: лиги сброшены наполовину`); }
+  if (m && LEAGUES_ENABLED) { SKILL.softReset(0.5); console.log(`[season] начался ${ss.n}: лиги сброшены наполовину`); }
   db.prepare("INSERT OR REPLACE INTO meta(k,v) VALUES('season',?)").run(ss.id);
 }
 try { seasonCheck(); } catch (e) { console.error("[season]", e.message); }
@@ -441,6 +443,7 @@ get("/api/quests", ctx => ({ quests: QUESTS.state(ctx.user ? ctx.user.steamid : 
 const ruPlural = (n, a, b, c) => { const m = n % 10, h = n % 100; return m === 1 && h !== 11 ? a : m >= 2 && m <= 4 && (h < 12 || h > 14) ? b : c; };
 // лига для команды !rank: название и строка «до следующей лиги» или «калибровка»
 function leagueFor(sid) {
+  if (!LEAGUES_ENABLED) return { league: "", sr: 0, leagueInfo: "" };
   const k = SKILL.info(sid);
   if (k.lg == null) return { league: "", sr: k.sr, leagueInfo: `калибровка: ещё ${k.left} ${ruPlural(k.left, "событие", "события", "событий")} (убийства и смерти)` };
   return { league: SKILLM.LEAGUES[k.lg].n, sr: k.sr, leagueInfo: k.next ? `до лиги ${k.next.n}: ${k.next.need} очк.` : "высшая лига" };
@@ -528,7 +531,8 @@ function styleRows() {
   const st = new Map(CTL.statuses().map(s => [s.sid, s.t])), rows = new Map();
   const row = sid => { let r = rows.get(sid); if (!r) rows.set(sid, r = { sid, tier: st.get(sid) || null, clanTag: "", clanColor: "", nick: "", tag: "", smokeHex: "", killFx: "", killSnd: "", trailHex: "", tracerHex: "" }); return r; };
   for (const sid of st.keys()) row(sid);
-  for (const k of db.prepare("SELECT sid, sr FROM skill WHERE n>=?").all(SKILLM.CALIB)) row(k.sid).league = SKILLM.leagueIdx(k.sr);
+  // UPD: в Tab отображаем очки нашего месячного рейтинга, без лиг.
+  for (const p of STATS.top(GL.month(now()), 1000)) if (/^\d{17}$/.test(p.sid)) row(p.sid).pts = p.pts;
   for (const c of db.prepare("SELECT u.steamid sid, c.tag, c.color FROM clan_members m JOIN clans c ON c.id=m.clan_id JOIN users u ON u.id=m.user_id").all()) { const r = row(c.sid); r.clanTag = c.tag; r.clanColor = c.color; }
   for (const u of db.prepare("SELECT steamid, cos_eq, cos_tag FROM users WHERE cos_eq<>'{}' OR cos_tag<>''").all()) {
     let eq = {}; try { eq = JSON.parse(u.cos_eq || "{}"); } catch (e) {}

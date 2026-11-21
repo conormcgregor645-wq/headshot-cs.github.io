@@ -17,14 +17,40 @@ const mskDay = t => new Date(t + MSK).toISOString().slice(0, 10);
 // награды по уровням: t — tk | case | cos | status
 function rewards() {
   const free = [], prem = [];
+  // UPD: между ключевыми уровнями — разные предметы и кейсы вместо одних только ТК.
+  // Все ID — из server/data/cosmetics.json. Уже полученные покупки конвертируются в ТК через give().
+  const freeExtra = {
+    3: { t: "cos", id: "bd_skull" },
+    7: { t: "case", k: "army" },
+    12: { t: "cos", id: "bd_bolt" },
+    18: { t: "cos", id: "bg_i_nydust" },
+    23: { t: "cos", id: "sd_ding" },
+    28: { t: "case", k: "army" },
+    33: { t: "cos", id: "tr_1" },
+    38: { t: "cos", id: "bd_wolf" },
+    43: { t: "cos", id: "fr_ice" },
+    48: { t: "case", k: "fire" },
+  };
+  const premExtra = {
+    3: { t: "cos", id: "bd_fire" },
+    8: { t: "cos", id: "fr_emer" },
+    12: { t: "cos", id: "sd_8bit" },
+    18: { t: "cos", id: "tr_4" },
+    22: { t: "case", k: "fire" },
+    28: { t: "cos", id: "kl_conf" },
+    33: { t: "cos", id: "sm_2" },
+    38: { t: "cos", id: "tc_2" },
+    43: { t: "cos", id: "bg_i_nyfire" },
+    48: { t: "cos", id: "fr_plasma" },
+  };
   for (let lv = 1; lv <= LEVELS; lv++) {
     const f = { 5: { t: "case", k: "army" }, 10: { t: "cos", id: "bd_aim" }, 15: { t: "case", k: "army" }, 20: { t: "cos", id: "tc_0" }, 25: { t: "status", tier: "VIP", d: 3 },
       30: { t: "cos", id: "kl_spark" }, 35: { t: "case", k: "army" }, 40: { t: "cos", id: "fr_lime" }, 45: { t: "case", k: "army" }, 50: { t: "status", tier: "PREMIUM", d: 7 } }[lv];
-    free.push([f || { t: "tk", v: 100 + 10 * lv }]);
+    free.push([f || freeExtra[lv] || { t: "tk", v: 100 + 10 * lv }]);
     const p = { 5: [{ t: "case", k: "fire" }], 10: [{ t: "cos", id: "nk_grad1" }], 15: [{ t: "status", tier: "ELITE", d: 7 }], 20: [{ t: "cos", id: "kl_bolt" }],
       25: [{ t: "case", k: "knife" }], 30: [{ t: "cos", id: "tc_3" }], 35: [{ t: "status", tier: "LEGEND", d: 7 }], 40: [{ t: "cos", id: "sm_4" }], 45: [{ t: "case", k: "knife" }],
       50: [{ t: "status", tier: "KING", d: 14 }, { t: "cos", id: "fr_winter" }] }[lv];
-    prem.push(p || [{ t: "tk", v: 200 + 20 * lv }]);
+    prem.push(p || [premExtra[lv] || { t: "tk", v: 200 + 20 * lv }]);
   }
   return { free, prem };
 }

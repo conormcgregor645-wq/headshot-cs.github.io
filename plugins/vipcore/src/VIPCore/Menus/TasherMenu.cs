@@ -122,7 +122,7 @@ public class TasherMenu(string title, BasePlugin plugin) : IMenu
                 st.Sent = DateTime.UtcNow; st.Dirty = false;
             }
             }
-            catch { Open_.Remove(slot); }
+            catch { Close(p, slot, st); }
         }
     }
 
@@ -167,7 +167,8 @@ public class TasherMenu(string title, BasePlugin plugin) : IMenu
         var m = st.Menu; var opts = m.MenuOptions;
         var group = Clean(Tags.Replace(m.Title, ""));
         var sb = new StringBuilder();
-        sb.Append($"<font class='fontSize-l' color='{Gold}'>TASHER</font><font class='fontSize-l' color='{Txt}'> · {Esc(group)}</font><br>");
+        sb.Append($"<font class='fontSize-l' color='{Gold}'>✦ TASHER</font><font class='fontSize-l' color='{Txt}'>  /  {Esc(group)}</font><br>");
+        sb.Append($"<font color='{Dim}'>━━━━━━━━━━━━━━━━━━━━</font><br>");
         sb.Append($"<font class='fontSize-s' color='{Dim}'>бонусы привилегии</font><br>");
         if (opts.Count == 0) sb.Append($"<font color='{Dim}'>бонусов нет</font><br>");
         int first = Math.Clamp(st.Index - Visible / 2, 0, Math.Max(0, opts.Count - Visible));
@@ -184,7 +185,8 @@ public class TasherMenu(string title, BasePlugin plugin) : IMenu
             sb.Append("<br>");
         }
         if (opts.Count > Visible) sb.Append($"<font class='fontSize-s' color='{Dim}'>{st.Index + 1} из {opts.Count}</font><br>");
-        sb.Append($"<font class='fontSize-s' color='{Dim}'>W/S — выбор   E — вкл/выкл   Tab — закрыть</font>");
+        sb.Append($"<font color='{Dim}'>━━━━━━━━━━━━━━━━━━━━</font><br>");
+        sb.Append($"<font class='fontSize-s' color='{Dim}'>W / S  НАВИГАЦИЯ    E  ВЫБРАТЬ    TAB  ЗАКРЫТЬ</font>");
         return sb.ToString();
     }
 }

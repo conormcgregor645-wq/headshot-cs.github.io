@@ -205,12 +205,8 @@ public partial class TasherStyle
         _greeted[sid] = now;
         var col = TagColors.ColorChar(TierColor.GetValueOrDefault(info.Tier, "default"), p.Team);
         Server.PrintToChatAll($" {col}[{info.Tier}] {p.PlayerName}{ChatColors.Default} заходит на сервер!");
-        // мелодия всем; если только что уже играла другая — не накладываем
-        if ((now - _lastGreetSound).TotalSeconds < 4) return;
-        if (!Config.GreetSounds.TryGetValue(info.Tier, out var snd) || !IsSafeSound(snd)) return;
-        _lastGreetSound = now;
-        foreach (var x in Utilities.GetPlayers())
-            if (x is { IsValid: true, IsBot: false, IsHLTV: false }) x.ExecuteClientCommand($"play {snd}");
+        // UPD: вход игрока сопровождается сообщением, без дополнительного звука.
+        // В игре слышны только приобретённые звуки убийства.
     }
 
     // --- команды ---
@@ -237,10 +233,7 @@ public partial class TasherStyle
     {
         if (player is not { IsValid: true } || player.IsBot) return;
         if (!InfoReady(player, out var i)) return;
-        if (i.LeagueInfo.Length > 0)
-            player.PrintToChat(i.League.Length > 0
-                ? $"{Prefix}Лига: {LeagueColor(i.League)}{i.League}{ChatColors.Default} · сила {ChatColors.Lime}{i.Sr}{ChatColors.Default} · {i.LeagueInfo}"
-                : $"{Prefix}Лига: {ChatColors.Grey}{i.LeagueInfo}");
+        // UPD: лиги не показываем; !rank оставляем для очков, места и K/D месячного рейтинга.
         if (i.Place == 0)
         {
             player.PrintToChat($"{Prefix}В этом месяце у тебя пока нет очков рейтинга — сыграй пару раундов.");

@@ -1,0 +1,42 @@
+name: TASHER checks
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  node-tests:
+    name: Node.js regression tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Run all backend regression suites
+        shell: bash
+        run: |
+          set -euo pipefail
+          for t in frontend smoke features control gamelog a2s; do
+            echo "::group::${t}"
+            node "server/test/${t}.js"
+            echo "::endgroup::"
+          done
+
+  cs2-plugins:
+    name: Compile CS2 plugins
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Build TASHER Style
+        run: dotnet publish plugins/tasherstyle/TasherStyle.csproj -c Release -o /tmp/tasherstyle-build
+      - name: Build VIPCore
+        run: dotnet publish plugins/vipcore/src/VIPCore/VIPCore.csproj -c Release -p:Version=2.0.3 -o /tmp/vipcore-build

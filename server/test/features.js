@@ -164,14 +164,18 @@ const bal = u => db.prepare("SELECT tk, rub FROM users WHERE id=?").get(u.id);
 // ---------- стиль в игре ----------
 {
   const c = STYLE.compose({ tier: "ELITE", clanTag: "WOLF", clanColor: "#5aa9ff", nick: "nk_0", tag: "", smokeHex: "#ff6b8b" });
-  ok(c.chat === "{green}[ELITE] {lightblue}[WOLF]" && c.name === "lime" && c.score === "WOLF" && c.smoke === "255,107,139", "стиль: статус, клан, цвет ника, дым", c);
+  ok(c.chat === "{green}[ELITE] {lightblue}[WOLF]" && c.name === "lime" && c.score === "ELITE" && c.smoke === "255,107,139", "стиль: статус, клан, цвет ника, дым", c);
+  const tab = STYLE.compose({ tier: "KING", tag: "USER", clanTag: "CLAN", pts: 1234 });
+  ok(tab.score === "KING 1234 очк" && tab.chat.includes("[USER]") && !tab.score.includes("USER") && !tab.score.includes("CLAN"), "UPD: Tab содержит статус и очки, купленный тег остаётся в чате", tab);
+  const newcomer = STYLE.compose({ pts: 42 });
+  ok(newcomer.score === "42 очк" && newcomer.chat === "{grey}[Новенький]", "UPD: игрок без статуса видит очки в Tab и тег новичка в чате", newcomer);
   const k = STYLE.compose({ tier: "KING", tag: "PRO", clanTag: "WOLF" });
-  ok(k.chat === "{gold}[KING] {lime}[PRO]" && k.score === "PRO" && k.smoke === "random" && k.name === "gold", "свой тег вместо клана, у KING случайный дым", k);
+  ok(k.chat === "{gold}[KING] {lime}[PRO]" && k.score === "KING" && k.smoke === "random" && k.name === "gold", "свой тег вместо клана, у KING случайный дым", k);
   const f = STYLE.compose({ tier: null, killFx: "ring", killSnd: "8bit", trailHex: "#ffffff", tracerHex: "#eb4b4b" });
-  ok(f.killFx === "ring" && f.killSnd === "8bit" && f.trail === "255,255,255" && f.tracer === "235,75,75" && f.chat === "" && f.smoke === "", "эффекты: убийство, звук, след гранат, трассеры", f);
+  ok(f.killFx === "ring" && f.killSnd === "8bit" && f.trail === "255,255,255" && f.tracer === "235,75,75" && f.chat === "{grey}[Новенький]" && f.smoke === "", "эффекты: убийство, звук, след гранат, трассеры", f);
   const bad = STYLE.compose({ killFx: "x';DROP", killSnd: "play quit", trailHex: "red", tracerHex: "#12" });
   ok(!bad.killFx && !bad.killSnd && !bad.trail && !bad.tracer, "чужие значения эффектов не проходят", bad);
-  ok(/kill_fx,kill_snd,trail,tracer\) VALUES \(\d{17},'','','','','ring','8bit','255,255,255','235,75,75'\)/.test(STYLE.sqlFor([{ sid: sidN(2), killFx: "ring", killSnd: "8bit", trailHex: "#ffffff", tracerHex: "#eb4b4b" }], true)), "эффекты пишутся в таблицу плагина");
+  ok(/kill_fx,kill_snd,trail,tracer\) VALUES \(\d{17},'\{grey\}\[Новенький\]','','','','ring','8bit','255,255,255','235,75,75'\)/.test(STYLE.sqlFor([{ sid: sidN(2), killFx: "ring", killSnd: "8bit", trailHex: "#ffffff", tracerHex: "#eb4b4b" }], true)), "эффекты пишутся в таблицу плагина");
   ok(!/kill_fx/.test(STYLE.sqlFor([{ sid: sidN(2), killFx: "ring" }], false)), "старый плагин без колонок эффектов — пишем без них");
   const sql = STYLE.sqlFor([{ sid: sidN(1), tag: "a'b{red}" }, { sid: "123" }]);
   ok(!/\{red\}/.test(sql) && !/a'b/.test(sql) && (sql.match(/\(\d{17},/g) || []).length === 1, "в SQL нет кавычек и цветовых вставок из своего тега", sql);
@@ -315,7 +319,7 @@ const bal = u => db.prepare("SELECT tk, rub FROM users WHERE id=?").get(u.id);
   const i620 = K.info(sidN(620)); ok(!i620.calib && i620.lg != null && i620.left === 0, "после 40 событий калибровка закончена", i620);
   ok(SKM.leagueIdx(799) === 0 && SKM.leagueIdx(800) === 1 && SKM.leagueIdx(1100) === 3 && SKM.leagueIdx(1700) === 7 && SKM.leagueIdx(5000) === 7, "границы лиг");
   const bd = K.board(); ok(bd.leagues.length === 8 && bd.leagues.reduce((x, l) => x + l.count, 0) === bd.total && bd.top[0].sid === sidN(610), "таблица лиг: число игроков и сильнейшие", bd);
-  const st = STYLE.compose({ league: 3, tier: "VIP" }); ok(st.chat === "{gold}[Золото] {silver}[VIP]", "лига — первым тегом в чате игры", st);
+  const st = STYLE.compose({ league: 3, tier: "VIP" }); ok(st.chat === "{silver}[VIP]", "лига — первым тегом в чате игры", st);
   const r0 = db.prepare("SELECT sr FROM skill WHERE sid=?").get(sidN(610)).sr;
   K.softReset(0.5); ok(Math.abs(db.prepare("SELECT sr FROM skill WHERE sid=?").get(sidN(610)).sr - (1000 + (r0 - 1000) * 0.5)) < 1e-6, "мягкий сброс сезона: половина пути к 1000");
   ok(K.info(sidN(610)).n <= 20, "после сброса — короткая перекалибровка");
@@ -325,7 +329,9 @@ const bal = u => db.prepare("SELECT tk, rub FROM users WHERE id=?").get(u.id);
 {
   const msk = (y, mo, d, h, mi = 0) => Date.UTC(y, mo - 1, d, h - 3, mi); // время по Москве -> UTC
   let T0 = msk(2026, 11, 20, 20, 30); // пятница 20:30 МСК
-  const E = EVM.makeEvents({ db, now: () => T0 });
+  const E = EVM.makeEvents({ db, now: () => T0, enabled: true });
+  const paused = EVM.makeEvents({ db, now: () => T0, enabled: false });
+  ok(paused.active().length === 0 && paused.upcoming().length === 0 && paused.mult("tk") === 1 && paused.mult("xp") === 1 && paused.mult("quest") === 1, "UPD: события выключены, множители нейтральные");
   const titles = () => E.active().map(a => a.title).sort().join();
   ok(titles() === "Пятница заданий,Счастливый час" && E.mult("tk") === 2 && E.mult("quest") === 2 && E.mult("xp") === 1, "пятница 20:30: счастливый час и пятница заданий", E.active());
   const hap = E.active().find(a => a.title === "Счастливый час"); ok(hap.to === msk(2026, 11, 20, 21), "счастливый час до 21:00", new Date(hap.to).toISOString());
@@ -360,6 +366,7 @@ const bal = u => db.prepare("SELECT tk, rub FROM users WHERE id=?").get(u.id);
   const COS = new Map(JSON.parse(fs.readFileSync(path.join(__dirname, "..", "data", "cosmetics.json"), "utf8")).map(x => [x.id, x]));
   const gi = (uid, it, src, ref) => { db.prepare("INSERT INTO items(id,user_id,w,s,r,wear,st,sv,sp,fx,seed,src,src_ref,state,created_at) VALUES(?,?,?,?,?,?,0,0,NULL,0,?,?,?,'inv',?)").run(it.id, uid, it.w, it.s, it.r, it.wear, it.seed || 0, src, ref || null, T1); return it; };
   const P = PM.makePass({ db, tx: T, addMoney, giveItem: gi, rollCase: G.rollCase, caseByK: k => G.CASE_BY_K.get(k), cosById: id => COS.get(id), addGrant: (...a) => grants.push(a), onGrant: () => ong++, eventMult: () => xpm, now: () => T1, log: { log() {} } });
+  ok(PM.REWARDS.free[2][0].id === "bd_skull" && PM.REWARDS.free[11][0].id === "bd_bolt" && PM.REWARDS.prem[27][0].id === "kl_conf", "UPD: в пропуске есть новые оформления между ключевыми уровнями");
   ok(PM.REWARDS.free.length === 50 && PM.REWARDS.prem.length === 50 && [...PM.REWARDS.free, ...PM.REWARDS.prem].flat().every(r => r.t === "tk" ? r.v > 0 : r.t === "case" ? !!G.CASE_BY_K.get(r.k) : r.t === "cos" ? COS.has(r.id) : r.t === "status" ? ["VIP", "PREMIUM", "ELITE", "LEGEND", "TITAN", "KING"].includes(r.tier) && r.d > 0 : false), "50 уровней: все награды существуют (кейсы, оформление, статусы)");
   const u = user(801, 0, 1000), sid = u.steamid;
   ok(P.season().id === "s1" && P.state(sid).me.lv === 0, "идёт сезон 1");

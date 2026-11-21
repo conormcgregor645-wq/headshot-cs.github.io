@@ -14,6 +14,10 @@ public partial class TasherStyle
     private int _beams;
     private int _tick;
     private readonly List<GrenadeTrail> _trails = new();
+    private readonly Dictionary<ulong, DateTime> _lastTracer = new();
+    // Лучи эффекта фрага передаются только игрокам, наблюдающим за убийцей.
+    private readonly Dictionary<CBeam, ulong> _spectatorBeams = new();
+    private ulong _killFxOwner;
 
     private sealed class GrenadeTrail
     {
@@ -28,7 +32,8 @@ public partial class TasherStyle
         RegisterEventHandler<EventBulletImpact>(OnBulletImpact);
         RegisterEventHandler<EventPlayerDeath>(OnPlayerDeath);
         RegisterListener<Listeners.OnTick>(OnTick);
-        RegisterListener<Listeners.OnMapStart>(_ => { _beams = 0; _trails.Clear(); });
+        RegisterListener<Listeners.CheckTransmit>(OnEffectsTransmit);
+        RegisterListener<Listeners.OnMapStart>(_ => { _beams = 0; _trails.Clear(); _lastTracer.Clear(); _spectatorBeams.Clear(); _killFxOwner = 0; });
     }
 
     // "r,g,b" или "random" -> цвет
@@ -58,12 +63,42 @@ public partial class TasherStyle
         beam.Teleport(new Vector(x1, y1, z1), new QAngle(0, 0, 0), new Vector(0, 0, 0));
         beam.EndPos.X = x2; beam.EndPos.Y = y2; beam.EndPos.Z = z2;
         beam.DispatchSpawn();
+        if (_killFxOwner != 0) _spectatorBeams[beam] = _killFxOwner;
         _beams++;
         AddTimer(life, () =>
         {
             _beams = Math.Max(0, _beams - 1);
+            _spectatorBeams.Remove(beam);
             if (beam.IsValid) beam.Remove();
         }, TimerFlags.STOP_ON_MAPCHANGE);
+    }
+
+    // Проверка сетевой передачи происходит отдельно для каждого зрителя.
+    // Живые игроки не получают эффект, даже если находятся рядом с местом убийства.
+    private void OnEffectsTransmit(CCheckTransmitInfoList infoList)
+    {
+        if (_spectatorBeams.Count == 0) return;
+        // Кэшируем владельцев pawn один раз на сетевой вызов, а не для каждого зрителя.
+        var pawnOwners = new Dictionary<nint, ulong>();
+        foreach (var p in Utilities.GetPlayers())
+            if (p is { IsValid: true, IsBot: false } &&
+                p.PlayerPawn.Value is { IsValid: true } pawn)
+                pawnOwners[pawn.Handle] = p.SteamID;
+        foreach (var (info, viewer) in infoList)
+        {
+            if (viewer is not { IsValid: true } || viewer.IsBot || viewer.IsHLTV) continue;
+            ulong watching = 0;
+            if (!viewer.PawnIsAlive)
+            {
+                var target = viewer.PlayerPawn.Value?.ObserverServices?.ObserverTarget.Value
+                    ?? viewer.ObserverPawn.Value?.ObserverServices?.ObserverTarget.Value;
+                if (target is { IsValid: true } &&
+                    pawnOwners.TryGetValue(target.Handle, out var ownerSid))
+                    watching = ownerSid;
+            }
+            foreach (var (beam, ownerSid) in _spectatorBeams)
+                if (beam.IsValid && watching != ownerSid) info.TransmitEntities.Remove(beam);
+        }
     }
 
     // --- трассеры пуль: луч от глаз стрелка до места попадания, виден всем ---
@@ -73,6 +108,10 @@ public partial class TasherStyle
         if (p is not { IsValid: true } || p.IsBot || p.IsHLTV) return HookResult.Continue;
         var s = StyleOf(p);
         if (s == null || s.Tracer.Length == 0 || !TryColor(s.Tracer, out var c)) return HookResult.Continue;
+        // Ограничиваем сетевые лучи: дробь и несколько impact одного выстрела не создают десятки сущностей.
+        var now = DateTime.UtcNow;
+        if (_lastTracer.TryGetValue(p.SteamID, out var last) && (now - last).TotalMilliseconds < 90) return HookResult.Continue;
+        _lastTracer[p.SteamID] = now;
         var pawn = p.PlayerPawn.Value;
         if (pawn is not { IsValid: true } || pawn.AbsOrigin is not { } o) return HookResult.Continue;
         float ex = o.X, ey = o.Y, ez = o.Z + (float)pawn.ViewOffset.Z;
@@ -80,7 +119,7 @@ public partial class TasherStyle
         var len = MathF.Sqrt(dx * dx + dy * dy + dz * dz);
         if (len < 48f) return HookResult.Continue;
         var k = 24f / len; // начинаем чуть впереди и ниже глаз, чтобы луч не закрывал прицел
-        Beam(ex + dx * k, ey + dy * k, ez + dz * k - 3f, e.X, e.Y, e.Z, c, 1.2f, 0.2f);
+        Beam(ex + dx * k, ey + dy * k, ez + dz * k - 3f, e.X, e.Y, e.Z, c, 0.9f, 0.12f);
         return HookResult.Continue;
     }
 
@@ -97,7 +136,12 @@ public partial class TasherStyle
         if (s.KillFx.Length > 0)
         {
             var vp = v.PlayerPawn.Value;
-            if (vp is { IsValid: true } && vp.AbsOrigin is { } o) KillEffect(s.KillFx, o.X, o.Y, o.Z);
+            if (vp is { IsValid: true } && vp.AbsOrigin is { } o)
+            {
+                _killFxOwner = a.SteamID;
+                try { KillEffect(s.KillFx, o.X, o.Y, o.Z); }
+                finally { _killFxOwner = 0; }
+            }
         }
         return HookResult.Continue;
     }
@@ -185,17 +229,17 @@ public partial class TasherStyle
     // --- след гранаты: каждые 4 тика луч от прошлой точки до текущей ---
     private void StartTrail(CBaseCSGrenadeProjectile g, Color c)
     {
-        if (g.AbsOrigin is not { } o || _trails.Count >= 64) return;
+        if (g.AbsOrigin is not { } o || _trails.Count >= 32) return;
         _trails.Add(new GrenadeTrail { G = g, C = c, X = o.X, Y = o.Y, Z = o.Z });
     }
 
     private void OnTick()
     {
-        if (_trails.Count == 0 || ++_tick % 4 != 0) return;
+        if (_trails.Count == 0 || ++_tick % 7 != 0) return;
         for (var i = _trails.Count - 1; i >= 0; i--)
         {
             var t = _trails[i];
-            if (!t.G.IsValid || t.G.AbsOrigin is not { } o || ++t.Age > 160) { _trails.RemoveAt(i); continue; }
+            if (!t.G.IsValid || t.G.AbsOrigin is not { } o || ++t.Age > 95) { _trails.RemoveAt(i); continue; }
             float dx = o.X - t.X, dy = o.Y - t.Y, dz = o.Z - t.Z;
             if (dx * dx + dy * dy + dz * dz < 4f)
             {
@@ -203,7 +247,7 @@ public partial class TasherStyle
                 continue;
             }
             t.Still = 0;
-            Beam(t.X, t.Y, t.Z, o.X, o.Y, o.Z, t.C, 2f, 1.2f);
+            Beam(t.X, t.Y, t.Z, o.X, o.Y, o.Z, t.C, 1.6f, 0.35f);
             t.X = o.X; t.Y = o.Y; t.Z = o.Z;
         }
     }

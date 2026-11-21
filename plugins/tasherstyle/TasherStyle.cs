@@ -45,7 +45,7 @@ public class StyleConfig : BasePluginConfig
     [JsonPropertyName("GreetCooldownMinutes")] public int GreetCooldownMinutes { get; set; } = 15;
     [JsonPropertyName("Site")] public string Site { get; set; } = "tashercs.ru";
     // ограничение на число лучей эффектов одновременно (защита от перегрузки сервера)
-    [JsonPropertyName("MaxBeams")] public int MaxBeams { get; set; } = 600;
+    [JsonPropertyName("MaxBeams")] public int MaxBeams { get; set; } = 160;
     // особые раунды и серии убийств
     [JsonPropertyName("FunEnabled")] public bool FunEnabled { get; set; } = true;
     [JsonPropertyName("SpecialEveryMin")] public int SpecialEveryMin { get; set; } = 2;
@@ -69,7 +69,7 @@ public record PlayerStyle(string ChatTag, string NameColor, string ScoreTag, str
 public partial class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
 {
     public override string ModuleName => "TASHER Style";
-    public override string ModuleVersion => "1.4.2";
+    public override string ModuleVersion => "1.4.3";
     public override string ModuleAuthor => "tashercs.ru";
 
     public StyleConfig Config { get; set; } = new();
@@ -212,14 +212,19 @@ public partial class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
         if (BlockGagged(player, message)) return HookResult.Handled;
         if (IsChatTrigger(message)) return HookResult.Continue;
         var s = StyleOf(player);
-        if (s == null || (string.IsNullOrEmpty(s.ChatTag) && string.IsNullOrEmpty(s.NameColor))) return HookResult.Continue;
-
         var team = player.Team;
-        var tag = TagColors.ResolveTokens(s.ChatTag, team);
-        var nameColor = string.IsNullOrEmpty(s.NameColor) ? ChatColors.ForTeam(team) : TagColors.ColorChar(s.NameColor, team);
+        // UPD: даже новый игрок без записи в базе получает серверный тег «Новенький».
+        var tag = s == null || string.IsNullOrEmpty(s.ChatTag)
+            ? $"{ChatColors.Grey}[Новенький]" : TagColors.ResolveTokens(s.ChatTag, team);
+        var nameColor = s == null || string.IsNullOrEmpty(s.NameColor)
+            ? ChatColors.ForTeam(team) : TagColors.ColorChar(s.NameColor, team);
+        // Градиентный ник сдвигает цветовую фазу при каждом новом сообщении.
+        var displayName = s?.NameColor is "grad-sunset" or "grad-toxic"
+            ? AnimatedChatName(player.PlayerName, s.NameColor, team)
+            : $"{nameColor}{player.PlayerName}";
         var dead = player.PawnIsAlive ? "" : $"{ChatColors.Grey}*DEAD* ";
         var teamPrefix = teamOnly ? $"{ChatColors.Default}(team) " : "";
-        var line = $" {dead}{(tag.Length > 0 ? tag + " " : "")}{teamPrefix}{nameColor}{player.PlayerName}{ChatColors.Default}: {message}";
+        var line = $" {dead}{(tag.Length > 0 ? tag + " " : "")}{teamPrefix}{displayName}{ChatColors.Default}: {message}";
 
         if (teamOnly)
         {
@@ -229,6 +234,22 @@ public partial class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
         }
         else Server.PrintToChatAll(line);
         return HookResult.Handled;
+    }
+
+    // CS2 не поддерживает перекрашивание старых строк чата: фаза меняется при новых сообщениях.
+    private static string AnimatedChatName(string name, string mode, CsTeam team)
+    {
+        var palette = mode == "grad-sunset"
+            ? new[] { "red", "orange", "gold", "lightyellow", "magenta" }
+            : new[] { "green", "lime", "lightblue", "blue", "lightpurple" };
+        var phase = (int)((DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() / 500) % palette.Length);
+        var sb = new System.Text.StringBuilder(name.Length * 2);
+        for (var i = 0; i < name.Length; i++)
+        {
+            sb.Append(TagColors.ColorChar(palette[(i + phase) % palette.Length], team));
+            sb.Append(name[i]);
+        }
+        return sb.ToString();
     }
 
     private static bool IsChatTrigger(string message)
@@ -246,7 +267,8 @@ public partial class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
         if (player is not { IsValid: true } || player.IsBot || player.IsHLTV) return;
         var want = StyleOf(player)?.ScoreTag ?? "";
         var had = _appliedClan.TryGetValue(player.SteamID, out var prev) ? prev : null;
-        if (want.Length == 0 && had == null) return; // никогда не трогали — оставляем как есть
+        // UPD: сторонние Steam/клановые теги в Tab убираем; оставляем только серверный статус и очки.
+        if (want.Length == 0 && had == null && string.IsNullOrEmpty(player.Clan)) return;
         if (had == want && player.Clan == want) return;
         player.Clan = want;
         Utilities.SetStateChanged(player, "CCSPlayerController", "m_szClan");

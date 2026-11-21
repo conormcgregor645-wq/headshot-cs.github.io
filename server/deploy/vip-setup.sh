@@ -10,7 +10,7 @@ PLG=$CSS/plugins; CFGD=$CSS/configs/plugins/VIPCore; SHARED=$CSS/shared/VipCoreA
 REPO="${VIP_REPO:-partiusfabaa/cs2-VIPCore}"
 # ядро и модуль цветного дыма с правками TASHER (меню на WASD, исправленный дым) — собираются на GitHub из plugins/vipcore
 TASHER_ZIP="${VIP_TASHER_ZIP:-https://github.com/conormcgregor645-wq/headshot-cs.github.io/releases/download/vipcore-tasher/VIPCore-tasher.zip}"
-MODS="VIP_Health VIP_Armor VIP_Money VIP_Grenades VIP_DefuseKit VIP_Healthshot VIP_Zeus VIP_WeaponsMenu VIP_RegenHealth VIP_Vampirism"
+MODS="VIP_Health VIP_Armor VIP_Money VIP_Grenades VIP_DefuseKit VIP_Healthshot VIP_Zeus VIP_RegenHealth VIP_Vampirism"
 # теги в чате и цвет дыма теперь делает TASHER Style (с учётом клана и купленного на сайте), модули VIP_Tag и VIP_SmokeColor не ставим
 STYLE_ZIP="${TASHER_STYLE_ZIP:-https://github.com/conormcgregor645-wq/headshot-cs.github.io/releases/download/tasherstyle/TasherStyle.zip}"
 # общая библиотека меню CS2MenuManager (форк mrc4tt) — без неё WeaponPaints не регистрирует свои команды (в том числе
@@ -105,7 +105,7 @@ import json, os
 d = os.environ["CFGD"]
 core = {
   "Delay": 2.0, "TimeMode": 3, "ServerId": 0, "ServerIP": os.environ["IP"], "ServerPort": 27015,
-  "MenuType": "wasd", "ReOpenMenuAfterItemClick": True, "AdminMenuPermission": ["@css/root"],
+  "MenuType": "tasher", "ReOpenMenuAfterItemClick": True, "AdminMenuPermission": ["@css/root"],
   # все бонусы работают с 1-го раунда; деньги в пистолетных раундах не даёт сам модуль денег
   "DisableOnPistolRound": [],
   "VipLogging": True,
@@ -117,21 +117,14 @@ def nades(fl=1, smoke=0, he=0, fire=0):
     if he: ct["weapon_hegrenade"] = t["weapon_hegrenade"] = 1
     if fire: ct["weapon_incgrenade"] = 1; t["weapon_molotov"] = 1
     return {"CT": ct, "T": t}
-guns = {
-  "CT": {"M4A1-S + Desert Eagle": {"Weapons": ["weapon_m4a1_silencer", "weapon_deagle"], "Round": 1},
-         "M4A4 + Desert Eagle": {"Weapons": ["weapon_m4a1", "weapon_deagle"], "Round": 1},
-         "AWP + Desert Eagle": {"Weapons": ["weapon_awp", "weapon_deagle"], "Round": 1}},
-  "T": {"AK-47 + Desert Eagle": {"Weapons": ["weapon_ak47", "weapon_deagle"], "Round": 1},
-        "AWP + Desert Eagle": {"Weapons": ["weapon_awp", "weapon_deagle"], "Round": 1}},
-}
 groups = {
   "VIP":     {"Health": 105, "Armor": 100, "Money": "++300",  "Grenades": nades(1)},
   "PREMIUM": {"Health": 110, "Armor": 100, "Money": "++500",  "Grenades": nades(1, 1), "DefuseKit": True},
   "ELITE":   {"Health": 115, "Armor": 100, "Money": "++800",  "Grenades": nades(1, 1, 1, 1), "DefuseKit": True, "Healthshot": 1},
-  "LEGEND":  {"Health": 120, "Armor": 100, "Money": "++1000", "Grenades": nades(1, 1, 1, 1), "DefuseKit": True, "Healthshot": 1, "Zeus": True, "WeaponsMenu": guns},
-  "TITAN":   {"Health": 125, "Armor": 100, "Money": "++1500", "Grenades": nades(1, 1, 1, 1), "DefuseKit": True, "Healthshot": 2, "Zeus": True, "WeaponsMenu": guns,
+  "LEGEND":  {"Health": 120, "Armor": 100, "Money": "++1000", "Grenades": nades(1, 1, 1, 1), "DefuseKit": True, "Healthshot": 1, "Zeus": True},
+  "TITAN":   {"Health": 125, "Armor": 100, "Money": "++1500", "Grenades": nades(1, 1, 1, 1), "DefuseKit": True, "Healthshot": 2, "Zeus": True,
               "HealthRegen": {"Health": 5, "Delay": 5, "Interval": 2}, "Vampirism": 10},
-  "KING":    {"Health": 130, "Armor": 100, "Money": "++2000", "Grenades": nades(2, 1, 1, 1), "DefuseKit": True, "Healthshot": 2, "Zeus": True, "WeaponsMenu": guns,
+  "KING":    {"Health": 130, "Armor": 100, "Money": "++2000", "Grenades": nades(1, 1, 1, 1), "DefuseKit": True, "Healthshot": 2, "Zeus": True,
               "HealthRegen": {"Health": 5, "Delay": 5, "Interval": 2}, "Vampirism": 15},
 }
 json.dump(core, open(os.path.join(d, "vip_core.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=2)

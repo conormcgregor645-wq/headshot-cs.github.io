@@ -3,11 +3,10 @@
 // эффект и звук убийства, трассеры пуль и след гранат.
 // Сайт собирает итог из статуса, клана и купленного оформления и пишет в таблицу tasher_style (та же база, что скины).
 const { execFile } = require("node:child_process");
-const { LEAGUES } = require("./skill");
 
 const TIER_COL = { VIP: "silver", PREMIUM: "lightblue", ELITE: "green", LEGEND: "purple", TITAN: "orange", KING: "gold" };
 // цвета ника с сайта -> цвета чата CS2 (в чате только фиксированные цвета; градиенты — ближайшим)
-const NICK_COL = { nk_0: "lime", nk_1: "lightblue", nk_2: "magenta", nk_3: "gold", nk_4: "lightpurple", nk_5: "red", nk_grad1: "orange", nk_grad2: "green" };
+const NICK_COL = { nk_0: "lime", nk_1: "lightblue", nk_2: "magenta", nk_3: "gold", nk_4: "lightpurple", nk_5: "red", nk_grad1: "grad-sunset", nk_grad2: "grad-toxic" };
 // цвет клана -> цвет тега в чате
 const CLAN_COL = { "#b5e853": "lime", "#ff8a3d": "orange", "#f5c451": "gold", "#3ddc97": "green", "#5aa9ff": "lightblue", "#a78bfa": "lightpurple", "#38d3ff": "lightblue", "#ff6b8b": "magenta", "#eb4b4b": "red" };
 const hexRgb = h => { const m = /^#([0-9a-f]{6})$/i.exec(h || ""); if (!m) return ""; const n = parseInt(m[1], 16); return `${n >> 16},${(n >> 8) & 255},${n & 255}`; };
@@ -20,14 +19,15 @@ const KILL_SND = new Set(["ding", "drum", "bell", "8bit", "coin"]);
 // rows: [{sid, tier, clanTag, clanColor, nick (id), tag (свой тег), smokeHex, killFx, killSnd, trailHex, tracerHex}]
 function compose(r) {
   const parts = [];
-  // лига (после калибровки) — первым тегом в чате
-  if (Number.isInteger(r.league) && LEAGUES[r.league]) parts.push(`{${LEAGUES[r.league].chat}}[${LEAGUES[r.league].n}]`);
   if (r.tier) parts.push(`{${TIER_COL[r.tier] || "default"}}[${r.tier}]`);
   const own = cleanTag(r.tag);
   if (own) parts.push(`{lime}[${own}]`);
-  else if (r.clanTag) parts.push(`{${CLAN_COL[r.clanColor] || "olive"}}[${r.clanTag}]`);
+  else if (r.clanTag) parts.push(`{${CLAN_COL[r.clanColor] || "olive"}}[${cleanTag(r.clanTag)}]`);
+  if (!parts.length) parts.push("{grey}[Новенький]");
   const name = NICK_COL[r.nick] || (r.tier ? TIER_COL[r.tier] : "");
-  const score = own || r.clanTag || r.tier || "";
+  // В Tab — только серверная привилегия: пользовательский/клановый тег нельзя подменить.
+  const pts = Number.isSafeInteger(r.pts) && r.pts > 0 ? ` ${r.pts} очк` : "";
+  const score = `${TIER_COL[r.tier] ? r.tier : ""}${pts}`.trim();
   const smoke = r.smokeHex ? hexRgb(r.smokeHex) : r.tier === "KING" ? "random" : "";
   const killFx = KILL_FX.has(r.killFx) ? r.killFx : "", killSnd = KILL_SND.has(r.killSnd) ? r.killSnd : "";
   return { chat: parts.join(" "), name, score: score.slice(0, 16), smoke, killFx, killSnd, trail: hexRgb(r.trailHex), tracer: hexRgb(r.tracerHex) };
