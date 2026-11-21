@@ -25,9 +25,9 @@ function compose(r) {
   else if (r.clanTag) parts.push(`{${CLAN_COL[r.clanColor] || "olive"}}[${cleanTag(r.clanTag)}]`);
   if (!parts.length) parts.push("{grey}[Новенький]");
   const name = NICK_COL[r.nick] || (r.tier ? TIER_COL[r.tier] : "");
-  // В Tab — только серверная привилегия: пользовательский/клановый тег нельзя подменить.
-  const pts = Number.isSafeInteger(r.pts) && r.pts > 0 ? ` ${r.pts} очк` : "";
-  const score = `${TIER_COL[r.tier] ? r.tier : ""}${pts}`.trim();
+  // В Tab — только название привилегии. Очки месяца хранятся отдельно
+  // в tasher_player.pts и никогда не добавляются в клановый тег.
+  const score = TIER_COL[r.tier] ? r.tier : "";
   const smoke = r.smokeHex ? hexRgb(r.smokeHex) : r.tier === "KING" ? "random" : "";
   const killFx = KILL_FX.has(r.killFx) ? r.killFx : "", killSnd = KILL_SND.has(r.killSnd) ? r.killSnd : "";
   return { chat: parts.join(" "), name, score: score.slice(0, 16), smoke, killFx, killSnd, trail: hexRgb(r.trailHex), tracer: hexRgb(r.tracerHex) };
