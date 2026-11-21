@@ -528,7 +528,8 @@ function styleRows() {
   const st = new Map(CTL.statuses().map(s => [s.sid, s.t])), rows = new Map();
   const row = sid => { let r = rows.get(sid); if (!r) rows.set(sid, r = { sid, tier: st.get(sid) || null, clanTag: "", clanColor: "", nick: "", tag: "", smokeHex: "", killFx: "", killSnd: "", trailHex: "", tracerHex: "" }); return r; };
   for (const sid of st.keys()) row(sid);
-  for (const k of db.prepare("SELECT sid, sr FROM skill WHERE n>=?").all(SKILLM.CALIB)) row(k.sid).league = SKILLM.leagueIdx(k.sr);
+  // UPD: в Tab отображаем очки нашего месячного рейтинга, без лиг.
+  for (const p of STATS.top(GL.month(now()), 1000)) if (/^\d{17}$/.test(p.sid)) row(p.sid).pts = p.pts;
   for (const c of db.prepare("SELECT u.steamid sid, c.tag, c.color FROM clan_members m JOIN clans c ON c.id=m.clan_id JOIN users u ON u.id=m.user_id").all()) { const r = row(c.sid); r.clanTag = c.tag; r.clanColor = c.color; }
   for (const u of db.prepare("SELECT steamid, cos_eq, cos_tag FROM users WHERE cos_eq<>'{}' OR cos_tag<>''").all()) {
     let eq = {}; try { eq = JSON.parse(u.cos_eq || "{}"); } catch (e) {}
