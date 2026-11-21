@@ -93,12 +93,12 @@ has "^TASHER Style" && ok "TASHER Style загружен" || bad "TASHER Style �
 VER=$(python3 - "$CSS/plugins/TasherStyle/TasherStyle.dll" <<'PY' 2>/dev/null
 import sys,re
 b=open(sys.argv[1],'rb').read()
-for v in ("1.4.0","1.3.0","1.2.0","1.1.0","1.0.0"):
+for v in ("1.4.1","1.4.0","1.3.0","1.2.0","1.1.0","1.0.0"):
     if v.encode('utf-16-le') in b: print(v); break
 PY
 )
 case "$VER" in
-  1.4.0) ok "версия TASHER Style 1.4.0 (эффекты, команды, приветствие, мут и гег, лиги, пропуск, особые раунды, серии)";;
+  1.4.1) ok "версия TASHER Style 1.4.1 (эффекты, команды, приветствие, мут и гег, лиги, пропуск, особые раунды, серии, боты на мид)";;
   "") warn "не удалось узнать версию TASHER Style";;
   *) bad "TASHER Style старой версии ($VER) — запусти vip-setup.sh";;
 esac
