@@ -419,9 +419,7 @@ public partial class TasherStyle
         var n = _roundKills[a.Slot] = _roundKills.GetValueOrDefault(a.Slot) + 1;
         var key = n >= 2 ? (n > 5 ? "5" : n.ToString()) : first ? "first" : null;
         if (key == null) return HookResult.Continue;
-        // чуть позже, чтобы не слилось со звуком убийства
-        var slot = a.Slot;
-        AddTimer(0.35f, () => { var x = Utilities.GetPlayerFromSlot(slot); if (x != null) PlayTo(x, key); }, TimerFlags.STOP_ON_MAPCHANGE);
+        // UPD: дополнительные звуки фрагов отключены — слышен только купленный звук убийства из Effects.cs.
         return HookResult.Continue;
     }
 }
