@@ -2868,6 +2868,35 @@ html.on-server #v-jackpot,html.on-server #v-wheel{position:relative}
 
 @media (hover:none){.co-bgp .pbx>i{animation-play-state:paused}}
 .pbx .pbx-im{animation:none!important;transform:none!important;filter:none!important;will-change:auto}
+
+/* TASHER UPD — arena-style battle pass and dark server lobby */
+.srv-sheet{background:linear-gradient(165deg,#17151d 0%,#0c0e13 70%);border:1px solid rgba(181,232,83,.26);box-shadow:0 28px 85px rgba(0,0,0,.8),inset 0 1px rgba(255,255,255,.07)}
+.srv-top{background:linear-gradient(180deg,rgba(15,19,25,.12),rgba(12,14,19,.78));border-bottom:1px solid rgba(181,232,83,.15)}
+.srv-top::before{background:linear-gradient(180deg,rgba(8,10,14,.15),rgba(8,10,14,.64) 70%,#0c0e13 100%),var(--mimg,none) center 40%/cover}
+.srv-sheet .teams{padding-top:16px;padding-bottom:18px}
+.srv-sheet .team{background:rgba(14,18,23,.84);border:1px solid rgba(181,232,83,.11)}
+.srv-sheet .prow{background:rgba(20,25,31,.92)}
+.srv-sheet .prow:hover{background:rgba(35,43,49,.95)}
+.ps-hero{position:relative;isolation:isolate;gap:18px}
+.ps-lvl{position:relative;overflow:hidden;isolation:isolate;background:linear-gradient(115deg,#171c20,#121718 70%);border:1px solid rgba(181,232,83,.34);box-shadow:inset 0 1px rgba(255,255,255,.08),0 14px 28px rgba(0,0,0,.25)}
+.ps-lvl::before{content:"TASHER / WINTER OPS";position:absolute;right:-18px;bottom:10px;font:900 clamp(20px,3vw,36px)/1 var(--f-display);letter-spacing:.09em;color:rgba(181,232,83,.08);transform:rotate(-9deg);pointer-events:none}
+.ps-prem{background:linear-gradient(135deg,#30261b,#171718 78%);border:1px solid rgba(245,196,81,.44);box-shadow:inset 0 1px rgba(255,255,255,.06)}
+.ps-prem.on{background:linear-gradient(125deg,#172b26,#111819 75%)}
+.ps-rows{padding:16px 12px 10px;background:linear-gradient(155deg,rgba(15,20,24,.96),rgba(20,18,23,.96));border:1px solid rgba(181,232,83,.17);border-radius:18px}
+.ps-col{position:relative}
+.ps-col:nth-child(5n) .ps-lv{color:#f5c451;background:rgba(245,196,81,.13);outline:1px solid rgba(245,196,81,.24)}
+.ps-col:nth-child(10n) .ps-c.pr{background:linear-gradient(155deg,rgba(245,196,81,.23),rgba(28,24,23,.98))}
+.ps-c{background:linear-gradient(155deg,#20252a,#171a20);border:1px solid rgba(255,255,255,.09);transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}
+.ps-c.pr{background:linear-gradient(150deg,#302a22,#1d1b1a);border-color:rgba(245,196,81,.22)}
+.ps-c.ready:hover{transform:translateY(-4px);box-shadow:0 9px 24px rgba(181,232,83,.16),inset 0 0 0 1px var(--accent)}
+.ps-col.cur .ps-c{box-shadow:0 0 0 1px rgba(181,232,83,.3),0 0 20px rgba(181,232,83,.08)}
+.ps-c.done{opacity:.66}
+.ps-c b{font-size:13px}
+.ps-tools{padding:14px 0}
+@media(max-width:560px){.ps-rows{padding:10px 6px}.ps-track{grid-auto-columns:120px}.srv-sheet{margin:12px auto}}
+
+/* События пока отключены по UPD */
+#admTabs [data-t="ev"],[data-pane="ev"]{display:none!important}
 </style>
 </head>
 <body>
@@ -2991,7 +3020,7 @@ html.on-server #v-jackpot,html.on-server #v-wheel{position:relative}
       <input type="search" id="q-stats" placeholder="Найти себя или друга в рейтинге">
       <div class="rt-wrap"><div class="rt" id="rtList"></div></div>
       <p class="note">Призы выдаются в первый день месяца после проверки победителей на читы. Медаль за место остаётся в профиле навсегда, повторные места складываются: x2, x3 и так далее.</p>
-      <section class="lg-sec" id="lgBox" hidden></section>
+      <!-- Лиги скрыты по UPD: оставляем только месячный рейтинг и очки. -->
     </div>
 
     <!-- CLANS -->
@@ -3822,7 +3851,7 @@ function srvStatsApply(st,my){if(!st||!Array.isArray(st.players))return;
   st.players.forEach((x,i)=>{const p=statP(x,i);if(SRV.user&&p.sid===ME.steamid){Object.assign(ME,p,{id:ME.id,n:ME.n,c:ME.c});players.push(ME)}else players.push(p)});
   if(SRV.user&&my&&!players.includes(ME))Object.assign(ME,statP(my,999),{id:ME.id,n:ME.n,c:ME.c,m:0})}
 if(REAL_STATS){srvStatsApply(SRV.stats,SRV.myStats);
-  setInterval(()=>{if(document.hidden||curView!=="stats")return;fetch("/api/stats",{credentials:"same-origin"}).then(r=>r.json()).then(d=>{if(!Array.isArray(d.players))return;srvStatsApply(d,null);fetch("/api/leagues",{credentials:"same-origin"}).then(r=>r.json()).then(x=>{if(Array.isArray(x.leagues)){LGB=x;if(curView==="stats")drawLeagues()}}).catch(()=>{});try{srvMedals()}catch(e){}try{if(CLS)srvClansApply(CLS)}catch(e){}drawStats()}).catch(()=>{})},30e3)}
+  setInterval(()=>{if(document.hidden||curView!=="stats")return;fetch("/api/stats",{credentials:"same-origin"}).then(r=>r.json()).then(d=>{if(!Array.isArray(d.players))return;srvStatsApply(d,null);try{srvMedals()}catch(e){}try{if(CLS)srvClansApply(CLS)}catch(e){}drawStats()}).catch(()=>{})},30e3)}
 const ptStr=s=>{s=s|0;const h=Math.floor(s/3600),m=Math.floor(s%3600/60);return h?`${h} ч ${m} мин`:`${m} мин`};
 function srvPurchasesSet(list){PURCHASES.length=0;(Array.isArray(list)?list:[]).forEach(x=>PURCHASES.push([new Date(+x.t),String(x.what||"Покупка"),x.p|0]))}
 const PURCHASES=[[new Date(today.getFullYear(),today.getMonth(),1),`Приз: 7 место в рейтинге за ${LAST_MONTH.split(" ")[0]} · LEGEND на 30 дней`,0],[daysAgo(12),"PREMIUM на 30 дней",199],[daysAgo(43),"VIP на 30 дней",99],[daysAgo(74),"VIP на 30 дней",99]].sort((a,b)=>b[0]-a[0]);
@@ -3862,8 +3891,8 @@ function pfLoadout(p,own){if(p.real&&!own)return[];if(own)return Object.entries(
 function pfPanel(p,own,tab){
   if(tab==="info"){const reg=daysAgo(40+(p.id*53)%690),on=isOn(p),cl=clanOf(p)||(own?myClan:null);
     const rk=p.real?placeOf(p):0,wr=p.rp?Math.round(p.rw/p.rp*100)+"%":"—";
-    if(SRV&&p===ME)return`<h2>Информация</h2>`+pfRows([["ID",String(ME.id)],["SteamID",esc(ME.steamid||"")],["Роль",ME.role==="owner"?"Владелец":ME.role==="admin"?"Администратор":"Игрок"],["Дата регистрации",dts(new Date(ME.created||Date.now()))],["Место в рейтинге месяца",rk?"#"+rk:"Пока нет — сыграй на сервере"],["Лига",lgText(ME.sr||ME.lg!=null?ME:(SRV.mySkill?{sr:SRV.mySkill.sr|0,lg:Number.isInteger(SRV.mySkill.lg)?SRV.mySkill.lg:null,cl:SRV.mySkill.left|0,nx:SRV.mySkill.next||null}:null))],["Время в игре",ptStr(ME.pt)],["Помощей",fmt(ME.as|0)],["Выиграно раундов",ME.rp?`${fmt(ME.rw)} из ${fmt(ME.rp)} (${wr})`:"—"],["Клан","Нет"]]);
-    if(p.real)return`<h2>Информация</h2>`+pfRows([["SteamID",esc(p.sid)],["Место в рейтинге месяца","#"+rk],["Лига",lgText(p)],["Очков за месяц",fmt(p.m)],["Время в игре",ptStr(p.pt)],["Помощей",fmt(p.as)],["Выиграно раундов",p.rp?`${fmt(p.rw)} из ${fmt(p.rp)} (${wr})`:"—"],["Последний раз на сервере",p.online?"Сейчас в игре":dts(lastIn(p),1)]]);
+    if(SRV&&p===ME)return`<h2>Информация</h2>`+pfRows([["ID",String(ME.id)],["SteamID",esc(ME.steamid||"")],["Роль",ME.role==="owner"?"Владелец":ME.role==="admin"?"Администратор":"Игрок"],["Дата регистрации",dts(new Date(ME.created||Date.now()))],["Место в рейтинге месяца",rk?"#"+rk:"Пока нет — сыграй на сервере"],["Очков за месяц",fmt(ME.m|0)],["Время в игре",ptStr(ME.pt)],["Помощей",fmt(ME.as|0)],["Выиграно раундов",ME.rp?`${fmt(ME.rw)} из ${fmt(ME.rp)} (${wr})`:"—"],["Клан","Нет"]]);
+    if(p.real)return`<h2>Информация</h2>`+pfRows([["SteamID",esc(p.sid)],["Место в рейтинге месяца","#"+rk],["Очков за месяц",fmt(p.m)],["Время в игре",ptStr(p.pt)],["Помощей",fmt(p.as)],["Выиграно раундов",p.rp?`${fmt(p.rw)} из ${fmt(p.rp)} (${wr})`:"—"],["Последний раз на сервере",p.online?"Сейчас в игре":dts(lastIn(p),1)]]);
     let h=`<h2>Информация</h2>`+pfRows([["ID",String(790000+((p.id*7919)%9000))],["Роль","Игрок"],["Дата регистрации",dts(reg)],["Место в рейтинге месяца","#"+placeOf(p)],["Часов на проекте",fmt(p.hrs)+" ч"],["Клан",cl?esc(cl.n):"Нет"],["Последний сервер",on?SERVERS[p.id%SERVERS.length].name:"Неизвестно"],["Последний вход",dts(lastIn(p),1)]]);
     return h}
   if(tab==="skins"){const l=pfLoadout(p,own);
@@ -4588,7 +4617,7 @@ function drawPass(scroll){const box=$("psBody");if(!box)return;if(!PS&&SRV&&SRV.
    <div class="ps-hero"><div class="ps-lvl"><div class="ps-num">${me?me.lv:0}</div><div class="ps-info"><b>${me?`Уровень ${me.lv} из ${p.levels}`:"Уровень 0"}</b><div class="ps-bar"><i style="--p:${me?(me.lv>=p.levels?100:Math.round(me.into/p.xpLevel*100)):0}%"></i></div><span>${lvTxt}</span>${me?`<span>Опыт за игру сегодня: ${fmt(me.today)} / ${fmt(p.dayCap)} · задания — без лимита</span>`:""}</div></div>${prem}</div>
    <div class="ps-tools"><small>${me&&me.unclaimed?`Ждут получения: ${me.unclaimed} ${plural(me.unclaimed,"награда","награды","наград")}`:"Награды забираются кнопкой — до конца сезона"}</small>${me&&me.unclaimed?`<button class="steam" type="button" id="psAll">Забрать всё (${me.unclaimed})</button>`:""}</div>
    <div class="ps-rows"><div class="ps-lab"><i></i><span>Бесплатно</span><span class="pr">Премиум</span></div><div class="ps-track" id="psTrack">${cols}</div></div>
-   <div class="ps-how"><div><b>+${p.xp.kill} опыта</b>за убийство игрока (+${p.xp.hs} в голову), бот — +${p.xp.killBot}</div><div><b>+${p.xp.roundWin} / +${p.xp.minute}</b>за выигранный раунд / минуту в игре</div><div><b>+${p.xpQuest.easy}…${p.xpQuest.hard}</b>за задания дня, +${p.xpQuest.all} за все три</div><div><b>×2 в выходные</b>событие «Выходные опыта»</div></div>`;
+   <div class="ps-how"><div><b>+${p.xp.kill} опыта</b>за убийство игрока (+${p.xp.hs} в голову), бот — +${p.xp.killBot}</div><div><b>+${p.xp.roundWin} / +${p.xp.minute}</b>за выигранный раунд / минуту в игре</div><div><b>+${p.xpQuest.easy}…${p.xpQuest.hard}</b>за задания дня, +${p.xpQuest.all} за все три</div><div><b>2 000 опыта</b>за каждый новый уровень пропуска</div></div>`;
   if(scroll){const tr=$("psTrack"),c=tr&&tr.querySelector(`[data-pslv="${Math.max(1,(me?me.lv:1)-1)}"]`);if(tr&&c)tr.scrollLeft=c.offsetLeft-tr.offsetLeft-8}}
 async function psClaim(body,btn){if(!needLogin())return;if(btn)btn.disabled=true;
   try{const r=await api("/api/pass/claim",body);const keep=$("psTrack")?$("psTrack").scrollLeft:0;PS=r.pass;if(r.user){ME.tk=r.user.tk;ME.balance=r.user.balance}INV=srvItems(r.items);invSave();srvCosSet(r.cos);if(r.statuses){srvVipsSet(r.statuses);vipRedraw()}drawChip();psNav();drawPass();if($("psTrack"))$("psTrack").scrollLeft=keep;
@@ -4925,13 +4954,13 @@ const RI={kill:'<circle cx="12" cy="12" r="7"/><path d="M12 2v5M12 17v5M2 12h5M1
 const rc=(k,v)=>`<span class="rt-c">${svgI(RI[k])}${v}</span>`;
 const clanTag=p=>{const c=clanOf(p);return c?`<span class="ctag" data-tip="Клан ${esc(c.n)}">${esc(c.t)}</span>`:""};
 function rtHead(cols){return`<div class="rt-row rt-h">${cols.map(c=>`<span>${c}</span>`).join("")}</div>`}
-function drawStats(){try{drawLeagues()}catch(e){console.error(e)}const all=board(),q=$("q-stats").value.trim().toLowerCase();
+function drawStats(){const all=board(),q=$("q-stats").value.trim().toLowerCase();
   const pod=all.slice(0,3),col=["#d4f58a","#d5dde8","#e0915f"];
   $("podM").innerHTML=[1,0,2].filter(k=>pod[k]).map(k=>{const p=pod[k],cl=clanOf(p);return`<button class="pd p${k+1}" data-p="${esc(p.n)}" style="--mc:${col[k]}"><span class="pd-num">${k+1}</span><span class="pd-av" style="--ac:${p.c}">${ini(p.n)}<i>${k+1}</i></span><b class="pd-nm">${esc(p.n)}${kingBadge(p)}</b><small class="pd-cl">${cl?`[${esc(cl.t)}] ${esc(cl.n)}`:"без клана"}</small>${rtPts(monthPts(p),1)}<span class="pd-prize">Приз: KING на 30 дней</span></button>`}).join("");
   const rows=all.map((p,i)=>({p,i})).filter(({p})=>!q||p.n.toLowerCase().includes(q));
   if(REAL_STATS&&!all.length){$("rtList").innerHTML=`<div class="rt-empty">Рейтинг месяца пока пуст. Зайди на сервер — очки начисляются за убийства, хедшоты, помощь, бомбу и выигранные раунды.</div>`;return}
   const mk=p=>p.real?p.mk:p.kills,md=p=>p.real?p.md:p.deaths;
-  $("rtList").innerHTML=rtHead(["Место","Игрок","Рейтинг","Убийств","Смертей","Помощи","Хедшотов","K/D",REAL_STATS?"В игре":"Точность","Приз"])+(rows.length?rows.map(({p,i})=>`<div class="rt-row ${i<3?"top t"+(i+1):""} ${logged&&p===ME?"me":""}" data-p="${esc(p.n)}" tabindex="0" role="button"><span class="rt-pl">${i+1}</span><span class="rt-who"><i class="av${cosFrame(p.n)}${cosAvInner(p.n)?" hasav":""}" style="background:${p.c}">${cosAvInner(p.n)||ini(p.n)}</i><span class="nm"${cosNick(p.n)}>${esc(p.n)}</span>${cosBadge(p.n)}${kingBadge(p)}${clanTag(p)}${lgChip(p)}</span><span>${rtPts(monthPts(p))}</span>${rc("kill",fmt(mk(p)))}${rc("skull",fmt(md(p)))}${rc("as",fmt(p.real?p.ma:stAs(p)))}${rc("hs",fmt(p.real?p.mhs:stHs(p)))}${rc("kd",(p.real?(md(p)?mk(p)/md(p):mk(p)):p.kd).toFixed(2))}${rc("acc",p.real?ptStr(p.mpt):stAcc(p)+"%")}<span>${i<3?'<span class="przc god">KING</span>':i<10?'<span class="przc leg">LEGEND</span>':""}</span></div>`).join(""):`<div class="rt-empty">Игрок «${esc(q)}» не найден</div>`)}
+  $("rtList").innerHTML=rtHead(["Место","Игрок","Рейтинг","Убийств","Смертей","Помощи","Хедшотов","K/D",REAL_STATS?"В игре":"Точность","Приз"])+(rows.length?rows.map(({p,i})=>`<div class="rt-row ${i<3?"top t"+(i+1):""} ${logged&&p===ME?"me":""}" data-p="${esc(p.n)}" tabindex="0" role="button"><span class="rt-pl">${i+1}</span><span class="rt-who"><i class="av${cosFrame(p.n)}${cosAvInner(p.n)?" hasav":""}" style="background:${p.c}">${cosAvInner(p.n)||ini(p.n)}</i><span class="nm"${cosNick(p.n)}>${esc(p.n)}</span>${cosBadge(p.n)}${kingBadge(p)}${clanTag(p)}</span><span>${rtPts(monthPts(p))}</span>${rc("kill",fmt(mk(p)))}${rc("skull",fmt(md(p)))}${rc("as",fmt(p.real?p.ma:stAs(p)))}${rc("hs",fmt(p.real?p.mhs:stHs(p)))}${rc("kd",(p.real?(md(p)?mk(p)/md(p):mk(p)):p.kd).toFixed(2))}${rc("acc",p.real?ptStr(p.mpt):stAcc(p)+"%")}<span>${i<3?'<span class="przc god">KING</span>':i<10?'<span class="przc leg">LEGEND</span>':""}</span></div>`).join(""):`<div class="rt-empty">Игрок «${esc(q)}» не найден</div>`)}
 document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.matches(".rt-row[data-p]"))openProfile(e.target.dataset.p)});
 $("q-stats").oninput=drawStats;
 function tickMonth(){const now=new Date(),msk=new Date(now.getTime()+3*3600e3);const end=Date.UTC(msk.getUTCFullYear(),msk.getUTCMonth()+1,1);const left=end-msk.getTime();
