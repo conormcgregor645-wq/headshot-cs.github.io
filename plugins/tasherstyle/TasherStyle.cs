@@ -218,9 +218,13 @@ public partial class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
             ? $"{ChatColors.Grey}[Новенький]" : TagColors.ResolveTokens(s.ChatTag, team);
         var nameColor = s == null || string.IsNullOrEmpty(s.NameColor)
             ? ChatColors.ForTeam(team) : TagColors.ColorChar(s.NameColor, team);
+        // Градиентный ник сдвигает цветовую фазу при каждом новом сообщении.
+        var displayName = s?.NameColor is "grad-sunset" or "grad-toxic"
+            ? AnimatedChatName(player.PlayerName, s.NameColor, team)
+            : $"{nameColor}{player.PlayerName}";
         var dead = player.PawnIsAlive ? "" : $"{ChatColors.Grey}*DEAD* ";
         var teamPrefix = teamOnly ? $"{ChatColors.Default}(team) " : "";
-        var line = $" {dead}{(tag.Length > 0 ? tag + " " : "")}{teamPrefix}{nameColor}{player.PlayerName}{ChatColors.Default}: {message}";
+        var line = $" {dead}{(tag.Length > 0 ? tag + " " : "")}{teamPrefix}{displayName}{ChatColors.Default}: {message}";
 
         if (teamOnly)
         {
@@ -230,6 +234,22 @@ public partial class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
         }
         else Server.PrintToChatAll(line);
         return HookResult.Handled;
+    }
+
+    // CS2 не поддерживает перекрашивание старых строк чата: фаза меняется при новых сообщениях.
+    private static string AnimatedChatName(string name, string mode, CsTeam team)
+    {
+        var palette = mode == "grad-sunset"
+            ? new[] { "red", "orange", "gold", "lightyellow", "magenta" }
+            : new[] { "green", "lime", "lightblue", "blue", "lightpurple" };
+        var phase = (int)((DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() / 500) % palette.Length);
+        var sb = new System.Text.StringBuilder(name.Length * 2);
+        for (var i = 0; i < name.Length; i++)
+        {
+            sb.Append(TagColors.ColorChar(palette[(i + phase) % palette.Length], team));
+            sb.Append(name[i]);
+        }
+        return sb.ToString();
     }
 
     private static bool IsChatTrigger(string message)
