@@ -325,7 +325,9 @@ const bal = u => db.prepare("SELECT tk, rub FROM users WHERE id=?").get(u.id);
 {
   const msk = (y, mo, d, h, mi = 0) => Date.UTC(y, mo - 1, d, h - 3, mi); // время по Москве -> UTC
   let T0 = msk(2026, 11, 20, 20, 30); // пятница 20:30 МСК
-  const E = EVM.makeEvents({ db, now: () => T0 });
+  const E = EVM.makeEvents({ db, now: () => T0, enabled: true });
+  const paused = EVM.makeEvents({ db, now: () => T0, enabled: false });
+  ok(paused.active().length === 0 && paused.upcoming().length === 0 && paused.mult("tk") === 1 && paused.mult("xp") === 1 && paused.mult("quest") === 1, "UPD: события выключены, множители нейтральные");
   const titles = () => E.active().map(a => a.title).sort().join();
   ok(titles() === "Пятница заданий,Счастливый час" && E.mult("tk") === 2 && E.mult("quest") === 2 && E.mult("xp") === 1, "пятница 20:30: счастливый час и пятница заданий", E.active());
   const hap = E.active().find(a => a.title === "Счастливый час"); ok(hap.to === msk(2026, 11, 20, 21), "счастливый час до 21:00", new Date(hap.to).toISOString());
