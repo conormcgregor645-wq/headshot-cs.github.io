@@ -34,6 +34,19 @@ async function up() { for (let i = 0; i < 50; i++) { try { await fetch(B + "/api
 let srv = start("76561190000000001");
 let fails = 0; const ok = (c, name, extra) => { if (!c) fails++; console.log((c ? "  ok  " : "FAIL  ") + name + (c ? "" : " " + JSON.stringify(extra))); };
 async function login(sid) { const r = await fetch(`${B}/auth/dev?steamid=${sid}`, { redirect: "manual" }); return (r.headers.get("set-cookie") || "").split(";")[0]; }
+// У mysql-sync асинхронные записи: ждём именно последнюю запись tasher_style,
+// а не проверяем файл на случайной границе 900 мс (нестабильность CI).
+async function waitStyleSql(pattern, timeoutMs = 6000) {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    let text = "";
+    try { text = fs.readFileSync(SQLLOG, "utf8"); } catch (e) {}
+    const rows = text.split("-- END").filter(x => x.includes("INSERT INTO tasher_style"));
+    if (rows.length && pattern.test(rows[rows.length - 1])) return true;
+    await new Promise(resolve => setTimeout(resolve, 150));
+  }
+  return false;
+}
 const call = async (cookie, p, body, h = {}) => { const r = await fetch(B + p, body ? { method: "POST", headers: { cookie, "x-tasher": "1", "content-type": "application/json", ...h }, body: JSON.stringify(body) } : { headers: { cookie } }); let j = null; try { j = await r.json(); } catch (e) {} return { s: r.status, j }; };
 
 (async () => {
@@ -259,16 +272,16 @@ const call = async (cookie, p, body, h = {}) => { const r = await fetch(B + p, b
     r = await call(W, "/api/cos/tag", { tag: "pro" }); ok(r.s === 200 && r.j.cos.tag === "PRO" && r.j.cos.eq.tag === "tag" && r.j.balance === me0.balance - 79, "свой тег в чате куплен за 79 ₽", r.j);
     await new Promise(z => setTimeout(z, 900));
     const sql = fs.readFileSync(SQLLOG, "utf8");
-    ok(/INSERT INTO tasher_style \(steamid,chat_tag,name_color,score_tag,smoke,kill_fx,kill_snd,trail,tracer\) .*\(76561198000000009,'(\{\w+\}\[\w+\] )?\{lime\}\[PRO\]','\w*','(?:VIP|PREMIUM|ELITE|LEGEND|TITAN|KING)?(?: \d+ очк)?','\w*'','','','',''\)/.test(sql), "тег уходит в игру (TASHER Style)", sql.slice(-500));
+    ok(await waitStyleSql(/INSERT INTO tasher_style \(steamid,chat_tag,name_color,score_tag,smoke,kill_fx,kill_snd,trail,tracer\) .*\(76561198000000009,'(\{\w+\}\[\w+\] )?\{lime\}\[PRO\]','\w*','(?:VIP|PREMIUM|ELITE|LEGEND|TITAN|KING)?(?: \d+ очк)?','\w*'','','','',''\)/), "тег уходит в игру (TASHER Style)", sql.slice(-500));
     ok(RCMDS.includes("css_tasher_style_reload"), "сервер перечитывает стили сразу", RCMDS);
     r = await call(W, "/api/cos/eq", { cat: "tag", id: null }); ok(r.s === 200 && !r.j.cos.eq.tag && r.j.cos.tag === "PRO", "тег можно снять, не теряя его", r.j);
     await new Promise(z => setTimeout(z, 900));
-    ok(/\(76561198000000009,'(\{\w+\}\[\w+\] )?\{lightblue\}\[TST\]','\w*','(?:VIP|PREMIUM|ELITE|LEGEND|TITAN|KING)?(?: \d+ очк)?','\w*'','','','',''\)/.test(fs.readFileSync(SQLLOG, "utf8")), "без своего тега в чате — тег клана", fs.readFileSync(SQLLOG, "utf8").slice(-400));
+    ok(await waitStyleSql(/\(76561198000000009,'(\{\w+\}\[\w+\] )?\{lightblue\}\[TST\]','\w*','(?:VIP|PREMIUM|ELITE|LEGEND|TITAN|KING)?(?: \d+ очк)?','\w*'','','','',''\)/), "без своего тега в чате — тег клана", fs.readFileSync(SQLLOG, "utf8").slice(-400));
     // эффекты в игре: эффект и звук убийства, трассеры, след гранат, цвет дыма
     await call(O4, "/api/admin/balance", { user: wid, cur: "rub", delta: 500, reason: "тест эффектов" });
     for (const id of ["kl_bolt", "sd_coin", "tc_3", "tr_2", "sm_1"]) { r = await call(W, "/api/shop/cos", { id }); ok(r.s === 200 && Object.values(r.j.cos.eq).includes(id), "куплено и надето: " + id, r.j); }
     await new Promise(z => setTimeout(z, 900));
-    ok(/\(76561198000000009,'(\{\w+\}\[\w+\] )?\{lightblue\}\[TST\]','\w*','(?:VIP|PREMIUM|ELITE|LEGEND|TITAN|KING)?(?: \d+ очк)?','255,107,139','bolt','coin','56,211,255','245,196,81'\)/.test(fs.readFileSync(SQLLOG, "utf8")), "эффекты, звук, трассеры, след гранат и дым уходят в игру", fs.readFileSync(SQLLOG, "utf8").slice(-400));
+    ok(await waitStyleSql(/\(76561198000000009,'(\{\w+\}\[\w+\] )?\{lightblue\}\[TST\]','\w*','(?:VIP|PREMIUM|ELITE|LEGEND|TITAN|KING)?(?: \d+ очк)?','255,107,139','bolt','coin','56,211,255','245,196,81'\)/), "эффекты, звук, трассеры, след гранат и дым уходят в игру", fs.readFileSync(SQLLOG, "utf8").slice(-400));
     r = await call(W, "/api/cos/eq", { cat: "tracer", id: null }); ok(r.s === 200 && !r.j.cos.eq.tracer, "трассеры снимаются", r.j);
     r = await call(W, "/api/cos/eq", { cat: "kill", id: "kl_spark" }); ok(r.s === 409, "некупленный эффект не надеть", r);
     // задания дня и данные для команд в игре
