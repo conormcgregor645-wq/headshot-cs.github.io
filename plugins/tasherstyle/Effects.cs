@@ -78,6 +78,12 @@ public partial class TasherStyle
     private void OnEffectsTransmit(CCheckTransmitInfoList infoList)
     {
         if (_spectatorBeams.Count == 0) return;
+        // Кэшируем владельцев pawn один раз на сетевой вызов, а не для каждого зрителя.
+        var pawnOwners = new Dictionary<nint, ulong>();
+        foreach (var p in Utilities.GetPlayers())
+            if (p is { IsValid: true, IsBot: false } &&
+                p.PlayerPawn.Value is { IsValid: true } pawn)
+                pawnOwners[pawn.Handle] = p.SteamID;
         foreach (var (info, viewer) in infoList)
         {
             if (viewer is not { IsValid: true } || viewer.IsBot || viewer.IsHLTV) continue;
@@ -86,13 +92,9 @@ public partial class TasherStyle
             {
                 var target = viewer.PlayerPawn.Value?.ObserverServices?.ObserverTarget.Value
                     ?? viewer.ObserverPawn.Value?.ObserverServices?.ObserverTarget.Value;
-                if (target is { IsValid: true })
-                {
-                    var owner = Utilities.GetPlayers().FirstOrDefault(p =>
-                        p is { IsValid: true, IsBot: false } &&
-                        p.PlayerPawn.Value is { IsValid: true } pawn && pawn.Handle == target.Handle);
-                    if (owner != null) watching = owner.SteamID;
-                }
+                if (target is { IsValid: true } &&
+                    pawnOwners.TryGetValue(target.Handle, out var ownerSid))
+                    watching = ownerSid;
             }
             foreach (var (beam, ownerSid) in _spectatorBeams)
                 if (beam.IsValid && watching != ownerSid) info.TransmitEntities.Remove(beam);
