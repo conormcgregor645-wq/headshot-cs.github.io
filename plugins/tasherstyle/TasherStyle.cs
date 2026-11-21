@@ -264,6 +264,50 @@ public partial class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
         return false;
     }
 
+    // Отдельное штатное поле CS Rating (Premier) в Tab; это НЕ текст в Clan/ScoreTag.
+    // CSS предупреждает о возможном бане GSLT при изменении матчмейкинговых полей.
+    // Поэтому функция только по явному opt-in и не пытается обойти защиту CSS.
+    private bool _premierWarningLogged;
+    private void ApplyPremierRanking(CCSPlayerController player)
+    {
+        if (!Config.PremierScoreboardEnabled ||
+            player is not { IsValid: true, IsBot: false, IsHLTV: false }) return;
+        if (CoreConfig.FollowCS2ServerGuidelines)
+        {
+            if (!_premierWarningLogged)
+            {
+                _premierWarningLogged = true;
+                Logger.LogWarning("[TASHER Style] PremierScoreboardEnabled запрошен, но заблокирован FollowCS2ServerGuidelines. Защиту не отключаем из-за риска бана GSLT.");
+            }
+            return;
+        }
+        var info = InfoOf(player);
+        if (info == null) return; // без данных с сайта не подменяем личный рейтинг Steam
+        var pts = Math.Clamp(info.Pts, 0, 39999);
+        var kind = (sbyte)(pts > 0 ? 11 : 0); // 11 — Premier, 0 — без рейтинга
+        try
+        {
+            if (player.CompetitiveRanking != pts)
+            {
+                player.CompetitiveRanking = pts;
+                Utilities.SetStateChanged(player, "CCSPlayerController", "m_iCompetitiveRanking");
+            }
+            if (player.CompetitiveRankType != kind)
+            {
+                player.CompetitiveRankType = kind;
+                Utilities.SetStateChanged(player, "CCSPlayerController", "m_iCompetitiveRankType");
+            }
+        }
+        catch (Exception ex)
+        {
+            if (!_premierWarningLogged)
+            {
+                _premierWarningLogged = true;
+                Logger.LogWarning("[TASHER Style] CS2 не разрешил изменить Premier-отображение: {Error}", ex.Message);
+            }
+        }
+    }
+
     // --- тег в таблице счёта ---
     private void ApplyScoreboard(CCSPlayerController player)
     {
