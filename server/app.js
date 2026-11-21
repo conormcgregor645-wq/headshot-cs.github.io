@@ -451,11 +451,12 @@ function leagueFor(sid) {
 function infoRows() {
   const st = new Map(CTL.statuses().map(s => [s.sid, s.t]));
   const top = STATS.top(GL.month(now()), 2000), place = new Map(top.map((p, i) => [p.sid, i + 1]));
+  const monthRating = new Map(top.map(p => [p.sid, p.pts]));
   const sids = new Set([...STATS.state.uid.keys(), ...st.keys()]);
   const user = db.prepare("SELECT tk, name FROM users WHERE steamid=?"), pend = db.prepare("SELECT tk FROM earn_pending WHERE sid=?");
   const players = [...sids].map(sid => {
     const p = STATS.player(sid) || {}, u = user.get(sid), on = STATS.state.uid.get(sid);
-    return { sid, n: (on && on.n) || p.n || (u && u.name) || "", tier: st.get(sid) || "", place: place.get(sid) || 0, pts: p.pts || 0, k: p.mk || 0, d: p.md || 0, hs: p.mhs || 0,
+    return { sid, n: (on && on.n) || p.n || (u && u.name) || "", tier: st.get(sid) || "", place: place.get(sid) || 0, pts: monthRating.get(sid) || 0, k: p.mk || 0, d: p.md || 0, hs: p.mhs || 0,
       tk: u ? u.tk : null, pending: Math.floor((pend.get(sid) || {}).tk || 0), earn: EARN.today(sid), quests: QUESTS.state(sid), ...leagueFor(sid), pass: PASS.brief(sid) };
   });
   return { players, top: top.slice(0, 10).map(p => ({ sid: p.sid, n: p.n, pts: p.pts, k: p.mk, d: p.md })), sanctions: CTL.activeSanctions() };
