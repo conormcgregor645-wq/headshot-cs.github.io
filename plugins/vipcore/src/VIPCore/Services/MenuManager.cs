@@ -86,7 +86,7 @@ public class MenuManager
                 Feature = feature,
                 State = state,
                 Display = feature.Type is FeatureType.Toggle
-                    ? $"[{MenuStateText(player, state, menu is CenterHtmlMenu or VIPCore.Menus.WasdMenuAdapter)}]"
+                    ? $"[{MenuStateText(player, state, menu is CenterHtmlMenu or VIPCore.Menus.WasdMenuAdapter or VIPCore.Menus.TasherMenu)}]"
                     : string.Empty
             };
 

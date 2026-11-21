@@ -245,6 +245,7 @@ public class VipCoreApi : IVipCoreApi
             "chat" => new ChatMenu(title),
             "console" => new ConsoleMenu(title),
             "wasd" => new VIPCore.Menus.WasdMenuAdapter(title, _plugin), // TASHER
+            "tasher" => new VIPCore.Menus.TasherMenu(title, _plugin), // TASHER: своё меню в стиле сайта
             _ => new CenterHtmlMenu(title, _plugin)
         };
     }
