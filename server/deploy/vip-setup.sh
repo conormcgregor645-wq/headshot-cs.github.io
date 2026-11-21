@@ -105,7 +105,7 @@ import json, os
 d = os.environ["CFGD"]
 core = {
   "Delay": 2.0, "TimeMode": 3, "ServerId": 0, "ServerIP": os.environ["IP"], "ServerPort": 27015,
-  "MenuType": "wasd", "ReOpenMenuAfterItemClick": True, "AdminMenuPermission": ["@css/root"],
+  "MenuType": "tasher", "ReOpenMenuAfterItemClick": True, "AdminMenuPermission": ["@css/root"],
   # все бонусы работают с 1-го раунда; деньги в пистолетных раундах не даёт сам модуль денег
   "DisableOnPistolRound": [],
   "VipLogging": True,
