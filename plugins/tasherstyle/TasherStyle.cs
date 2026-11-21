@@ -69,7 +69,7 @@ public record PlayerStyle(string ChatTag, string NameColor, string ScoreTag, str
 public partial class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
 {
     public override string ModuleName => "TASHER Style";
-    public override string ModuleVersion => "1.4.1";
+    public override string ModuleVersion => "1.4.2";
     public override string ModuleAuthor => "tashercs.ru";
 
     public StyleConfig Config { get; set; } = new();

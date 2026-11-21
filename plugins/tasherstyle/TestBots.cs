@@ -1,4 +1,4 @@
-// Тестовые боты: в начале каждого раунда (пока идёт заморозка) боты переносятся на точки «мида», которые админ
+// Тестовые боты: всегда в команде против людей (за кого бы ни встали люди). В начале каждого раунда (пока идёт заморозка) боты переносятся на точки «мида», которые админ
 // отметил на карте командой !botmid — дальше они сами идут в бой через мид.
 // Команды (админ с @css/root или консоль сервера):
 //   !botmid         — добавить точку там, где стоишь (можно несколько — боты распределяются по ним)
@@ -20,6 +20,8 @@ public partial class TasherStyle
     private sealed class BotMidData
     {
         public bool Enabled { get; set; }
+        // боты всегда в команде, противоположной людям (включает test-bots.sh on)
+        public bool Opposite { get; set; }
         public Dictionary<string, List<float[]>> Maps { get; set; } = new();
     }
 
@@ -31,11 +33,38 @@ public partial class TasherStyle
         try { if (File.Exists(BotMidPath)) _botMid = JsonSerializer.Deserialize<BotMidData>(File.ReadAllText(BotMidPath)) ?? new(); }
         catch (Exception ex) { Logger.LogWarning("botmid.json не прочитался: {Err}", ex.Message); _botMid = new(); }
         AddCommand("css_botmid", "Точки мида для тестовых ботов: !botmid | clear | on | off | list", CmdBotMid);
+        // перед возрождением в новом раунде (и после смены сторон) — ботов в команду против людей
+        RegisterEventHandler<EventRoundPrestart>((_, _) => { if (_botMid.Opposite) BotsOpposite(null, false); return HookResult.Continue; });
+        // человек выбирает команду, где стоят боты — сначала переводим ботов, чтобы место освободилось
+        AddCommandListener("jointeam", (p, info) =>
+        {
+            if (!_botMid.Opposite || p is not { IsValid: true, IsBot: false } || info.ArgCount < 2) return HookResult.Continue;
+            if (int.TryParse(info.GetArg(1), out var t) && t is 2 or 3)
+                BotsOpposite(t == 2 ? CsTeam.Terrorist : CsTeam.CounterTerrorist, true);
+            return HookResult.Continue;
+        });
         RegisterEventHandler<EventRoundStart>((_, _) =>
         {
             if (_botMid.Enabled) AddTimer(0.6f, MoveBotsToMid, TimerFlags.STOP_ON_MAPCHANGE);
             return HookResult.Continue;
         });
+    }
+
+    // humans — команда людей (null — определить по большинству); now — посреди раунда (боты гибнут и появятся в следующем)
+    private void BotsOpposite(CsTeam? humans, bool now)
+    {
+        var all = Utilities.GetPlayers().Where(p => p is { IsValid: true, IsHLTV: false }).ToList();
+        if (humans == null)
+        {
+            int t = all.Count(p => !p.IsBot && p.Team == CsTeam.Terrorist), ct = all.Count(p => !p.IsBot && p.Team == CsTeam.CounterTerrorist);
+            if (t == 0 && ct == 0) return;
+            humans = t > ct ? CsTeam.Terrorist : CsTeam.CounterTerrorist;
+        }
+        var target = humans == CsTeam.Terrorist ? CsTeam.CounterTerrorist : CsTeam.Terrorist;
+        foreach (var b in all.Where(p => p.IsBot && p.Team != target && p.Team is CsTeam.Terrorist or CsTeam.CounterTerrorist))
+        {
+            if (now) b.ChangeTeam(target); else b.SwitchTeam(target);
+        }
     }
 
     private void SaveBotMid()
