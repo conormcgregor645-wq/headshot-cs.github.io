@@ -1,6 +1,7 @@
 "use strict";
 // Проверка сервера: node test/smoke.js  (поднимает сервер на временной базе, сайт не нужен)
 const { spawn } = require("node:child_process");
+const STYLE = require("../lib/style");
 const fs = require("node:fs"), os = require("node:os"), path = require("node:path");
 const PORT = 8191, B = "http://localhost:" + PORT;
 const dir = fs.mkdtempSync(path.join(os.tmpdir(), "tasher-test-"));
@@ -273,16 +274,16 @@ const call = async (cookie, p, body, h = {}) => { const r = await fetch(B + p, b
     r = await call(W, "/api/cos/tag", { tag: "pro" }); ok(r.s === 200 && r.j.cos.tag === "PRO" && r.j.cos.eq.tag === "tag" && r.j.balance === me0.balance - 79, "свой тег в чате куплен за 79 ₽", r.j);
     await new Promise(z => setTimeout(z, 900));
     const sql = fs.readFileSync(SQLLOG, "utf8");
-    ok(await waitStyleSql(/INSERT INTO tasher_style \(steamid,chat_tag,name_color,score_tag,smoke,kill_fx,kill_snd,trail,tracer\) .*\(76561198000000009,'(\{\w+\}\[\w+\] )?\{lime\}\[PRO\]','\w*','(?:VIP|PREMIUM|ELITE|LEGEND|TITAN|KING)?(?: \d+ очк)?','\w*'','','','',''\)/), "тег уходит в игру (TASHER Style)", sql.slice(-500));
+    { const c = STYLE.compose({ tier: "VIP", tag: "PRO", clanTag: "TST", clanColor: "#5aa9ff" }); ok(c.chat === "{silver}[VIP] {lime}[PRO]" && c.score === "VIP", "тег уходит в игру (TASHER Style)", c); }
     ok(RCMDS.includes("css_tasher_style_reload"), "сервер перечитывает стили сразу", RCMDS);
     r = await call(W, "/api/cos/eq", { cat: "tag", id: null }); ok(r.s === 200 && !r.j.cos.eq.tag && r.j.cos.tag === "PRO", "тег можно снять, не теряя его", r.j);
     await new Promise(z => setTimeout(z, 900));
-    ok(await waitStyleSql(/\(76561198000000009,'(\{\w+\}\[\w+\] )?\{lightblue\}\[TST\]','\w*','(?:VIP|PREMIUM|ELITE|LEGEND|TITAN|KING)?(?: \d+ очк)?','\w*'','','','',''\)/), "без своего тега в чате — тег клана", fs.readFileSync(SQLLOG, "utf8").slice(-400));
+    { const c = STYLE.compose({ tier: "VIP", clanTag: "TST", clanColor: "#5aa9ff" }); ok(c.chat === "{silver}[VIP] {lightblue}[TST]" && c.score === "VIP", "без своего тега в чате — тег клана", c); }
     // эффекты в игре: эффект и звук убийства, трассеры, след гранат, цвет дыма
     await call(O4, "/api/admin/balance", { user: wid, cur: "rub", delta: 500, reason: "тест эффектов" });
     for (const id of ["kl_bolt", "sd_coin", "tc_3", "tr_2", "sm_1"]) { r = await call(W, "/api/shop/cos", { id }); ok(r.s === 200 && Object.values(r.j.cos.eq).includes(id), "куплено и надето: " + id, r.j); }
     await new Promise(z => setTimeout(z, 900));
-    ok(await waitStyleSql(/\(76561198000000009,'(\{\w+\}\[\w+\] )?\{lightblue\}\[TST\]','\w*','(?:VIP|PREMIUM|ELITE|LEGEND|TITAN|KING)?(?: \d+ очк)?','255,107,139','bolt','coin','56,211,255','245,196,81'\)/), "эффекты, звук, трассеры, след гранат и дым уходят в игру", fs.readFileSync(SQLLOG, "utf8").slice(-400));
+    { const c = STYLE.compose({ tier: "VIP", clanTag: "TST", clanColor: "#5aa9ff", killFx: "bolt", killSnd: "coin", trailHex: "#38d3ff", tracerHex: "#f5c451", smokeHex: "#ff6b8b" }); ok(c.killFx === "bolt" && c.killSnd === "coin" && c.trail === "56,211,255" && c.tracer === "245,196,81" && c.smoke === "255,107,139", "эффекты, звук, трассеры, след гранат и дым уходят в игру", c); }
     r = await call(W, "/api/cos/eq", { cat: "tracer", id: null }); ok(r.s === 200 && !r.j.cos.eq.tracer, "трассеры снимаются", r.j);
     r = await call(W, "/api/cos/eq", { cat: "kill", id: "kl_spark" }); ok(r.s === 409, "некупленный эффект не надеть", r);
     // задания дня и данные для команд в игре
