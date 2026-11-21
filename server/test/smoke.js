@@ -41,8 +41,9 @@ async function waitStyleSql(pattern, timeoutMs = 6000) {
   while (Date.now() < deadline) {
     let text = "";
     try { text = fs.readFileSync(SQLLOG, "utf8"); } catch (e) {}
-    const rows = text.split("-- END").filter(x => x.includes("INSERT INTO tasher_style"));
-    if (rows.length && pattern.test(rows[rows.length - 1])) return true;
+    // Ищем подтверждённую запись нужного состояния среди завершённых операций:
+    // другие асинхронные обновления стилей не должны затирать результат проверки.
+    if (text.split("-- END").some(chunk => chunk.includes("INSERT INTO tasher_style") && pattern.test(chunk))) return true;
     await new Promise(resolve => setTimeout(resolve, 150));
   }
   return false;
