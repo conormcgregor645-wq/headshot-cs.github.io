@@ -164,11 +164,11 @@ const bal = u => db.prepare("SELECT tk, rub FROM users WHERE id=?").get(u.id);
 // ---------- стиль в игре ----------
 {
   const c = STYLE.compose({ tier: "ELITE", clanTag: "WOLF", clanColor: "#5aa9ff", nick: "nk_0", tag: "", smokeHex: "#ff6b8b" });
-  ok(c.chat === "{green}[ELITE] {lightblue}[WOLF]" && c.name === "lime" && c.score === "WOLF" && c.smoke === "255,107,139", "стиль: статус, клан, цвет ника, дым", c);
+  ok(c.chat === "{green}[ELITE] {lightblue}[WOLF]" && c.name === "lime" && c.score === "ELITE" && c.smoke === "255,107,139", "стиль: статус, клан, цвет ника, дым", c);
   const k = STYLE.compose({ tier: "KING", tag: "PRO", clanTag: "WOLF" });
-  ok(k.chat === "{gold}[KING] {lime}[PRO]" && k.score === "PRO" && k.smoke === "random" && k.name === "gold", "свой тег вместо клана, у KING случайный дым", k);
+  ok(k.chat === "{gold}[KING] {lime}[PRO]" && k.score === "KING" && k.smoke === "random" && k.name === "gold", "свой тег вместо клана, у KING случайный дым", k);
   const f = STYLE.compose({ tier: null, killFx: "ring", killSnd: "8bit", trailHex: "#ffffff", tracerHex: "#eb4b4b" });
-  ok(f.killFx === "ring" && f.killSnd === "8bit" && f.trail === "255,255,255" && f.tracer === "235,75,75" && f.chat === "" && f.smoke === "", "эффекты: убийство, звук, след гранат, трассеры", f);
+  ok(f.killFx === "ring" && f.killSnd === "8bit" && f.trail === "255,255,255" && f.tracer === "235,75,75" && f.chat === "{grey}[Новенький]" && f.smoke === "", "эффекты: убийство, звук, след гранат, трассеры", f);
   const bad = STYLE.compose({ killFx: "x';DROP", killSnd: "play quit", trailHex: "red", tracerHex: "#12" });
   ok(!bad.killFx && !bad.killSnd && !bad.trail && !bad.tracer, "чужие значения эффектов не проходят", bad);
   ok(/kill_fx,kill_snd,trail,tracer\) VALUES \(\d{17},'','','','','ring','8bit','255,255,255','235,75,75'\)/.test(STYLE.sqlFor([{ sid: sidN(2), killFx: "ring", killSnd: "8bit", trailHex: "#ffffff", tracerHex: "#eb4b4b" }], true)), "эффекты пишутся в таблицу плагина");
@@ -315,7 +315,7 @@ const bal = u => db.prepare("SELECT tk, rub FROM users WHERE id=?").get(u.id);
   const i620 = K.info(sidN(620)); ok(!i620.calib && i620.lg != null && i620.left === 0, "после 40 событий калибровка закончена", i620);
   ok(SKM.leagueIdx(799) === 0 && SKM.leagueIdx(800) === 1 && SKM.leagueIdx(1100) === 3 && SKM.leagueIdx(1700) === 7 && SKM.leagueIdx(5000) === 7, "границы лиг");
   const bd = K.board(); ok(bd.leagues.length === 8 && bd.leagues.reduce((x, l) => x + l.count, 0) === bd.total && bd.top[0].sid === sidN(610), "таблица лиг: число игроков и сильнейшие", bd);
-  const st = STYLE.compose({ league: 3, tier: "VIP" }); ok(st.chat === "{gold}[Золото] {silver}[VIP]", "лига — первым тегом в чате игры", st);
+  const st = STYLE.compose({ league: 3, tier: "VIP" }); ok(st.chat === "{silver}[VIP]", "лига — первым тегом в чате игры", st);
   const r0 = db.prepare("SELECT sr FROM skill WHERE sid=?").get(sidN(610)).sr;
   K.softReset(0.5); ok(Math.abs(db.prepare("SELECT sr FROM skill WHERE sid=?").get(sidN(610)).sr - (1000 + (r0 - 1000) * 0.5)) < 1e-6, "мягкий сброс сезона: половина пути к 1000");
   ok(K.info(sidN(610)).n <= 20, "после сброса — короткая перекалибровка");
