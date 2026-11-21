@@ -246,7 +246,8 @@ public partial class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
         if (player is not { IsValid: true } || player.IsBot || player.IsHLTV) return;
         var want = StyleOf(player)?.ScoreTag ?? "";
         var had = _appliedClan.TryGetValue(player.SteamID, out var prev) ? prev : null;
-        if (want.Length == 0 && had == null) return; // никогда не трогали — оставляем как есть
+        // UPD: сторонние Steam/клановые теги в Tab убираем; оставляем только серверный статус и очки.
+        if (want.Length == 0 && had == null && string.IsNullOrEmpty(player.Clan)) return;
         if (had == want && player.Clan == want) return;
         player.Clan = want;
         Utilities.SetStateChanged(player, "CCSPlayerController", "m_szClan");
