@@ -45,7 +45,7 @@ public class StyleConfig : BasePluginConfig
     [JsonPropertyName("GreetCooldownMinutes")] public int GreetCooldownMinutes { get; set; } = 15;
     [JsonPropertyName("Site")] public string Site { get; set; } = "tashercs.ru";
     // ограничение на число лучей эффектов одновременно (защита от перегрузки сервера)
-    [JsonPropertyName("MaxBeams")] public int MaxBeams { get; set; } = 600;
+    [JsonPropertyName("MaxBeams")] public int MaxBeams { get; set; } = 160;
     // особые раунды и серии убийств
     [JsonPropertyName("FunEnabled")] public bool FunEnabled { get; set; } = true;
     [JsonPropertyName("SpecialEveryMin")] public int SpecialEveryMin { get; set; } = 2;
@@ -69,7 +69,7 @@ public record PlayerStyle(string ChatTag, string NameColor, string ScoreTag, str
 public partial class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
 {
     public override string ModuleName => "TASHER Style";
-    public override string ModuleVersion => "1.4.2";
+    public override string ModuleVersion => "1.4.3";
     public override string ModuleAuthor => "tashercs.ru";
 
     public StyleConfig Config { get; set; } = new();
