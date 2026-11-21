@@ -233,10 +233,7 @@ public partial class TasherStyle
     {
         if (player is not { IsValid: true } || player.IsBot) return;
         if (!InfoReady(player, out var i)) return;
-        if (i.LeagueInfo.Length > 0)
-            player.PrintToChat(i.League.Length > 0
-                ? $"{Prefix}Лига: {LeagueColor(i.League)}{i.League}{ChatColors.Default} · сила {ChatColors.Lime}{i.Sr}{ChatColors.Default} · {i.LeagueInfo}"
-                : $"{Prefix}Лига: {ChatColors.Grey}{i.LeagueInfo}");
+        // UPD: лиги не показываем; !rank оставляем для очков, места и K/D месячного рейтинга.
         if (i.Place == 0)
         {
             player.PrintToChat($"{Prefix}В этом месяце у тебя пока нет очков рейтинга — сыграй пару раундов.");
