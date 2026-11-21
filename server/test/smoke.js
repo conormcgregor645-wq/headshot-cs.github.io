@@ -110,6 +110,12 @@ const call = async (cookie, p, body, h = {}) => { const r = await fetch(B + p, b
   await call(A, "/api/admin/balance", { user: 1, cur: "tk", delta: 7, reason: "тест кэша" });
   x = await fetch(B + "/", { headers: { cookie: A, "if-none-match": et } }); ok(x.status === 200, "главная: новая страница после изменения баланса", x.status);
   require("node:fs").writeFileSync(require("node:path").join(dir, "a.txt"), "hello");
+  x = await fetch(B + "/assets/winter-ops-card.avif");
+  const artBytes = new Uint8Array(await x.arrayBuffer());
+  ok(x.status === 200 && x.headers.get("content-type") === "image/avif" &&
+    artBytes.length > 10000 && String.fromCharCode(...artBytes.slice(4, 8)) === "ftyp",
+    "зимняя карточка пропуска отдается сервером как валидное AVIF-изображение",
+    [x.status, x.headers.get("content-type"), artBytes.length]);
   x = await fetch(B + "/a.txt"); const lm = x.headers.get("last-modified"); await x.text();
   x = await fetch(B + "/a.txt", { headers: { "if-modified-since": lm } }); ok(x.status === 304, "файлы: 304, если не менялись", x.status);
   // выход
