@@ -212,11 +212,12 @@ public partial class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
         if (BlockGagged(player, message)) return HookResult.Handled;
         if (IsChatTrigger(message)) return HookResult.Continue;
         var s = StyleOf(player);
-        if (s == null || (string.IsNullOrEmpty(s.ChatTag) && string.IsNullOrEmpty(s.NameColor))) return HookResult.Continue;
-
         var team = player.Team;
-        var tag = TagColors.ResolveTokens(s.ChatTag, team);
-        var nameColor = string.IsNullOrEmpty(s.NameColor) ? ChatColors.ForTeam(team) : TagColors.ColorChar(s.NameColor, team);
+        // UPD: даже новый игрок без записи в базе получает серверный тег «Новенький».
+        var tag = s == null || string.IsNullOrEmpty(s.ChatTag)
+            ? $"{ChatColors.Grey}[Новенький]" : TagColors.ResolveTokens(s.ChatTag, team);
+        var nameColor = s == null || string.IsNullOrEmpty(s.NameColor)
+            ? ChatColors.ForTeam(team) : TagColors.ColorChar(s.NameColor, team);
         var dead = player.PawnIsAlive ? "" : $"{ChatColors.Grey}*DEAD* ";
         var teamPrefix = teamOnly ? $"{ChatColors.Default}(team) " : "";
         var line = $" {dead}{(tag.Length > 0 ? tag + " " : "")}{teamPrefix}{nameColor}{player.PlayerName}{ChatColors.Default}: {message}";
