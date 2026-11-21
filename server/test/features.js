@@ -165,6 +165,10 @@ const bal = u => db.prepare("SELECT tk, rub FROM users WHERE id=?").get(u.id);
 {
   const c = STYLE.compose({ tier: "ELITE", clanTag: "WOLF", clanColor: "#5aa9ff", nick: "nk_0", tag: "", smokeHex: "#ff6b8b" });
   ok(c.chat === "{green}[ELITE] {lightblue}[WOLF]" && c.name === "lime" && c.score === "ELITE" && c.smoke === "255,107,139", "стиль: статус, клан, цвет ника, дым", c);
+  const tab = STYLE.compose({ tier: "KING", tag: "USER", clanTag: "CLAN", pts: 1234 });
+  ok(tab.score === "KING 1234 очк" && tab.chat.includes("[USER]") && !tab.score.includes("USER") && !tab.score.includes("CLAN"), "UPD: Tab содержит статус и очки, купленный тег остаётся в чате", tab);
+  const newcomer = STYLE.compose({ pts: 42 });
+  ok(newcomer.score === "42 очк" && newcomer.chat === "{grey}[Новенький]", "UPD: игрок без статуса видит очки в Tab и тег новичка в чате", newcomer);
   const k = STYLE.compose({ tier: "KING", tag: "PRO", clanTag: "WOLF" });
   ok(k.chat === "{gold}[KING] {lime}[PRO]" && k.score === "KING" && k.smoke === "random" && k.name === "gold", "свой тег вместо клана, у KING случайный дым", k);
   const f = STYLE.compose({ tier: null, killFx: "ring", killSnd: "8bit", trailHex: "#ffffff", tracerHex: "#eb4b4b" });
@@ -362,6 +366,7 @@ const bal = u => db.prepare("SELECT tk, rub FROM users WHERE id=?").get(u.id);
   const COS = new Map(JSON.parse(fs.readFileSync(path.join(__dirname, "..", "data", "cosmetics.json"), "utf8")).map(x => [x.id, x]));
   const gi = (uid, it, src, ref) => { db.prepare("INSERT INTO items(id,user_id,w,s,r,wear,st,sv,sp,fx,seed,src,src_ref,state,created_at) VALUES(?,?,?,?,?,?,0,0,NULL,0,?,?,?,'inv',?)").run(it.id, uid, it.w, it.s, it.r, it.wear, it.seed || 0, src, ref || null, T1); return it; };
   const P = PM.makePass({ db, tx: T, addMoney, giveItem: gi, rollCase: G.rollCase, caseByK: k => G.CASE_BY_K.get(k), cosById: id => COS.get(id), addGrant: (...a) => grants.push(a), onGrant: () => ong++, eventMult: () => xpm, now: () => T1, log: { log() {} } });
+  ok(PM.REWARDS.free[2][0].id === "bd_skull" && PM.REWARDS.free[11][0].id === "bd_bolt" && PM.REWARDS.prem[27][0].id === "kl_conf", "UPD: в пропуске есть новые оформления между ключевыми уровнями");
   ok(PM.REWARDS.free.length === 50 && PM.REWARDS.prem.length === 50 && [...PM.REWARDS.free, ...PM.REWARDS.prem].flat().every(r => r.t === "tk" ? r.v > 0 : r.t === "case" ? !!G.CASE_BY_K.get(r.k) : r.t === "cos" ? COS.has(r.id) : r.t === "status" ? ["VIP", "PREMIUM", "ELITE", "LEGEND", "TITAN", "KING"].includes(r.tier) && r.d > 0 : false), "50 уровней: все награды существуют (кейсы, оформление, статусы)");
   const u = user(801, 0, 1000), sid = u.steamid;
   ok(P.season().id === "s1" && P.state(sid).me.lv === 0, "идёт сезон 1");
