@@ -15,6 +15,9 @@ public partial class TasherStyle
     private int _tick;
     private readonly List<GrenadeTrail> _trails = new();
     private readonly Dictionary<ulong, DateTime> _lastTracer = new();
+    // Лучи эффекта фрага передаются только игрокам, наблюдающим за убийцей.
+    private readonly Dictionary<CBeam, ulong> _spectatorBeams = new();
+    private ulong _killFxOwner;
 
     private sealed class GrenadeTrail
     {
@@ -29,7 +32,8 @@ public partial class TasherStyle
         RegisterEventHandler<EventBulletImpact>(OnBulletImpact);
         RegisterEventHandler<EventPlayerDeath>(OnPlayerDeath);
         RegisterListener<Listeners.OnTick>(OnTick);
-        RegisterListener<Listeners.OnMapStart>(_ => { _beams = 0; _trails.Clear(); _lastTracer.Clear(); });
+        RegisterListener<Listeners.CheckTransmit>(OnEffectsTransmit);
+        RegisterListener<Listeners.OnMapStart>(_ => { _beams = 0; _trails.Clear(); _lastTracer.Clear(); _spectatorBeams.Clear(); _killFxOwner = 0; });
     }
 
     // "r,g,b" или "random" -> цвет
@@ -59,12 +63,40 @@ public partial class TasherStyle
         beam.Teleport(new Vector(x1, y1, z1), new QAngle(0, 0, 0), new Vector(0, 0, 0));
         beam.EndPos.X = x2; beam.EndPos.Y = y2; beam.EndPos.Z = z2;
         beam.DispatchSpawn();
+        if (_killFxOwner != 0) _spectatorBeams[beam] = _killFxOwner;
         _beams++;
         AddTimer(life, () =>
         {
             _beams = Math.Max(0, _beams - 1);
+            _spectatorBeams.Remove(beam);
             if (beam.IsValid) beam.Remove();
         }, TimerFlags.STOP_ON_MAPCHANGE);
+    }
+
+    // Проверка сетевой передачи происходит отдельно для каждого зрителя.
+    // Живые игроки не получают эффект, даже если находятся рядом с местом убийства.
+    private void OnEffectsTransmit(CCheckTransmitInfoList infoList)
+    {
+        if (_spectatorBeams.Count == 0) return;
+        foreach (var (info, viewer) in infoList)
+        {
+            if (viewer is not { IsValid: true } || viewer.IsBot || viewer.IsHLTV) continue;
+            ulong watching = 0;
+            if (!viewer.PawnIsAlive)
+            {
+                var target = viewer.PlayerPawn.Value?.ObserverServices?.ObserverTarget.Value
+                    ?? viewer.ObserverPawn.Value?.ObserverServices?.ObserverTarget.Value;
+                if (target is { IsValid: true })
+                {
+                    var owner = Utilities.GetPlayers().FirstOrDefault(p =>
+                        p is { IsValid: true, IsBot: false } &&
+                        p.PlayerPawn.Value is { IsValid: true } pawn && pawn.Handle == target.Handle);
+                    if (owner != null) watching = owner.SteamID;
+                }
+            }
+            foreach (var (beam, ownerSid) in _spectatorBeams)
+                if (beam.IsValid && watching != ownerSid) info.TransmitEntities.Remove(beam);
+        }
     }
 
     // --- трассеры пуль: луч от глаз стрелка до места попадания, виден всем ---
@@ -102,7 +134,12 @@ public partial class TasherStyle
         if (s.KillFx.Length > 0)
         {
             var vp = v.PlayerPawn.Value;
-            if (vp is { IsValid: true } && vp.AbsOrigin is { } o) KillEffect(s.KillFx, o.X, o.Y, o.Z);
+            if (vp is { IsValid: true } && vp.AbsOrigin is { } o)
+            {
+                _killFxOwner = a.SteamID;
+                try { KillEffect(s.KillFx, o.X, o.Y, o.Z); }
+                finally { _killFxOwner = 0; }
+            }
         }
         return HookResult.Continue;
     }
