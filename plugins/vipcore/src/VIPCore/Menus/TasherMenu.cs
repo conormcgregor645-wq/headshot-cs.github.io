@@ -220,7 +220,7 @@ public class TasherMenu(string title, BasePlugin plugin) : IMenu
         var label = $"{Icon(name)} {name}";
         label = Esc(label);
         var pad = new string(' ', Math.Max(0, 16 - name.Length));
-        var content = $"{status} {label}{pad}";
+        var content = $"{status} {label}{pad.Replace(" ", "&nbsp;")}";
         return selected
             ? $"<font color='{Gold}'>▣ </font><font color='#ffffff'><b>{content}</b></font><font color='{Gold}'> ◀</font>"
             : $"<font color='{color}'>  {content} </font>";
