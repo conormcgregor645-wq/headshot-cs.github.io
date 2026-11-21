@@ -807,7 +807,7 @@ async function authRoutes(req, res, url) {
 }
 
 // ---------- статика сайта ----------
-const MIME = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8", ".json": "application/json", ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp", ".svg": "image/svg+xml", ".ico": "image/x-icon", ".txt": "text/plain; charset=utf-8", ".woff2": "font/woff2" };
+const MIME = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8", ".json": "application/json", ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp", ".avif": "image/avif", ".svg": "image/svg+xml", ".ico": "image/x-icon", ".txt": "text/plain; charset=utf-8", ".woff2": "font/woff2" };
 const DENY = /^\/(server|tools|\.git|\.github|node_modules)(\/|$)|\/\.[^/]/;
 // несуществующий адрес: людям показываем страницу 404 (она же перенаправляет /shop на /#shop), программам — короткий текст
 function notFound(req, res) {
