@@ -33,6 +33,17 @@ assert.match(html, /id="psBuy"/, "Покупка пропуска должна �
 assert.match(html, /data-psclaim/, "Получение наград не должно быть удалено");
 assert.match(html, /psWindowSet/, "Навигация по уровням должна работать");
 assert.match(html, /data:image\/webp;base64,/, "Зимний фон должен быть реально встроен");
+
+const avifMatch=html.match(/data:image\/avif;base64,([A-Za-z0-9+/=]{10000,})/);
+const sceneMatch=html.match(/data:image\/webp;base64,([A-Za-z0-9+/=]{5000,})/);
+assert.ok(avifMatch,"Изображение Winter Ops действительно встроено");
+assert.ok(sceneMatch,"Фотофоновое изображение Winter Ops действительно встроено");
+const avif=Buffer.from(avifMatch[1],"base64");
+const webp=Buffer.from(sceneMatch[1],"base64");
+assert.equal(avif.toString("ascii",4,8),"ftyp","Карточка должна содержать настоящий AVIF-файл");
+assert.equal(webp.toString("ascii",0,4),"RIFF","Фон должен содержать настоящий WebP-файл");
+assert.equal(webp.toString("ascii",8,12),"WEBP","Фон должен декодироваться как WebP");
+
 const portrait = html.match(/<img src="([^"]+)" alt="TASHER Winter Ops/);
 assert.ok(portrait, "Карточка Winter Ops должна быть в разметке");
 assert.ok(portrait[1].startsWith("data:image/avif;base64,") && portrait[1].length > 20000, "Используется именно утверждённое изображение из макета, встроенное без сетевых зависимостей");
