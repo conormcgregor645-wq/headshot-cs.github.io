@@ -23,4 +23,21 @@ assert.match(html, /assets\/winter-ops-card\.avif/, "Pass must reference its bun
 assert.match(html, /ps-scene-visual/, "Pass must have a dedicated hero-art layout");
 assert.match(html, /ps-c-icon/, "Reward cards must contain styled icon containers");
 assert.match(html, /@media\(max-width:620px\)/, "Pass must define phone layout rules");
+
+assert.match(html, /class="ps-scene"/, "Сезонный кинематографичный блок должен присутствовать");
+assert.match(html, /id="psRewards"/, "Секция реальных наград должна иметь якорь");
+assert.match(html, /data-psfilter="premium"/, "Премиум-фильтр должен быть подключён");
+assert.match(html, /data-psfilter="free"/, "Бесплатный фильтр должен быть подключён");
+assert.match(html, /id="psJumpRewards"/, "Переход к наградам должен быть рабочей кнопкой");
+assert.match(html, /id="psBuy"/, "Покупка пропуска должна оставаться доступна");
+assert.match(html, /data-psclaim/, "Получение наград не должно быть удалено");
+assert.match(html, /psWindowSet/, "Навигация по уровням должна работать");
+assert.match(html, /data:image\/webp;base64,/, "Зимний фон должен быть реально встроен");
+const portrait = html.match(/<img src="([^"]+)" alt="TASHER Winter Ops/);
+assert.ok(portrait, "Карточка Winter Ops должна быть в разметке");
+if (!portrait[1].startsWith("data:image/")) {
+  const rel = portrait[1].replace(/^\/+/,"");
+  assert.ok(!rel.includes("..") && fs.existsSync(path.join(__dirname,"../..",rel)), "Файл изображения пропуска должен существовать в репозитории");
+}
+
 console.log(`Frontend: ${scripts.length} inline JS block(s) parsed; UPD smoke checks passed`);
