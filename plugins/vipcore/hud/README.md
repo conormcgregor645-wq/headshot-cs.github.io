@@ -2,6 +2,8 @@
 
 Команда `!vip` показывает группе игрока карточки в трёх колонках. Нажатие ЛКМ переключает бонус или открывает настройки выбранного модуля. Кнопка «Закрыть» возвращает управление. Запасная консольная команда — `css_vip_close`. После 30 секунд без кликов меню закрывается.
 
+[Предпросмотр меню с группой KING](preview.jpg)
+
 ## Проверка на стенде
 
 1. Скачайте артефакт **tasher-vip-buy-menu** из сборки **vipcore** этой ветки. В нём находятся VIPCore.dll и пакет интерфейса tasher_buy.vpk. Для серверного расширения нужен CounterStrikeSharp с поддержкой OnCustomHudClicked и SetInputCaptureEnabled (проект собран с API 1.0.376).
@@ -15,9 +17,11 @@
 
 ```bash
 dotnet "$PANORAMA_COMPILER" compile-tree --input-root panorama --output-root "$BUILD_DIR/panorama"
-cp addoninfo.txt "$BUILD_DIR/"
+cp addoninfo.txt LICENSE-icons.txt "$BUILD_DIR/"
 vpkeditcli --output tasher_buy.vpk --type vpk --version 2 --single-file "$BUILD_DIR"
 vpkeditcli --verify-checksums files tasher_buy.vpk
 ```
 
 [PanoramaCompiler](https://github.com/nicedayzhu/PanoramaCompiler) · [VPKEdit](https://github.com/craftablescience/VPKEdit)
+
+Фон ночного Dust II и корона взяты из графики TASHER. Пиктограммы предметов основаны на Lucide 0.468.0. [Лицензия набора](LICENSE-icons.txt)

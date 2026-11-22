@@ -115,7 +115,7 @@ public class MenuManager
                 if (!string.IsNullOrWhiteSpace(args.Display) && args.Display != initialDisplay)
                     hint = System.Text.RegularExpressions.Regex.Replace(args.Display, @"<[^>]+>|[\x00-\x1F]", "").Trim();
                 cards.Add(new(feature.Name, name, hint, state is not FeatureState.NoAccess,
-                    feature.Type is FeatureType.Toggle && state is FeatureState.Enabled,
+                    feature.Type is FeatureType.Toggle && state is FeatureState.Enabled, feature.Type is FeatureType.Toggle,
                     (who, currentPage) =>
                     {
                         if (_api.PlayerHasFeature(who, feature.Name))

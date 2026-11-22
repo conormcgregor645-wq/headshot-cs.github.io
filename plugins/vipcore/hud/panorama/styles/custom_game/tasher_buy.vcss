@@ -1,36 +1,263 @@
-.Viewport, .Shop { width: 100%; height: 100%; }
+.Viewport, .Shop {
+    width: 100%;
+    height: 100%;
+}
+
 .Shop {
-    background-color: gradient(linear, 0% 0%, 100% 100%, from(#211f20fa), to(#0e1217fa));
+    background-color: #0e0c10;
     color: #f3efea;
     font-family: Stratum2, Arial;
 }
-.Content { width: 90%; max-width: 1520px; vertical-align: center; horizontal-align: center; flow-children: down; }
-.Header, .Grid, .Footer { width: 100%; flow-children: right; }
-.Header { padding-bottom: 22px; border-bottom: 2px solid #ce5751; }
-.Heading { width: fill-parent-flow(1); flow-children: down; }
-.Group { font-size: 20px; font-weight: bold; color: #ffa49a; }
-.Title { font-size: 52px; font-weight: bold; color: #f7f6f3; }
-.Close, .Nav { padding: 10px 18px; background-color: #383e45; vertical-align: center; }
-.Close:hover, .Nav:hover { background-color: #695053; }
-.ButtonLabel, .Page { font-size: 20px; color: #fff; }
-.Grid { margin-top: 20px; }
-.Column { width: fill-parent-flow(1); margin: 0 5px; flow-children: down; }
-.CategoryHead { width: 100%; padding: 12px 14px; flow-children: right; background-color: #343033; }
-.CategoryIcon { width: 42px; height: 32px; margin-right: 10px; wash-color: #d3a8a0; }
-.Category { vertical-align: center; color: #f1ded7; font-weight: bold; font-size: 25px; background-color: #343033; }
-.Card {
-    width: 100%; height: 98px; margin-top: 6px; padding: 12px 16px;
-    background-color: gradient(linear, 0% 0%, 100% 100%, from(#343b43), to(#24292e));
-    border-left: 3px solid #626971; flow-children: down;
+
+.Content {
+    width: 87%;
+    max-width: 1520px;
+    vertical-align: center;
+    horizontal-align: center;
+    flow-children: down;
 }
-.Card:hover { background-color: #503437; border-left: 3px solid #ff776a; }
-.Card.Locked { wash-color: #899099; }
-.Name { font-size: 28px; font-weight: bold; height: 40px; color: #f9f6f0; text-overflow: shrink; }
-.Status { font-size: 19px; color: #c8d0d5; }
-.Active .Status { color: #9ce0af; }
-.Footer { margin-top: 18px; border-top: 1px solid #47494d; padding-top: 14px; }
-.Hint { font-size: 20px; color: #c2bfc0; vertical-align: center; width: fill-parent-flow(1); }
-.Empty { width: 100%; height: 96px; flow-children: right; }
-.Pager { flow-children: right; }
-.Page { vertical-align: center; margin: 0 12px; }
-.Hidden { visibility: collapse; }
+
+.Header, .Grid, .Footer {
+    width: 100%;
+    flow-children: right;
+}
+
+.Header {
+    padding-bottom: 20px;
+    border-bottom: 2px solid #a72c43;
+}
+
+.Heading {
+    width: fill-parent-flow(1);
+    flow-children: down;
+}
+
+.Group {
+    font-size: 18px;
+    font-weight: bold;
+    color: #f5afb2;
+    letter-spacing: 2px;
+}
+
+.Title {
+    font-size: 54px;
+    font-weight: bold;
+    color: #fff7ef;
+}
+
+.Close, .Nav {
+    padding: 10px 18px;
+    background-color: #291b23ef;
+    vertical-align: center;
+    border: 1px solid #76515d;
+    border-radius: 4px;
+}
+
+.Close:hover, .Nav:hover {
+    background-color: #742339;
+}
+
+.ButtonLabel, .Page {
+    font-size: 20px;
+    color: #fff;
+}
+
+.Grid {
+    margin-top: 20px;
+}
+
+.Column {
+    width: fill-parent-flow(1);
+    margin: 0 5px;
+    flow-children: down;
+}
+
+.CategoryHead {
+    width: 100%;
+    padding: 12px 14px;
+    flow-children: right;
+    background-color: gradient(linear, 0% 0%, 100% 0%, from(#642538f8), to(#291b25f5));
+    border-top: 2px solid #bb4d61;
+    border-radius: 4px 4px 0px 0px;
+}
+
+.CategoryIcon {
+    width: 42px;
+    height: 32px;
+    margin-right: 10px;
+    wash-color: #efd5ce;
+}
+
+.Category {
+    vertical-align: center;
+    color: #ffe8e4;
+    font-weight: bold;
+    font-size: 25px;
+    background-color: #00000000;
+}
+
+.Card {
+    width: 100%;
+    height: 100px;
+    margin-top: 6px;
+    padding: 13px 18px;
+    background-color: gradient(linear, 0% 0%, 100% 100%, from(#282329f5), to(#16141cf5));
+    border-left: 3px solid #71525d;
+    flow-children: right;
+    border: 1px solid #54404a;
+    border-radius: 4px;
+}
+
+.Card:hover {
+    background-color: gradient(linear, 0% 0%, 100% 80%, from(#762b40), to(#3a1e2a));
+    border-left: 3px solid #ff8b93;
+    border: 1px solid #c26977;
+}
+
+.Card.Locked {
+    wash-color: #899099;
+}
+
+.Name {
+    font-size: 27px;
+    font-weight: bold;
+    height: 36px;
+    color: #f9f6f0;
+    text-overflow: shrink;
+}
+
+.Status {
+    font-size: 19px;
+    color: #c8d0d5;
+}
+
+.Active .Status {
+    color: #ace1bf;
+}
+
+.Footer {
+    margin-top: 18px;
+    border-top: 1px solid #79505d;
+    padding-top: 14px;
+}
+
+.Hint {
+    font-size: 20px;
+    color: #c2bfc0;
+    vertical-align: center;
+    width: fill-parent-flow(1);
+}
+
+.Empty {
+    width: 100%;
+    height: 96px;
+    flow-children: right;
+}
+
+.Pager {
+    flow-children: right;
+}
+
+.Page {
+    vertical-align: center;
+    margin: 0 12px;
+}
+
+.Hidden {
+    visibility: collapse;
+}
+
+.Backdrop, .Tint {
+    width: 100%;
+    height: 100%;
+}
+
+.Backdrop {
+    opacity: 0.8;
+}
+
+.Tint {
+    background-color: gradient(linear, 0% 0%, 100% 80%, from(#100a0eea), color-stop(0.52, #1d0d16b8), to(#360b15b8));
+}
+
+.Crown {
+    width: 94px;
+    height: 94px;
+    margin-right: 20px;
+    vertical-align: center;
+}
+
+.ItemIcon {
+    width: 48px;
+    height: 48px;
+    vertical-align: center;
+    margin-right: 18px;
+    background-size: 85% 85%;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-image: url("s2r://panorama/images/tasher/package.vsvg");
+}
+
+.ItemCopy {
+    width: fill-parent-flow(1);
+    flow-children: down;
+    vertical-align: center;
+}
+
+.Status, .HoverAction {
+    font-size: 19px;
+    color: #c6b9bc;
+}
+
+.HoverAction {
+    visibility: collapse;
+    color: #ffe4de;
+}
+
+.Card:hover .Status {
+    visibility: collapse;
+}
+
+.Card:hover .HoverAction {
+    visibility: visible;
+}
+
+.Armor .ItemIcon {
+    background-image: url("s2r://panorama/images/tasher/shield.vsvg");
+}
+
+.Health .ItemIcon {
+    background-image: url("s2r://panorama/images/tasher/plus.vsvg");
+}
+
+.Regen .ItemIcon {
+    background-image: url("s2r://panorama/images/tasher/activity.vsvg");
+}
+
+.Vampire .ItemIcon {
+    background-image: url("s2r://panorama/images/tasher/droplet.vsvg");
+}
+
+.Grenades .ItemIcon {
+    background-image: url("s2r://panorama/images/tasher/crosshair.vsvg");
+}
+
+.Zeus .ItemIcon {
+    background-image: url("s2r://panorama/images/tasher/zap.vsvg");
+}
+
+.Healthshot .ItemIcon {
+    background-image: url("s2r://panorama/images/tasher/syringe.vsvg");
+}
+
+.Kit .ItemIcon {
+    background-image: url("s2r://panorama/images/tasher/shield-check.vsvg");
+}
+
+.Money .ItemIcon {
+    background-image: url("s2r://panorama/images/tasher/banknote.vsvg");
+}
+
+.Smoke .ItemIcon {
+    background-image: url("s2r://panorama/images/tasher/palette.vsvg");
+}

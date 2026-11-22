@@ -7,11 +7,12 @@ namespace VIPCore.Menus;
 
 public sealed class BuyMenu
 {
-    public sealed record Item(string Key, string Name, string Status, bool Enabled, bool Active, Action<CCSPlayerController, int> Select);
+    public sealed record Item(string Key, string Name, string Status, bool Enabled, bool Active, bool Toggle, Action<CCSPlayerController, int> Select);
     private sealed class Session
     {
         public required List<Item>[] Columns;
         public required string Group;
+        public readonly string?[] Icons = new string?[3 * Rows];
         public int Page;
         public int Pages => Math.Max(1, (Columns.Max(c => c.Count) + Rows - 1) / Rows);
         public DateTime LastInput = DateTime.UtcNow;
@@ -54,6 +55,7 @@ public sealed class BuyMenu
             _hud.StrLayout = Layout;
             _hud.DispatchSpawn();
         }
+        Close(player);
         List<Item>[] columns = [[], [], []];
         foreach (var item in items)
         {
@@ -92,10 +94,29 @@ public sealed class BuyMenu
             var item = s.Columns[col][pos];
             hud.SetDialogVariableStringForPlayer(player, "shop", id + "_name", item.Name);
             hud.SetDialogVariableStringForPlayer(player, "shop", id + "_status", item.Status);
+            var icon = Icon(item.Key);
+            var slot = col * Rows + row;
+            if (s.Icons[slot] != icon)
+            {
+                if (s.Icons[slot] is string previous) hud.SetHasClassForPlayer(player, id, previous, false);
+                hud.SetHasClassForPlayer(player, id, icon, true);
+                s.Icons[slot] = icon;
+            }
+            var action = !item.Enabled ? "Нет доступа" : item.Active ? "ЛКМ · Выключить" :
+                item.Toggle ? "ЛКМ · Включить" : "ЛКМ · Открыть";
+            hud.SetDialogVariableStringForPlayer(player, "shop", id + "_action", action);
             hud.SetHasClassForPlayer(player, id, "Locked", !item.Enabled);
             hud.SetHasClassForPlayer(player, id, "Active", item.Active);
         }
     }
+
+    private static string Icon(string key) => key.ToLowerInvariant() switch
+    {
+        "armor" => "Armor", "health" => "Health", "healthregen" => "Regen",
+        "vampirism" => "Vampire", "grenades" => "Grenades", "zeus" => "Zeus",
+        "healthshot" => "Healthshot", "defusekit" => "Kit", "money" => "Money",
+        "smokecolor" => "Smoke", _ => "Other"
+    };
 
     private void Click(CCSPlayerController player, CCSCustomHudLayout layout, string id)
     {
@@ -124,9 +145,12 @@ public sealed class BuyMenu
 
     private void Close(CCSPlayerController player)
     {
-        if (!_sessions.Remove(player.Slot) || _hud is not { IsValid: true }) return;
+        if (!_sessions.Remove(player.Slot, out var session) || _hud is not { IsValid: true }) return;
         _hud.SetInputCaptureEnabled(player, false);
         _hud.SetHasClassForPlayer(player, "shop", "Hidden", true);
+        for (var i = 0; i < session.Icons.Length; i++)
+            if (session.Icons[i] is string icon)
+                _hud.SetHasClassForPlayer(player, $"vip_{i / Rows}_{i % Rows}", icon, false);
     }
 
     public void Reset()
