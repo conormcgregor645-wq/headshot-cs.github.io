@@ -1,0 +1,36 @@
+.Viewport, .Shop { width: 100%; height: 100%; }
+.Shop {
+    background-color: gradient(linear, 0% 0%, 100% 100%, from(#211f20fa), to(#0e1217fa));
+    color: #f3efea;
+    font-family: Stratum2, Arial;
+}
+.Content { width: 90%; max-width: 1520px; vertical-align: center; horizontal-align: center; flow-children: down; }
+.Header, .Grid, .Footer { width: 100%; flow-children: right; }
+.Header { padding-bottom: 22px; border-bottom: 2px solid #ce5751; }
+.Heading { width: fill-parent-flow(1); flow-children: down; }
+.Group { font-size: 20px; font-weight: bold; color: #ffa49a; }
+.Title { font-size: 52px; font-weight: bold; color: #f7f6f3; }
+.Close, .Nav { padding: 10px 18px; background-color: #383e45; vertical-align: center; }
+.Close:hover, .Nav:hover { background-color: #695053; }
+.ButtonLabel, .Page { font-size: 20px; color: #fff; }
+.Grid { margin-top: 20px; }
+.Column { width: fill-parent-flow(1); margin: 0 5px; flow-children: down; }
+.CategoryHead { width: 100%; padding: 12px 14px; flow-children: right; background-color: #343033; }
+.CategoryIcon { width: 42px; height: 32px; margin-right: 10px; wash-color: #d3a8a0; }
+.Category { vertical-align: center; color: #f1ded7; font-weight: bold; font-size: 25px; background-color: #343033; }
+.Card {
+    width: 100%; height: 98px; margin-top: 6px; padding: 12px 16px;
+    background-color: gradient(linear, 0% 0%, 100% 100%, from(#343b43), to(#24292e));
+    border-left: 3px solid #626971; flow-children: down;
+}
+.Card:hover { background-color: #503437; border-left: 3px solid #ff776a; }
+.Card.Locked { wash-color: #899099; }
+.Name { font-size: 28px; font-weight: bold; height: 40px; color: #f9f6f0; text-overflow: shrink; }
+.Status { font-size: 19px; color: #c8d0d5; }
+.Active .Status { color: #9ce0af; }
+.Footer { margin-top: 18px; border-top: 1px solid #47494d; padding-top: 14px; }
+.Hint { font-size: 20px; color: #c2bfc0; vertical-align: center; width: fill-parent-flow(1); }
+.Empty { width: 100%; height: 96px; flow-children: right; }
+.Pager { flow-children: right; }
+.Page { vertical-align: center; margin: 0 12px; }
+.Hidden { visibility: collapse; }

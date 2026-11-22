@@ -66,6 +66,7 @@ public class Plugin(IServiceProvider serviceProvider, Config<VipConfig> coreConf
 
     public override void Unload(bool hotReload)
     {
+        _menuManager.CloseBuyMenu();
         _cookies.Save();
     }
 

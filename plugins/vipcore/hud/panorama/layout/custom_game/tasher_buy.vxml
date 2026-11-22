@@ -1,0 +1,103 @@
+<root>
+  <styles>
+    <include src="s2r://panorama/styles/custom_game/tasher_buy.vcss_c" />
+  </styles>
+  <Panel class="Viewport" hittest="false">
+    <Panel class="Shop Hidden" id="shop" hittest="true">
+      <Panel class="Content">
+        <Panel class="Header">
+          <Panel class="Heading">
+            <Label text="TASHER   /   {s:group}" class="Group" hittest="false" />
+            <Label text="VIP-снаряжение" class="Title" hittest="false" />
+          </Panel>
+          <Button id="close" class="Close">
+            <Label text="Закрыть   ×" class="ButtonLabel" hittest="false" />
+          </Button>
+        </Panel>
+        <Panel class="Grid">
+          <Panel class="Column">
+            <Panel class="CategoryHead" hittest="false">
+              <Image class="CategoryIcon" src="s2r://panorama/images/icons/equipment/kevlar.vsvg" scaling="stretch-to-fit-preserve-aspect" hittest="false" />
+              <Label text="Защита и здоровье" class="Category" hittest="false" />
+            </Panel>
+            <Button id="vip_0_0" class="Card Hidden">
+              <Label text="{s:vip_0_0_name}" class="Name" hittest="false" />
+              <Label text="{s:vip_0_0_status}" class="Status" hittest="false" />
+            </Button>
+            <Button id="vip_0_1" class="Card Hidden">
+              <Label text="{s:vip_0_1_name}" class="Name" hittest="false" />
+              <Label text="{s:vip_0_1_status}" class="Status" hittest="false" />
+            </Button>
+            <Button id="vip_0_2" class="Card Hidden">
+              <Label text="{s:vip_0_2_name}" class="Name" hittest="false" />
+              <Label text="{s:vip_0_2_status}" class="Status" hittest="false" />
+            </Button>
+            <Button id="vip_0_3" class="Card Hidden">
+              <Label text="{s:vip_0_3_name}" class="Name" hittest="false" />
+              <Label text="{s:vip_0_3_status}" class="Status" hittest="false" />
+            </Button>
+          </Panel>
+          <Panel class="Column">
+            <Panel class="CategoryHead" hittest="false">
+              <Image class="CategoryIcon" src="s2r://panorama/images/icons/equipment/flashbang.vsvg" scaling="stretch-to-fit-preserve-aspect" hittest="false" />
+              <Label text="Снаряжение" class="Category" hittest="false" />
+            </Panel>
+            <Button id="vip_1_0" class="Card Hidden">
+              <Label text="{s:vip_1_0_name}" class="Name" hittest="false" />
+              <Label text="{s:vip_1_0_status}" class="Status" hittest="false" />
+            </Button>
+            <Button id="vip_1_1" class="Card Hidden">
+              <Label text="{s:vip_1_1_name}" class="Name" hittest="false" />
+              <Label text="{s:vip_1_1_status}" class="Status" hittest="false" />
+            </Button>
+            <Button id="vip_1_2" class="Card Hidden">
+              <Label text="{s:vip_1_2_name}" class="Name" hittest="false" />
+              <Label text="{s:vip_1_2_status}" class="Status" hittest="false" />
+            </Button>
+            <Button id="vip_1_3" class="Card Hidden">
+              <Label text="{s:vip_1_3_name}" class="Name" hittest="false" />
+              <Label text="{s:vip_1_3_status}" class="Status" hittest="false" />
+            </Button>
+          </Panel>
+          <Panel class="Column">
+            <Panel class="CategoryHead" hittest="false">
+              <Image class="CategoryIcon" src="s2r://panorama/images/icons/equipment/healthshot.vsvg" scaling="stretch-to-fit-preserve-aspect" hittest="false" />
+              <Label text="Бонусы" class="Category" hittest="false" />
+            </Panel>
+            <Button id="vip_2_0" class="Card Hidden">
+              <Label text="{s:vip_2_0_name}" class="Name" hittest="false" />
+              <Label text="{s:vip_2_0_status}" class="Status" hittest="false" />
+            </Button>
+            <Button id="vip_2_1" class="Card Hidden">
+              <Label text="{s:vip_2_1_name}" class="Name" hittest="false" />
+              <Label text="{s:vip_2_1_status}" class="Status" hittest="false" />
+            </Button>
+            <Button id="vip_2_2" class="Card Hidden">
+              <Label text="{s:vip_2_2_name}" class="Name" hittest="false" />
+              <Label text="{s:vip_2_2_status}" class="Status" hittest="false" />
+            </Button>
+            <Button id="vip_2_3" class="Card Hidden">
+              <Label text="{s:vip_2_3_name}" class="Name" hittest="false" />
+              <Label text="{s:vip_2_3_status}" class="Status" hittest="false" />
+            </Button>
+          </Panel>
+        </Panel>
+        <Panel class="Empty Hidden" id="empty">
+          <Label text="В этой группе пока нет доступных предметов" class="Hint" hittest="false" />
+        </Panel>
+        <Panel class="Footer">
+          <Label text="ЛКМ   Выбрать предмет" class="Hint" hittest="false" />
+          <Panel class="Pager Hidden" id="pager">
+            <Button id="prev" class="Nav">
+              <Label text="‹  Назад" class="ButtonLabel" hittest="false" />
+            </Button>
+            <Label text="{s:page}" class="Page" hittest="false" />
+            <Button id="next" class="Nav">
+              <Label text="Далее  ›" class="ButtonLabel" hittest="false" />
+            </Button>
+          </Panel>
+        </Panel>
+      </Panel>
+    </Panel>
+  </Panel>
+</root>
