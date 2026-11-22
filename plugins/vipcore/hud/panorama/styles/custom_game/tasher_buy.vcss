@@ -195,7 +195,7 @@
     background-size: 85% 85%;
     background-position: center;
     background-repeat: no-repeat;
-    background-image: url("s2r://panorama/images/tasher/package.vsvg");
+    background-image: url("s2r://panorama/images/custom_game/tasher/package.vsvg");
 }
 
 .ItemCopy {
@@ -223,41 +223,41 @@
 }
 
 .Armor .ItemIcon {
-    background-image: url("s2r://panorama/images/tasher/shield.vsvg");
+    background-image: url("s2r://panorama/images/custom_game/tasher/shield.vsvg");
 }
 
 .Health .ItemIcon {
-    background-image: url("s2r://panorama/images/tasher/plus.vsvg");
+    background-image: url("s2r://panorama/images/custom_game/tasher/plus.vsvg");
 }
 
 .Regen .ItemIcon {
-    background-image: url("s2r://panorama/images/tasher/activity.vsvg");
+    background-image: url("s2r://panorama/images/custom_game/tasher/activity.vsvg");
 }
 
 .Vampire .ItemIcon {
-    background-image: url("s2r://panorama/images/tasher/droplet.vsvg");
+    background-image: url("s2r://panorama/images/custom_game/tasher/droplet.vsvg");
 }
 
 .Grenades .ItemIcon {
-    background-image: url("s2r://panorama/images/tasher/crosshair.vsvg");
+    background-image: url("s2r://panorama/images/custom_game/tasher/crosshair.vsvg");
 }
 
 .Zeus .ItemIcon {
-    background-image: url("s2r://panorama/images/tasher/zap.vsvg");
+    background-image: url("s2r://panorama/images/custom_game/tasher/zap.vsvg");
 }
 
 .Healthshot .ItemIcon {
-    background-image: url("s2r://panorama/images/tasher/syringe.vsvg");
+    background-image: url("s2r://panorama/images/custom_game/tasher/syringe.vsvg");
 }
 
 .Kit .ItemIcon {
-    background-image: url("s2r://panorama/images/tasher/shield-check.vsvg");
+    background-image: url("s2r://panorama/images/custom_game/tasher/shield-check.vsvg");
 }
 
 .Money .ItemIcon {
-    background-image: url("s2r://panorama/images/tasher/banknote.vsvg");
+    background-image: url("s2r://panorama/images/custom_game/tasher/banknote.vsvg");
 }
 
 .Smoke .ItemIcon {
-    background-image: url("s2r://panorama/images/tasher/palette.vsvg");
+    background-image: url("s2r://panorama/images/custom_game/tasher/palette.vsvg");
 }

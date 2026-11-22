@@ -4,11 +4,11 @@
   </styles>
   <Panel class="Viewport" hittest="false">
     <Panel class="Shop Hidden" id="shop" hittest="true">
-      <Image class="Backdrop" src="s2r://panorama/images/tasher/dust2n.vtex" scaling="stretch-to-cover-preserve-aspect" hittest="false" />
+      <Image class="Backdrop" src="s2r://panorama/images/custom_game/tasher/dust2n.vtex" scaling="stretch-to-cover-preserve-aspect" hittest="false" />
       <Panel class="Tint" hittest="false" />
       <Panel class="Content">
         <Panel class="Header">
-          <Image class="Crown" src="s2r://panorama/images/tasher/crown.vtex" scaling="stretch-to-fit-preserve-aspect" hittest="false" />
+          <Image class="Crown" src="s2r://panorama/images/custom_game/tasher/crown.vtex" scaling="stretch-to-fit-preserve-aspect" hittest="false" />
           <Panel class="Heading">
             <Label text="TASHER   /   {s:group}" class="Group" hittest="false" />
             <Label text="VIP-снаряжение" class="Title" hittest="false" />
