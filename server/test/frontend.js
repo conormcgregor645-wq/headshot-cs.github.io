@@ -30,6 +30,7 @@ assert.match(html, /data-psfilter="premium"/, "Премиум-фильтр до�
 assert.match(html, /data-psfilter="free"/, "Бесплатный фильтр должен быть подключён");
 assert.match(html, /id="psJumpRewards"/, "Переход к наградам должен быть рабочей кнопкой");
 assert.match(html, /id="psBuy"/, "Покупка пропуска должна оставаться доступна");
+assert.equal((html.match(/id="psBuy"/g)||[]).length,1,"Кнопка покупки должна существовать только в одном экземпляре");
 assert.match(html, /data-psclaim/, "Получение наград не должно быть удалено");
 assert.match(html, /psWindowSet/, "Навигация по уровням должна работать");
 assert.match(html, /data:image\/webp;base64,/, "Зимний фон должен быть реально встроен");
