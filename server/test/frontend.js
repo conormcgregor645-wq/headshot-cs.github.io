@@ -35,6 +35,8 @@ assert.match(html, /psWindowSet/, "Навигация по уровням дол
 assert.match(html, /data:image\/webp;base64,/, "Зимний фон должен быть реально встроен");
 const portrait = html.match(/<img src="([^"]+)" alt="TASHER Winter Ops/);
 assert.ok(portrait, "Карточка Winter Ops должна быть в разметке");
+assert.ok(portrait[1].startsWith("data:image/avif;base64,") && portrait[1].length > 20000, "Используется именно утверждённое изображение из макета, встроенное без сетевых зависимостей");
+assert.match(html, /<h1>Боевой пропуск <em>Winter Ops<\/em><\/h1>/, "У сезонной страницы должен быть один главный заголовок");
 if (!portrait[1].startsWith("data:image/")) {
   const rel = portrait[1].replace(/^\/+/,"");
   assert.ok(!rel.includes("..") && fs.existsSync(path.join(__dirname,"../..",rel)), "Файл изображения пропуска должен существовать в репозитории");
