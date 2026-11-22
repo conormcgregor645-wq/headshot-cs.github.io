@@ -1,8 +1,6 @@
 // TASHER: меню !vip с тремя колонками-категориями в стиле закупки CS2 (center-HTML).
 // Полноэкранный Panorama-экран с мышью требует отдельного Workshop HUD addon.
 // W/S — по карточкам внутри колонки, A/D — между колонками, E — выбрать, Tab/R — закрыть. Пока меню открыто, игрок стоит на месте.
-// Панель отправляется игроку только при изменении (раз в несколько секунд — чтобы не погасла), а не каждый кадр,
-// поэтому меню не нагружает сервер и сеть и откликается сразу.
 using System.Text;
 using System.Text.RegularExpressions;
 using CounterStrikeSharp.API;
@@ -19,14 +17,15 @@ public class TasherMenu(string title, BasePlugin plugin) : IMenu
         public required TasherMenu Menu;
         public int Index;
         public PlayerButtons Prev;
-        public DateTime Sent = DateTime.MinValue, Touched = DateTime.UtcNow;
+        public DateTime LastRender = DateTime.MinValue, Touched = DateTime.UtcNow;
+        public string Html = string.Empty;
         public bool Dirty = true;
         public MoveType_t Move = MoveType_t.MOVETYPE_WALK;
     }
 
     private static readonly Dictionary<int, State> Open_ = new();
     private static BasePlugin? _hookedBy;
-    private const int Refresh = 4;      // секунд: панель живёт 6 с, обновляем заранее
+    private const int ContentRefreshSeconds = 4; // учитываем и изменения через публичный IMenu
     private const int IdleClose = 30;   // секунд без нажатий — закрыть
 
     public string Title { get; set; } = title;
@@ -118,11 +117,14 @@ public class TasherMenu(string title, BasePlugin plugin) : IMenu
                     st.Dirty = true;
                 }
             }
-            if (st.Dirty || (DateTime.UtcNow - st.Sent).TotalSeconds >= Refresh)
+            if (st.Dirty || (DateTime.UtcNow - st.LastRender).TotalSeconds >= ContentRefreshSeconds)
             {
-                p.PrintToCenterHtml(Render(st), Refresh + 2);
-                st.Sent = DateTime.UtcNow; st.Dirty = false;
+                st.Html = Render(st);
+                st.LastRender = DateTime.UtcNow;
+                st.Dirty = false;
             }
+            // Как в CenterHtmlMenu CounterStrikeSharp, поддерживаем панель на экране каждый тик.
+            p.PrintToCenterHtml(st.Html, 1);
             }
             catch { Close(p, slot, st); }
         }
