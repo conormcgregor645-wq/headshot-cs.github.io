@@ -2041,6 +2041,7 @@ nav a.on svg{filter:drop-shadow(0 0 6px rgba(181,232,83,0.800))}
 .skw{position:relative;display:inline-grid;place-items:center;line-height:0}
 .skw>img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 6px 10px rgba(0,0,0,.5))}
 .skw.ok>svg{visibility:hidden}
+.skw-stk{position:absolute;inset:0;pointer-events:none;z-index:1;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}.skw-stk svg{width:100%;height:100%}.skw-stk:not(.sel) svg>svg{opacity:.96}
 .pic .skw,.cs-win .pic .skw{width:100%;height:100%}.pic .skw>svg{width:100%;height:100%}
 
 /* итог открытия кейса */
@@ -4297,7 +4298,8 @@ function artBase(w,skin,wear){const id="g"+(gid++);const p=SIL[w.c]||SIL.pistol;
 const STK_VAR=[["Обычная","#5aa9ff","paper","Обычные"],["Голографическая","#a78bfa","holo","Голо"],["Фольгированная","#f472b6","foil","Фольга"],["Золотая","#ffc94a","gold","Золотые"],["С блёстками","#7dd3fc","glitter","Блёстки"],["Лентикулярная","#34d399","lenti","Лентикулярные"],["Вышитая","#fb923c","embr","Вышитые"]];
 const STKP="i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGJai0ki7VeTHj",STKC="https://cdn.steamstatic.com/apps/730/icons/econ/stickers/";
 let STK=[],STKREADY=false,STKWAIT=[];
-function stkSet(d){STK=d.map((x,i)=>({i,n:x[0],v:x[1],img:x[2][0]==="~"?STKP+x[2].slice(1):x[2][0]==="^"?STKC+x[2].slice(1):x[2],t:x[3]||0}));STKREADY=true;STKWAIT.splice(0).forEach(f=>{try{f()}catch(e){}})}
+function stkSet(d){STK=d.map((x,i)=>({i,n:x[0],v:x[1],img:x[2][0]==="~"?STKP+x[2].slice(1):x[2][0]==="^"?STKC+x[2].slice(1):x[2],t:x[3]||0}));STKREADY=true;
+  try{let ch=0;INV.forEach(it=>{if(it.stkN){it.stk=stkFromSrv(it.stkN);delete it.stkN;ch=1}});if(ch){srvLoadoutAgain();try{drawInv()}catch(e){}}}catch(e){}STKWAIT.splice(0).forEach(f=>{try{f()}catch(e){}})}
 // наклейки подгружаются отдельно, после показа страницы
 const STKINL=null;
 function stkLoad(){if(STKREADY||stkLoad.p)return;stkLoad.p=1;fetch("img/stk.json?v=5d36291d").then(r=>r.json()).then(d=>{stkSet(d);try{const v=curView;if(["inventory","me","player","skins"].includes(v))route(v)}catch(e){}}).catch(()=>{stkLoad.p=0;setTimeout(stkLoad,4000)})}
@@ -4315,7 +4317,38 @@ const stkSvg=(i,scr)=>{const k=STK[i];if(!k)return"";return`<span class="stki" s
 function stkLayer(stk,sel){return(stk||[]).map((x,k)=>(x?`<svg x="${SX[k]-5.5}" y="11.5" width="11" height="11" viewBox="0 0 48 48">${stkInner(x.i,x.wear)}</svg>`:"")+(sel===k?`<circle cx="${SX[k]}" cy="17" r="6.6" fill="none" stroke="#b5e853" stroke-width=".7" stroke-dasharray="1.6 1.2"/>`:"")).join("")}
 const skSteam=sk=>sk[6].startsWith("http")?sk[6]:SKPRE+sk[6]+"/360fx270f";
 const skImg=sk=>SKLOCAL&&!sk[6].startsWith("http")?`img/sk/${skId(sk[6])}.webp`:skSteam(sk);
-function art(w,skin,wear,stk,sel){if(skin&&skin[6])return`<span class="skw">${artBase(w,skin,wear)}<img src="${skImg(skin)}" data-s="${skSteam(skin)}" alt="" loading="lazy" decoding="async" onload="this.parentNode.classList.add('ok')" ${IMGFB}></span>`;let h=artBase(w,skin,wear);if((stk&&stk.some(Boolean))||sel!=null)h=h.replace(/<\/svg>$/,stkLayer(stk||[],sel)+"</svg>");return h}
+// у скина с картинкой наклейки рисуются отдельным слоем поверх неё — сразу видно, как пушка выглядит с наклейками
+// слой наклеек над картинкой скина: по ствольной коробке, слева направо; подгоняется под реальный размер картинки (skwFit)
+const SXI=[36,47,58,69,80];
+function stkLayerImg(stk){return(stk||[]).map((x,k)=>x?`<svg data-k="${k}" x="${SXI[k]-6.5}" y="26" width="13" height="13" viewBox="0 0 48 48">${stkInner(x.i,x.wear)}</svg>`:"").join("")}
+function stkSelImg(sel){return sel==null?"":`<circle data-k="${sel}" cx="${SXI[sel]}" cy="32.5" r="7.8" fill="none" stroke="#b5e853" stroke-width=".7" stroke-dasharray="1.6 1.2"/>`}
+// места под наклейки по картинке: 5 точек вдоль корпуса, в каждой — середина самой широкой непрозрачной полосы; размер — по её толщине
+const STKSPOT=new Map();
+function stkSpots(img){const key=img.currentSrc||img.src;if(STKSPOT.has(key))return STKSPOT.get(key);let r=null;
+  try{const cw=200,ch=Math.round(200*img.naturalHeight/img.naturalWidth),c=document.createElement("canvas");c.width=cw;c.height=ch;const g=c.getContext("2d",{willReadFrequently:true});g.drawImage(img,0,0,cw,ch);
+    const a=g.getImageData(0,0,cw,ch).data,op=(x,y)=>a[(y*cw+x)*4+3]>170;let x0=cw,x1=-1,y0=ch,y1=-1;
+    for(let x=0;x<cw;x++)for(let y=0;y<ch;y++)if(op(x,y)){if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y}
+    if(x1>x0){const sc=100/cw,lo=y0+(y1-y0)*.12,hi=y0+(y1-y0)*.55,runs=[];
+      // ствольная коробка — верхняя половина силуэта; магазин и рукоять ниже не трогаем
+      for(let k=0;k<5;k++){const x=Math.round(x0+(x1-x0)*(.32+k*.115));let best=[0,0];
+        for(let y=0,run=0,st=0;y<=ch;y++){const o=y<ch&&op(x,y)&&op(Math.max(0,x-3),y)&&op(Math.min(cw-1,x+3),y);if(o){if(!run)st=y;run++}else{const c=st+run/2;if(run>best[1]&&c>=lo&&c<=hi)best=[st,run];run=0}}
+        runs.push({x,st:best[0],n:best[1]})}
+      const ok=runs.filter(q=>q.n>0),med=ok.length?ok.map(q=>q.n).sort((p,q)=>p-q)[ok.length>>1]:0,line=ok.length?ok.map(q=>q.st+q.n/2).sort((p,q)=>p-q)[ok.length>>1]:(lo+hi)/2;
+      const size=Math.max(6,Math.min(12,med*sc*.9));
+      r=runs.map(q=>{const c=q.n?q.st+q.n/2:line,yy=Math.abs(c-line)*sc>size*.6?line:c;return{x:q.x*sc,y:yy*sc,s:q.n?Math.max(5,Math.min(size,q.n*sc*.95)):size}})}}catch(e){r=null}
+  STKSPOT.set(key,r);return r}
+// наклейки обрезаются по силуэту пушки: маской служит сама картинка скина (прозрачный фон — наклейка там не видна)
+function skwFit(img){const p=img.parentNode;p.classList.add("ok");const ls=p.querySelectorAll(".skw-stk");if(!ls.length||!img.naturalWidth)return;
+  const W=img.clientWidth,H=img.clientHeight,ar=img.naturalWidth/img.naturalHeight;if(!W||!H)return;const rw=W/H>ar?H*ar:W,rh=rw/ar,vh=100/ar;
+  const same=(()=>{try{return new URL(img.currentSrc||img.src,location.href).origin===location.origin}catch(e){return false}})();
+  ls.forEach(l=>{l.style.cssText=`left:${(W-rw)/2/W*100}%;top:${(H-rh)/2/H*100}%;width:${rw/W*100}%;height:${rh/H*100}%`;
+    if(same&&!l.classList.contains("sel")){const u=`url("${img.currentSrc||img.src}")`;l.style.webkitMaskImage=u;l.style.maskImage=u;l.style.webkitMaskSize=l.style.maskSize="100% 100%"}
+    const sv=l.querySelector("svg");sv.setAttribute("viewBox",`0 0 100 ${vh.toFixed(2)}`);
+    const sp=same?stkSpots(img):null;
+    sv.querySelectorAll(":scope>svg").forEach(s=>{const q=sp&&sp[+s.dataset.k];if(q){s.setAttribute("x",(q.x-q.s/2).toFixed(2));s.setAttribute("y",(q.y-q.s/2).toFixed(2));s.setAttribute("width",q.s.toFixed(2));s.setAttribute("height",q.s.toFixed(2))}else s.setAttribute("y",(vh*.44-6.5).toFixed(2))});
+    sv.querySelectorAll("circle").forEach(c=>{const q=sp&&sp[+c.dataset.k];if(q){c.setAttribute("cx",q.x.toFixed(2));c.setAttribute("cy",q.y.toFixed(2));c.setAttribute("r",(q.s*.62).toFixed(2))}else c.setAttribute("cy",(vh*.44).toFixed(2))})})}
+function art(w,skin,wear,stk,sel){const sl=(stk&&stk.some(Boolean)?`<i class="skw-stk" aria-hidden="true"><svg viewBox="0 0 100 75">${stkLayerImg(stk)}</svg></i>`:"")+(sel!=null?`<i class="skw-stk sel" aria-hidden="true"><svg viewBox="0 0 100 75">${stkSelImg(sel)}</svg></i>`:"");
+  if(skin&&skin[6])return`<span class="skw">${artBase(w,skin,wear)}<img src="${skImg(skin)}" data-s="${skSteam(skin)}" alt="" loading="lazy" decoding="async" onload="skwFit(this)" ${IMGFB}>${sl}</span>`;let h=artBase(w,skin,wear);if((stk&&stk.some(Boolean))||sel!=null)h=h.replace(/<\/svg>$/,stkLayer(stk||[],sel)+"</svg>");return h}
 function needLogin(){if(logged)return true;toast("Сначала войди через Steam");return false}
 function syncActive(){SKST.cols[SKST.active].sets=JSON.parse(JSON.stringify(SKST.sets));SKST.cols[SKST.active].setsT=JSON.parse(JSON.stringify(SKST.setsT||{}));skSave()}
 document.addEventListener("keydown",e=>{if(e.key==="Escape")$("tierModal").hidden=true});
@@ -4422,7 +4455,12 @@ let INV=lsGet("inv2","arr")||[];
 {const seen=new Set();INV=INV.filter(it=>{if(!isObj(it)||typeof it.id!=="string"||!it.id||seen.has(it.id))return false;const w=W.find(x=>x.n===it.w),sk=w&&w.skins.find(x=>x[0]===it.s);if(!sk)return false;seen.add(it.id);
   if(!(okNum(it.wear)&&it.wear>=0&&it.wear<=1))it.wear=.2;if(!RC[it.r])it.r=RC[sk[5]]?sk[5]:0;if(it.sp&&!SP[it.sp])delete it.sp;if(it.stk!=null&&!Array.isArray(it.stk))delete it.stk;if(it.fx!=null&&!(okNum(it.fx)&&it.fx>0))delete it.fx;return true})}
 let csDay="";try{csDay=localStorage.getItem("caseDay")||""}catch(e){}
-function srvItems(l){const loc=new Map(INV.map(x=>[x.id,x]));return(l||[]).filter(it=>{const w=W.find(x=>x.n===it.w);return w&&w.skins.some(x=>x[0]===it.s)}).map(it=>{const o=loc.get(it.id);if(o&&o.stk)it.stk=o.stk;return it})}
+// наклейки с сервера приходят названиями [{n,wear}|null]; на сайте — номерами в списке наклеек [{i,wear}|null]
+function stkIdx(){if(!stkIdx.m||stkIdx.n!==STK.length){stkIdx.m=new Map(STK.map(k=>[k.n,k.i]));stkIdx.n=STK.length}return stkIdx.m}
+function stkFromSrv(a){const m=stkIdx(),r=a.map(x=>x&&m.has(x.n)?{i:m.get(x.n),wear:+x.wear||0}:null);return r.some(Boolean)?r:null}
+function srvItems(l){const loc=new Map(INV.map(x=>[x.id,x]));return(l||[]).filter(it=>{const w=W.find(x=>x.n===it.w);return w&&w.skins.some(x=>x[0]===it.s)}).map(it=>{
+  if(Array.isArray(it.stk)){if(STKREADY)it.stk=stkFromSrv(it.stk);else{it.stkN=it.stk;delete it.stk;stkLoad()}}
+  else{const o=loc.get(it.id);if(o&&o.stk)it.stk=o.stk}return it})}
 if(SRV){INV=SRV.user?srvItems(SRV.items):[];if(SRV.user)srvLoadout(SRV.loadout);csDay=SRV.user&&SRV.user.dailyUsed?new Date(Date.now()+3*3600e3).toISOString().slice(0,10):""}
 if(!SRV||SRV.user)[SKST.sets,SKST.setsT].forEach(M=>Object.keys(M||{}).forEach(k=>{const s=M[k],w=W.find(x=>x.n===k);if(!w||(s.name&&!w.skins.some(x=>x[0]===s.name))||(s.inv&&!INV.some(x=>x.id===s.inv)))delete M[k]}));
 const invSave=()=>{try{localStorage.setItem("inv2",JSON.stringify(INV));localStorage.setItem("caseDay",csDay)}catch(e){}};
@@ -4483,6 +4521,7 @@ function equip(it,on,side){const w=invW(it),sides=side?[side]:w?sidesOf(w):["ct"
   // на сервере надетое хранится у нас и сразу уходит в игру; при продаже и ставках сервер снимает предмет сам
   if(SRV&&side)api("/api/equip",{id:it.id,team:side,on}).then(d=>{srvLoadout(d.loadout);drawInv()}).catch(e=>{toast("Не сохранилось: "+e.message);srvSync()})}
 // надетое с сервера: [{team:"ct"|"t", id}]
+function srvLoadoutAgain(){[SKST.sets,SKST.setsT].forEach(m=>{for(const k in m||{}){const x=m[k],it=x&&x.inv&&INV.find(i=>i.id===x.inv);if(it)x.stk=it.stk||null}})}
 function srvLoadout(l){if(!Array.isArray(l))return;SKST.sets={};SKST.setsT={};l.forEach(x=>{const it=INV.find(i=>i.id===x.id);if(!it||(x.team!=="ct"&&x.team!=="t"))return;const m=sideMap(it.w,x.team);m[it.w]={name:it.s,wear:it.wear,seed:it.seed,tag:"",st:it.st,stk:it.stk||null,inv:it.id}});syncActive()}
 const SELL_R=[1,1,1,1,1,1],sellK=it=>SELL_R[Math.max(0,Math.min(5,it.r|0))],itSell=it=>Math.max(1,Math.floor(itDust(it)*sellK(it)));
 function dust(list){let sum=0;list.forEach(it=>{if(isOnIt(it))equip(it,false);sum+=itSell(it)});const ids=new Set(list.map(x=>x.id));INV=INV.filter(x=>!ids.has(x.id));ME.tk+=sum;walletSave();invSave();drawChip();
@@ -4721,7 +4760,8 @@ const closeStk=()=>$("stkModal").hidden=true;
 $("stkClose").onclick=closeStk;$("stkModal").onclick=e=>{if(e.target.id==="stkModal")closeStk()};
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closeStk()});
 $("stkClear").onclick=()=>{sts=[null,null,null,null,null];ssel=0;drawStk()};
-$("stkSave").onclick=()=>{if(!needLogin())return;if(stkIt){const it=stkIt;it.stk=sts.some(Boolean)?sts:null;invSave();if(isOnIt(it)){[SKST.sets,SKST.setsT].forEach(m=>{const x=m&&m[it.w];if(x&&x.inv===it.id)x.stk=it.stk});syncActive()}closeStk();drawInv();const n=sts.filter(Boolean).length;toast(n?`${it.w} | ${it.s}: ${n} ${plural(n,"наклейка","наклейки","наклеек")}`:`${it.w}: наклейки сняты`);return}const s=SKST.sets[stw.n]||(SKST.sets[stw.n]={name:null,wear:.01,seed:0,tag:"",st:false});s.stk=sts.some(Boolean)?sts:null;if(!s.name&&!s.stk)delete SKST.sets[stw.n];syncActive();closeStk();drawSkGrid();drawCols();const n=sts.filter(Boolean).length;toast(n?`${stw.n}: ${n} ${plural(n,"наклейка","наклейки","наклеек")}, применится после возрождения`:`${stw.n}: наклейки сняты`)};
+$("stkSave").onclick=()=>{if(!needLogin())return;if(stkIt){const it=stkIt;it.stk=sts.some(Boolean)?sts:null;invSave();
+    if(SRV)api("/api/items/stickers",{id:it.id,stk:sts.map(x=>x?{n:STK[x.i].n,wear:x.wear}:null)}).catch(e=>toast("Наклейки не сохранились: "+e.message));if(isOnIt(it)){[SKST.sets,SKST.setsT].forEach(m=>{const x=m&&m[it.w];if(x&&x.inv===it.id)x.stk=it.stk});syncActive()}closeStk();drawInv();const n=sts.filter(Boolean).length;toast(n?`${it.w} | ${it.s}: ${n} ${plural(n,"наклейка","наклейки","наклеек")}`:`${it.w}: наклейки сняты`);return}const s=SKST.sets[stw.n]||(SKST.sets[stw.n]={name:null,wear:.01,seed:0,tag:"",st:false});s.stk=sts.some(Boolean)?sts:null;if(!s.name&&!s.stk)delete SKST.sets[stw.n];syncActive();closeStk();drawSkGrid();drawCols();const n=sts.filter(Boolean).length;toast(n?`${stw.n}: ${n} ${plural(n,"наклейка","наклейки","наклеек")}, применится после возрождения`:`${stw.n}: наклейки сняты`)};
 
 // ---------- меню: бургер, «Ещё», соцсети ----------
 $("burger").onclick=()=>{const r=document.querySelector(".rail");const o=r.classList.toggle("open");$("burger").setAttribute("aria-expanded",o)};

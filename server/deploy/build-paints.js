@@ -1,5 +1,6 @@
 "use strict";
 // Собирает номера раскрасок CS2 для скинов сайта: node build-paints.js /var/lib/tasher/paints.json
+// и рядом номера наклеек (stickers.json) — чтобы наклейки с сайта появлялись в игре.
 // Источник — открытая база предметов CS2 (github.com/ByMykel/CSGO-API). Запускается при установке и обновлении.
 const fs = require("node:fs");
 const path = require("node:path");
@@ -43,6 +44,21 @@ async function get(name) {
     }
   }
   const noDef = W.filter(w => !WP.defOf(w.n) && w.c !== "agent").map(w => w.n);
+  // номера наклеек для WeaponPaints: «G2 Esports | Paris 2023» -> номер; пишем рядом: stickers.json
+  try {
+    const st = await get("stickers.json"), sm = {};
+    for (const x of Array.isArray(st) ? st : Object.values(st)) {
+      const id = +(x && (x.def_index || String(x.id || "").replace(/^sticker-/, "")));
+      const nm = x && String(x.name || "").replace(/^Sticker \| /, "");
+      if (id > 0 && nm) sm[nm] = id;
+    }
+    const SOUT = path.join(path.dirname(OUT), "stickers.json");
+    fs.mkdirSync(path.dirname(SOUT), { recursive: true });
+    fs.writeFileSync(SOUT + ".tmp", JSON.stringify(sm)); fs.renameSync(SOUT + ".tmp", SOUT);
+    const site = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "..", "img", "stk.json"), "utf8"));
+    const okS = site.filter(x => sm[x[0]]).length;
+    console.log(`наклейки: найдено ${okS} из ${site.length} наклеек сайта, записано в ${SOUT}` + (okS < site.length ? `; без номера, например: ${site.filter(x => !sm[x[0]]).slice(0, 5).map(x => x[0]).join("; ")}` : ""));
+  } catch (e) { console.log("наклейки: не скачались (" + e.message + ") — старый файл оставлен"); }
   fs.mkdirSync(path.dirname(OUT), { recursive: true });
   fs.writeFileSync(OUT + ".tmp", JSON.stringify(map)); fs.renameSync(OUT + ".tmp", OUT);
   console.log(`раскраски: найдено ${ok} из ${all} скинов сайта, записано в ${OUT}`);

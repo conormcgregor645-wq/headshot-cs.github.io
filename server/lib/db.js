@@ -221,6 +221,8 @@ function open(file) {
     `CREATE TABLE boost(sid TEXT NOT NULL, kind TEXT NOT NULL, until INTEGER NOT NULL, PRIMARY KEY(sid, kind));`,
     // 16: кейсы из боевого пропуска — не открываются сразу, а копятся и открываются бесплатно во вкладке «Кейсы»
     `CREATE TABLE case_free(user_id INTEGER NOT NULL, k TEXT NOT NULL, n INTEGER NOT NULL, PRIMARY KEY(user_id, k));`,
+    // 17: наклейки на предмете: JSON [{n: название, wear: 0..1} | null] × 5 слотов — уходят в игру через WeaponPaints
+    `ALTER TABLE items ADD COLUMN stk TEXT;`,
   ];
   for (let v = ver; v < MIG.length; v++) {
     db.exec("BEGIN");
