@@ -25,7 +25,7 @@ function rewards() {
     11: O("tc_1"), 12: O("nk_0"), 13: C("cgreen"), 14: O("sd_drum"), 15: C("army"), 16: B("tk2", 24), 17: C("cblue"), 18: O("bg_i_nydust"), 19: O("tr_wops"), 20: O("tc_0"),
     21: C("forb"), 22: O("nk_1"), 23: O("sd_ding"), 24: C("cgreen"), 25: S("VIP", 3), 26: O("sm_wops"), 27: C("cyellow"), 28: C("army"),
     29: B("xp2", 24), 30: O("kl_spark"), 31: C("cblue"), 32: O("kl_star"), 33: O("tr_1"), 34: C("secret"), 35: C("forb"), 36: S("PREMIUM", 2), 37: C("desert"),
-    38: O("sd_coin"), 39: O("mv_level"), 40: O("fr_lime"), 41: C("cyellow"), 42: B("tk2", 24), 43: O("fr_ice"), 44: C("secret"), 45: C("desert"),
+    38: O("sd_coin"), 39: O("mv_csgo"), 40: O("fr_lime"), 41: C("cyellow"), 42: B("tk2", 24), 43: O("fr_ice"), 44: C("secret"), 45: C("desert"),
     46: O("tc_wops"), 47: C("cred"), 48: C("fire"), 50: S("PREMIUM", 7),
   };
   const PREM = {
@@ -121,7 +121,9 @@ function makePass({ db, tx, addMoney, giveItem, rollCase, caseByK, cosById, addG
       case "tk": addMoney(u.id, "tk", rw.v, "pass", "lv" + lv, { what: `${note}: ${rw.v} ТК` }); return `${rw.v} ТК`;
       case "case": {
         const c = caseByK(rw.k); if (!c) { addMoney(u.id, "tk", 500, "pass", "lv" + lv, { what: `${note}: 500 ТК` }); return "500 ТК"; }
-        const it = giveItem(u.id, rollCase(c), "pass", "lv" + lv); return `${it.w} | ${it.s} (кейс «${c.n}»)`;
+        // кейс не открывается сразу: он копится и открывается бесплатно во вкладке «Кейсы»
+        db.prepare("INSERT INTO case_free(user_id,k,n) VALUES(?,?,1) ON CONFLICT(user_id,k) DO UPDATE SET n=n+1").run(u.id, c.k);
+        return `Кейс «${c.n}» — открой бесплатно во вкладке «Кейсы»`;
       }
       case "cos": {
         const it = cosById(rw.id);

@@ -28,3 +28,16 @@ assert.match(html, /class="pp-it /, "Rewards must render as item cards");
 assert.match(html, /data-psclaim=/, "Rewards must stay claimable");
 assert.match(html, /@media\(max-width:620px\)/, "Pass must define phone layout rules");
 console.log(`Frontend: ${scripts.length} inline JS block(s) parsed; UPD smoke checks passed`);
+
+// каталог оформления на сайте совпадает с серверным: те же предметы, цены и пометки эксклюзивов
+{
+  const vm = require("node:vm");
+  const html = fs.readFileSync(path.join(__dirname, "../../index.html"), "utf8");
+  const src = html.slice(html.indexOf("var CI=["), html.indexOf("];", html.indexOf("var CI=[")) + 2);
+  const CI = vm.runInNewContext(src + ";CI");
+  const SRVC = JSON.parse(fs.readFileSync(path.join(__dirname, "../data/cosmetics.json"), "utf8"));
+  const site = new Map(CI.map(x => [x.id, x]));
+  const bad = SRVC.filter(x => { const y = site.get(x.id); return !y || y.p !== x.p || y.cat !== x.cat || (y.ex || "") !== (x.ex || "") || (y.lv || 0) !== (x.lv || 0); }).map(x => x.id);
+  if (bad.length || CI.length !== SRVC.length) { console.error("Каталог оформления на сайте и сервере расходится:", bad, CI.length, SRVC.length); process.exit(1); }
+  console.log("Каталог оформления: сайт и сервер совпадают (" + CI.length + ")");
+}

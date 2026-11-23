@@ -289,7 +289,7 @@ const call = async (cookie, p, body, h = {}) => { const r = await fetch(B + p, b
     await new Promise(z => setTimeout(z, 900));
     { const c = STYLE.compose({ tier: "VIP", clanTag: "TST", clanColor: "#5aa9ff" }); ok(c.chat === "{silver}[VIP] {lightblue}[TST]" && c.score === "VIP", "без своего тега в чате — тег клана", c); }
     // эффекты в игре: эффект и звук убийства, трассеры, след гранат, цвет дыма
-    await call(O4, "/api/admin/balance", { user: wid, cur: "rub", delta: 500, reason: "тест эффектов" });
+    await call(O4, "/api/admin/balance", { user: wid, cur: "rub", delta: 1000, reason: "тест эффектов" });
     for (const id of ["kl_bolt", "sd_coin", "tc_3", "tr_2", "sm_1"]) { r = await call(W, "/api/shop/cos", { id }); ok(r.s === 200 && Object.values(r.j.cos.eq).includes(id), "куплено и надето: " + id, r.j); }
     await new Promise(z => setTimeout(z, 900));
     { const c = STYLE.compose({ tier: "VIP", clanTag: "TST", clanColor: "#5aa9ff", killFx: "bolt", killSnd: "coin", trailHex: "#38d3ff", tracerHex: "#f5c451", smokeHex: "#ff6b8b" }); ok(c.killFx === "bolt" && c.killSnd === "coin" && c.trail === "56,211,255" && c.tracer === "245,196,81" && c.smoke === "255,107,139", "эффекты, звук, трассеры, след гранат и дым уходят в игру", c); }
@@ -338,6 +338,7 @@ const call = async (cookie, p, body, h = {}) => { const r = await fetch(B + p, b
   // владельцы берутся из настроек: после перезапуска с другим списком роли меняются
   await new Promise(z => { srv.once("exit", z); srv.kill(); }); srv = start("76561190000000002"); await up();
   const A2 = await login("76561190000000001"), P2 = await login("76561190000000002");
+  r = await call(P2, "/api/cases/open", { k: "army", n: 1, free: true }); ok(r.s === 409, "без кейсов из пропуска бесплатно не открыть", r);
   r = await call(A2, "/api/me"); ok(r.j.user && r.j.user.role === "player", "убранный из настроек владелец теряет права", r.j.user && r.j.user.role);
   r = await call(P2, "/api/me"); ok(r.j.user && r.j.user.role === "owner", "новый владелец из настроек получает права", r.j.user && r.j.user.role);
   r = await call(A2, "/api/admin/users"); ok(r.s === 403, "бывший владелец не видит админку", r.s);

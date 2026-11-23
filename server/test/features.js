@@ -401,18 +401,18 @@ const bal = u => db.prepare("SELECT tk, rub FROM users WHERE id=?").get(u.id);
   const tk0 = bal(u).tk;
   let r = P.claim(u, { track: "f", lv: 1 }); ok(r.got[0].txt === "110 ТК" && bal(u).tk === tk0 + 110, "забрал уровень 1: 110 ТК", r);
   ok(thr(() => P.claim(u, { track: "f", lv: 1 }), /Уже получено/), "дважды не забрать");
-  r = P.claim(u, { all: true }); ok(r.got.length === 4 && r.got.some(g => g.lv === 5 && /кейс «Армейский»/.test(g.txt)) && db.prepare("SELECT COUNT(*) n FROM items WHERE user_id=? AND src='pass'").get(u.id).n === 1, "«Забрать всё»: ТК и скин из кейса", r.got);
+  r = P.claim(u, { all: true }); ok(r.got.length === 4 && r.got.some(g => g.lv === 5 && /Кейс «Армейский»/.test(g.txt)) && db.prepare("SELECT n FROM case_free WHERE user_id=? AND k='army'").get(u.id).n === 1 && db.prepare("SELECT COUNT(*) n FROM items WHERE user_id=? AND src='pass'").get(u.id).n === 0, "«Забрать всё»: ТК и кейс копится для бесплатного открытия", r.got);
   ok(P.state(sid).me.unclaimed === 0, "всё получено");
   r = P.buyPremium(u); ok(r.balance === 1000 - PM.PREMIUM_PRICE && P.state(sid).me.prem && P.state(sid).me.unclaimed === 5, "премиум куплен — открылись премиум-награды пройденных уровней", P.state(sid).me);
   ok(thr(() => P.buyPremium(u), /уже куплен/), "дважды не купить");
-  r = P.claim(u, { all: true }); ok(r.got.length === 5 && r.got.some(g => g.track === "p" && /кейс «Огненный»/.test(g.txt)), "премиум-награды получены", r.got);
+  r = P.claim(u, { all: true }); ok(r.got.length === 5 && r.got.some(g => g.track === "p" && /Кейс «Огненный»/.test(g.txt)), "премиум-награды получены", r.got);
   // статус и оформление
   db.prepare("UPDATE pass SET xp=? WHERE sid=?").run(50 * PM.XP_LEVEL + 9999, sid);
   ok(P.state(sid).me.lv === 50, "уровень не выше 50");
   db.prepare("INSERT INTO cos_own(user_id,item_id,created_at) VALUES(?,?,?)").run(u.id, "fr_winter", T1);
   const t1 = bal(u).tk; ong = 0; grants.length = 0;
   r = P.claim(u, { track: "p", lv: 50 });
-  ok(grants.length === 1 && grants[0][1] === "KING" && grants[0][2] === 14 && ong === 1 && r.got.some(g => /2490 ТК вместо «Зима 2026»/.test(g.txt)) && bal(u).tk === t1 + 2490, "уровень 50: KING на 14 дней, уже купленная рамка — ТК", r.got);
+  ok(grants.length === 1 && grants[0][1] === "KING" && grants[0][2] === 14 && ong === 1 && r.got.some(g => /2990 ТК вместо «Зима 2026»/.test(g.txt)) && bal(u).tk === t1 + 2990, "уровень 50: KING на 14 дней, уже купленная рамка — ТК", r.got);
   r = P.claim(u, { track: "f", lv: 10 }); ok(db.prepare("SELECT 1 FROM cos_own WHERE user_id=? AND item_id='sm_0'").get(u.id) && r.got[0].txt === "«Лайм»", "оформление из пропуска — в «Моих вещах»");
   // бусты: ×2 опыт на 24 ч (ур. 6), повторный буст продлевает срок; ×2 ТК — множитель для заработка за игру
   ok(P.boostMult(sid, "xp2", T1) === 1, "до буста множитель 1");
