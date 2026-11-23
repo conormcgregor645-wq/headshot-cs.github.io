@@ -177,6 +177,7 @@ const bal = u => db.prepare("SELECT tk, rub FROM users WHERE id=?").get(u.id);
   ok(!bad.killFx && !bad.killSnd && !bad.trail && !bad.tracer, "чужие значения эффектов не проходят", bad);
   ok(/kill_fx,kill_snd,trail,tracer\) VALUES \(\d{17},'\{grey\}\[Новенький\]','','','','ring','8bit','255,255,255','235,75,75'\)/.test(STYLE.sqlFor([{ sid: sidN(2), killFx: "ring", killSnd: "8bit", trailHex: "#ffffff", tracerHex: "#eb4b4b" }], true)), "эффекты пишутся в таблицу плагина");
   ok(!/kill_fx/.test(STYLE.sqlFor([{ sid: sidN(2), killFx: "ring" }], false)), "старый плагин без колонок эффектов — пишем без них");
+  ok(/tracer,mvp_snd\) VALUES \(\d{17},.*,'storm','','','','wops'\)/.test(STYLE.sqlFor([{ sid: sidN(2), killFx: "storm", mvpSnd: "wops" }], 5)) && !/mvp_snd/.test(STYLE.sqlFor([{ sid: sidN(2), mvpSnd: "wops" }], 4)), "звук MVP пишется, только если плагин уже знает колонку");
   const sql = STYLE.sqlFor([{ sid: sidN(1), tag: "a'b{red}" }, { sid: "123" }]);
   ok(!/\{red\}/.test(sql) && !/a'b/.test(sql) && (sql.match(/\(\d{17},/g) || []).length === 1, "в SQL нет кавычек и цветовых вставок из своего тега", sql);
 }
@@ -381,8 +382,8 @@ const bal = u => db.prepare("SELECT tk, rub FROM users WHERE id=?").get(u.id);
   const COS = new Map(JSON.parse(fs.readFileSync(path.join(__dirname, "..", "data", "cosmetics.json"), "utf8")).map(x => [x.id, x]));
   const gi = (uid, it, src, ref) => { db.prepare("INSERT INTO items(id,user_id,w,s,r,wear,st,sv,sp,fx,seed,src,src_ref,state,created_at) VALUES(?,?,?,?,?,?,0,0,NULL,0,?,?,?,'inv',?)").run(it.id, uid, it.w, it.s, it.r, it.wear, it.seed || 0, src, ref || null, T1); return it; };
   const P = PM.makePass({ db, tx: T, addMoney, giveItem: gi, rollCase: G.rollCase, caseByK: k => G.CASE_BY_K.get(k), cosById: id => COS.get(id), addGrant: (...a) => grants.push(a), onGrant: () => ong++, eventMult: () => xpm, now: () => T1, log: { log() {} } });
-  ok(PM.REWARDS.free[2][0].id === "bd_skull" && PM.REWARDS.free[11][0].id === "bd_bolt" && PM.REWARDS.prem[27][0].id === "kl_conf", "UPD: в пропуске есть новые оформления между ключевыми уровнями");
-  ok(PM.REWARDS.free.length === 50 && PM.REWARDS.prem.length === 50 && [...PM.REWARDS.free, ...PM.REWARDS.prem].flat().every(r => r.t === "tk" ? r.v > 0 : r.t === "case" ? !!G.CASE_BY_K.get(r.k) : r.t === "cos" ? COS.has(r.id) : r.t === "status" ? ["VIP", "PREMIUM", "ELITE", "LEGEND", "TITAN", "KING"].includes(r.tier) && r.d > 0 : false), "50 уровней: все награды существуют (кейсы, оформление, статусы)");
+  ok(PM.REWARDS.free[2][0].id === "tr_0" && PM.REWARDS.free[11][0].id === "nk_0" && PM.REWARDS.prem[27][0].id === "kl_conf", "UPD: в пропуске есть новые оформления между ключевыми уровнями");
+  ok(PM.REWARDS.free.length === 50 && PM.REWARDS.prem.length === 50 && [...PM.REWARDS.free, ...PM.REWARDS.prem].flat().every(r => r.t === "tk" ? r.v > 0 : r.t === "case" ? !!G.CASE_BY_K.get(r.k) : r.t === "cos" ? COS.has(r.id) : r.t === "status" ? ["VIP", "PREMIUM", "ELITE", "LEGEND", "TITAN", "KING"].includes(r.tier) && r.d > 0 : r.t === "boost" ? ["tk2", "xp2"].includes(r.k) && r.h > 0 : false), "50 уровней: все награды существуют (кейсы, оформление, статусы)");
   const u = user(801, 0, 1000), sid = u.steamid;
   ok(P.season().id === "s1" && P.state(sid).me.lv === 0, "идёт сезон 1");
   const k = (a, v, hs) => ({ t: T1, e: "kill", a: { sid: a, team: "ct" }, v: v ? { sid: v, team: "t" } : { sid: null, bot: true, team: "t" }, w: "ak47", hs });
@@ -412,7 +413,18 @@ const bal = u => db.prepare("SELECT tk, rub FROM users WHERE id=?").get(u.id);
   const t1 = bal(u).tk; ong = 0; grants.length = 0;
   r = P.claim(u, { track: "p", lv: 50 });
   ok(grants.length === 1 && grants[0][1] === "KING" && grants[0][2] === 14 && ong === 1 && r.got.some(g => /2490 ТК вместо «Зима 2026»/.test(g.txt)) && bal(u).tk === t1 + 2490, "уровень 50: KING на 14 дней, уже купленная рамка — ТК", r.got);
-  r = P.claim(u, { track: "f", lv: 10 }); ok(db.prepare("SELECT 1 FROM cos_own WHERE user_id=? AND item_id='bd_aim'").get(u.id) && r.got[0].txt === "«Прицел»", "оформление из пропуска — в «Моих вещах»");
+  r = P.claim(u, { track: "f", lv: 10 }); ok(db.prepare("SELECT 1 FROM cos_own WHERE user_id=? AND item_id='sm_0'").get(u.id) && r.got[0].txt === "«Лайм»", "оформление из пропуска — в «Моих вещах»");
+  // бусты: ×2 опыт на 24 ч (ур. 6), повторный буст продлевает срок; ×2 ТК — множитель для заработка за игру
+  ok(P.boostMult(sid, "xp2", T1) === 1, "до буста множитель 1");
+  r = P.claim(u, { track: "f", lv: 6 }); ok(r.got[0].txt === "×2 опыт пропуска на 24 ч" && P.boostMult(sid, "xp2", T1) === 2 && P.boostMult(sid, "xp2", T1 + 25 * 3600e3) === 1, "буст ×2 опыт на 24 часа", r.got);
+  r = P.claim(u, { track: "p", lv: 6 }); ok(P.state(sid).me.boosts.xp2 === T1 + 72 * 3600e3, "второй буст продлевает срок (24 + 48 ч)");
+  r = P.claim(u, { track: "f", lv: 16 }); ok(P.boostMult(sid, "tk2", T1) === 2, "буст ×2 ТК");
+  { const E3 = makeEarn({ db, tx: T, addMoney, statusOf: () => null, boostMult: s => P.boostMult(s, "tk2", T1), now: () => T1 });
+    ok(E3.add(sid, 5, T1) === 10 && E3.today(sid, T1).boost === 2, "с бустом ТК за игру ×2"); }
+  // эксклюзивы сезона: только из пропуска, уровень и ветка в каталоге совпадают с наградами
+  const EXI = [...COS.values()].filter(x => x.ex);
+  ok(EXI.length >= 8 && EXI.every(x => (x.tr === "p" ? PM.REWARDS.prem : PM.REWARDS.free)[x.lv - 1].some(r => r.t === "cos" && r.id === x.id)), "каждый эксклюзив выдаётся на своём уровне пропуска", EXI.map(x => x.id));
+  ok(![...COS.values()].some(x => x.cat === "badge") && ![...PM.REWARDS.free, ...PM.REWARDS.prem].flat().some(r => r.t === "cos" && /^bd_/.test(r.id)), "значков больше нет");
   const b = P.brief(sid); ok(b.lv === 50 && b.prem === 1 && b.s === "Сезон 1 · Зима" && b.un > 0, "данные для !pass", b);
   T1 = Date.UTC(2027, 1, 5); ok(P.state(sid).season === null && P.addXp(sid, 100, T1) === 0 && thr(() => P.claim(u, { all: true }), /закончился/), "после конца сезона опыт и награды закрыты");
 }

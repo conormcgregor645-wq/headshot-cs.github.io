@@ -6,7 +6,7 @@ const { execFile } = require("node:child_process");
 
 const TIER_COL = { VIP: "silver", PREMIUM: "lightblue", ELITE: "green", LEGEND: "purple", TITAN: "orange", KING: "gold" };
 // цвета ника с сайта -> цвета чата CS2 (в чате только фиксированные цвета; градиенты — ближайшим)
-const NICK_COL = { nk_0: "lime", nk_1: "lightblue", nk_2: "magenta", nk_3: "gold", nk_4: "lightpurple", nk_5: "red", nk_grad1: "grad-sunset", nk_grad2: "grad-toxic" };
+const NICK_COL = { nk_0: "lime", nk_1: "lightblue", nk_2: "magenta", nk_3: "gold", nk_4: "lightpurple", nk_5: "red", nk_grad1: "grad-sunset", nk_grad2: "grad-toxic", nk_wops: "lightblue" };
 // цвет клана -> цвет тега в чате
 const CLAN_COL = { "#b5e853": "lime", "#ff8a3d": "orange", "#f5c451": "gold", "#3ddc97": "green", "#5aa9ff": "lightblue", "#a78bfa": "lightpurple", "#38d3ff": "lightblue", "#ff6b8b": "magenta", "#eb4b4b": "red" };
 const hexRgb = h => { const m = /^#([0-9a-f]{6})$/i.exec(h || ""); if (!m) return ""; const n = parseInt(m[1], 16); return `${n >> 16},${(n >> 8) & 255},${n & 255}`; };
@@ -14,9 +14,11 @@ const hexRgb = h => { const m = /^#([0-9a-f]{6})$/i.exec(h || ""); if (!m) retur
 const cleanTag = s => String(s || "").replace(/[^0-9A-Za-zА-Яа-яЁё _\-.!?*#]/g, "").replace(/\s+/g, " ").trim().slice(0, 12);
 const STEAM64 = 76561197960265728n;
 
-const KILL_FX = new Set(["spark", "bolt", "conf", "ring", "frost", "fire", "tornado", "star", "rainbow", "nova"]);
+const KILL_FX = new Set(["spark", "bolt", "conf", "ring", "frost", "fire", "tornado", "star", "rainbow", "nova", "storm"]);
 const KILL_SND = new Set(["ding", "drum", "bell", "8bit", "coin"]);
-// rows: [{sid, tier, clanTag, clanColor, nick (id), tag (свой тег), smokeHex, killFx, killSnd, trailHex, tracerHex}]
+// звук MVP раунда (слышат все на сервере)
+const MVP_SND = new Set(["legend", "level", "alert", "wops"]);
+// rows: [{sid, tier, clanTag, clanColor, nick (id), tag (свой тег), smokeHex, killFx, killSnd, trailHex, tracerHex, mvpSnd}]
 function compose(r) {
   const parts = [];
   if (r.tier) parts.push(`{${TIER_COL[r.tier] || "default"}}[${r.tier}]`);
@@ -30,15 +32,17 @@ function compose(r) {
   const score = TIER_COL[r.tier] ? r.tier : "";
   const smoke = r.smokeHex ? hexRgb(r.smokeHex) : r.tier === "KING" ? "random" : "";
   const killFx = KILL_FX.has(r.killFx) ? r.killFx : "", killSnd = KILL_SND.has(r.killSnd) ? r.killSnd : "";
-  return { chat: parts.join(" "), name, score: score.slice(0, 16), smoke, killFx, killSnd, trail: hexRgb(r.trailHex), tracer: hexRgb(r.tracerHex) };
+  return { chat: parts.join(" "), name, score: score.slice(0, 16), smoke, killFx, killSnd, trail: hexRgb(r.trailHex), tracer: hexRgb(r.tracerHex), mvpSnd: MVP_SND.has(r.mvpSnd) ? r.mvpSnd : "" };
 }
 const q = s => "'" + String(s).replace(/[\\']/g, "") + "'";
-// fx = в таблице есть колонки эффектов (их добавляет плагин версии 1.1 и новее)
-function sqlFor(rows, fx = false) {
+// fx — сколько колонок эффектов есть в таблице (их добавляет плагин): 0 — нет, 4 — kill_fx..tracer (1.1), 5 — ещё mvp_snd (1.3); true = 4
+function sqlFor(rows, fx = 0) {
+  const n = fx === true ? 4 : Number(fx) || 0;
   const ok = rows.filter(r => /^\d{17}$/.test(r.sid) && BigInt(r.sid) > STEAM64);
   const out = ["START TRANSACTION;", "DELETE FROM tasher_style;"];
-  if (ok.length) out.push(`INSERT INTO tasher_style (steamid,chat_tag,name_color,score_tag,smoke${fx ? ",kill_fx,kill_snd,trail,tracer" : ""}) VALUES ` +
-    ok.map(r => { const c = compose(r); return `(${r.sid},${q(c.chat)},${q(c.name)},${q(c.score)},${q(c.smoke)}${fx ? `,${q(c.killFx)},${q(c.killSnd)},${q(c.trail)},${q(c.tracer)}` : ""})`; }).join(",") + ";");
+  const cols = n >= 4 ? ",kill_fx,kill_snd,trail,tracer" + (n >= 5 ? ",mvp_snd" : "") : "";
+  if (ok.length) out.push(`INSERT INTO tasher_style (steamid,chat_tag,name_color,score_tag,smoke${cols}) VALUES ` +
+    ok.map(r => { const c = compose(r); return `(${r.sid},${q(c.chat)},${q(c.name)},${q(c.score)},${q(c.smoke)}${n >= 4 ? `,${q(c.killFx)},${q(c.killSnd)},${q(c.trail)},${q(c.tracer)}` : ""}${n >= 5 ? `,${q(c.mvpSnd)}` : ""})`; }).join(",") + ";");
   out.push("COMMIT;");
   return out.join("\n");
 }
@@ -52,10 +56,10 @@ function makeStyleSync({ cnf, bin = "mysql", db = "weaponpaints", collect, reloa
     if (input == null) p.stdin.end(); else p.stdin.end(input);
   });
   async function once() {
-    const [has, cols] = (await run(["-e", "SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='tasher_style'; SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='tasher_style' AND COLUMN_NAME IN ('kill_fx','kill_snd','trail','tracer')"])).trim().split(/\s+/);
+    const [has, cols] = (await run(["-e", "SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='tasher_style'; SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='tasher_style' AND COLUMN_NAME IN ('kill_fx','kill_snd','trail','tracer','mvp_snd')"])).trim().split(/\s+/);
     if (has !== "1") { if (!warned) { warned = true; log.log("[style] таблицы tasher_style ещё нет — плагин TASHER Style не установлен"); } return { skipped: true }; }
     warned = false;
-    const sql = sqlFor(collect(), cols === "4");
+    const sql = sqlFor(collect(), Number(cols) || 0);
     if (sql === lastSql) return { same: true };
     await run([], sql); lastSql = sql;
     try { await reload(); } catch (e) {}
@@ -72,4 +76,4 @@ function makeStyleSync({ cnf, bin = "mysql", db = "weaponpaints", collect, reloa
   };
 }
 
-module.exports = { compose, sqlFor, makeStyleSync, cleanTag, NICK_COL };
+module.exports = { compose, sqlFor, makeStyleSync, cleanTag, NICK_COL, KILL_FX, KILL_SND, MVP_SND };

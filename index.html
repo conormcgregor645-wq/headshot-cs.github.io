@@ -1637,6 +1637,8 @@ button.pf-role{cursor:pointer}button.pf-role:hover{border-color:color-mix(in srg
 .pp-art img{width:104px;height:104px;object-fit:cover;border-radius:10px;filter:drop-shadow(0 8px 14px rgba(0,0,0,.5))}
 .pp-coin{width:74px;height:74px;filter:drop-shadow(0 6px 10px rgba(0,0,0,.5))}
 .pp-tier{display:grid;place-items:center}.pp-tier svg{width:62px;height:62px;filter:drop-shadow(0 0 14px currentColor)}
+.pp-boost{display:grid;place-items:center;gap:2px;color:#5ef0c8}.pp-boost svg{width:44px;height:44px;fill:currentColor;filter:drop-shadow(0 0 12px rgba(94,240,200,.6))}.pp-boost b{font-size:15px;font-weight:900;color:#eafff8}
+.pp-bst{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.pp-bst span{display:inline-flex;align-items:center;gap:5px;padding:4px 9px;border-radius:8px;background:rgba(94,240,200,.12);border:1px solid rgba(94,240,200,.35);font-size:12px;color:#cffff0}.pp-bst svg{width:13px;height:13px;fill:#5ef0c8}.pp-bst b{color:#fff}
 .pp-ic{width:44px;height:44px;fill:none;stroke:var(--rc);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .pp-cos{width:118px;height:92px;display:block;overflow:hidden;border-radius:10px}
 .pp-cos .co-sw{height:92px;cursor:inherit;border-radius:10px}
@@ -2752,6 +2754,10 @@ nav a.on,nav a.on svg{color:#b5e853!important}
 .co-it:hover{border-color:rgba(181,232,83,.3);transform:translateY(-2px)}
 .co-it.eq{border-color:rgba(181,232,83,.65);box-shadow:inset 0 0 0 1px rgba(181,232,83,.4),0 0 20px rgba(181,232,83,.08)}
 .co-it.season{background:linear-gradient(180deg,rgba(56,211,255,.08),transparent 60%),rgba(18,19,17,.85)}
+.co-it.ex{position:relative;background:linear-gradient(180deg,rgba(159,220,255,.12),transparent 55%),rgba(14,18,22,.9);border-color:rgba(159,220,255,.28)!important}
+.co-exb{position:absolute;top:8px;left:8px;z-index:2;padding:2px 7px;border-radius:6px;background:rgba(159,220,255,.16);color:#bfe9ff;font-size:10px;font-weight:800;letter-spacing:.02em}
+.co-b.co-ex{display:flex;align-items:center;text-align:center;line-height:1.25;background:rgba(159,220,255,.1);border:1px dashed rgba(159,220,255,.45);color:#cfefff;text-decoration:none;font-weight:800;cursor:pointer}
+.co-b.co-ex:hover{background:rgba(159,220,255,.18)}
 .co-sw{position:relative;display:grid;place-items:center;height:92px;border-radius:12px;background:radial-gradient(70% 70% at 50% 45%,rgba(255,255,255,.05),transparent 70%),rgba(0,0,0,.3);overflow:hidden}
 .co-avp{display:block;width:62px;height:62px;border-radius:50%;overflow:hidden;font-style:normal}
 .co-bgp{height:92px;background:rgba(255,255,255,.04)}
@@ -2779,6 +2785,7 @@ nav a.on,nav a.on svg{color:#b5e853!important}
 .kfx-star{background:radial-gradient(circle,rgba(255,207,64,.55),transparent 55%);clip-path:polygon(50% 8%,61% 38%,93% 38%,67% 57%,77% 88%,50% 70%,23% 88%,33% 57%,7% 38%,39% 38%)}
 .kfx-rainbow{background:radial-gradient(circle at 50% 80%,transparent 0 26%,#a064ff 27% 31%,#46aaff 32% 36%,#78e664 37% 41%,#ffe650 42% 46%,#ffa03c 47% 51%,#ff5050 52% 56%,transparent 57%)}
 .kfx-nova{background:conic-gradient(from 0deg,transparent 0 4%,rgba(200,90,255,.9) 5%,transparent 6% 12%,rgba(255,90,200,.9) 13%,transparent 14% 21%,#fff 22%,transparent 23% 30%,rgba(200,90,255,.9) 31%,transparent 32% 40%,rgba(255,90,200,.9) 41%,transparent 42% 50%,#fff 51%,transparent 52% 61%,rgba(200,90,255,.9) 62%,transparent 63% 71%,rgba(255,90,200,.9) 72%,transparent 73% 82%,#fff 83%,transparent 84% 92%,rgba(200,90,255,.9) 93%,transparent 94%);-webkit-mask:radial-gradient(circle,#000 20%,transparent 60%);mask:radial-gradient(circle,#000 20%,transparent 60%)}
+.kfx-storm{background:radial-gradient(circle,#fff 0 1.5px,transparent 2.5px) 0 0/14px 14px,radial-gradient(circle,rgba(159,220,255,.9) 0 1px,transparent 2px) 7px 5px/11px 11px,conic-gradient(from 30deg,transparent,rgba(159,220,255,.55),transparent 30%,rgba(94,240,200,.5),transparent 60%,rgba(232,247,255,.6),transparent 90%);-webkit-mask:radial-gradient(circle,#000 25%,transparent 62%);mask:radial-gradient(circle,#000 25%,transparent 62%)}
 .kfx.go{animation:kfxGo .7s ease-out}
 @keyframes kfxGo{0%{transform:scale(.3);opacity:1}100%{transform:scale(1.6);opacity:0}}
 .co-tagin{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
@@ -2795,6 +2802,8 @@ nav a.on,nav a.on svg{color:#b5e853!important}
 .fr-rgb{animation:frRgb 4s linear infinite}
 @keyframes frRgb{0%{box-shadow:0 0 0 3px #ff6b8b,0 0 14px #ff6b8b}33%{box-shadow:0 0 0 3px #b5e853,0 0 14px #b5e853}66%{box-shadow:0 0 0 3px #38d3ff,0 0 14px #38d3ff}100%{box-shadow:0 0 0 3px #ff6b8b,0 0 14px #ff6b8b}}
 .fr-winter{--frc:#cfefff;animation:frWin 3s ease-in-out infinite}
+.fr-wops{--frc:#9fdcff;animation:frWops 2.6s linear infinite}
+@keyframes frWops{0%{box-shadow:0 0 0 3px #e8f7ff,0 0 16px #9fdcff,0 0 0 6px rgba(94,240,200,0)}50%{box-shadow:0 0 0 3px #5ef0c8,0 0 26px #5ef0c8,0 0 0 6px rgba(159,220,255,.35)}100%{box-shadow:0 0 0 3px #e8f7ff,0 0 16px #9fdcff,0 0 0 6px rgba(94,240,200,0)}}
 @keyframes frWin{50%{box-shadow:0 0 0 3px #fff,0 0 24px #7dd3fc}}
 /* фоны */
 .pbg-carbon{background:repeating-linear-gradient(45deg,#141414 0 6px,#0d0d0d 6px 12px)!important}
@@ -3190,14 +3199,14 @@ html.on-server #v-jackpot,html.on-server #v-wheel{position:relative}
 
     <!-- SHOP -->
     <div class="view" id="v-shop" hidden>
-      <div class="page-head"><h1>Магазин</h1><p>Привилегии на сервере и косметика: рамки и фоны профиля, значки, цвет ника и эффекты в игре.</p></div>
+      <div class="page-head"><h1>Магазин</h1><p>Привилегии на сервере и косметика: рамки и фоны профиля, цвет ника и эффекты в игре.</p></div>
 
       <div class="shop-tabs" role="tablist"><button type="button" role="tab" data-shopt="tiers" aria-selected="true"><svg viewBox="0 0 24 24"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg>Привилегии</button><button type="button" role="tab" data-shopt="style" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.6-.9 1.2-1.8-.4-.9.2-2.2 1.5-2.2H17a4 4 0 0 0 4-4c0-5-4-10-9-10z"/><circle cx="7.5" cy="11" r="1.3"/><circle cx="10" cy="7" r="1.3"/><circle cx="15" cy="7.5" r="1.3"/></svg>Стиль<em>NEW</em></button></div>
       <section class="shop-pane" data-pane="tiers">
         <div class="ladder6" id="tiers6"></div>
         <p class="note">Бонусы выдаются в игре автоматически при каждом возрождении, с первого раунда. Только деньги начисляются со второго раунда каждой половины. Меню привилегии в игре: <b>!vip</b> — <b>W</b>/<b>S</b> выбор, <b>E</b> включить или выключить бонус, <b>Tab</b> закрыть.</p>
       </section>
-      <section class="shop-pane" data-pane="style" hidden><p class="shop-sd">Рамки и фоны профиля, значок у ника, цвет ника и тег в чате, эффекты в игре. Оплата с баланса в рублях. Улучшения клана — на странице твоего клана.</p><div id="cosBox"></div></section>
+      <section class="shop-pane" data-pane="style" hidden><p class="shop-sd">Рамки и фоны профиля, цвет ника и тег в чате, звук MVP, эффекты в игре. Оплата с баланса в рублях. Улучшения клана — на странице твоего клана.</p><div id="cosBox"></div></section>
 
     </div>
 
@@ -4840,14 +4849,18 @@ document.addEventListener("click",async e=>{const t=e.target.closest("[data-mkta
 
 // ===== Боевой пропуск =====
 var PS=null;
-const PS_IC={tk:'<circle cx="12" cy="12" r="8"/><path d="M9.5 9.5h5M12 9.5v6"/>',case:'<path d="M3 8h18v12H3z"/><path d="M3 8l2-4h14l2 4M10 12h4"/>',cos:'<path d="M14 4l6 6-9 9H5v-6z"/><path d="M12 6l6 6"/>',status:'<path d="M5 17 4 8l4.5 3.5L12 5l3.5 6.5L20 8l-1 9z"/><path d="M5 20h14"/>'};
+const PS_IC={tk:'<circle cx="12" cy="12" r="8"/><path d="M9.5 9.5h5M12 9.5v6"/>',case:'<path d="M3 8h18v12H3z"/><path d="M3 8l2-4h14l2 4M10 12h4"/>',cos:'<path d="M14 4l6 6-9 9H5v-6z"/><path d="M12 6l6 6"/>',status:'<path d="M5 17 4 8l4.5 3.5L12 5l3.5 6.5L20 8l-1 9z"/><path d="M5 20h14"/>',boost:'<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>'};
+const PS_BK={tk2:["×2 ТК","ТК за игру"],xp2:["×2 опыт","Опыт пропуска"]};
+// активные бусты: «×2 ТК ещё 18 ч»
+function psBoosts(me){const b=me&&me.boosts||{},L=Object.keys(PS_BK).filter(k=>b[k]>Date.now());return L.length?`<div class="pp-bst">${L.map(k=>{const h=Math.max(1,Math.ceil((b[k]-Date.now())/36e5));return`<span><svg viewBox="0 0 24 24">${PS_IC.boost}</svg><b>${PS_BK[k][0]}</b>ещё ${h>=48?Math.floor(h/24)+" "+plural(Math.floor(h/24),"день","дня","дней"):h+" ч"}</span>`}).join("")}</div>`:""}
 const PS_TC={VIP:"#b8c0cc",PREMIUM:"#5aa9ff",ELITE:"#3ddc97",LEGEND:"#a78bfa",TITAN:"#ff8a3d",KING:"#f5c451"};
 function psSet(p){if(p&&p.rewards)PS=p;psNav();if(curView==="pass")drawPass()}
 function psNav(){const e=$("psNav");if(!e)return;if(!PS&&SRV&&SRV.pass)PS=SRV.pass;const p=PS;if(!p||!p.season||!p.me){e.hidden=true;return}e.textContent=p.me.unclaimed?"+"+p.me.unclaimed:"ур. "+p.me.lv;e.hidden=false}
 function psRw(rw){if(rw.t==="tk")return{ic:"tk",c:"#f5c451",n:`${fmt(rw.v)} ТК`,k:"Тащер Коины"};
   if(rw.t==="case"){const c=CASES.find(x=>x.k===rw.k);return{ic:"case",c:c?c.c:"#b5e853",n:c?`«${c.n}»`:"Кейс",k:"Кейс",img:(typeof CASEIMG!=="undefined"&&CASEIMG[rw.k])||""}}
   if(rw.t==="cos"){const it=cosI(rw.id);return{ic:"cos",c:"#38d3ff",n:it?it.n:"Оформление",k:it?(CCAT[it.cat]||["Оформление"])[0]:"Оформление"}}
-  if(rw.t==="status")return{ic:"status",c:PS_TC[rw.tier]||"#f5c451",n:`${rw.tier} на ${rw.d} ${plural(rw.d,"день","дня","дней")}`,k:"Статус"};return{ic:"tk",c:"#888",n:"",k:""}}
+  if(rw.t==="status")return{ic:"status",c:PS_TC[rw.tier]||"#f5c451",n:`${rw.tier} на ${rw.d} ${plural(rw.d,"день","дня","дней")}`,k:"Статус"};
+  if(rw.t==="boost")return{ic:"boost",c:"#5ef0c8",n:`${(PS_BK[rw.k]||["Буст"])[0]} на ${rw.h} ч`,k:"Буст"};return{ic:"tk",c:"#888",n:"",k:""}}
 // ===== пропуск: предметы наград в стиле инвентаря CS2 =====
 const PP_RAR=p=>p<1000?"#4b69ff":p<3000?"#8847ff":p<8000?"#d32ce6":p<20000?"#eb4b4b":"#e4ae39";
 const PP_COIN='<svg class="pp-coin" viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="ppg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe38a"/><stop offset="1" stop-color="#d99a1c"/></linearGradient></defs><ellipse cx="32" cy="46" rx="20" ry="7" fill="#a8720f"/><rect x="12" y="38" width="40" height="8" fill="#c88a17"/><ellipse cx="32" cy="38" rx="20" ry="7" fill="url(#ppg)"/><ellipse cx="32" cy="32" rx="20" ry="7" fill="#b37b12"/><rect x="12" y="24" width="40" height="8" fill="#d6981c"/><ellipse cx="32" cy="24" rx="20" ry="7" fill="url(#ppg)"/><text x="32" y="28" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-weight="900" font-size="9" fill="#6b4300">ТК</text></svg>';
@@ -4857,7 +4870,8 @@ function ppInfo(rw){
   if(rw.t==="tk")return{rc:rw.v>=1000?"#5e98d9":"#b0c3d9",n:`${fmt(rw.v)} ТК`,k:"Тащер Коины",art:PP_COIN,val:rw.v};
   if(rw.t==="status"){const c=PS_TC[rw.tier]||"#f5c451";return{rc:c,n:rw.tier,k:`Статус · ${rw.d} ${plural(rw.d,"день","дня","дней")}`,art:`<span class="pp-tier" style="color:${c}">${PP_CROWN}</span>`,val:0}}
   if(rw.t==="cos"){const it=cosI(rw.id);const kind=it?(CCAT[it.cat]||["Оформление"])[0]:"Оформление";
-    return{rc:it&&["kill","frame","bg"].includes(it.cat)?"#d32ce6":"#8847ff",n:it?it.n:"Оформление",k:kind,art:it?`<span class="pp-cos">${cosSwatch(it)}</span>`:`<svg viewBox="0 0 24 24" class="pp-ic">${PS_IC.cos}</svg>`,val:0}}
+    return{rc:it&&it.ex?"#9fdcff":it&&["kill","frame","bg"].includes(it.cat)?"#d32ce6":"#8847ff",n:it?it.n:"Оформление",k:it&&it.ex?`Эксклюзив · ${kind}`:kind,art:it?`<span class="pp-cos">${cosSwatch(it)}</span>`:`<svg viewBox="0 0 24 24" class="pp-ic">${PS_IC.cos}</svg>`,val:0}}
+  if(rw.t==="boost"){const b=PS_BK[rw.k]||["Буст",""];return{rc:"#5ef0c8",n:`${b[0]} · ${rw.h} ч`,k:`Буст · ${b[1]}`,art:`<span class="pp-boost"><svg viewBox="0 0 24 24">${PS_IC.boost}</svg><b>${b[0]}</b></span>`,val:0}}
   return{rc:"#888",n:"",k:"",art:"",val:0}}
 function psCell(tr,lv,list,me){const done=me&&me.claimed.includes(tr+lv),reached=me&&me.lv>=lv,plock=tr==="p"&&!(me&&me.prem),ready=reached&&!done&&!plock;
   const a=ppInfo(list[0]),more=list.length-1,big=lv%5===0;
@@ -4879,11 +4893,11 @@ function drawPass(scroll){const box=$("psBody");if(!box)return;if(!PS&&SRV&&SRV.
   box.innerHTML=`<section class="pp-hero${isWinter?" img":""}"${isWinter?' style="--ppimg:url(/assets/pass-hero.jpg?v=7e596ea2)"':""}>
      <div class="pp-hc"><div class="pp-top"><span class="pp-sn">${esc(s.n)}</span><span class="pp-tm">${days} д ${hrs} ч до конца</span></div>
        <h1>${isWinter?"Winter<br>Ops":esc(s.n)}</h1>
-       <div class="pp-lvl">${ppHex(lv,pct)}<div class="pp-lvt"><b>${me?(max?"Максимальный уровень":`Уровень ${lv}`):"Войди, чтобы качать пропуск"}</b>${me?`<div class="pp-xp"><i style="--p:${pct}%"></i></div><span>${xpLine}<em>Сегодня за игру ${fmt(me.today)} / ${fmt(p.dayCap)}</em></span>`:`<button class="steam" type="button" data-login>Войти через Steam</button>`}</div></div></div></section>
+       <div class="pp-lvl">${ppHex(lv,pct)}<div class="pp-lvt"><b>${me?(max?"Максимальный уровень":`Уровень ${lv}`):"Войди, чтобы качать пропуск"}</b>${me?`<div class="pp-xp"><i style="--p:${pct}%"></i></div><span>${xpLine}<em>Сегодня за игру ${fmt(me.today)} / ${fmt(p.dayCap)}</em></span>${psBoosts(me)}`:`<button class="steam" type="button" data-login>Войти через Steam</button>`}</div></div></div></section>
    ${me&&me.prem?`<div class="pp-on"><span class="pp-tier" style="color:#f5c451">${PP_CROWN}</span><b>Премиум активен</b><span>Обе ветки открыты на всех ${p.levels} уровнях</span></div>`
      :`<section class="pp-offer"><img class="pp-card" src="/assets/winter-ops-card.avif" alt="" width="440" height="587" decoding="async" loading="lazy">
        <div class="pp-oc"><h2>Премиум-пропуск</h2><ul class="pp-facts"><li><b>${cases.length}</b><span>кейсов</span></li><li><b>${caseVal>=1e3?fmt(Math.round(caseVal/1e3))+" тыс.":fmt(caseVal)}</b><span>ТК в кейсах</span></li><li><b>${tiers.join(" · ")}</b><span>статусы</span></li></ul>
-       <p>Ножевые и перчаточные кейсы, King Case и рамка «Зима 2026» на 50-м уровне. Пройденные уровни открываются сразу.</p></div>
+       <p>Ножевые и перчаточные кейсы, эксклюзивы Winter Ops, которых нет в магазине, бусты ×2 и King Case на 50-м уровне. Пройденные уровни открываются сразу.</p></div>
        <div class="pp-buy"><b>${fmt(p.price)} ₽</b>${me?`<button class="pp-btn" type="button" id="psBuy">Купить премиум</button>`:`<button class="pp-btn" type="button" data-login>Войти через Steam</button>`}</div></section>`}
    <section class="pp-road"><div class="pp-rh"><h2>Награды</h2><div class="pp-rt">${me&&me.unclaimed?`<button class="pp-all" type="button" id="psAll">Забрать всё · ${me.unclaimed}</button>`:""}<button class="pp-nav" type="button" data-psnav="-1" aria-label="Назад по уровням">‹</button><button class="pp-nav" type="button" data-psnav="1" aria-label="Вперёд по уровням">›</button></div></div>
      <div class="pp-wrap"><div class="pp-side"><span>Бесплатно</span><span class="pr">${PP_CROWN}Премиум</span></div>
@@ -5429,7 +5443,7 @@ var COS={own:{},eq:{},tag:""};{const o=lsGet("cos1","obj");if(o){if(isObj(o.own)
   Object.keys(COS.eq).forEach(k=>{if(typeof COS.eq[k]!=="string")delete COS.eq[k]});delete COS.eq.ava;if(COS.eq.bg&&!/^bg_i_/.test(COS.eq.bg))delete COS.eq.bg}
 const cosSave=()=>{if(SRV)return;try{localStorage.setItem("cos1",JSON.stringify(COS))}catch(e){}};
 // на сервере купленное и надетое хранится в аккаунте; эффекты в игре включает плагин TASHER Style
-const COS_SRV=["frame","bg","badge","nick","smoke","tag","kill","snd","trail","tracer"];
+const COS_SRV=["frame","bg","nick","smoke","tag","kill","snd","trail","tracer","mvp"];
 function srvCosSet(c){if(!SRV||!c)return;COS.own=Object.fromEntries((Array.isArray(c.own)?c.own:[]).map(id=>[String(id),1]));COS.eq={};COS.tag=typeof c.tag==="string"?c.tag:"";
   if(c.eq&&typeof c.eq==="object")COS_SRV.forEach(k=>{if(typeof c.eq[k]==="string")COS.eq[k]=c.eq[k]})}
 if(SRV){COS={own:{},eq:{},tag:""};srvCosSet(SRV.cos)}
@@ -5439,13 +5453,12 @@ async function srvCos(it){try{let r;
     else{if(ME.balance<it.p){toast(`Не хватает ${fmt(it.p-ME.balance)} ₽`);return}r=await api("/api/shop/cos",{id:it.id});ME.balance=r.balance;srvPurchasesSet(r.purchases)}
     srvCosSet(r.cos);cosRefresh();toast(COS.eq[it.cat]===it.id?`${it.n}: надето`:`${it.n}: снято`)}catch(e){toast(e.message)}}
 let cosTab="prof";
-var BADGES={skull:'<circle cx="12" cy="10" r="7"/><path d="M8 17v3h8v-3"/><circle cx="9.5" cy="10" r="1.6" fill="currentColor"/><circle cx="14.5" cy="10" r="1.6" fill="currentColor"/>',crown:'<path d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5z"/>',bolt:'<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>',aim:'<circle cx="12" cy="12" r="8"/><path d="M12 2v5M12 17v5M2 12h5M17 12h5"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/>',fire:'<path d="M12 22c4 0 7-3 7-7 0-4-3-6-4-10-2 2-3 4-3 6-1-1-2-2-2-4-2 2-5 5-5 8 0 4 3 7 7 7z"/>',gem:'<path d="M6 3h12l4 6-10 12L2 9z"/><path d="M2 9h20M9 3l3 18 3-18"/>',star:'<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>',wolf:'<path d="M4 3l4 5h8l4-5v9c0 5-4 9-8 9s-8-4-8-9z"/><circle cx="9" cy="12" r="1.2" fill="currentColor"/><circle cx="15" cy="12" r="1.2" fill="currentColor"/>',sword:'<path d="M14.5 3H21v6.5L9 21.5 2.5 15z"/><path d="M5 13l6 6M3 21l3-3"/>',shield:'<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/>',heart:'<path d="M12 20s-7-4.5-9-9c-1.5-3.5 1-7 4.5-7 2 0 3.5 1 4.5 2.5C13 5 14.5 4 16.5 4 20 4 22.5 7.5 21 11c-2 4.5-9 9-9 9z"/>',rocket:'<path d="M12 2c4 2 6 6 6 10l-3 4H9l-3-4c0-4 2-8 6-10z"/><circle cx="12" cy="10" r="2"/><path d="M9 16l-2 5 5-3 5 3-2-5"/>',eye:'<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',flag:'<path d="M5 21V4M5 4h11l-2 4 2 4H5"/>',dragon:'<path d="M4 18c3 0 4-3 4-6s2-6 6-6c3 0 5 2 5 5 0 2-1 3-3 3h-3l3 4"/><path d="M15 6l2-3M18 8l3-1"/><circle cx="15" cy="10" r="1" fill="currentColor"/>'};
+var BADGES={flake:'<path d="M12 2v20M3.3 7l17.4 10M3.3 17L20.7 7"/><path d="M9.5 3.5 12 6l2.5-2.5M9.5 20.5 12 18l2.5 2.5M3 10.5l3.3-.6L5.6 6.6M18.4 17.4l-.7-3.3 3.3-.6M3 13.5l3.3.6-.7 3.3M18.4 6.6l-.7 3.3 3.3.6"/>',skull:'<circle cx="12" cy="10" r="7"/><path d="M8 17v3h8v-3"/><circle cx="9.5" cy="10" r="1.6" fill="currentColor"/><circle cx="14.5" cy="10" r="1.6" fill="currentColor"/>',crown:'<path d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5z"/>',bolt:'<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>',aim:'<circle cx="12" cy="12" r="8"/><path d="M12 2v5M12 17v5M2 12h5M17 12h5"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/>',fire:'<path d="M12 22c4 0 7-3 7-7 0-4-3-6-4-10-2 2-3 4-3 6-1-1-2-2-2-4-2 2-5 5-5 8 0 4 3 7 7 7z"/>',gem:'<path d="M6 3h12l4 6-10 12L2 9z"/><path d="M2 9h20M9 3l3 18 3-18"/>',star:'<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>',wolf:'<path d="M4 3l4 5h8l4-5v9c0 5-4 9-8 9s-8-4-8-9z"/><circle cx="9" cy="12" r="1.2" fill="currentColor"/><circle cx="15" cy="12" r="1.2" fill="currentColor"/>',sword:'<path d="M14.5 3H21v6.5L9 21.5 2.5 15z"/><path d="M5 13l6 6M3 21l3-3"/>',shield:'<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/>',heart:'<path d="M12 20s-7-4.5-9-9c-1.5-3.5 1-7 4.5-7 2 0 3.5 1 4.5 2.5C13 5 14.5 4 16.5 4 20 4 22.5 7.5 21 11c-2 4.5-9 9-9 9z"/>',rocket:'<path d="M12 2c4 2 6 6 6 10l-3 4H9l-3-4c0-4 2-8 6-10z"/><circle cx="12" cy="10" r="2"/><path d="M9 16l-2 5 5-3 5 3-2-5"/>',eye:'<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',flag:'<path d="M5 21V4M5 4h11l-2 4 2 4H5"/>',dragon:'<path d="M4 18c3 0 4-3 4-6s2-6 6-6c3 0 5 2 5 5 0 2-1 3-3 3h-3l3 4"/><path d="M15 6l2-3M18 8l3-1"/><circle cx="15" cy="10" r="1" fill="currentColor"/>'};
 var CI=[
  {id:"fr_steel",cat:"frame",n:"Сталь",p:19,v:"steel"},{id:"fr_lime",cat:"frame",n:"Лаймовый неон",p:49,v:"lime"},{id:"fr_ice",cat:"frame",n:"Лёд",p:79,v:"ice"},{id:"fr_emer",cat:"frame",n:"Изумруд",p:99,v:"emer"},{id:"fr_ruby",cat:"frame",n:"Рубин",p:99,v:"ruby"},{id:"fr_ameth",cat:"frame",n:"Аметист",p:119,v:"ameth"},{id:"fr_double",cat:"frame",n:"Двойное кольцо",p:149,v:"double"},{id:"fr_gold",cat:"frame",n:"Золото",p:199,v:"gold"},
  {id:"fr_pulse",cat:"frame",n:"Пульс",p:179,v:"pulse",anim:1},{id:"fr_toxic",cat:"frame",n:"Токсик",p:199,v:"toxic",anim:1},{id:"fr_fire",cat:"frame",n:"Пламя",p:299,v:"fire",anim:1},{id:"fr_plasma",cat:"frame",n:"Плазма",p:349,v:"plasma",anim:1},{id:"fr_holo",cat:"frame",n:"Голограмма",p:399,v:"holo",anim:1},{id:"fr_rgb",cat:"frame",n:"Радуга",p:449,v:"rgb",anim:1},{id:"fr_winter",cat:"frame",n:"Зима 2026",p:249,v:"winter",anim:1,season:1},{id:"fr_halloween",cat:"frame",n:"Хэллоуин",p:249,v:"hallow",anim:1,season:1},
  {id:"bg_i_nygift",cat:"bg",n:"Подарок-кейс",p:99,v:"img:nygift",art:1,season:1},{id:"bg_i_nyinferno",cat:"bg",n:"Новогодний Инферно",p:89,v:"img:nyinferno",art:1,season:1},{id:"bg_i_nydust",cat:"bg",n:"Ёлка на B",p:99,v:"img:nydust",art:1,season:1},{id:"bg_i_nymirage",cat:"bg",n:"Зимний Мираж",p:89,v:"img:nymirage",art:1,season:1},{id:"bg_i_nynuke",cat:"bg",n:"Тихая ночь на Нюке",p:79,v:"img:nynuke",art:1,season:1},{id:"bg_i_nyfire",cat:"bg",n:"Фейерверк над Миражом",p:119,v:"img:nyfire",art:1,season:1},{id:"bg_i_nyknife",cat:"bg",n:"Ледяной нож",p:129,v:"img:nyknife",art:1,season:1},{id:"bg_i_dust2n",cat:"bg",n:"Ночной Dust2",p:79,v:"img:dust2n",art:1},{id:"bg_i_neoncity",cat:"bg",n:"Неон-сити",p:99,v:"img:neoncity",art:1},{id:"bg_i_toxsmoke",cat:"bg",n:"Токсичный дым",p:69,v:"img:toxsmoke",art:1},{id:"bg_i_cosmos",cat:"bg",n:"Кольца Сатурна",p:99,v:"img:cosmos",art:1},
  {id:"bg_i_dragon",cat:"bg",n:"Золотой дракон",p:149,v:"img:dragon",art:1},{id:"bg_i_synth80",cat:"bg",n:"Ретро-закат",p:89,v:"img:synth80",art:1},{id:"bg_i_hellfire",cat:"bg",n:"Адское пламя",p:79,v:"img:hellfire",art:1},{id:"bg_i_vault",cat:"bg",n:"Золотое хранилище",p:129,v:"img:vault",art:1},
- ...[["skull","Череп",49,"#e8e8ea"],["aim","Прицел",49,"#b5e853"],["bolt","Молния",79,"#38d3ff"],["fire","Огонь",99,"#ff8a3d"],["wolf","Волк",119,"#eb4b4b"],["gem","Алмаз",179,"#7dd3fc"],["star","Звезда",149,"#f5c451"],["shield","Щит",59,"#5aa9ff"],["sword","Клинок",99,"#d0d3d8"],["heart","Сердце",69,"#ff6b8b"],["eye","Око",119,"#a78bfa"],["rocket","Ракета",149,"#38d3ff"],["flag","Флаг",59,"#3ddc97"],["dragon","Дракон",249,"#3ddc97"],["crown","Корона",299,"#ffcf40"]].map(([v,n,p,c])=>({id:"bd_"+v,cat:"badge",n,p,v,c})),
  ...[["#b5e853","Лайм"],["#38d3ff","Циан"],["#ff6b8b","Розовый"],["#f5c451","Золото"],["#a78bfa","Фиолет"],["#eb4b4b","Красный"]].map(([v,n],i)=>({id:"nk_"+i,cat:"nick",n,p:39,v})),
  {id:"nk_grad1",cat:"nick",n:"Закат",p:119,v:"linear-gradient(90deg,#ff8a3d,#ff6b8b,#a78bfa)",grad:1},{id:"nk_grad2",cat:"nick",n:"Токсик",p:119,v:"linear-gradient(90deg,#b5e853,#38d3ff)",grad:1},
  {id:"tag",cat:"tag",n:"Свой тег в чате",p:79,v:"tag"},
@@ -5453,19 +5466,23 @@ var CI=[
  {id:"sd_ding",cat:"snd",n:"Дзынь",p:59,v:[[1760,.12],[2637,.25]]},{id:"sd_drum",cat:"snd",n:"Бонус",p:59,v:[[392,.08],[523,.08],[784,.2]]},{id:"sd_bell",cat:"snd",n:"Колокол",p:79,v:[[880,.6],[1320,.5]]},{id:"sd_8bit",cat:"snd",n:"Левел-ап",p:69,v:[[523,.07],[659,.07],[784,.07],[1047,.15]]},{id:"sd_coin",cat:"snd",n:"Монетка",p:59,v:[[988,.07],[1319,.22]]},
  ...[["#b5e853","Лайм"],["#ff6b8b","Розовый"],["#38d3ff","Голубой"],["#f5c451","Жёлтый"],["#a78bfa","Фиолетовый"],["#eb4b4b","Красный"]].map(([v,n],i)=>({id:"sm_"+i,cat:"smoke",n,p:79,v})),
  ...[["#ffffff","Белый"],["#b5e853","Лайм"],["#38d3ff","Голубой"],["#ff8a3d","Оранжевый"],["#ff6b8b","Розовый"]].map(([v,n],i)=>({id:"tr_"+i,cat:"trail",n,p:59,v})),
- ...[["#ffffff","Белый"],["#b5e853","Лайм"],["#38d3ff","Голубой"],["#f5c451","Золото"],["#ff6b8b","Розовый"],["#eb4b4b","Красный"]].map(([v,n],i)=>({id:"tc_"+i,cat:"tracer",n,p:99,v}))];
-const CCAT={frame:["Рамки аватара","Обводка аватарки в профиле, рейтинге и джекпоте"],bg:["Фоны профиля","Фон шапки твоего профиля"],badge:["Значки","Иконка рядом с ником в рейтинге и джекпоте"],
- nick:["Цвет ника","Ник в чате сервера, рейтинге и на сайте"],tag:["Тег в чате","До 6 символов перед ником: [TAG] Ник"],kill:["Эффект убийства","Вспышка на месте фрага, видят все"],snd:["Звук убийства","Слышишь только ты"],smoke:["Цвет дыма","Твои дымовые гранаты"],trail:["Трейл гранат","Светящийся след за гранатой"],tracer:["Трассеры пуль","Луч от ствола до попадания, видят все"]};
-const CTABS={prof:["frame","bg","badge"],game:["nick","tag","kill","snd","tracer","smoke","trail"]};
+ ...[["#ffffff","Белый"],["#b5e853","Лайм"],["#38d3ff","Голубой"],["#f5c451","Золото"],["#ff6b8b","Розовый"],["#eb4b4b","Красный"]].map(([v,n],i)=>({id:"tc_"+i,cat:"tracer",n,p:99,v})),
+ {id:"mv_legend",cat:"mvp",n:"Легенда",p:99,v:[[523,.12],[659,.12],[784,.12],[1047,.35]]},{id:"mv_level",cat:"mvp",n:"Новый уровень",p:79,v:[[392,.1],[523,.1],[659,.1],[784,.3]]},{id:"mv_alert",cat:"mvp",n:"Тревога",p:89,v:[[880,.15],[660,.15],[880,.15],[660,.3]]},
+ {id:"fr_wops",cat:"frame",n:"Winter Ops",p:299,v:"wops",anim:1,ex:"Winter Ops",lv:46,tr:"p"},{id:"bg_i_wops",cat:"bg",n:"Winter Ops",p:149,v:"img:wops",art:1,ex:"Winter Ops",lv:37,tr:"p"},
+ {id:"nk_wops",cat:"nick",n:"Иней",p:149,v:"linear-gradient(90deg,#e8f7ff,#9fdcff,#5ef0c8)",grad:1,ex:"Winter Ops",lv:22,tr:"p"},{id:"kl_storm",cat:"kill",n:"Снежная буря",p:149,v:"storm",ex:"Winter Ops",lv:32,tr:"p"},{id:"mv_wops",cat:"mvp",n:"Winter Ops",p:149,v:[[1568,.1],[1319,.1],[1760,.1],[2093,.4]],ex:"Winter Ops",lv:14,tr:"p"},
+ {id:"sm_wops",cat:"smoke",n:"Полярный",p:79,v:"#5ef0c8",ex:"Winter Ops",lv:26,tr:"f"},{id:"tr_wops",cat:"trail",n:"Северное сияние",p:59,v:"#7dffb0",ex:"Winter Ops",lv:19,tr:"f"},{id:"tc_wops",cat:"tracer",n:"Иней",p:99,v:"#9fdcff",ex:"Winter Ops",lv:46,tr:"f"}];
+const CCAT={frame:["Рамки аватара","Обводка аватарки в профиле, рейтинге и джекпоте"],bg:["Фоны профиля","Фон шапки твоего профиля"],
+ nick:["Цвет ника","Ник в чате сервера, рейтинге и на сайте"],tag:["Тег в чате","До 6 символов перед ником: [TAG] Ник"],kill:["Эффект убийства","Вспышка на месте фрага, видят все"],snd:["Звук убийства","Слышишь только ты"],mvp:["Звук MVP","Играет всему серверу, когда ты MVP раунда"],smoke:["Цвет дыма","Твои дымовые гранаты"],trail:["Трейл гранат","Светящийся след за гранатой"],tracer:["Трассеры пуль","Луч от ствола до попадания, видят все"]};
+const CTABS={prof:["frame","bg"],game:["nick","tag","kill","snd","mvp","tracer","smoke","trail"]};
 function cosI(id){return CI?CI.find(x=>x.id===id):null}function cosEq(cat){if(!CI||!COS)return null;const id=COS.eq[cat];return id?cosI(id):null}
 function isMe(n){try{return n===ME.n}catch(e){return false}}
 function cosAvInner(n,c){return SRV&&ME.av&&isMe(n)?`<img src="${esc(ME.av)}" alt="" referrerpolicy="no-referrer">`:""}
 function cosFrame(n){const f=isMe(n)&&cosEq("frame");return f?" fr fr-"+f.v:""}
-function cosBadge(n){const b=isMe(n)&&cosEq("badge");return b?`<span class="cbdg" style="--bc:${b.c}" title="${esc(b.n)}"><svg viewBox="0 0 24 24">${BADGES[b.v]}</svg></span>`:""}
+function cosBadge(n){return""}
 function nkGrad(v){const c=v.match(/#[0-9a-fA-F]{3,8}/g)||[];return`background:linear-gradient(90deg,${c.join(",")},${c[0]}) 0 0/200% 100% repeat-x;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent`}
 function cosNick(n){const k=isMe(n)&&cosEq("nick");return k?(k.grad?` data-nkg style="${nkGrad(k.v)}"`:` style="color:${k.v}"`):""}
 function cosTagTxt(){return COS.eq.tag&&COS.tag?COS.tag:""}
-const PBGIMG={"dust2n": "img/pbg/dust2n.jpg?v=d817f712", "neoncity": "img/pbg/neoncity.jpg?v=dff7db84", "toxsmoke": "img/pbg/toxsmoke.jpg?v=9c92f111", "cosmos": "img/pbg/cosmos.jpg?v=0b273689", "dragon": "img/pbg/dragon.jpg?v=242e4cb0", "synth80": "img/pbg/synth80.jpg?v=08551e90", "hellfire": "img/pbg/hellfire.jpg?v=fc587fe0", "vault": "img/pbg/vault.jpg?v=96b3b3e2", "nygift": "img/pbg/nygift.jpg?v=c43d186d", "nyinferno": "img/pbg/nyinferno.jpg?v=45b06d0d", "nydust": "img/pbg/nydust.jpg?v=010ac323", "nymirage": "img/pbg/nymirage.jpg?v=ea85bae2", "nynuke": "img/pbg/nynuke.jpg?v=bf1b5292", "nyfire": "img/pbg/nyfire.jpg?v=b91b4a9a", "nyknife": "img/pbg/nyknife.jpg?v=e10029b7"};
+const PBGIMG={"dust2n": "img/pbg/dust2n.jpg?v=d817f712", "neoncity": "img/pbg/neoncity.jpg?v=dff7db84", "toxsmoke": "img/pbg/toxsmoke.jpg?v=9c92f111", "cosmos": "img/pbg/cosmos.jpg?v=0b273689", "dragon": "img/pbg/dragon.jpg?v=242e4cb0", "synth80": "img/pbg/synth80.jpg?v=08551e90", "hellfire": "img/pbg/hellfire.jpg?v=fc587fe0", "vault": "img/pbg/vault.jpg?v=96b3b3e2", "nygift": "img/pbg/nygift.jpg?v=c43d186d", "nyinferno": "img/pbg/nyinferno.jpg?v=45b06d0d", "nydust": "img/pbg/nydust.jpg?v=010ac323", "nymirage": "img/pbg/nymirage.jpg?v=ea85bae2", "nynuke": "img/pbg/nynuke.jpg?v=bf1b5292", "nyfire": "img/pbg/nyfire.jpg?v=b91b4a9a", "wops": "img/pbg/wops.jpg?v=7e596ea2", "nyknife": "img/pbg/nyknife.jpg?v=e10029b7"};
 function cosLayer(it){if(!it||!it.v.startsWith("img:"))return"";const k=it.v.slice(4);return`<i class="pbx pbx-${k}" aria-hidden="true"><i class="pbx-im" style="background-image:url(${PBGIMG[k]||""})"></i></i>`}
 function pfBigLayer(){const it=cosEq("bg");return it&&it.v.startsWith("img:")?`<div class="pf-big">${cosLayer(it)}</div>`:""}
 function pfBigSet(){const m=$("meBody");if(m)m.classList.toggle("pfbig",!!m.querySelector(".pf-big"))}
@@ -5477,17 +5494,19 @@ function cosSwatch(it){const c=it.cat;
   if(c==="frame")return`<span class="co-sw"><i class="co-avp big fr fr-${it.v}">${jpAvSvg("Demo_7","#2b2f36")}</i></span>`;
   if(c==="bg")return`<span class="co-sw co-bgp${cosBgCls(it)}" style="${cosBg(it)}">${cosLayer(it)}<span class="co-bgm"><i></i><span><b></b><em></em></span></span></span>`;
   if(c==="ava")return`<span class="co-sw"><i class="co-avp">${jpAvSvg(it.v,it.c)}</i></span>`;
-  if(c==="badge")return`<span class="co-sw"><span class="cbdg big" style="--bc:${it.c}"><svg viewBox="0 0 24 24">${BADGES[it.v]}</svg></span></span>`;
   if(c==="nick")return`<span class="co-sw"><b class="co-nk"${it.grad?" data-nkg":""} style="${it.grad?nkGrad(it.v):`color:${it.v}`}">${esc(logged?ME.n:"Player")}</b></span>`;
   if(c==="tag")return`<span class="co-sw"><b class="co-nk"><span class="co-tg">[${esc(COS.tag||"TAG")}]</span> ${esc(logged?ME.n:"Player")}</b></span>`;
   if(c==="kill")return`<span class="co-sw co-kl" data-kl="${it.v}"><i class="kfx kfx-${it.v}"></i><svg viewBox="0 0 24 24" class="co-skull">${BADGES.skull}</svg></span>`;
+  if(c==="mvp")return`<span class="co-sw"><svg viewBox="0 0 24 24" class="co-spk"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4v1a3 3 0 0 0 3 3M17 6h3v1a3 3 0 0 1-3 3"/></svg></span>`;
   if(c==="snd")return`<span class="co-sw"><svg viewBox="0 0 24 24" class="co-spk"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/></svg></span>`;
   if(c==="smoke")return`<span class="co-sw"><i class="co-smk" style="--sc:${it.v}"></i></span>`;
   if(c==="trail")return`<span class="co-sw"><i class="co-trl" style="--tc:${it.v}"></i></span>`;
   if(c==="tracer")return`<span class="co-sw"><i class="co-trc" style="--tc:${it.v}"></i></span>`;return""}
-function cosItem(it){const own=!!COS.own[it.id],eq=COS.eq[it.cat]===it.id;
-  return`<div class="co-it${eq?" eq":""}${it.season?" season":""}" data-csp="${it.id}">${cosSwatch(it)}<div class="co-in"><b>${esc(it.n)}</b><small>${[it.anim?"Анимированная":"",it.season?"Сезонная":"",own?"Куплено":""].filter(Boolean).join(" · ")||"&nbsp;"}</small></div>
-   <button type="button" class="${eq?"ghost":own?"ghost on":"steam"} co-b" data-cs="${it.id}">${eq?"Снять":own?"Надеть":`${fmt(it.p)} ₽`}</button></div>`}
+// эксклюзив сезона: не продаётся, только награда пропуска — на карточке вместо цены пишем, где взять
+function cosExTxt(it){return`${it.tr==="p"?"Премиум-пропуск":"Пропуск"} ${it.ex} · ур. ${it.lv}`}
+function cosItem(it){const own=!!COS.own[it.id],eq=COS.eq[it.cat]===it.id,ex=it.ex&&!own;
+  return`<div class="co-it${eq?" eq":""}${it.season?" season":""}${it.ex?" ex":""}" data-csp="${it.id}">${it.ex?`<span class="co-exb">Эксклюзив</span>`:""}${cosSwatch(it)}<div class="co-in"><b>${esc(it.n)}</b><small>${[it.anim?"Анимированная":"",it.season?"Сезонная":"",it.ex&&own?"Из пропуска":own?"Куплено":""].filter(Boolean).join(" · ")||"&nbsp;"}</small></div>
+   ${ex?`<a class="co-b co-ex" href="#pass" title="Не продаётся — только награда пропуска">${cosExTxt(it)}</a>`:`<button type="button" class="${eq?"ghost":own?"ghost on":"steam"} co-b" data-cs="${it.id}">${eq?"Снять":own?"Надеть":`${fmt(it.p)} ₽`}</button>`}</div>`}
 var COSX={};
 function cosSection(cat){const [t,d]=CCAT[cat],L=CI.filter(x=>x.cat===cat);
   return`<section class="co-sec"><div class="co-sh"><b>${t}</b><span>${d}</span></div>${cat==="tag"?cosTagBox():`<div class="co-grid${cat==="bg"?" wide":""}" data-ccat="${cat}">${L.map(cosItem).join("")}<button type="button" class="co-more" data-cmore="${cat}" hidden><i>+</i><span></span></button></div>`}</section>`}
@@ -5497,7 +5516,7 @@ function cosClamp(){document.querySelectorAll("#cosBox .co-grid[data-ccat]").for
   mb.hidden=false;if(COSX[cat]){its.forEach(x=>x.hidden=false);mb.classList.add("open");mb.querySelector("i").textContent="−";mb.querySelector("span").textContent="Свернуть";return}
   const rows=cols===1?3:cols===2?2:1,show=Math.min(its.length,cols*rows)-1;if(show>=its.length-1){its.forEach(x=>x.hidden=false);mb.hidden=true;return}its.forEach((x,i)=>x.hidden=i>=show);mb.classList.remove("open");mb.querySelector("i").textContent="+";mb.querySelector("span").textContent=`Ещё ${its.length-show}`})}
 var cosRT;window.addEventListener("resize",()=>{clearTimeout(cosRT);cosRT=setTimeout(()=>{if($("cosBox")&&$("cosBox").offsetParent)cosClamp()},120)});
-function pfMine(){const cats=["frame","bg","badge","nick","kill","snd","tracer","smoke","trail"];
+function pfMine(){const cats=["frame","bg","nick","kill","snd","mvp","tracer","smoke","trail"];
   const groups=cats.map(c=>[c,CI.filter(x=>x.cat===c&&COS.own[x.id])]).filter(([c,l])=>l.length);
   const tag=COS.tag?`<section class="co-sec"><div class="co-sh"><b>Тег в чате</b></div><div class="co-tagcur"><small>Сейчас</small><b><span class="co-tg">[${esc(COS.tag)}]</span> ${esc(ME.n)}</b><button type="button" class="ghost co-b" data-tagt>${COS.eq.tag?"Снять":"Надеть"}</button></div></section>`:"";
   return`<div class="pf-hr"><h2>Мои вещи</h2><a class="ghost" href="#style">В магазин</a></div>`+(groups.length||tag?`<div class="pf-cos">${groups.map(([c,l])=>`<section class="co-sec"><div class="co-sh"><b>${CCAT[c][0]}</b><span>${l.length} ${plural(l.length,"предмет","предмета","предметов")}</span></div><div class="co-grid${c==="bg"?" wide":""}">${l.map(cosItem).join("")}</div></section>`).join("")}${tag}</div>`:`<div class="pf-empty">Ты ещё ничего не купил в «Стиле». Рамки, фоны, значки и цвет ника появятся здесь, и их можно будет надевать прямо из профиля.</div><a class="steam pf-cta" href="#style">Открыть «Стиль»</a>`)}
@@ -5507,7 +5526,7 @@ function cosPreview(){const n=logged?ME.n:"Гость",fr=cosEq("frame"),bg=cosE
   return`<div class="co-pv"><div class="co-pvh${cosBgCls(bg)}" style="${cosBg(bg)}">${cosLayer(bg)}<i class="co-pva${fr?" fr fr-"+fr.v:""}" style="--ac:${ME.c}">${av?jpAvSvg(av.v,av.c):esc(n[0].toUpperCase())}</i><div><b class="co-pvn"${cosNick(n)}>${esc(n)}</b>${cosBadge(n)}<small>Так тебя видят в профиле</small></div></div>
    <div class="co-pvr"><span class="co-pvl">Рейтинг</span><div class="co-pvrow"><span>#11</span><i class="co-avs${fr?" fr fr-"+fr.v:""}" style="--ac:${ME.c}">${av?jpAvSvg(av.v,av.c):esc(n[0].toUpperCase())}</i><b${cosNick(n)}>${esc(n)}</b>${cosBadge(n)}</div></div>
    <div class="co-pvr"><span class="co-pvl">Чат сервера</span><div class="co-chat"><span class="ct">${tg?`[${esc(tg)}] `:""}</span><b${cosNick(n)}>${esc(n)}</b>: gg wp</div></div>
-   <div class="co-pvr"><span class="co-pvl">В игре</span><div class="co-game"><span>Убийство: <b>${kl?kl.n:"стандарт"}</b></span><span>Звук: <b>${cosEq("snd")?cosEq("snd").n:"стандарт"}</b></span><span>Дым: ${sm?`<i class="dot" style="background:${sm.v}"></i>${sm.n}`:"<b>серый</b>"}</span><span>Трейл: ${tr?`<i class="dot" style="background:${tr.v}"></i>${tr.n}`:"<b>нет</b>"}</span><span>Трассеры: ${tc?`<i class="dot" style="background:${tc.v}"></i>${tc.n}`:"<b>нет</b>"}</span></div></div></div>`}
+   <div class="co-pvr"><span class="co-pvl">В игре</span><div class="co-game"><span>Убийство: <b>${kl?kl.n:"стандарт"}</b></span><span>Звук: <b>${cosEq("snd")?cosEq("snd").n:"стандарт"}</b></span><span>MVP: <b>${cosEq("mvp")?cosEq("mvp").n:"стандарт"}</b></span><span>Дым: ${sm?`<i class="dot" style="background:${sm.v}"></i>${sm.n}`:"<b>серый</b>"}</span><span>Трейл: ${tr?`<i class="dot" style="background:${tr.v}"></i>${tr.n}`:"<b>нет</b>"}</span><span>Трассеры: ${tc?`<i class="dot" style="background:${tc.v}"></i>${tc.n}`:"<b>нет</b>"}</span></div></div></div>`}
 // ---- казна клана
 const CLAN_UP={col:99,emb:149,slots:249,tag:199};
 var EMBS={star:BADGES.star,skull:BADGES.skull,bolt:BADGES.bolt,crown:BADGES.crown,wolf:BADGES.wolf,aim:BADGES.aim};
@@ -5576,13 +5595,13 @@ document.addEventListener("click",e=>{if(!e.target.closest("#cosBox,#clanBankBox
   if(SRV&&e.target.closest("[data-tagt]")){if(!COS.tag)return;const on=!!COS.eq.tag;api("/api/cos/eq",{cat:"tag",id:on?null:"tag"}).then(r=>{srvCosSet(r.cos);cosRefresh();toast(on?"Тег снят":"Тег надет")}).catch(err=>toast(err.message));return}
   if(e.target.closest("[data-tagbuy]")){if(!needLogin())return;const v=(($("cosTagIn")||{}).value||"").toUpperCase(),p=CI.find(x=>x.id==="tag").p;if(!/^[A-Z0-9]{1,6}$/.test(v)){toast("Впиши тег: латиница и цифры, до 6 символов");return}if(v===COS.tag){toast("Такой тег уже стоит");return}if(ME.balance<p){toast(`Не хватает ${fmt(p-ME.balance)} ₽`);return}
     ME.balance-=p;walletSave();COS.tag=v;COS.own.tag=1;COS.eq.tag="tag";cosSave();try{notify("buy","Новый тег в чате",`[${v}] за ${fmt(p)} ₽`)}catch(_){}cosRefresh();toast(`Тег [${v}] установлен`);return}
-  if(b=e.target.closest("[data-cs]")){if(!needLogin())return;const it=cosI(b.dataset.cs);if(!it)return;
+  if(b=e.target.closest("[data-cs]")){if(!needLogin())return;const it=cosI(b.dataset.cs);if(!it)return;if(it.ex&&!COS.own[it.id]){toast(`Не продаётся: ${cosExTxt(it)}`);return}
     if(SRV){if(!COS_SRV.includes(it.cat)){toast("Этот эффект пока недоступен");return}if(b.disabled)return;b.disabled=true;srvCos(it).finally(()=>{b.disabled=false});return}
     if(COS.eq[it.cat]===it.id){delete COS.eq[it.cat];cosSave();cosRefresh();toast(`${it.n}: снято`);return}
     if(!COS.own[it.id]){if(it.cat==="tag"&&!/^[A-Za-z0-9]{1,6}$/.test(($("cosTagIn")||{}).value||COS.tag||"")){toast("Сначала впиши тег: латиница и цифры, до 6 символов");return}
       if(srvSoon("Покупки в магазине"))return;if(ME.balance<it.p){toast(`Не хватает ${fmt(it.p-ME.balance)} ₽`);return}ME.balance-=it.p;walletSave();COS.own[it.id]=1;if(it.cat==="tag")COS.tag=$("cosTagIn").value.toUpperCase();try{notify("buy","Покупка в Стиле",`${CCAT[it.cat][0]}: ${it.n} за ${fmt(it.p)} ₽`)}catch(_){}}
-    COS.eq[it.cat]=it.id;cosSave();cosRefresh();toast(`${it.n}: надето`);if(it.cat==="snd")cosPlay(it);return}
-  if(b=e.target.closest("[data-csp]")){const it=cosI(b.dataset.csp);if(it&&it.cat==="snd")cosPlay(it);if(it&&it.cat==="kill"){const k=b.querySelector(".kfx");if(k){k.classList.remove("go");void k.offsetWidth;k.classList.add("go")}}return}
+    COS.eq[it.cat]=it.id;cosSave();cosRefresh();toast(`${it.n}: надето`);if(it.cat==="snd"||it.cat==="mvp")cosPlay(it);return}
+  if(b=e.target.closest("[data-csp]")){const it=cosI(b.dataset.csp);if(it&&(it.cat==="snd"||it.cat==="mvp"))cosPlay(it);if(it&&it.cat==="kill"){const k=b.querySelector(".kfx");if(k){k.classList.remove("go");void k.offsetWidth;k.classList.add("go")}}return}
   if(SRV){const sb=e.target.closest("[data-dep],[data-ccol],[data-cemb],[data-cslot],[data-ctag]");if(sb&&myClan){if(!needLogin())return;
       if(sb.dataset.dep){const v=+sb.dataset.dep;if(ME.balance<v){toast(`Не хватает ${fmt(v-ME.balance)} ₽`);return}srvClan("/api/clans/deposit",{v},`В казну клана +${fmt(v)} ₽`,sb)}
       else if(sb.dataset.ccol){if(myClan.c!==sb.dataset.ccol)srvClan("/api/clans/upgrade",{what:"color",v:sb.dataset.ccol},"Цвет клана обновлён",sb)}

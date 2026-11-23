@@ -14,28 +14,28 @@ const SEASONS = [
 ];
 const mskDay = t => new Date(t + MSK).toISOString().slice(0, 10);
 
-// награды по уровням: t — tk | case | cos | status
+// награды по уровням: t — tk | case | cos | status | boost (k: tk2 — ×2 ТК за игру, xp2 — ×2 опыт пропуска; h — часов)
 // Бесплатная ветка — кейсы подешевле, оформление и VIP/PREMIUM на вехах; премиум — дорогие кейсы
 // (ножи, перчатки, Prime/«цветные» люксы), статусы ELITE/LEGEND/KING. Все кейсы — из server/data/cases.json,
 // оформление — из cosmetics.json; уже купленное оформление конвертируется в ТК через give().
 function rewards() {
-  const C = k => ({ t: "case", k }), O = id => ({ t: "cos", id }), S = (tier, d) => ({ t: "status", tier, d });
+  const C = k => ({ t: "case", k }), O = id => ({ t: "cos", id }), S = (tier, d) => ({ t: "status", tier, d }), B = (k, h) => ({ t: "boost", k, h });
   const FREE = {
-    3: O("bd_skull"), 5: C("army"), 7: C("cblackandwhite"), 9: C("pistol"), 10: O("bd_aim"),
-    12: O("bd_bolt"), 13: C("cgreen"), 15: C("army"), 17: C("cblue"), 18: O("bg_i_nydust"), 20: O("tc_0"),
-    21: C("forb"), 23: O("sd_ding"), 24: C("cgreen"), 25: S("VIP", 3), 27: C("cyellow"), 28: C("army"),
-    30: O("kl_spark"), 31: C("cblue"), 33: O("tr_1"), 34: C("secret"), 35: C("forb"), 37: C("desert"),
-    38: O("bd_wolf"), 40: O("fr_lime"), 41: C("cyellow"), 43: O("fr_ice"), 44: C("secret"), 45: C("desert"),
-    47: C("cred"), 48: C("fire"), 50: S("PREMIUM", 7),
+    3: O("tr_0"), 5: C("army"), 6: B("xp2", 24), 7: C("cblackandwhite"), 8: S("VIP", 1), 9: C("pistol"), 10: O("sm_0"),
+    11: O("tc_1"), 12: O("nk_0"), 13: C("cgreen"), 14: O("sd_drum"), 15: C("army"), 16: B("tk2", 24), 17: C("cblue"), 18: O("bg_i_nydust"), 19: O("tr_wops"), 20: O("tc_0"),
+    21: C("forb"), 22: O("nk_1"), 23: O("sd_ding"), 24: C("cgreen"), 25: S("VIP", 3), 26: O("sm_wops"), 27: C("cyellow"), 28: C("army"),
+    29: B("xp2", 24), 30: O("kl_spark"), 31: C("cblue"), 32: O("kl_star"), 33: O("tr_1"), 34: C("secret"), 35: C("forb"), 36: S("PREMIUM", 2), 37: C("desert"),
+    38: O("sd_coin"), 39: O("mv_level"), 40: O("fr_lime"), 41: C("cyellow"), 42: B("tk2", 24), 43: O("fr_ice"), 44: C("secret"), 45: C("desert"),
+    46: O("tc_wops"), 47: C("cred"), 48: C("fire"), 50: S("PREMIUM", 7),
   };
   const PREM = {
-    2: C("fire"), 3: O("bd_fire"), 4: C("tasher"), 5: C("cpremium1"), 7: C("sniper"), 8: O("fr_emer"),
-    9: C("cpremium2"), 10: O("nk_grad1"), 11: C("tasher"), 12: O("sd_8bit"), 13: C("cvanilla"), 15: S("ELITE", 7),
-    16: C("cdamascussteel"), 17: C("sniper"), 18: O("tr_4"), 19: C("cultraviolet"), 20: O("kl_bolt"), 21: C("cpremium3"),
-    23: C("ctigertooth"), 24: O("kl_tornado"), 25: C("knife"), 26: C("ccasehardened"), 28: O("kl_conf"), 29: C("ccrimsonweb"),
-    30: O("tc_3"), 31: C("cpremium4"), 33: O("sm_2"), 34: C("cfade"), 35: S("LEGEND", 7), 36: C("cdoppler"),
+    2: C("fire"), 3: O("sd_bell"), 4: C("tasher"), 5: C("cpremium1"), 6: B("xp2", 48), 7: C("sniper"), 8: O("fr_emer"),
+    9: C("cpremium2"), 10: O("nk_grad1"), 11: C("tasher"), 12: O("sd_8bit"), 13: C("cvanilla"), 14: O("mv_wops"), 15: S("ELITE", 7),
+    16: C("cdamascussteel"), 17: C("sniper"), 18: O("tr_4"), 19: C("cultraviolet"), 20: O("kl_bolt"), 21: C("cpremium3"), 22: O("nk_wops"),
+    23: C("ctigertooth"), 24: O("kl_tornado"), 25: C("knife"), 26: C("ccasehardened"), 27: S("TITAN", 3), 28: O("kl_conf"), 29: C("ccrimsonweb"),
+    30: O("tc_3"), 31: C("cpremium4"), 32: O("kl_storm"), 33: O("sm_2"), 34: C("cfade"), 35: S("LEGEND", 7), 36: C("cdoppler"), 37: O("bg_i_wops"),
     38: O("tc_2"), 39: C("clore"), 40: O("sm_4"), 41: C("cpremium5"), 42: O("kl_nova"), 43: O("bg_i_nyfire"),
-    44: C("cluxurygloves"), 45: C("knife"), 47: C("gloves"), 48: O("fr_plasma"), 49: C("cluxurygloves"),
+    44: C("cluxurygloves"), 45: C("knife"), 46: O("fr_wops"), 47: C("gloves"), 48: O("fr_plasma"), 49: C("cluxurygloves"),
   };
   const free = [], prem = [];
   for (let lv = 1; lv <= LEVELS; lv++) {
@@ -55,6 +55,11 @@ function makePass({ db, tx, addMoney, giveItem, rollCase, caseByK, cosById, addG
     ON CONFLICT(sid,season) DO UPDATE SET xp=excluded.xp, prem=excluded.prem, claimed=excluded.claimed, day=excluded.day, day_xp=excluded.day_xp, updated_at=excluded.updated_at`)
     .run(r.sid, r.season, r.xp, r.prem, r.claimed, r.day, r.day_xp, now());
   const levelOf = xp => Math.min(LEVELS, Math.floor(xp / XP_LEVEL));
+  // бусты: множитель ×2, пока не истёк; повторная награда продлевает срок
+  const boostQ = db.prepare("SELECT until FROM boost WHERE sid=? AND kind=?");
+  const boostUntil = (sid, kind) => (sid && (boostQ.get(sid, kind) || {}).until) || 0;
+  const boostMult = (sid, kind, t = now()) => boostUntil(sid, kind) > t ? 2 : 1;
+  const boosts = (sid, t = now()) => { const o = {}; for (const k of ["tk2", "xp2"]) { const u = boostUntil(sid, k); if (u > t) o[k] = u; } return o; };
 
   // начислить опыт; game — опыт за игру (с суточным лимитом), иначе за задания
   function addXp(sid, base, t = now(), game = true) {
@@ -63,7 +68,7 @@ function makePass({ db, tx, addMoney, giveItem, rollCase, caseByK, cosById, addG
     if (r.day !== day) { r.day = day; r.day_xp = 0; }
     let b = base;
     if (game) { b = Math.min(b, DAY_CAP - r.day_xp); if (b <= 0) return 0; r.day_xp += b; }
-    const gain = Math.round(b * eventMult(t));
+    const gain = Math.round(b * eventMult(t) * boostMult(sid, "xp2", t));
     const before = levelOf(r.xp);
     r.xp = Math.min(LEVELS * XP_LEVEL, r.xp + gain); save(r);
     const after = levelOf(r.xp);
@@ -95,7 +100,7 @@ function makePass({ db, tx, addMoney, giveItem, rollCase, caseByK, cosById, addG
     if (!s) { const n = nextSeason(t); return { ...base, season: null, next: n ? { n: n.n, from: n.from } : null }; }
     const r = sid ? row(sid, s.id) : null, lv = r ? levelOf(r.xp) : 0;
     return { ...base, season: { id: s.id, n: s.n, from: s.from, to: s.to },
-      me: r ? { xp: r.xp, lv, into: r.xp - lv * XP_LEVEL, prem: !!r.prem, claimed: [...claimedSet(r)], today: r.day === mskDay(t) ? r.day_xp : 0, unclaimed: unclaimedOf(r, lv) } : null };
+      me: r ? { boosts: boosts(sid, t), xp: r.xp, lv, into: r.xp - lv * XP_LEVEL, prem: !!r.prem, claimed: [...claimedSet(r)], today: r.day === mskDay(t) ? r.day_xp : 0, unclaimed: unclaimedOf(r, lv) } : null };
   }
   function unclaimedOf(r, lv) {
     const c = claimedSet(r); let n = 0;
@@ -120,7 +125,12 @@ function makePass({ db, tx, addMoney, giveItem, rollCase, caseByK, cosById, addG
         }
         db.prepare("INSERT INTO cos_own(user_id,item_id,created_at) VALUES(?,?,?)").run(u.id, it.id, now()); return `«${it.n}»`;
       }
-      case "status": addGrant(u.steamid, rw.tier, rw.d, "pass", note, "Боевой пропуск"); return `${rw.tier} на ${rw.d} дн.`;
+      case "status": addGrant(u.steamid, rw.tier, rw.d, "pass", note, "Боевой пропуск"); return `${rw.tier} на ${rw.d} ${rw.d === 1 ? "день" : rw.d < 5 ? "дня" : "дн."}`;
+      case "boost": {
+        const t = now(), until = Math.max(boostUntil(u.steamid, rw.k), t) + rw.h * 3600e3;
+        db.prepare("INSERT INTO boost(sid,kind,until) VALUES(?,?,?) ON CONFLICT(sid,kind) DO UPDATE SET until=excluded.until").run(u.steamid, rw.k, until);
+        return `${rw.k === "tk2" ? "×2 ТК за игру" : "×2 опыт пропуска"} на ${rw.h} ч`;
+      }
     }
     return "";
   }
@@ -167,7 +177,7 @@ function makePass({ db, tx, addMoney, giveItem, rollCase, caseByK, cosById, addG
     const r = getQ.get(sid, s.id); const xp = r ? r.xp : 0, lv = levelOf(xp);
     return { s: s.n, lv, xp: lv >= LEVELS ? XP_LEVEL : xp - lv * XP_LEVEL, need: XP_LEVEL, max: LEVELS, prem: r && r.prem ? 1 : 0, un: r ? unclaimedOf(r, lv) : 0, to: Math.floor(s.to / 1000) };
   }
-  return { apply, roundWin, minute, quest, addXp, state, claim, buyPremium, brief, season };
+  return { apply, roundWin, minute, quest, addXp, state, claim, buyPremium, brief, season, boostMult, boosts };
 }
 
 module.exports = { makePass, REWARDS, LEVELS, XP_LEVEL, DAY_CAP, PREMIUM_PRICE, SEASONS, XP, XP_QUEST };

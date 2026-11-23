@@ -428,7 +428,7 @@ async function eventTick() {
   for (const m of say) { try { await A2S.rconExec(CFG.gameServers[0], CFG.gameRcon, "say " + require("./lib/control").consoleText(m, 180), 3000); } catch (e) {} }
 }
 if (require.main === module) { setTimeout(eventTick, 3000).unref(); setInterval(eventTick, 30e3).unref(); }
-const EARN = makeEarn({ db, tx: fn => tx(db, fn), addMoney, statusOf: statusTier, eventMult: t => EVENTS.mult("tk", t) });
+const EARN = makeEarn({ db, tx: fn => tx(db, fn), addMoney, statusOf: statusTier, eventMult: t => EVENTS.mult("tk", t), boostMult: (sid, t) => PASS.boostMult(sid, "tk2", t) });
 if (CFG.gameLogUnit && require.main === module) {
   // минута в игре: всем, кто сейчас на сервере (если сервер живой — журнал писался за последние 3 минуты)
   setInterval(() => { try { if (now() - STATS.state.lastT < 180e3) { const on = [...STATS.state.sess.keys()]; EARN.minute(on, now()); QUESTS.minute(on, now()); PASS.minute(on, now()); } } catch (e) { console.error("[earn]", e.message); } }, 60e3).unref();
@@ -538,18 +538,18 @@ post("/api/clans/upgrade", clanAct((u, b) => CLANS.upgrade(u, b)));
 // ---------- стиль в игре (плагин TASHER Style) ----------
 function styleRows() {
   const st = new Map(CTL.statuses().map(s => [s.sid, s.t])), rows = new Map();
-  const row = sid => { let r = rows.get(sid); if (!r) rows.set(sid, r = { sid, tier: st.get(sid) || null, clanTag: "", clanColor: "", nick: "", tag: "", smokeHex: "", killFx: "", killSnd: "", trailHex: "", tracerHex: "" }); return r; };
+  const row = sid => { let r = rows.get(sid); if (!r) rows.set(sid, r = { sid, tier: st.get(sid) || null, clanTag: "", clanColor: "", nick: "", tag: "", smokeHex: "", killFx: "", killSnd: "", trailHex: "", tracerHex: "", mvpSnd: "" }); return r; };
   for (const sid of st.keys()) row(sid);
   // UPD: в Tab только название привилегии (лиг и чисел нет); очки месяца идут отдельно через tasher_player.pts (lib/gameinfo.js).
   for (const c of db.prepare("SELECT u.steamid sid, c.tag, c.color FROM clan_members m JOIN clans c ON c.id=m.clan_id JOIN users u ON u.id=m.user_id").all()) { const r = row(c.sid); r.clanTag = c.tag; r.clanColor = c.color; }
   for (const u of db.prepare("SELECT steamid, cos_eq, cos_tag FROM users WHERE cos_eq<>'{}' OR cos_tag<>''").all()) {
     let eq = {}; try { eq = JSON.parse(u.cos_eq || "{}"); } catch (e) {}
     const it = cat => { const x = COSM.get(eq[cat]); return x && x.cat === cat ? x : null; };
-    const nick = it("nick"), smoke = it("smoke"), kill = it("kill"), snd = it("snd"), trail = it("trail"), tracer = it("tracer"), tag = eq.tag && u.cos_tag ? u.cos_tag : "";
-    if (!nick && !smoke && !kill && !snd && !trail && !tracer && !tag) continue;
+    const nick = it("nick"), smoke = it("smoke"), kill = it("kill"), snd = it("snd"), trail = it("trail"), tracer = it("tracer"), mvp = it("mvp"), tag = eq.tag && u.cos_tag ? u.cos_tag : "";
+    if (!nick && !smoke && !kill && !snd && !trail && !tracer && !mvp && !tag) continue;
     const r = row(u.steamid);
     if (nick) r.nick = nick.id; if (smoke) r.smokeHex = smoke.v; if (tag) r.tag = tag;
-    if (kill) r.killFx = kill.v; if (snd) r.killSnd = snd.id.slice(3); if (trail) r.trailHex = trail.v; if (tracer) r.tracerHex = tracer.v;
+    if (kill) r.killFx = kill.v; if (snd) r.killSnd = snd.id.slice(3); if (trail) r.trailHex = trail.v; if (tracer) r.tracerHex = tracer.v; if (mvp) r.mvpSnd = mvp.id.slice(3);
   }
   return [...rows.values()];
 }
@@ -561,9 +561,19 @@ if (CFG.wpCnf && require.main === module) { setTimeout(() => styleSync(), 4000).
 const TIER_P = { VIP: 99, PREMIUM: 199, ELITE: 349, LEGEND: 549, TITAN: 899, KING: 1499 };
 const PERIODS = { 30: 0, 90: 0.1, 180: 0.2 };
 const tierPrice = (tier, days) => Math.round(TIER_P[tier] * days / 30 * (1 - PERIODS[days]) / 10) * 10 - 1;
+// значки убраны с сайта (24.11.2026): один раз возвращаем деньги за купленные (₽ на баланс), за полученные из пропуска — 500 ТК
+if (!db.prepare("SELECT 1 FROM meta WHERE k='badge_refund'").get()) tx(db, () => {
+  for (const r of db.prepare("SELECT user_id, item_id FROM cos_own WHERE item_id LIKE 'bd\\_%' ESCAPE '\\'").all()) {
+    const paid = db.prepare("SELECT -delta p FROM ledger WHERE user_id=? AND kind='shop' AND cur='rub' AND ref=? ORDER BY id DESC LIMIT 1").get(r.user_id, "cos:" + r.item_id);
+    if (paid && paid.p > 0) addMoney(r.user_id, "rub", paid.p, "refund", "cos:" + r.item_id, { what: "Возврат: значки убраны с сайта" });
+    else addMoney(r.user_id, "tk", 500, "refund", "cos:" + r.item_id, { what: "Компенсация: значки убраны с сайта" });
+  }
+  db.prepare("DELETE FROM cos_own WHERE item_id LIKE 'bd\\_%' ESCAPE '\\'").run();
+  db.prepare("INSERT OR REPLACE INTO meta(k,v) VALUES('badge_refund','1')").run();
+});
 const COSM = new Map(JSON.parse(fs.readFileSync(path.join(__dirname, "data", "cosmetics.json"), "utf8")).map(x => [x.id, x]));
-const COS_EQ_CATS = ["frame", "bg", "badge", "nick", "smoke", "tag", "kill", "snd", "trail", "tracer"]; // что надевается (свой тег покупается отдельно — /api/cos/tag)
-function userCos(u) { let eq = {}; try { eq = JSON.parse(u.cos_eq || "{}"); } catch (e) {} return { own: db.prepare("SELECT item_id FROM cos_own WHERE user_id=? ORDER BY created_at").all(u.id).map(r => r.item_id), eq, tag: u.cos_tag || "" }; }
+const COS_EQ_CATS = ["frame", "bg", "nick", "smoke", "tag", "kill", "snd", "trail", "tracer", "mvp"]; // что надевается (свой тег покупается отдельно — /api/cos/tag)
+function userCos(u) { let eq = {}; try { eq = JSON.parse(u.cos_eq || "{}"); } catch (e) {} delete eq.badge; return { own: db.prepare("SELECT item_id FROM cos_own WHERE user_id=? ORDER BY created_at").all(u.id).map(r => r.item_id), eq, tag: u.cos_tag || "" }; }
 function userPurchases(uid) {
   return db.prepare("SELECT delta, meta, created_at FROM ledger WHERE user_id=? AND kind='shop' ORDER BY id DESC LIMIT 50").all(uid)
     .map(r => { let m = {}; try { m = JSON.parse(r.meta || "{}"); } catch (e) {} return { t: r.created_at, what: String(m.what || "Покупка"), p: -r.delta }; });
@@ -593,6 +603,7 @@ post("/api/shop/cos", ctx => {
   const u = needUser(ctx); rateLimit("cos:" + u.id, 30, 60e3);
   const out = (() => {
   const it = COSM.get(String(ctx.body.id || "")); if (!it || !COS_EQ_CATS.includes(it.cat) || it.cat === "tag") bad("Такого предмета нет");
+  if (it.ex && !db.prepare("SELECT 1 FROM cos_own WHERE user_id=? AND item_id=?").get(u.id, it.id)) bad(`«${it.n}» не продаётся — это награда пропуска «${it.ex}», уровень ${it.lv}`);
   return tx(db, () => {
     const fresh = db.prepare("SELECT * FROM users WHERE id=?").get(u.id);
     let balance = fresh.rub;

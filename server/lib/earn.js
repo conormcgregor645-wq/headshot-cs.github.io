@@ -9,7 +9,7 @@ const DAILY_CAP = 2000; // в сутки по Москве, до множите�
 const MULT = { VIP: 1.1, PREMIUM: 1.2, ELITE: 1.3, LEGEND: 1.5, TITAN: 1.75, KING: 2 };
 const mskDay = t => new Date(t + 3 * 3600e3).toISOString().slice(0, 10);
 
-function makeEarn({ db, tx, addMoney, statusOf, eventMult = () => 1, now = Date.now, log = console }) {
+function makeEarn({ db, tx, addMoney, statusOf, eventMult = () => 1, boostMult = () => 1, now = Date.now, log = console }) {
   const dayQ = db.prepare("SELECT base FROM earn_day WHERE sid=? AND day=?");
   const dayUp = db.prepare("INSERT INTO earn_day(sid,day,base) VALUES(?,?,?) ON CONFLICT(sid,day) DO UPDATE SET base=base+excluded.base");
   const penUp = db.prepare("INSERT INTO earn_pending(sid,tk,updated_at) VALUES(?,?,?) ON CONFLICT(sid) DO UPDATE SET tk=tk+excluded.tk, updated_at=excluded.updated_at");
@@ -19,7 +19,7 @@ function makeEarn({ db, tx, addMoney, statusOf, eventMult = () => 1, now = Date.
     if (!sid || !(base > 0)) return 0;
     const day = mskDay(t), have = (dayQ.get(sid, day) || {}).base || 0;
     const b = Math.min(base, DAILY_CAP - have); if (b <= 0) return 0;
-    const st = statusOf(sid), m = ((st && MULT[st]) || 1) * eventMult(t); // статус и событие («Счастливый час» ×2)
+    const st = statusOf(sid), m = ((st && MULT[st]) || 1) * eventMult(t) * boostMult(sid, t); // статус, событие («Счастливый час» ×2) и буст из пропуска
     dayUp.run(sid, day, b);
     penUp.run(sid, b * m, now());
     return b * m;
@@ -62,7 +62,7 @@ function makeEarn({ db, tx, addMoney, statusOf, eventMult = () => 1, now = Date.
   }
   function today(sid, t = now()) {
     const st = statusOf(sid);
-    return { base: (dayQ.get(sid, mskDay(t)) || {}).base || 0, cap: DAILY_CAP, mult: +(((st && MULT[st]) || 1) * eventMult(t)).toFixed(2), ev: eventMult(t), pending: Math.floor((db.prepare("SELECT tk FROM earn_pending WHERE sid=?").get(sid) || {}).tk || 0) };
+    return { base: (dayQ.get(sid, mskDay(t)) || {}).base || 0, cap: DAILY_CAP, mult: +(((st && MULT[st]) || 1) * eventMult(t) * boostMult(sid, t)).toFixed(2), ev: eventMult(t), boost: boostMult(sid, t), pending: Math.floor((db.prepare("SELECT tk FROM earn_pending WHERE sid=?").get(sid) || {}).tk || 0) };
   }
   return { apply, roundWin, minute, flush, today, add };
 }
