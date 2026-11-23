@@ -730,11 +730,17 @@ get("/api/admin/users", ctx => {
 });
 post("/api/admin/balance", ctx => {
   const a = needAdmin(ctx);
-  const cur = ctx.body.cur === "rub" ? "rub" : ctx.body.cur === "tk" ? "tk" : bad("Валюта: tk или rub");
+  const cur = ["rub", "tk", "xp"].includes(ctx.body.cur) ? ctx.body.cur : bad("Валюта: tk, rub или xp");
   const delta = Math.trunc(+ctx.body.delta); if (!delta || Math.abs(delta) > 1e8) bad("Неверная сумма");
   const reason = String(ctx.body.reason || "").trim().slice(0, 200); if (!reason) bad("Укажи причину");
   const target = db.prepare("SELECT * FROM users WHERE id=? OR steamid=?").get(+ctx.body.user || -1, String(ctx.body.user || ""));
   if (!target) bad("Игрок не найден", 404);
+  if (cur === "xp") { // опыт боевого пропуска (2000 = 1 уровень)
+    const r = tx(db, () => { const r = PASS.adminXp(target.steamid, delta);
+      db.prepare("INSERT INTO ledger(user_id,cur,delta,after,kind,ref,meta,created_at) VALUES(?,?,?,?,?,?,?,?)").run(target.id, "xp", delta, r.xp, "admin", "by:" + a.id, JSON.stringify({ by: a.id, byName: a.name || ("Player" + a.id), reason }), now()); return r; });
+    console.log(`[admin] ${a.name}(${a.id}) xp ${delta > 0 ? "+" : ""}${delta} -> ${target.name}(${target.id}): ${reason}`);
+    return { user: pubUser(target), pass: r };
+  }
   const after = tx(db, () => addMoney(target.id, cur, delta, "admin", "by:" + a.id, { by: a.id, byName: a.name || ("Player" + a.id), reason }));
   console.log(`[admin] ${a.name}(${a.id}) ${cur} ${delta > 0 ? "+" : ""}${delta} -> ${target.name}(${target.id}): ${reason}`);
   return { user: pubUser({ ...target, [cur]: after }) };

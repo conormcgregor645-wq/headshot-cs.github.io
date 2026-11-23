@@ -3403,10 +3403,10 @@ html.on-server #v-jackpot,html.on-server #v-wheel{position:relative}
       </section>
       <section class="adm-pane" data-pane="tk" hidden>
         <form class="box adm-form" id="fTk" novalidate>
-          <h3>Выдать или списать ТК и рубли</h3>
+          <h3>Выдать или списать ТК, рубли и опыт пропуска</h3>
           <div class="fgrid">
             <label class="fld">Игрок<input id="tkNick" list="tkNicks" required maxlength="32" placeholder="Ник игрока" autocomplete="off"><datalist id="tkNicks"></datalist></label>
-            <label class="fld">Валюта<select id="tkCur"><option value="tk">ТК (Тащер Коины)</option><option value="rub">Рубли на баланс</option></select></label>
+            <label class="fld">Валюта<select id="tkCur"><option value="tk">ТК (Тащер Коины)</option><option value="rub">Рубли на баланс</option><option value="xp">Опыт пропуска (2 000 = 1 уровень)</option></select></label>
             <label class="fld">Сумма<input id="tkAmt" type="number" min="1" step="1" required placeholder="500" inputmode="numeric"></label>
             <label class="fld">Действие<select id="tkOp"><option value="1">Начислить</option><option value="-1">Списать</option></select></label>
             <label class="fld">Причина<input id="tkWhy" maxlength="80" placeholder="Например: компенсация за технические работы"></label>
@@ -5009,20 +5009,21 @@ if(!TKLOG.length)TKLOG=[{n:"Kotleta",a:25000,why:"Компенсация: не �
 const tkLogSave=()=>{try{localStorage.setItem("tkLog",JSON.stringify(TKLOG))}catch(e){}};
 async function srvTkAdm(){try{const [u,l]=await Promise.all([api("/api/admin/users"),api("/api/admin/ledger")]);SRVU=u.users;$("tkNicks").innerHTML=SRVU.map(p=>`<option value="${esc(p.n)}">${esc(p.steamid)}</option>`).join("");
   const nm=id=>{const p=SRVU.find(x=>x.id===id);return p?p.n:"#"+id};
-  $("aTk").innerHTML=l.ledger.filter(x=>x.kind==="admin").map(x=>{let m={};try{m=JSON.parse(x.meta||"{}")}catch(e){}return`<div class="ai"><div><b>${esc(nm(x.user_id))} · <span style="color:${x.delta>0?"var(--live)":"var(--accent)"}">${x.delta>0?"+":"−"}${fmt(Math.abs(x.delta))} ${x.cur==="rub"?"₽":"ТК"}</span></b><small>${esc(m.reason||"Без причины")} · ${esc(m.byName||"")} · ${new Date(x.created_at).toLocaleString("ru-RU")}</small></div></div>`}).join("")||'<div class="note">Операций пока не было</div>'}catch(e){$("aTk").innerHTML=`<div class="note warn">${esc(e.message)}</div>`}}
+  $("aTk").innerHTML=l.ledger.filter(x=>x.kind==="admin").map(x=>{let m={};try{m=JSON.parse(x.meta||"{}")}catch(e){}return`<div class="ai"><div><b>${esc(nm(x.user_id))} · <span style="color:${x.delta>0?"var(--live)":"var(--accent)"}">${x.delta>0?"+":"−"}${fmt(Math.abs(x.delta))} ${TKU(x.cur)}</span></b><small>${esc(m.reason||"Без причины")} · ${esc(m.byName||"")} · ${new Date(x.created_at).toLocaleString("ru-RU")}</small></div></div>`}).join("")||'<div class="note">Операций пока не было</div>'}catch(e){$("aTk").innerHTML=`<div class="note warn">${esc(e.message)}</div>`}}
 var SRVU=[];
 function drawTkAdm(){if(SRV){if(isStaff()&&curView==="admin")srvTkAdm();return}$("tkNicks").innerHTML=[...players,...guests].filter((p,i,a)=>a.indexOf(p)===i).map(p=>`<option value="${esc(p.n)}">`).join("");
   $("aTk").innerHTML=TKLOG.map(l=>`<div class="ai"><div><b>${esc(l.n)} · <span style="color:${l.a>0?"var(--live)":"var(--accent)"}">${l.a>0?"+":"−"}${fmt(Math.abs(l.a))} ${l.cur==="rub"?"₽":"ТК"}</span></b><small>${esc(l.why||"Без причины")} · ${esc(l.by)} · ${new Date(l.d).toLocaleDateString("ru-RU")}</small></div></div>`).join("")||'<div class="note">Операций пока не было</div>'}
-function tkQuickDraw(){const r=$("tkCur").value==="rub",L=r?[50,100,500,1000]:[1000,10000,50000,100000];$("tkQuick").innerHTML=`<span>Быстро:</span>`+L.map(v=>`<button type="button" data-q="${v}">${fmt(v)} ${r?"₽":"ТК"}</button>`).join("");$("tkAmt").placeholder=r?"100":"500"}
+const TKU=c=>c==="rub"?"₽":c==="xp"?"XP":"ТК";
+function tkQuickDraw(){const c=$("tkCur").value,L=c==="rub"?[50,100,500,1000]:c==="xp"?[2000,10000,20000,100000]:[1000,10000,50000,100000];$("tkQuick").innerHTML=`<span>Быстро:</span>`+L.map(v=>`<button type="button" data-q="${v}">${c==="xp"?`${v/2000} ${plural(v/2000,"уровень","уровня","уровней")}`:`${fmt(v)} ${TKU(c)}`}</button>`).join("");$("tkAmt").placeholder=c==="rub"?"100":c==="xp"?"2000":"500"}
 tkQuickDraw();$("tkCur").onchange=tkQuickDraw;
 $("tkQuick").onclick=e=>{const b=e.target.closest("[data-q]");if(b)$("tkAmt").value=b.dataset.q};
 $("fTk").onsubmit=e=>{e.preventDefault();const n=$("tkNick").value.trim(),a=Math.floor(+$("tkAmt").value),op=+$("tkOp").value,m=$("tkAMsg");
   if(SRV){(async()=>{try{if(!(a>0))throw new Error("Укажи сумму больше нуля");const why=$("tkWhy").value.trim();if(!why)throw new Error("Укажи причину: она останется в журнале");
     let c=SRVU.filter(x=>x.n===n||x.steamid===n||String(x.id)===n);if(!c.length)c=(await api("/api/admin/users?q="+encodeURIComponent(n))).users.filter(x=>x.n===n||x.steamid===n||String(x.id)===n);
     if(!c.length)throw new Error("Игрок не найден. Впиши ник точно или SteamID64");if(c.length>1)throw new Error("Несколько игроков с таким ником, впиши SteamID64");
-    const cur=$("tkCur").value==="rub"?"rub":"tk",r=await api("/api/admin/balance",{user:c[0].id,cur,delta:a*op,reason:why});
+    const cur=["rub","xp"].includes($("tkCur").value)?$("tkCur").value:"tk",r=await api("/api/admin/balance",{user:c[0].id,cur,delta:a*op,reason:why});
     if(c[0].id===ME.id){ME.tk=r.user.tk;ME.balance=r.user.balance;drawChip()}
-    m.textContent=`${op>0?"Начислено":"Списано"} ${fmt(a)} ${cur==="rub"?"₽":"ТК"} игроку ${c[0].n}`;m.className="fmsg ok";$("fTk").reset();tkQuickDraw();drawTkAdm();toast(m.textContent)}catch(x){m.textContent=x.message;m.className="fmsg err"}})();return}
+    m.textContent=`${op>0?"Начислено":"Списано"} ${fmt(a)} ${TKU(cur)} игроку ${c[0].n}`+(r.pass?` · пропуск: уровень ${r.pass.lv}`:"");if(r.pass&&c[0].id===ME.id)api("/api/pass").then(psSet).catch(()=>{});m.className="fmsg ok";$("fTk").reset();tkQuickDraw();drawTkAdm();toast(m.textContent)}catch(x){m.textContent=x.message;m.className="fmsg err"}})();return}
   const p=P(n);
   if(!p){m.textContent="Игрок с таким ником не найден";m.className="fmsg err";return}
   if(!(a>0)){m.textContent="Укажи сумму больше нуля";m.className="fmsg err";return}
