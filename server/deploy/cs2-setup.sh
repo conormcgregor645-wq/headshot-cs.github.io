@@ -131,6 +131,9 @@ F="$CSGO/cfg/gamemode_competitive_server.cfg"; touch "$F"
 grep -q '^mp_freezetime' "$F" && sed -i 's/^mp_freezetime.*/mp_freezetime 3/' "$F" || echo 'mp_freezetime 3' >>"$F"
 # союзники не наносят урон друг другу (в стандартном competitive mp_friendlyfire 1)
 grep -q '^mp_friendlyfire' "$F" && sed -i 's/^mp_friendlyfire.*/mp_friendlyfire 0/' "$F" || echo 'mp_friendlyfire 0' >>"$F"
+# без автокика за тимкиллы и без бана на перезаход после кика (по умолчанию 15 минут)
+grep -q '^mp_autokick' "$F" && sed -i 's/^mp_autokick.*/mp_autokick 0/' "$F" || echo 'mp_autokick 0' >>"$F"
+grep -q '^sv_kick_ban_duration' "$F" && sed -i 's/^sv_kick_ban_duration.*/sv_kick_ban_duration 0/' "$F" || echo 'sv_kick_ban_duration 0' >>"$F"
 
 cat >"$H/update.sh" <<'SH'
 #!/bin/sh
