@@ -14,7 +14,7 @@ const hexRgb = h => { const m = /^#([0-9a-f]{6})$/i.exec(h || ""); if (!m) retur
 const cleanTag = s => String(s || "").replace(/[^0-9A-Za-zА-Яа-яЁё _\-.!?*#]/g, "").replace(/\s+/g, " ").trim().slice(0, 12);
 const STEAM64 = 76561197960265728n;
 
-const KILL_FX = new Set(["spark", "bolt", "conf", "ring"]);
+const KILL_FX = new Set(["spark", "bolt", "conf", "ring", "frost", "fire", "tornado", "star", "rainbow", "nova"]);
 const KILL_SND = new Set(["ding", "drum", "bell", "8bit", "coin"]);
 // rows: [{sid, tier, clanTag, clanColor, nick (id), tag (свой тег), smokeHex, killFx, killSnd, trailHex, tracerHex}]
 function compose(r) {

@@ -1346,6 +1346,12 @@ button.pf-role{cursor:pointer}button.pf-role:hover{border-color:color-mix(in srg
 .rt-clan .rt-row{grid-template-columns:62px minmax(220px,1.8fr) 140px repeat(4,minmax(90px,.8fr)) 150px}
 .rt-row:not(.rt-h):hover{background:var(--panel-2);transform:translateX(3px)}
 .rt-row>span{min-width:0}
+/* фон профиля в строке рейтинга: на всю строку, под затемнением, чтобы читались цифры */
+.rt-row.has-bg{position:relative;isolation:isolate}
+.rt-row.has-bg>.pbx{position:absolute;inset:0;z-index:-2;display:block;aspect-ratio:auto;-webkit-mask:none;mask:none;border-radius:inherit;overflow:hidden}
+.rt-row.has-bg>.pbx .pbx-im{background-size:cover;background-position:center 42%;animation:none}
+.rt-row.has-bg>.rt-sh{position:absolute;inset:0;z-index:-1;border-radius:inherit;pointer-events:none;background:linear-gradient(90deg,rgba(9,10,8,.9) 0%,rgba(9,10,8,.6) 30%,rgba(9,10,8,.42) 62%,rgba(9,10,8,.7) 100%);transition:opacity .2s}
+.rt-row.has-bg:not(.rt-h):hover>.rt-sh{opacity:.8}
 .rt-row,.who{overflow:hidden}
 .rt-h{height:auto;padding:4px 16px 2px;background:none;cursor:default;font-size:13px;font-weight:700;color:var(--muted)}
 .rt-h span:nth-child(n+4){text-align:center}
@@ -2627,6 +2633,12 @@ nav a.on,nav a.on svg{color:#b5e853!important}
 .kfx-bolt{background:radial-gradient(circle,rgba(56,211,255,.6),transparent 55%)}
 .kfx-conf{background:linear-gradient(30deg,#ff6b8b,#ff6b8b) 34% 28%/8px 4px no-repeat,linear-gradient(#b5e853,#b5e853) 66% 32%/4px 8px no-repeat,linear-gradient(#38d3ff,#38d3ff) 28% 66%/7px 4px no-repeat,linear-gradient(#f5c451,#f5c451) 70% 70%/4px 7px no-repeat,linear-gradient(#a78bfa,#a78bfa) 52% 18%/6px 4px no-repeat,linear-gradient(#ff6b8b,#ff6b8b) 48% 82%/4px 6px no-repeat}
 .kfx-ring{background:radial-gradient(circle,transparent 0 30%,#f5c451 31% 35%,transparent 36% 45%,rgba(255,255,255,.9) 46% 48%,transparent 49%)}
+.kfx-frost{background:linear-gradient(#bfe9ff,#bfe9ff) center/3px 70% no-repeat,linear-gradient(60deg,transparent 48.5%,#bfe9ff 49% 51%,transparent 51.5%) center/70% 70% no-repeat,linear-gradient(-60deg,transparent 48.5%,#bfe9ff 49% 51%,transparent 51.5%) center/70% 70% no-repeat,radial-gradient(circle,rgba(125,211,252,.45),transparent 55%)}
+.kfx-fire{background:radial-gradient(40% 55% at 50% 75%,#ffdc6e,#ff8a3d 45%,rgba(255,70,40,.55) 70%,transparent 72%),radial-gradient(18% 30% at 35% 55%,#ff8a3d,transparent 70%),radial-gradient(18% 30% at 66% 52%,#ff5a28,transparent 70%)}
+.kfx-tornado{background:repeating-radial-gradient(circle at 50% 60%,transparent 0 5px,rgba(181,232,83,.85) 5px 6.5px,transparent 6.5px 11px);-webkit-mask:radial-gradient(circle at 50% 60%,#000 40%,transparent 62%);mask:radial-gradient(circle at 50% 60%,#000 40%,transparent 62%)}
+.kfx-star{background:radial-gradient(circle,rgba(255,207,64,.55),transparent 55%);clip-path:polygon(50% 8%,61% 38%,93% 38%,67% 57%,77% 88%,50% 70%,23% 88%,33% 57%,7% 38%,39% 38%)}
+.kfx-rainbow{background:radial-gradient(circle at 50% 80%,transparent 0 26%,#a064ff 27% 31%,#46aaff 32% 36%,#78e664 37% 41%,#ffe650 42% 46%,#ffa03c 47% 51%,#ff5050 52% 56%,transparent 57%)}
+.kfx-nova{background:conic-gradient(from 0deg,transparent 0 4%,rgba(200,90,255,.9) 5%,transparent 6% 12%,rgba(255,90,200,.9) 13%,transparent 14% 21%,#fff 22%,transparent 23% 30%,rgba(200,90,255,.9) 31%,transparent 32% 40%,rgba(255,90,200,.9) 41%,transparent 42% 50%,#fff 51%,transparent 52% 61%,rgba(200,90,255,.9) 62%,transparent 63% 71%,rgba(255,90,200,.9) 72%,transparent 73% 82%,#fff 83%,transparent 84% 92%,rgba(200,90,255,.9) 93%,transparent 94%);-webkit-mask:radial-gradient(circle,#000 20%,transparent 60%);mask:radial-gradient(circle,#000 20%,transparent 60%)}
 .kfx.go{animation:kfxGo .7s ease-out}
 @keyframes kfxGo{0%{transform:scale(.3);opacity:1}100%{transform:scale(1.6);opacity:0}}
 .co-tagin{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
@@ -3539,7 +3551,8 @@ const players=NICKS.map((n,i)=>{const kills=Math.round(300+R()*5600);const death
   const w=[...WEAP].sort(()=>R()-.5).slice(0,4);let left=100;const share=w.map((x,k)=>{const v=k===3?left:Math.round(left*(.35+R()*.3));left-=v;return[x,v]}).sort((a,b)=>b[1]-a[1]);
   return{id:i,n,kills,deaths,kd:+(kills/deaths).toFixed(2),hs,hrs,pts,mvp:Math.round(kills/18),c:AVC[i%6],r:rankIdx(pts),w:share}});
 const XPL=[];// игроки из итогов месяца, которых нет в рейтинге текущего месяца
-const P=n=>players.find(p=>p.n===n)||(typeof guests!=="undefined"&&guests.find(p=>p.n===n))||XPL.find(p=>p.n===n);
+const CLX=[];// участники кланов без статистики за месяц — чтобы их профиль тоже открывался
+const P=n=>players.find(p=>p.n===n)||(typeof guests!=="undefined"&&guests.find(p=>p.n===n))||XPL.find(p=>p.n===n)||CLX.find(p=>p.n===n)||(()=>{try{return logged&&ME.n===n?ME:undefined}catch(e){return undefined}})();
 const isKing=p=>{try{if(window.TSRV){const s=srvStatusOf(p);return!!s&&s.t==="KING"}return(MEDALS.get(p)||[]).some(m=>m.place<=3&&m.month===LAST_MONTH)}catch(e){return false}};
 // статусы игроков с сервера: SteamID64 -> {t, u, f}
 let SRV_ST=new Map();
@@ -3929,7 +3942,7 @@ function drawLeagues(){const box=$("lgBox");if(!box)return;const b=LGB||(SRV&&SR
 function statP(x,i){const k=x.k|0,d=x.d|0,pt=x.pt|0,w=Array.isArray(x.w)?x.w:[],tot=w.reduce((s,y)=>s+(y[1]|0),0);
   return{id:1000+i,n:String(x.n||"Игрок").slice(0,32),sid:String(x.sid||""),real:1,kills:k,deaths:d,kd:+(d?k/d:k).toFixed(2),hs:k?Math.round((x.hs|0)/k*100):0,hsN:x.hs|0,as:x.a|0,
     hrs:Math.floor(pt/3600),pt,pts:x.pts|0,m:x.pts|0,mk:x.mk|0,md:x.md|0,mhs:x.mhs|0,ma:x.ma|0,mpt:x.mpt|0,rw:x.rw|0,rp:x.rp|0,mvp:0,c:AVC[i%AVC.length],r:rankIdx(x.pts|0),
-    w:tot?w.map(([n,v])=>[String(n),Math.round((v|0)/tot*100)]):[],pl:x.pl|0,df:x.df|0,bm:x.bm|0,wa:Array.isArray(x.wa)?Object.fromEntries(x.wa.map(([n,v])=>[String(n),v|0])):null,last:+x.last||0,online:!!x.on,sr:x.sr|0,lg:Number.isInteger(x.lg)&&LG[x.lg]?x.lg:null,cl:x.cl|0,nx:x.nx&&typeof x.nx.n==="string"?{n:x.nx.n,need:x.nx.need|0}:null}}
+    w:tot?w.map(([n,v])=>[String(n),Math.round((v|0)/tot*100)]):[],pl:x.pl|0,df:x.df|0,bm:x.bm|0,bg:typeof x.bg==="string"?x.bg:null,wa:Array.isArray(x.wa)?Object.fromEntries(x.wa.map(([n,v])=>[String(n),v|0])):null,last:+x.last||0,online:!!x.on,sr:x.sr|0,lg:Number.isInteger(x.lg)&&LG[x.lg]?x.lg:null,cl:x.cl|0,nx:x.nx&&typeof x.nx.n==="string"?{n:x.nx.n,need:x.nx.need|0}:null}}
 function srvStatsApply(st,my){if(!st||!Array.isArray(st.players))return;
   players.length=0;guests.length=0;
   st.players.forEach((x,i)=>{const p=statP(x,i);if(SRV.user&&p.sid===ME.steamid){Object.assign(ME,p,{id:ME.id,n:ME.n,c:ME.c});players.push(ME)}else players.push(p)});
@@ -5047,7 +5060,7 @@ function drawStats(){const all=board(),q=$("q-stats").value.trim().toLowerCase()
   const rows=all.map((p,i)=>({p,i})).filter(({p})=>!q||p.n.toLowerCase().includes(q));
   if(REAL_STATS&&!all.length){$("rtList").innerHTML=`<div class="rt-empty">Рейтинг месяца пока пуст. Зайди на сервер — очки начисляются за убийства, хедшоты, помощь, бомбу и выигранные раунды.</div>`;return}
   const mk=p=>p.real?p.mk:p.kills,md=p=>p.real?p.md:p.deaths;
-  $("rtList").innerHTML=rtHead(["Место","Игрок","Рейтинг","Убийств","Смертей","Помощи","Хедшотов","K/D",REAL_STATS?"В игре":"Точность","Приз"])+(rows.length?rows.map(({p,i})=>`<div class="rt-row ${i<3?"top t"+(i+1):""} ${logged&&p===ME?"me":""}" data-p="${esc(p.n)}" tabindex="0" role="button"><span class="rt-pl">${i+1}</span><span class="rt-who"><i class="av${cosFrame(p.n)}${cosAvInner(p.n)?" hasav":""}" style="background:${p.c}">${cosAvInner(p.n)||ini(p.n)}</i><span class="nm"${cosNick(p.n)}>${esc(p.n)}</span>${cosBadge(p.n)}${kingBadge(p)}${clanTag(p)}</span><span>${rtPts(monthPts(p))}</span>${rc("kill",fmt(mk(p)))}${rc("skull",fmt(md(p)))}${rc("as",fmt(p.real?p.ma:stAs(p)))}${rc("hs",fmt(p.real?p.mhs:stHs(p)))}${rc("kd",(p.real?(md(p)?mk(p)/md(p):mk(p)):p.kd).toFixed(2))}${rc("acc",p.real?ptStr(p.mpt):stAcc(p)+"%")}<span>${i<3?'<span class="przc god">KING</span>':i<10?'<span class="przc leg">LEGEND</span>':""}</span></div>`).join(""):`<div class="rt-empty">Игрок «${esc(q)}» не найден</div>`)}
+  $("rtList").innerHTML=rtHead(["Место","Игрок","Рейтинг","Убийств","Смертей","Помощи","Хедшотов","K/D",REAL_STATS?"В игре":"Точность","Приз"])+(rows.length?rows.map(({p,i})=>{const bg=rowBg(p);return`<div class="rt-row ${i<3?"top t"+(i+1):""} ${logged&&p===ME?"me":""}${bg?" has-bg"+cosBgCls(bg):""}" data-p="${esc(p.n)}" tabindex="0" role="button"${bg&&cosBg(bg)?` style="${cosBg(bg)}"`:""}><span class="rt-pl">${i+1}</span><span class="rt-who"><i class="av${cosFrame(p.n)}${cosAvInner(p.n)?" hasav":""}" style="background:${p.c}">${cosAvInner(p.n)||ini(p.n)}</i><span class="nm"${cosNick(p.n)}>${esc(p.n)}</span>${cosBadge(p.n)}${kingBadge(p)}${clanTag(p)}</span><span>${rtPts(monthPts(p))}</span>${rc("kill",fmt(mk(p)))}${rc("skull",fmt(md(p)))}${rc("as",fmt(p.real?p.ma:stAs(p)))}${rc("hs",fmt(p.real?p.mhs:stHs(p)))}${rc("kd",(p.real?(md(p)?mk(p)/md(p):mk(p)):p.kd).toFixed(2))}${rc("acc",p.real?ptStr(p.mpt):stAcc(p)+"%")}<span>${i<3?'<span class="przc god">KING</span>':i<10?'<span class="przc leg">LEGEND</span>':""}</span>${bg?cosLayer(bg)+'<i class="rt-sh" aria-hidden="true"></i>':""}</div>`}).join(""):`<div class="rt-empty">Игрок «${esc(q)}» не найден</div>`)}
 document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.matches(".rt-row[data-p]"))openProfile(e.target.dataset.p)});
 $("q-stats").oninput=drawStats;
 function tickMonth(){const now=new Date(),msk=new Date(now.getTime()+3*3600e3);const end=Date.UTC(msk.getUTCFullYear(),msk.getUTCMonth()+1,1);const left=end-msk.getTime();
@@ -5256,7 +5269,7 @@ var CI=[
  ...[["#b5e853","Лайм"],["#38d3ff","Циан"],["#ff6b8b","Розовый"],["#f5c451","Золото"],["#a78bfa","Фиолет"],["#eb4b4b","Красный"]].map(([v,n],i)=>({id:"nk_"+i,cat:"nick",n,p:39,v})),
  {id:"nk_grad1",cat:"nick",n:"Закат",p:119,v:"linear-gradient(90deg,#ff8a3d,#ff6b8b,#a78bfa)",grad:1},{id:"nk_grad2",cat:"nick",n:"Токсик",p:119,v:"linear-gradient(90deg,#b5e853,#38d3ff)",grad:1},
  {id:"tag",cat:"tag",n:"Свой тег в чате",p:79,v:"tag"},
- {id:"kl_spark",cat:"kill",n:"Искры",p:79,v:"spark"},{id:"kl_bolt",cat:"kill",n:"Разряд",p:119,v:"bolt"},{id:"kl_conf",cat:"kill",n:"Конфетти",p:99,v:"conf"},{id:"kl_ring",cat:"kill",n:"Золотое кольцо",p:99,v:"ring"},
+ {id:"kl_spark",cat:"kill",n:"Искры",p:79,v:"spark"},{id:"kl_bolt",cat:"kill",n:"Разряд",p:119,v:"bolt"},{id:"kl_conf",cat:"kill",n:"Конфетти",p:99,v:"conf"},{id:"kl_ring",cat:"kill",n:"Золотое кольцо",p:99,v:"ring"},{id:"kl_frost",cat:"kill",n:"Снежинка",p:99,v:"frost"},{id:"kl_fire",cat:"kill",n:"Пламя",p:109,v:"fire"},{id:"kl_tornado",cat:"kill",n:"Вихрь",p:129,v:"tornado"},{id:"kl_star",cat:"kill",n:"Звезда",p:99,v:"star"},{id:"kl_rainbow",cat:"kill",n:"Радуга",p:119,v:"rainbow"},{id:"kl_nova",cat:"kill",n:"Сверхновая",p:149,v:"nova"},
  {id:"sd_ding",cat:"snd",n:"Дзынь",p:59,v:[[1760,.12],[2637,.25]]},{id:"sd_drum",cat:"snd",n:"Бонус",p:59,v:[[392,.08],[523,.08],[784,.2]]},{id:"sd_bell",cat:"snd",n:"Колокол",p:79,v:[[880,.6],[1320,.5]]},{id:"sd_8bit",cat:"snd",n:"Левел-ап",p:69,v:[[523,.07],[659,.07],[784,.07],[1047,.15]]},{id:"sd_coin",cat:"snd",n:"Монетка",p:59,v:[[988,.07],[1319,.22]]},
  ...[["#b5e853","Лайм"],["#ff6b8b","Розовый"],["#38d3ff","Голубой"],["#f5c451","Жёлтый"],["#a78bfa","Фиолетовый"],["#eb4b4b","Красный"]].map(([v,n],i)=>({id:"sm_"+i,cat:"smoke",n,p:79,v})),
  ...[["#ffffff","Белый"],["#b5e853","Лайм"],["#38d3ff","Голубой"],["#ff8a3d","Оранжевый"],["#ff6b8b","Розовый"]].map(([v,n],i)=>({id:"tr_"+i,cat:"trail",n,p:59,v})),
@@ -5277,6 +5290,8 @@ function cosLayer(it){if(!it||!it.v.startsWith("img:"))return"";const k=it.v.sli
 function pfBigLayer(){const it=cosEq("bg");return it&&it.v.startsWith("img:")?`<div class="pf-big">${cosLayer(it)}</div>`:""}
 function pfBigSet(){const m=$("meBody");if(m)m.classList.toggle("pfbig",!!m.querySelector(".pf-big"))}
 function cosBg(it){if(!it)return"";const v=it.v;if(v.startsWith("map:"))return`background-image:linear-gradient(90deg,rgba(10,10,10,.92) 20%,rgba(10,10,10,.55) 65%,rgba(10,10,10,.8)),url(${MAPIMG[v.slice(4)]||""});background-size:cover;background-position:center`;return""}
+// фон профиля игрока для строки рейтинга: свой — из надетого, чужой — с сервера
+function rowBg(p){try{if(logged&&p===ME)return cosEq("bg");return p&&p.bg?cosI(p.bg):null}catch(e){return null}}
 function cosBgCls(it){return!it||it.v.startsWith("map:")?"":it.v.startsWith("img:")?" pbg-img":" pbg-"+it.v}
 function cosSwatch(it){const c=it.cat;
   if(c==="frame")return`<span class="co-sw"><i class="co-avp big fr fr-${it.v}">${jpAvSvg("Demo_7","#2b2f36")}</i></span>`;
@@ -5319,7 +5334,7 @@ var EMBS={star:BADGES.star,skull:BADGES.skull,bolt:BADGES.bolt,crown:BADGES.crow
 // ---- кланы на сервере ----
 var CLS=null;
 function srvClanMember(m,i){if(logged&&String(ME.steamid)===String(m.sid))return ME;
-  return players.find(x=>x.sid===m.sid)||(typeof XPL!=="undefined"&&XPL.find(x=>x.sid===m.sid))||statP({sid:m.sid,n:m.n,pts:m.mpts},800+i)}
+  return players.find(x=>x.sid===m.sid)||(typeof XPL!=="undefined"&&XPL.find(x=>x.sid===m.sid))||CLX.find(x=>x.sid===m.sid)||(p=>(CLX.push(p),p))(statP({sid:m.sid,n:m.n,pts:m.mpts},800+i))}
 function srvClansApply(L){if(!L||!Array.isArray(L.clans))return;CLS=L;let i=0;clans.length=0;
   for(const c of L.clans)clans.push({id:c.id,n:String(c.n),t:String(c.t),c:c.c,d:String(c.d||""),emb:c.emb||null,ava:c.ava||null,cover:c.cover||null,slots:c.slots|0||30,
     members:c.members.map(m=>srvClanMember(m,i++)),mem:c.members,pts:c.pts|0,month:c.month|0,wins:c.wins|0,kd:+c.kd||0});

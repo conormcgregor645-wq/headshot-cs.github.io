@@ -209,6 +209,101 @@ public partial class TasherStyle
                 Beam(x, y, z + 4f, x, y, z + 140f, gold, 2.4f, 0.8f);
                 break;
             }
+            case "frost": // снежинка: шестилучевая ледяная звезда на земле и снежная пыль
+            {
+                var ice = Color.FromArgb(255, 125, 211, 252);
+                float gz = z + 4f;
+                for (var i = 0; i < 6; i++)
+                {
+                    var a = i * MathF.PI / 3f; float cx = MathF.Cos(a), cy = MathF.Sin(a);
+                    Beam(x, y, gz, x + cx * 46f, y + cy * 46f, gz, ice, 2.6f, 1.2f);
+                    foreach (var (d, l) in new[] { (20f, 12f), (32f, 9f) })
+                        foreach (var sgn in new[] { -1f, 1f })
+                        {
+                            var b = a + sgn * 0.75f;
+                            Beam(x + cx * d, y + cy * d, gz, x + cx * d + MathF.Cos(b) * l, y + cy * d + MathF.Sin(b) * l, gz, Color.White, 1.4f, 1.2f);
+                        }
+                }
+                for (var i = 0; i < 10; i++)
+                {
+                    var ang = rnd.NextSingle() * MathF.Tau; var rad = rnd.NextSingle() * 40f;
+                    float px = x + MathF.Cos(ang) * rad, py = y + MathF.Sin(ang) * rad, pz = z + 20f + rnd.NextSingle() * 70f;
+                    Beam(px, py, pz, px, py, pz - 5f, Color.White, 2.2f, 1.3f);
+                }
+                break;
+            }
+            case "fire": // пламя: языки огня поднимаются из места фрага
+            {
+                Color[] cols = { Color.FromArgb(255, 255, 90, 40), Color.FromArgb(255, 255, 160, 50), Color.FromArgb(255, 255, 220, 110) };
+                for (var i = 0; i < 12; i++)
+                {
+                    var ang = MathF.Tau * i / 12f + rnd.NextSingle() * 0.4f; var rad = 8f + rnd.NextSingle() * 18f;
+                    float bx = x + MathF.Cos(ang) * rad, by = y + MathF.Sin(ang) * rad, h = 50f + rnd.NextSingle() * 60f;
+                    float mx = bx + (rnd.NextSingle() - 0.5f) * 14f, my = by + (rnd.NextSingle() - 0.5f) * 14f;
+                    Beam(bx, by, z + 2f, mx, my, z + h * 0.55f, cols[i % 3], 4f, 0.7f);
+                    Beam(mx, my, z + h * 0.55f, x + (bx - x) * 0.3f, y + (by - y) * 0.3f, z + h, cols[(i + 1) % 3], 2f, 0.7f);
+                }
+                break;
+            }
+            case "tornado": // вихрь: зелёная спираль закручивается вверх
+            {
+                var lime = Color.FromArgb(255, 181, 232, 83);
+                const int n = 30;
+                float px = x + 10f, py = y, pz = z + 2f;
+                for (var i = 1; i <= n; i++)
+                {
+                    float t = (float)i / n, ang = t * MathF.Tau * 3f, rad = 10f + t * 44f;
+                    float nx = x + MathF.Cos(ang) * rad, ny = y + MathF.Sin(ang) * rad, nz = z + 2f + t * 150f;
+                    Beam(px, py, pz, nx, ny, nz, i % 3 == 0 ? Color.White : lime, 2.4f, 0.9f);
+                    px = nx; py = ny; pz = nz;
+                }
+                break;
+            }
+            case "star": // звезда: золотая пятиконечная звезда на земле и столб света
+            {
+                var gold = Color.FromArgb(255, 255, 207, 64);
+                float gz = z + 4f; var pts = new (float X, float Y)[10];
+                for (var i = 0; i < 10; i++)
+                {
+                    var a = -MathF.PI / 2f + i * MathF.PI / 5f; var r = i % 2 == 0 ? 50f : 20f;
+                    pts[i] = (x + MathF.Cos(a) * r, y + MathF.Sin(a) * r);
+                }
+                for (var i = 0; i < 10; i++) { var (ax, ay) = pts[i]; var (bx, by) = pts[(i + 1) % 10]; Beam(ax, ay, gz, bx, by, gz, gold, 3f, 1.2f); }
+                Beam(x, y, gz, x, y, z + 170f, gold, 3f, 0.9f);
+                Beam(x, y, gz, x, y, z + 170f, Color.White, 1f, 0.9f);
+                break;
+            }
+            case "rainbow": // радуга: цветная дуга над местом фрага
+            {
+                Color[] rb = { Color.FromArgb(255, 255, 80, 80), Color.FromArgb(255, 255, 160, 60), Color.FromArgb(255, 255, 230, 80),
+                               Color.FromArgb(255, 120, 230, 100), Color.FromArgb(255, 70, 170, 255), Color.FromArgb(255, 160, 100, 255) };
+                var dir = rnd.NextSingle() * MathF.Tau; float ux = MathF.Cos(dir), uy = MathF.Sin(dir);
+                const int seg = 8;
+                for (var k = 0; k < rb.Length; k++)
+                {
+                    var r = 70f - k * 6f;
+                    for (var i = 0; i < seg; i++)
+                    {
+                        float a1 = MathF.PI * i / seg, a2 = MathF.PI * (i + 1) / seg;
+                        Beam(x + ux * MathF.Cos(a1) * r, y + uy * MathF.Cos(a1) * r, z + 4f + MathF.Sin(a1) * r,
+                             x + ux * MathF.Cos(a2) * r, y + uy * MathF.Cos(a2) * r, z + 4f + MathF.Sin(a2) * r, rb[k], 3f, 1.4f);
+                    }
+                }
+                break;
+            }
+            case "nova": // сверхновая: фиолетово-розовый взрыв лучей во все стороны
+            {
+                Color[] cols = { Color.FromArgb(255, 200, 90, 255), Color.FromArgb(255, 255, 90, 200), Color.White };
+                float cz = z + 40f;
+                for (var i = 0; i < 22; i++)
+                {
+                    var (dx, dy, dz) = RandomDir(rnd);
+                    var r2 = 50f + rnd.NextSingle() * 40f;
+                    Beam(x + dx * 4f, y + dy * 4f, cz + dz * 4f, x + dx * r2, y + dy * r2, cz + dz * r2, cols[i % cols.Length], i % 3 == 2 ? 1f : 2.2f, 0.6f);
+                }
+                Circle(x, y, cz, 26f, 14, cols[0], 2f, 0.6f);
+                break;
+            }
         }
     }
 

@@ -318,7 +318,9 @@ let TOP_CACHE = { t: 0, period: "", v: null };
 function statsTop(period) {
   if (TOP_CACHE.v && TOP_CACHE.period === period && now() - TOP_CACHE.t < 5000) return TOP_CACHE.v;
   const online = new Set((GS || []).flatMap(s => s.list.filter(p => !p.bot).map(p => p.n)));
-  const v = STATS.top(period, 200).map(p => withSkill({ ...p, on: online.has(p.n) }));
+  // надетый фон профиля (из магазина) — чтобы показать его в строке рейтинга
+  const bgs = new Map(); for (const r of db.prepare("SELECT steamid, cos_eq FROM users WHERE cos_eq LIKE '%\"bg\"%'").all()) { try { const b = JSON.parse(r.cos_eq).bg; if (typeof b === "string") bgs.set(r.steamid, b); } catch (e) {} }
+  const v = STATS.top(period, 200).map(p => withSkill({ ...p, on: online.has(p.n), ...(bgs.has(p.sid) ? { bg: bgs.get(p.sid) } : {}) }));
   TOP_CACHE = { t: now(), period, v }; return v;
 }
 get("/api/stats", ctx => {
