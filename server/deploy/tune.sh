@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Донастройка игрового сервера: фриз-тайм 3 с, без урона по союзникам и серверная команда обновления скинов для сайта.
+# Донастройка игрового сервера: фриз-тайм 3 с, без урона по союзникам, без автокика за тимкиллы и серверная команда обновления скинов для сайта.
 # Запуск от root:  bash tune.sh
 set -euo pipefail
 CSGO=/home/cs2/server/game/csgo; WPJ=$CSGO/addons/counterstrikesharp/configs/plugins/WeaponPaints/WeaponPaints.json
@@ -16,6 +16,11 @@ echo "mp_freezetime 3 записан в server.cfg и gamemode_competitive_serve
 F=$CSGO/cfg/gamemode_competitive_server.cfg
 if grep -q '^mp_friendlyfire' "$F"; then sed -i 's/^mp_friendlyfire.*/mp_friendlyfire 0/' "$F"; else echo 'mp_friendlyfire 0' >>"$F"; fi
 echo "mp_friendlyfire 0 записан в gamemode_competitive_server.cfg — урона по союзникам нет"
+# без автокика за тимкиллы и урон по своим и без бана на перезаход после кика (по умолчанию 15 минут)
+for k in "mp_autokick 0" "sv_kick_ban_duration 0"; do
+  n=${k%% *}; if grep -q "^$n" "$F"; then sed -i "s/^$n.*/$k/" "$F"; else echo "$k" >>"$F"; fi
+done
+echo "mp_autokick 0 и sv_kick_ban_duration 0 — за тимкиллы больше не кикает и не банит"
 
 log "2/3 Команда обновления скинов для сайта"
 systemctl stop cs2
