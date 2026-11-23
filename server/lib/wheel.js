@@ -5,10 +5,10 @@ const crypto = require("node:crypto");
 
 const RARITY = [75, 20, 4, 1]; // обычный, редкий, легендарный, мифический (в процентах)
 const SEGS = [
-  [0, { tk: 150 }], [1, { tk: 1500 }], [0, { tk: 300 }], [2, { tk: 4500 }], [0, { tk: 450 }], [1, { rub: 25 }],
-  [3, { tier: "LEGEND", d: 14 }], [0, { tk: 600 }], [2, { rub: 50 }], [1, { tier: "VIP", d: 7 }], [3, { rub: 250 }], [2, { tier: "PREMIUM", d: 7 }],
+  [0, { tk: 300 }], [1, { tk: 3000 }], [0, { tk: 600 }], [2, { tk: 9000 }], [0, { tk: 900 }], [1, { rub: 25 }],
+  [3, { tier: "LEGEND", d: 14 }], [0, { tk: 1200 }], [2, { rub: 50 }], [1, { tier: "VIP", d: 7 }], [3, { rub: 250 }], [2, { tier: "PREMIUM", d: 7 }],
 ];
-const STREAK_BONUS = 3000; // за 7 дней подряд, ТК
+const STREAK_BONUS = 6000; // за 7 дней подряд, ТК (ТК в Фортуне удвоены 23.11.2026)
 const mskDay = t => new Date(t + 3 * 3600e3).toISOString().slice(0, 10);
 const rand = n => crypto.randomInt(n);
 

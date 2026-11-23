@@ -71,16 +71,16 @@ const bal = u => db.prepare("SELECT tk, rub FROM users WHERE id=?").get(u.id);
   const W = makeWheel({ db, tx: T, addMoney, addGrant: (...a) => grants.push(a), statusOf: sid => tiers.get(sid) || null, now, pickFn: () => next.shift() });
   const u = user(10);
   ok(W.state(u).canSpin, "Фортуна: можно крутить");
-  let r = W.spin(u); ok(r.i === 0 && bal(u).tk === 150 && r.streak === 1 && !r.again, "обычный приз 150 ТК, серия 1", r);
+  let r = W.spin(u); ok(r.i === 0 && bal(u).tk === 300 && r.streak === 1 && !r.again, "обычный приз 300 ТК (х2), серия 1", r);
   ok(thr(() => W.spin(u), /уже получен/), "второй раз за день нельзя");
   // ELITE: при обычном призе ещё попытка
   const e = user(11); tiers.set(e.steamid, "ELITE"); next = [{ r: 0, i: 2 }, { r: 0, i: 4 }];
   r = W.spin(e); ok(r.again && W.state(e).canSpin, "ELITE: обычный приз — ещё одна попытка", r);
-  r = W.spin(e); ok(!r.again && !W.state(e).canSpin && bal(e).tk === 300 + 450 && r.streak === 1, "вторая попытка одна, серия не растёт дважды", [r, bal(e)]);
+  r = W.spin(e); ok(!r.again && !W.state(e).canSpin && bal(e).tk === 600 + 900 && r.streak === 1, "вторая попытка одна, серия не растёт дважды", [r, bal(e)]);
   // серия 7 дней и бонус
   const s = user(12); let b0 = 0;
   for (let d = 0; d < 7; d++) { next = [{ r: 0, i: 0 }]; r = W.spin(s, NOW + d * 864e5); }
-  ok(r.streak === 7 && r.bonus === 3000 && bal(s).tk === 150 * 7 + 3000, "7 дней подряд — бонус 3000 ТК", [r, bal(s)]);
+  ok(r.streak === 7 && r.bonus === 6000 && bal(s).tk === 300 * 7 + 6000, "7 дней подряд — бонус 6000 ТК", [r, bal(s)]);
   next = [{ r: 0, i: 0 }]; r = W.spin(s, NOW + 9 * 864e5); ok(r.streak === 1, "пропуск дня — серия заново", r);
   // рубли и статус
   const p = user(13); next = [{ r: 3, i: 6 }]; r = W.spin(p);
