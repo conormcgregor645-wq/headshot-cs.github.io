@@ -75,6 +75,12 @@ function makePass({ db, tx, addMoney, giveItem, rollCase, caseByK, cosById, addG
     if (after > before) log.log(`[pass] ${sid}: уровень ${after}`);
     return gain;
   }
+  // админка: выдать или снять опыт пропуска без суточного лимита и множителей
+  function adminXp(sid, delta, t = now()) {
+    const s = season(t); if (!s) throw Object.assign(new Error("Сезон пропуска сейчас не идёт"), { code: 409 });
+    const r = row(sid, s.id); r.xp = Math.max(0, Math.min(LEVELS * XP_LEVEL, r.xp + delta)); save(r);
+    return { xp: r.xp, lv: levelOf(r.xp) };
+  }
   function apply(ev, warm) {
     if (!ev || warm) return;
     const t = ev.t || now(), human = p => p && p.sid && !p.bot;
@@ -177,7 +183,7 @@ function makePass({ db, tx, addMoney, giveItem, rollCase, caseByK, cosById, addG
     const r = getQ.get(sid, s.id); const xp = r ? r.xp : 0, lv = levelOf(xp);
     return { s: s.n, lv, xp: lv >= LEVELS ? XP_LEVEL : xp - lv * XP_LEVEL, need: XP_LEVEL, max: LEVELS, prem: r && r.prem ? 1 : 0, un: r ? unclaimedOf(r, lv) : 0, to: Math.floor(s.to / 1000) };
   }
-  return { apply, roundWin, minute, quest, addXp, state, claim, buyPremium, brief, season, boostMult, boosts };
+  return { apply, roundWin, minute, quest, addXp, adminXp, state, claim, buyPremium, brief, season, boostMult, boosts };
 }
 
 module.exports = { makePass, REWARDS, LEVELS, XP_LEVEL, DAY_CAP, PREMIUM_PRICE, SEASONS, XP, XP_QUEST };

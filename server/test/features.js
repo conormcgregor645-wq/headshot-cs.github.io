@@ -425,6 +425,7 @@ const bal = u => db.prepare("SELECT tk, rub FROM users WHERE id=?").get(u.id);
   const EXI = [...COS.values()].filter(x => x.ex);
   ok(EXI.length >= 8 && EXI.every(x => (x.tr === "p" ? PM.REWARDS.prem : PM.REWARDS.free)[x.lv - 1].some(r => r.t === "cos" && r.id === x.id)), "каждый эксклюзив выдаётся на своём уровне пропуска", EXI.map(x => x.id));
   ok(![...COS.values()].some(x => x.cat === "badge") && ![...PM.REWARDS.free, ...PM.REWARDS.prem].flat().some(r => r.t === "cos" && /^bd_/.test(r.id)), "значков больше нет");
+  { const v = user(802, 0, 0); ok(P.adminXp(v.steamid, 4500).lv === 2 && P.adminXp(v.steamid, -9999).xp === 0 && P.adminXp(v.steamid, 1e9).lv === 50, "админ выдаёт и снимает опыт пропуска (в пределах 0…50 ур.)"); }
   const b = P.brief(sid); ok(b.lv === 50 && b.prem === 1 && b.s === "Сезон 1 · Зима" && b.un > 0, "данные для !pass", b);
   T1 = Date.UTC(2027, 1, 5); ok(P.state(sid).season === null && P.addXp(sid, 100, T1) === 0 && thr(() => P.claim(u, { all: true }), /закончился/), "после конца сезона опыт и награды закрыты");
 }
