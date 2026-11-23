@@ -15,42 +15,32 @@ const SEASONS = [
 const mskDay = t => new Date(t + MSK).toISOString().slice(0, 10);
 
 // награды по уровням: t — tk | case | cos | status
+// Бесплатная ветка — кейсы подешевле, оформление и VIP/PREMIUM на вехах; премиум — дорогие кейсы
+// (ножи, перчатки, Prime/«цветные» люксы), статусы ELITE/LEGEND/KING. Все кейсы — из server/data/cases.json,
+// оформление — из cosmetics.json; уже купленное оформление конвертируется в ТК через give().
 function rewards() {
+  const C = k => ({ t: "case", k }), O = id => ({ t: "cos", id }), S = (tier, d) => ({ t: "status", tier, d });
+  const FREE = {
+    3: O("bd_skull"), 5: C("army"), 7: C("cblackandwhite"), 9: C("pistol"), 10: O("bd_aim"),
+    12: O("bd_bolt"), 13: C("cgreen"), 15: C("army"), 17: C("cblue"), 18: O("bg_i_nydust"), 20: O("tc_0"),
+    21: C("forb"), 23: O("sd_ding"), 24: C("cgreen"), 25: S("VIP", 3), 27: C("cyellow"), 28: C("army"),
+    30: O("kl_spark"), 31: C("cblue"), 33: O("tr_1"), 34: C("secret"), 35: C("forb"), 37: C("desert"),
+    38: O("bd_wolf"), 40: O("fr_lime"), 41: C("cyellow"), 43: O("fr_ice"), 44: C("secret"), 45: C("desert"),
+    47: C("cred"), 48: C("fire"), 50: S("PREMIUM", 7),
+  };
+  const PREM = {
+    2: C("fire"), 3: O("bd_fire"), 4: C("tasher"), 5: C("cpremium1"), 7: C("sniper"), 8: O("fr_emer"),
+    9: C("cpremium2"), 10: O("nk_grad1"), 11: C("tasher"), 12: O("sd_8bit"), 13: C("cvanilla"), 15: S("ELITE", 7),
+    16: C("cdamascussteel"), 17: C("sniper"), 18: O("tr_4"), 19: C("cultraviolet"), 20: O("kl_bolt"), 21: C("cpremium3"),
+    23: C("ctigertooth"), 24: O("kl_tornado"), 25: C("knife"), 26: C("ccasehardened"), 28: O("kl_conf"), 29: C("ccrimsonweb"),
+    30: O("tc_3"), 31: C("cpremium4"), 33: O("sm_2"), 34: C("cfade"), 35: S("LEGEND", 7), 36: C("cdoppler"),
+    38: O("tc_2"), 39: C("clore"), 40: O("sm_4"), 41: C("cpremium5"), 42: O("kl_nova"), 43: O("bg_i_nyfire"),
+    44: C("cluxurygloves"), 45: C("knife"), 47: C("gloves"), 48: O("fr_plasma"), 49: C("cluxurygloves"),
+  };
   const free = [], prem = [];
-  // UPD: между ключевыми уровнями — разные предметы и кейсы вместо одних только ТК.
-  // Все ID — из server/data/cosmetics.json. Уже полученные покупки конвертируются в ТК через give().
-  const freeExtra = {
-    3: { t: "cos", id: "bd_skull" },
-    7: { t: "case", k: "army" },
-    12: { t: "cos", id: "bd_bolt" },
-    18: { t: "cos", id: "bg_i_nydust" },
-    23: { t: "cos", id: "sd_ding" },
-    28: { t: "case", k: "army" },
-    33: { t: "cos", id: "tr_1" },
-    38: { t: "cos", id: "bd_wolf" },
-    43: { t: "cos", id: "fr_ice" },
-    48: { t: "case", k: "fire" },
-  };
-  const premExtra = {
-    3: { t: "cos", id: "bd_fire" },
-    8: { t: "cos", id: "fr_emer" },
-    12: { t: "cos", id: "sd_8bit" },
-    18: { t: "cos", id: "tr_4" },
-    22: { t: "case", k: "fire" },
-    28: { t: "cos", id: "kl_conf" },
-    33: { t: "cos", id: "sm_2" },
-    38: { t: "cos", id: "tc_2" },
-    43: { t: "cos", id: "bg_i_nyfire" },
-    48: { t: "cos", id: "fr_plasma" },
-  };
   for (let lv = 1; lv <= LEVELS; lv++) {
-    const f = { 5: { t: "case", k: "army" }, 10: { t: "cos", id: "bd_aim" }, 15: { t: "case", k: "army" }, 20: { t: "cos", id: "tc_0" }, 25: { t: "status", tier: "VIP", d: 3 },
-      30: { t: "cos", id: "kl_spark" }, 35: { t: "case", k: "army" }, 40: { t: "cos", id: "fr_lime" }, 45: { t: "case", k: "army" }, 50: { t: "status", tier: "PREMIUM", d: 7 } }[lv];
-    free.push([f || freeExtra[lv] || { t: "tk", v: 100 + 10 * lv }]);
-    const p = { 5: [{ t: "case", k: "fire" }], 10: [{ t: "cos", id: "nk_grad1" }], 15: [{ t: "status", tier: "ELITE", d: 7 }], 20: [{ t: "cos", id: "kl_bolt" }],
-      25: [{ t: "case", k: "knife" }], 30: [{ t: "cos", id: "tc_3" }], 35: [{ t: "status", tier: "LEGEND", d: 7 }], 40: [{ t: "cos", id: "sm_4" }], 45: [{ t: "case", k: "knife" }],
-      50: [{ t: "status", tier: "KING", d: 14 }, { t: "cos", id: "fr_winter" }] }[lv];
-    prem.push(p || [premExtra[lv] || { t: "tk", v: 200 + 20 * lv }]);
+    free.push([FREE[lv] || { t: "tk", v: 100 + 10 * lv }]);
+    prem.push(lv === 50 ? [S("KING", 14), O("fr_winter"), C("king")] : [PREM[lv] || { t: "tk", v: 200 + 20 * lv }]);
   }
   return { free, prem };
 }
