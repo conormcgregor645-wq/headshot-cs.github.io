@@ -38,6 +38,14 @@ jobs:
           test -f $P/plugins/VIPCore/VIPCore.dll && test -f $P/plugins/VIPCore/CS2MenuManager.dll && test -f $P/plugins/VIP_SmokeColor/VIP_SmokeColor.dll
           (cd pkg && zip -qr ../VIPCore-tasher.zip addons)
           unzip -l VIPCore-tasher.zip
+      - name: Save VIP menu for testing
+        uses: actions/upload-artifact@v4
+        with:
+          name: tasher-vip-buy-menu
+          path: |
+            plugins/vipcore/out/VIPCore/VIPCore.dll
+            plugins/vipcore/hud/tasher_buy.vpk
+          if-no-files-found: error
       - name: Release
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
         env:

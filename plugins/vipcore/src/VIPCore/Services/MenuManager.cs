@@ -17,6 +17,7 @@ public class MenuManager
 {
     private static readonly string SortMenuPath = Path.Combine(ConfigSystem.CoreConfigDirectory, "sort_menu.txt");
 
+    private Menus.BuyMenu? _buyMenu;
     private readonly Plugin _plugin;
     private readonly VipCoreApi _api;
     private readonly PlayersManager _players;
@@ -45,6 +46,7 @@ public class MenuManager
         LoadSortOrder();
 
         plugin.AddCommand("css_vip", "command that opens the VIP MENU", (player, _) => OpenVipMenu(player));
+        plugin.AddCommand("css_vip_diag", "Проверить открытие VIP-меню для своего игрока", DiagnoseVipMenu);
         plugin.AddCommand("css_vip_admin", "opens the VIP admin menu", OnAdminMenuCommand);
         plugin.AddCommand("css_admin_vip", "opens the VIP admin menu", OnAdminMenuCommand);
         plugin.AddCommandListener("say", OnSayCommand);
@@ -59,7 +61,35 @@ public class MenuManager
         _sortedItems = File.ReadAllLines(SortMenuPath);
     }
 
-    private void OpenVipMenu(CCSPlayerController? player)
+    public void CloseBuyMenu() => _buyMenu?.Reset();
+
+    private void DiagnoseVipMenu(CCSPlayerController? player, CommandInfo command)
+    {
+        if (player is null)
+        {
+            command.ReplyToCommand("Введи css_vip_diag в игровой консоли.");
+            return;
+        }
+
+        var loaded = _players.TryGetPlayer(player, out var vip);
+        command.ReplyToCommand($"[VIPCore] Режим={_coreConfig.Value.MenuType}, плагин включён={_plugin.EnableConVar.Value}, " +
+            $"профиль загружен={loaded}, VIP-доступ={_api.IsPlayerVip(player)}");
+        if (vip is null || !_api.IsPlayerVip(player)) return;
+
+        try
+        {
+            OpenVipMenu(player);
+            command.ReplyToCommand($"[VIPCore] Группа={vip.Group}. " +
+                (_buyMenu?.Describe(player) ?? "Полноэкранный HUD не создавался."));
+        }
+        catch (Exception ex)
+        {
+            _plugin.Logger.LogError(ex, "Ошибка открытия меню при css_vip_diag");
+            command.ReplyToCommand($"[VIPCore] Ошибка открытия: {ex.GetType().Name}: {ex.Message}");
+        }
+    }
+
+    private void OpenVipMenu(CCSPlayerController? player, int page = 0)
     {
         if (player is null) return;
 
@@ -71,6 +101,8 @@ public class MenuManager
 
         var menu = _api.CreateMenu(_plugin.Translate(player, "menu.Title", vipPlayer.Group));
 
+        var panorama = _coreConfig.Value.MenuType.Equals("tasher_buy", StringComparison.OrdinalIgnoreCase);
+        var cards = panorama ? new List<Menus.BuyMenu.Item>() : null;
         var features = _featureManager.GetFeatures()
             .Where(f => f.Type is not FeatureType.Hide && vipPlayer.HasFeature(f.Name))
             .OrderBy(f => Array.IndexOf(_sortedItems, f.Name))
@@ -90,6 +122,7 @@ public class MenuManager
                     : string.Empty
             };
 
+            var initialDisplay = args.Display;
             try
             {
                 feature.OnFeatureDisplay(args);
@@ -101,15 +134,35 @@ public class MenuManager
             }
 
             var name = _plugin.Translate(player, feature.Name);
+            if (cards != null)
+            {
+                var hint = feature.Type is FeatureType.Selectable ? "Открыть" :
+                    state is FeatureState.Enabled ? "Включено" : "Выключено";
+                if (state is FeatureState.NoAccess) hint = "Нет доступа";
+                if (!string.IsNullOrWhiteSpace(args.Display) && args.Display != initialDisplay)
+                    hint = System.Text.RegularExpressions.Regex.Replace(args.Display, @"<[^>]+>|[\x00-\x1F]", "").Trim();
+                cards.Add(new(feature.Name, name, hint, state is not FeatureState.NoAccess,
+                    feature.Type is FeatureType.Toggle && state is FeatureState.Enabled, feature.Type is FeatureType.Toggle,
+                    (who, currentPage) =>
+                    {
+                        if (_api.PlayerHasFeature(who, feature.Name))
+                            OnFeatureSelected(who, vipPlayer, feature, currentPage);
+                    }));
+            }
             menu.AddMenuOption(string.IsNullOrEmpty(args.Display) ? name : $"{name} {args.Display}",
                 (controller, _) => OnFeatureSelected(controller, vipPlayer, feature),
                 state is FeatureState.NoAccess);
         }
 
+        if (cards != null)
+        {
+            _buyMenu ??= new Menus.BuyMenu(_plugin);
+            if (_buyMenu.Open(player, vipPlayer.Group, cards, page)) return;
+        }
         menu.Open(player);
     }
 
-    private void OnFeatureSelected(CCSPlayerController player, VipPlayer vipPlayer, VipFeature feature)
+    private void OnFeatureSelected(CCSPlayerController player, VipPlayer vipPlayer, VipFeature feature, int page = 0)
     {
         if (vipPlayer.Disconnected || !_api.IsPlayerVip(player)) return;
 
@@ -127,7 +180,7 @@ public class MenuManager
 
         if (!args.Allow)
         {
-            OpenVipMenu(player);
+            OpenVipMenu(player, page);
             return;
         }
 
@@ -153,7 +206,7 @@ public class MenuManager
         }
 
         if (_coreConfig.Value.ReOpenMenuAfterItemClick && feature.Type is not FeatureType.Selectable)
-            OpenVipMenu(player);
+            OpenVipMenu(player, page);
     }
 
     private string StateText(CCSPlayerController player, FeatureState state) => state switch
