@@ -1524,6 +1524,55 @@ button.pf-role{cursor:pointer}button.pf-role:hover{border-color:color-mix(in srg
 .q-mu{color:var(--muted);font-size:13px}
 .nv-qn{margin-left:auto;font-size:11px;font-weight:800;background:color-mix(in srgb,var(--accent) 20%,transparent);color:var(--accent);border-radius:99px;padding:2px 7px}
 @media (max-width:900px){.q-wrap{grid-template-columns:1fr}}
+/* ===== Задания: день и неделя ===== */
+.qx-head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;margin-bottom:34px}
+.qx-head h1{margin:0 0 6px;font:900 clamp(30px,4vw,44px)/1 var(--f-display);font-style:italic}
+.qx-head p{margin:0;max-width:60ch;color:var(--muted);line-height:1.5}
+.qx-x2{color:#1a1a1a;background:#f5c451;border-radius:6px;padding:1px 7px;font-weight:900}
+.qx-pot{display:flex;gap:28px}
+.qx-pot small{display:block;color:var(--muted);font-size:13px;font-weight:700;margin-bottom:2px}
+.qx-pot b{font:900 26px/1 var(--f-display);color:#f5c451;white-space:nowrap}
+.qx-guest{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 16px;margin-bottom:18px;font-weight:700}
+.qx-sec{margin-bottom:34px}
+.qx-sh{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.qx-sh h2{margin:0;font:900 22px/1.1 var(--f-display)}
+.qx-tm{color:var(--muted);font-size:14px;font-weight:700}.qx-tm b{color:var(--fg);font-variant-numeric:tabular-nums}
+.qx-day{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.qx-t{position:relative;background:linear-gradient(160deg,color-mix(in srgb,var(--qc) 14%,var(--panel)) 0%,var(--panel) 55%);border:1px solid color-mix(in srgb,var(--qc) 22%,transparent);border-radius:20px;padding:18px 18px 20px;overflow:hidden}
+.qx-t::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:var(--qc)}
+.qx-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.qx-lv{font-weight:800;font-size:14px;color:var(--qc)}
+.qx-rw{font:900 17px/1 var(--f-display);color:#f5c451;white-space:nowrap}
+.qx-mid{display:flex;align-items:center;gap:16px}
+.qx-ring{width:64px;height:64px;flex:none;transform:rotate(-90deg)}
+.qx-ring circle{fill:none;stroke-width:6}.qx-ring .bg{stroke:rgba(255,255,255,.08)}.qx-ring .fg{stroke-linecap:round;transition:stroke-dashoffset .6s ease}
+.qx-ring .ok{fill:none;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;transform:rotate(90deg);transform-origin:32px 32px}
+.qx-n{display:block;font-weight:800;font-size:17px;line-height:1.3}
+.qx-pg{display:block;margin-top:4px;color:var(--muted);font-size:14px;font-weight:700;font-variant-numeric:tabular-nums}
+.qx-t.done{border-color:color-mix(in srgb,var(--qc) 60%,transparent)}.qx-t.done .qx-pg{color:var(--qc)}
+.qx-bonus{display:flex;align-items:center;gap:14px;margin-top:12px;background:var(--panel);border:1px dashed rgba(245,196,81,.35);border-radius:16px;padding:14px 18px;font-weight:700}
+.qx-bonus span{flex:1}.qx-bonus b{font:900 17px/1 var(--f-display);color:#f5c451}
+.qx-bonus.done{border-style:solid;background:linear-gradient(90deg,rgba(245,196,81,.14),var(--panel) 60%)}
+.qx-dots{display:flex;gap:6px}.qx-dots i{width:22px;height:8px;border-radius:99px;background:rgba(255,255,255,.1)}.qx-dots i.on{background:#f5c451}
+.qx-wn{margin:-6px 0 14px;color:var(--muted)}
+.qx-week{list-style:none;margin:0;padding:0;position:relative;display:flex;flex-direction:column;gap:10px}
+.qx-week::before{content:"";position:absolute;left:27px;top:24px;bottom:24px;width:2px;background:linear-gradient(#7dd3fc,#38d3ff,#a78bfa,#ff8a3d,#f5c451);opacity:.35}
+.qx-w{position:relative;display:grid;grid-template-columns:56px minmax(0,1fr) auto;align-items:center;gap:16px;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:14px 18px 14px 0}
+.qx-st{justify-self:center;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font:900 15px/1 var(--f-display);color:var(--qc);background:var(--bg,#0d0d0d);border:2px solid var(--qc);position:relative;z-index:1}
+.qx-w.done .qx-st{background:var(--qc);color:#111}
+.qx-bar{height:10px;border-radius:99px;background:rgba(255,255,255,.07);margin-top:9px;overflow:hidden}
+.qx-bar i{display:block;height:100%;width:var(--p);border-radius:inherit;background:var(--qc);box-shadow:0 0 12px color-mix(in srgb,var(--qc) 60%,transparent)}
+.qx-w .qx-rw{font-size:19px}
+.qx-w.done{border-color:color-mix(in srgb,var(--qc) 45%,transparent)}.qx-w.done .qx-pg{color:var(--qc)}
+.qx-info{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.qx-info>div{background:var(--panel);border-radius:18px;padding:18px 20px}
+.qx-info h3{margin:0 0 10px;font-size:16px;font-weight:800}
+.qx-info ul{margin:0;padding-left:18px;color:var(--muted);line-height:1.55}.qx-info li b{color:#f5c451}
+.qx-info code{background:rgba(255,255,255,.07);border-radius:6px;padding:1px 6px;color:var(--fg)}
+@media (max-width:980px){.qx-day{grid-template-columns:1fr}.qx-info{grid-template-columns:1fr}}
+@media (max-width:560px){.qx-w{grid-template-columns:48px minmax(0,1fr);padding-right:14px}.qx-w .qx-rw{grid-column:2;font-size:16px}.qx-week::before{left:23px}.qx-pot{gap:18px}.qx-pot b{font-size:21px}}
+@media (prefers-reduced-motion:reduce){.qx-ring .fg{transition:none}}
+
 @media (max-width:520px){.q-card{padding:14px;gap:6px 12px}.q-ic{width:40px;height:40px}.q-n{font-size:15px}.q-rw{font-size:14px}}
 .wf-card{background:var(--panel);border-radius:16px;padding:16px 18px;display:flex;flex-direction:column;gap:10px}
 .wf-card>small,.wf-row small{font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
@@ -4760,7 +4809,7 @@ $("aEvents").addEventListener("click",async e=>{const b=e.target.closest("[data-
 // ===== Задания дня =====
 var QS=null;
 // пример для демо-режима (без сервера)
-const QS_DEMO={list:[{id:"k15",n:"Убей 15 противников",lv:"easy",lvn:"Лёгкое",goal:15,have:9,done:false,reward:150},{id:"ak15",n:"Убей 15 противников с AK-47",lv:"medium",lvn:"Среднее",goal:15,have:15,done:true,reward:300},{id:"awp15",n:"Убей 15 противников с AWP",lv:"hard",lvn:"Сложное",goal:15,have:2,done:false,reward:600}],bonus:false,bonusTk:300};
+const QS_DEMO={list:[{id:"k15",n:"Убей 15 противников",lv:"easy",lvn:"Лёгкое",goal:15,have:9,done:false,reward:150},{id:"ak15",n:"Убей 15 противников с AK-47",lv:"medium",lvn:"Среднее",goal:15,have:15,done:true,reward:300},{id:"awp15",n:"Убей 15 противников с AWP",lv:"hard",lvn:"Сложное",goal:15,have:2,done:false,reward:600}],bonus:false,bonusTk:300,week:{ends:(()=>{const d=new Date(Date.now()+3*3600e3),wd=(d.getUTCDay()+6)%7;d.setUTCHours(0,0,0,0);return d.getTime()-3*3600e3+(7-wd)*864e5})(),list:[{n:"Убей 150 противников",goal:150,have:150,done:true,reward:1000},{n:"Сделай 40 помощей в убийстве",goal:40,have:22,done:false,reward:1500},{n:"Убей 100 противников с AK-47",goal:100,have:37,done:false,reward:2500},{n:"Убей 15 противников гранатой или молотовым",goal:15,have:3,done:false,reward:3500},{n:"Сделай 250 убийств в голову",goal:250,have:41,done:false,reward:5000}]}};
 const QCOL={easy:"#3ddc97",medium:"#38d3ff",hard:"#ff8a3d"};
 const QICO={easy:'<path d="M5 12l5 5L20 7"/>',medium:'<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/>',hard:'<path d="M12 2l3 6 6 1-4.5 4.2L17.5 20 12 16.8 6.5 20l1-6.8L3 9l6-1z"/>'};
 function qsData(){return SRV?(QS||SRV.quests||null):QS_DEMO}
@@ -4771,26 +4820,34 @@ function qsLeft(){const q=qsData(),end=q&&q.ends?q.ends:(()=>{const d=new Date(D
 // игровые бонусы (значения с сайта, до загрузки — такие же по умолчанию)
 const FUNI={fb:20,ace:100,aceK:5,special:50};
 if(SRV)setTimeout(()=>{fetch("/api/fun",{credentials:"same-origin"}).then(r=>r.ok?r.json():null).then(d=>{if(!d||!d.ace)return;Object.assign(FUNI,{fb:d.firstBlood.human|0,ace:d.ace.tk|0,aceK:d.ace.kills|0,special:d.special.tk|0});if(curView==="quests")drawQuests()}).catch(()=>{})},1500);
+// кольцо прогресса для задания дня
+function qRing(have,goal,col,done){const r=26,c=2*Math.PI*r,p=goal?Math.min(1,have/goal):0;
+  return`<svg class="qx-ring" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="${r}" class="bg"/><circle cx="32" cy="32" r="${r}" class="fg" style="stroke:${col};stroke-dasharray:${c.toFixed(1)};stroke-dashoffset:${(c*(1-p)).toFixed(1)}"/>${done?`<path d="M22 33l7 7 13-15" class="ok" style="stroke:${col}"/>`:""}</svg>`}
+const QWCOL=["#7dd3fc","#38d3ff","#a78bfa","#ff8a3d","#f5c451"];
+function qWeekLeft(q){const w=q&&q.week;if(!w||!w.ends)return"";const ms=Math.max(0,w.ends-Date.now()),d=Math.floor(ms/864e5),h=Math.floor(ms%864e5/36e5),m=Math.floor(ms%36e5/6e4);return d?`${d} ${plural(d,"день","дня","дней")} ${h} ч`:`${h} ч ${m} мин`}
 function drawQuests(){const q=qsData(),box=$("qBody");if(!box)return;
-  if(!q){box.innerHTML=`<div class="page-head"><h1>Задания дня</h1><p>Задания загружаются…</p></div>`;return}
+  if(!q){box.innerHTML=`<div class="page-head"><h1>Задания</h1><p>Задания загружаются…</p></div>`;return}
   const guest=SRV&&!logged,done=q.list.filter(x=>x.done).length,sum=q.list.reduce((s,x)=>s+x.reward,0)+q.bonusTk;
-  box.innerHTML=`<div class="page-head"><h1>Задания дня</h1><p>Три задания на каждый день — одинаковые для всех. Играй на сервере, прогресс считается сам, награда в ТК приходит на счёт сразу.</p></div>
-  <div class="q-wrap"><div class="q-list">${q.list.map(x=>{const p=Math.round(Math.min(1,x.have/x.goal)*100);
-    return`<div class="q-card${x.done?" done":""}" style="--qc:${QCOL[x.lv]||"#b5e853"}"><span class="q-ic"><svg viewBox="0 0 24 24">${QICO[x.lv]||QICO.easy}</svg></span>
-      <span class="q-lv">${esc(x.lvn||"")}${q.x>1?`<i class="q-x2">×${q.x}</i>`:""}</span><span class="q-rw">+${fmt(x.reward)} ТК<small>${x.done?"получено":"награда"}</small></span>
-      <b class="q-n">${esc(x.n)}</b>
-      <div class="q-bar"><i><b style="--p:${guest?0:p}%"></b></i><span>${guest?`0 / ${x.goal}`:x.done?"Выполнено":`${x.have} / ${x.goal}`}</span></div></div>`}).join("")}
-    <div class="q-card q-bonus${q.bonus?" done":""}" style="--qc:#f5c451"><span class="q-ic"><svg viewBox="0 0 24 24"><path d="M20 12v9H4v-9M2 7h20v5H2zM12 21V7M12 7H7.5a2.5 2.5 0 1 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 1 0 0-5C13 2 12 7 12 7z"/></svg></span>
-      <span class="q-lv">Бонус</span><span class="q-rw">+${fmt(q.bonusTk)} ТК<small>${q.bonus?"получено":"награда"}</small></span>
-      <b class="q-n">Выполни все три задания</b>
-      <div class="q-bar"><i><b style="--p:${guest?0:Math.round(done/q.list.length*100)}%"></b></i><span>${guest?`0 / ${q.list.length}`:q.bonus?"Выполнено":`${done} / ${q.list.length}`}</span></div></div></div>
-  <aside class="q-side">
-    <div class="wf-card"><small>Новые задания через</small><b id="qLeft">${qsLeft()}</b><span class="q-mu">Обновляются в 00:00 по Москве</span></div>
-    <div class="wf-card"><small>Можно получить сегодня</small><b>${fmt(sum)} ТК</b>${guest?`<button class="steam" data-login>Войти через Steam</button><span class="q-mu">Чтобы видеть свой прогресс</span>`:""}</div>
-    <div class="wf-card"><small>Бонусы на сервере</small><ul class="q-fun"><li><b>+${FUNI.fb} ТК</b> за первую кровь в раунде</li><li><b>+${FUNI.ace} ТК</b> за эйс — ${FUNI.aceK} убийств за раунд</li><li><b>+${FUNI.special} ТК</b> команде, выигравшей особый раунд — они раз в 2–3 раунда: все с ВХ, невидимки, только в голову, распрыжка, вампиры, ножи, AWP…</li></ul></div>
-    <div class="wf-card"><small>Как это работает</small><ul><li>Считается только игра на нашем сервере, разминка не в счёт.</li><li>Убийства своих и самоубийства не засчитываются.</li><li>В игре: <code>!quests</code> — задания, <code>!rank</code> — место в рейтинге, <code>!tk</code> — баланс, <code>!top</code> — топ-10.</li><li>Если ещё не заходил на сайт, награды копятся и придут при первом входе через Steam.</li></ul></div>
-  </aside></div>`}
-setInterval(()=>{const e=$("qLeft");if(e)e.textContent=qsLeft();const q=qsData();if(SRV&&q&&q.ends&&Date.now()>q.ends+5e3&&!qsBusy){qsBusy=1;api("/api/quests").then(r=>qsSet(r.quests)).catch(()=>{}).finally(()=>{qsBusy=0})}},30e3);
+  const wk=q.week&&Array.isArray(q.week.list)?q.week:null,wsum=wk?wk.list.reduce((s,x)=>s+x.reward,0):0,wdone=wk?wk.list.filter(x=>x.done).length:0;
+  const hv=x=>guest?0:x.have;
+  box.innerHTML=`<header class="qx-head"><div><h1>Задания</h1><p>Играй на сервере — прогресс считается сам, ТК приходят на счёт сразу после выполнения.${q.x>1?` <b class="qx-x2">Сегодня награды ×${q.x}</b>`:""}</p></div>
+    <div class="qx-pot"><div><small>Сегодня</small><b>${fmt(sum)} ТК</b></div>${wk?`<div><small>За неделю</small><b>${fmt(wsum)} ТК</b></div>`:""}</div></header>
+  ${guest?`<div class="qx-guest"><span>Войди, чтобы видеть свой прогресс и получать награды.</span><button class="steam" data-login>Войти через Steam</button></div>`:""}
+  <section class="qx-sec"><div class="qx-sh"><h2>Задания дня</h2><span class="qx-tm">Новые через <b id="qLeft">${qsLeft()}</b></span></div>
+    <div class="qx-day">${q.list.map(x=>{const col=QCOL[x.lv]||"#b5e853";return`<article class="qx-t${x.done?" done":""}" style="--qc:${col}">
+      <div class="qx-top"><span class="qx-lv">${esc(x.lvn||"")}</span><span class="qx-rw">+${fmt(x.reward)} ТК</span></div>
+      <div class="qx-mid">${qRing(hv(x),x.goal,col,x.done&&!guest)}<div><b class="qx-n">${esc(x.n)}</b><span class="qx-pg">${x.done&&!guest?"Выполнено, ТК начислены":`${fmt(hv(x))} из ${fmt(x.goal)}`}</span></div></div></article>`}).join("")}</div>
+    <div class="qx-bonus${q.bonus&&!guest?" done":""}"><div class="qx-dots">${q.list.map(x=>`<i class="${x.done&&!guest?"on":""}"></i>`).join("")}</div>
+      <span>${q.bonus&&!guest?"Все задания дня выполнены":"Выполни все три задания дня"}</span><b>+${fmt(q.bonusTk)} ТК</b></div></section>
+  ${wk?`<section class="qx-sec"><div class="qx-sh"><h2>Задания недели</h2><span class="qx-tm">Новые через <b id="qwLeft">${qWeekLeft(q)}</b></span></div>
+    <p class="qx-wn">Пять ступеней, от простой к самой сложной. Выполнено ${guest?0:wdone} из ${wk.list.length}.</p>
+    <ol class="qx-week">${wk.list.map((x,i)=>{const col=QWCOL[i]||"#b5e853",p=x.goal?Math.round(Math.min(1,hv(x)/x.goal)*100):0,dn=x.done&&!guest;
+      return`<li class="qx-w${dn?" done":""}" style="--qc:${col};--p:${p}%"><span class="qx-st">${["I","II","III","IV","V"][i]||i+1}</span>
+        <div class="qx-wb"><b class="qx-n">${esc(x.n)}</b><div class="qx-bar"><i></i></div><span class="qx-pg">${dn?"Выполнено, ТК начислены":`${fmt(hv(x))} из ${fmt(x.goal)}`}</span></div>
+        <span class="qx-rw">+${fmt(x.reward)} ТК</span></li>`}).join("")}</ol></section>`:""}
+  <section class="qx-info"><div><h3>Бонусы прямо в игре</h3><ul><li><b>+${FUNI.fb} ТК</b> за первую кровь в раунде</li><li><b>+${FUNI.ace} ТК</b> за эйс — ${FUNI.aceK} убийств за раунд</li><li><b>+${FUNI.special} ТК</b> команде, выигравшей особый раунд. Они бывают раз в 2–3 раунда: все с ВХ, невидимки, только в голову, распрыжка, вампиры, ножи, AWP.</li></ul></div>
+    <div><h3>Что засчитывается</h3><ul><li>Только игра на нашем сервере, разминка не в счёт.</li><li>Убийства своих и самоубийства не засчитываются.</li><li>В игре: <code>!quests</code> — задания, <code>!rank</code> — место, <code>!tk</code> — баланс, <code>!top</code> — топ-10.</li><li>Если ещё не заходил на сайт, награды копятся и придут при первом входе через Steam.</li></ul></div></section>`}
+setInterval(()=>{const e=$("qLeft");if(e)e.textContent=qsLeft();const e2=$("qwLeft");if(e2)e2.textContent=qWeekLeft(qsData());const q=qsData();if(SRV&&q&&q.ends&&Date.now()>q.ends+5e3&&!qsBusy){qsBusy=1;api("/api/quests").then(r=>qsSet(r.quests)).catch(()=>{}).finally(()=>{qsBusy=0})}},30e3);
 var qsBusy=0;setTimeout(()=>{try{qsNav()}catch(e){}});
 function srvWheelSet(w){if(!w)return;WH.streak=Math.min(7,w.streak|0);WH.prize=Number.isInteger(w.prize)&&WSEG[w.prize]?w.prize:null;WH.again=w.again?1:0;WH.last=w.canSpin?"":mskDay()}
 function whRun(i,r,AG){const b=$("whSpin");b.disabled=true;b.textContent=WH.mode==="strip"?"Открываем…":"Сканируем…";
@@ -5451,7 +5508,7 @@ function route(forced){try{closeProfile()}catch(e){}["modal","srvModal","cmdModa
   if(SRV&&(v==="support"||v==="tickets"))srvTickets();
   if(SRV&&v==="admin"){try{drawTkAdm()}catch(e){}try{drawAdmin();if(!document.querySelector('.adm-pane[data-pane="srv"]').hidden)srvAdmServer()}catch(e){}}
   document.querySelector(".rail").classList.remove("open");$("burger").setAttribute("aria-expanded","false");
-  {const T={play:"",public:"Public",me:"Мой профиль",player:"Профиль игрока",clan:"Клан",case:"Кейс",wheel:"Фортуна",upgrade:"Апгрейд",inventory:"Инвентарь",jackpot:"Джекпот",support:"Поддержка",tickets:"Тикеты",shop:"Магазин",skins:"Кейсы",stats:"Рейтинг",clans:"Кланы",quests:"Задания дня",pass:"Боевой пропуск",market:"Торговая площадка",ach:"Достижения",bans:"Банлист",rules:"Правила",admin:"Админ-панель",offer:"Публичная оферта",privacy:"Конфиденциальность","404":"Страница не найдена"};document.title=(T[v]?T[v]+" — ":"")+"Tasher CS2"}
+  {const T={play:"",public:"Public",me:"Мой профиль",player:"Профиль игрока",clan:"Клан",case:"Кейс",wheel:"Фортуна",upgrade:"Апгрейд",inventory:"Инвентарь",jackpot:"Джекпот",support:"Поддержка",tickets:"Тикеты",shop:"Магазин",skins:"Кейсы",stats:"Рейтинг",clans:"Кланы",quests:"Задания",pass:"Боевой пропуск",market:"Торговая площадка",ach:"Достижения",bans:"Банлист",rules:"Правила",admin:"Админ-панель",offer:"Публичная оферта",privacy:"Конфиденциальность","404":"Страница не найдена"};document.title=(T[v]?T[v]+" — ":"")+"Tasher CS2"}
   window.scrollTo(0,0);setTimeout(()=>{try{if(!document.documentElement.classList.contains("no-anim"))countIn(document.getElementById("v-"+v))}catch(e){}},30)}
 // переход по странице: работает и там, где ссылки с # не меняют адрес
 function go(v){route(v);try{if(location.hash!=="#"+v)history.pushState(null,"","#"+v)}catch(e){try{history.replaceState(null,"","#"+v)}catch(_){}}}
@@ -5468,7 +5525,7 @@ function drawChip(){
   const chev='<svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>';
   const chip=logged?`<button class="me-chip" id="meBtn" aria-haspopup="menu" aria-expanded="false"><i class="av${cosFrame(ME.n)}${cosAvInner(ME.n)?" hasav":""}" style="background:${ME.c}">${cosAvInner(ME.n)||ini(ME.n)}</i><span class="nm">${esc(ME.n)}<small>${ME.vip?ME.vip.tier:"Игрок"} · <span class="bal">${fmt(ME.tk)} ТК</span></small></span>${chev}</button>`
     :`<button class="me-chip guest" id="meBtn" aria-haspopup="menu" aria-expanded="false"><i class="av">?</i><span class="nm">Гость<small>Войди через Steam</small></span>${chev}</button>`;
-  const items=(logged?`<div class="bal-row"><span>Баланс</span><b>${fmt(ME.balance)} ₽</b></div><div class="bal-row"><span>Тащер Коины</span><b class="tkc">${fmt(ME.tk)} ТК</b></div><a href="#me">${ico("u")}Мой профиль</a><a href="#quests">${ico("task")}Задания дня<span class="nv-qn" id="qNav" hidden></span></a>`:`<button class="login" data-login>${ico("steam")}Войти через Steam</button><div class="sep"></div>`)
+  const items=(logged?`<div class="bal-row"><span>Баланс</span><b>${fmt(ME.balance)} ₽</b></div><div class="bal-row"><span>Тащер Коины</span><b class="tkc">${fmt(ME.tk)} ТК</b></div><a href="#me">${ico("u")}Мой профиль</a><a href="#quests">${ico("task")}Задания<span class="nv-qn" id="qNav" hidden></span></a>`:`<button class="login" data-login>${ico("steam")}Войти через Steam</button><div class="sep"></div>`)
     +`<a href="#ach">${ico("ach")}Достижения</a><a href="#settings" data-pfset>${ico("set")}Настройки</a>`
     +(logged?`<div class="sep"></div><button class="out" id="umOut">${ico("out")}Выйти</button>`:"");
   $("steamSlot").innerHTML=chip+`<div class="umenu" id="umenu" role="menu" hidden>${items}</div>`;

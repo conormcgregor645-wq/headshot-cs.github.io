@@ -437,7 +437,7 @@ if (CFG.gameLogUnit && require.main === module) {
 
 // ---------- ежедневные задания ----------
 const QUESTS = makeQuests({ db, tx: fn => tx(db, fn), addMoney, eventMult: t => EVENTS.mult("quest", t), onDone: done => {
-  for (const d of done) { console.log(`[quests] ${d.sid} выполнил «${d.q.n}» +${d.reward} ТК`); try { PASS.quest(d.sid, d.q.id === "all" ? "all" : d.q.lv); } catch (e) { console.error("[pass]", e.message); } }
+  for (const d of done) { console.log(`[quests] ${d.sid} выполнил${d.week ? " задание недели" : ""} «${d.q.n}» +${d.reward} ТК`); try { PASS.quest(d.sid, d.q.id === "all" ? "all" : d.q.lv); } catch (e) { console.error("[pass]", e.message); } }
   infoSoon(); // плагин сразу напишет игроку «Задание выполнено»
 } });
 get("/api/quests", ctx => ({ quests: QUESTS.state(ctx.user ? ctx.user.steamid : null) }));

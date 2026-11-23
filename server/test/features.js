@@ -237,6 +237,21 @@ const bal = u => db.prepare("SELECT tk, rub FROM users WHERE id=?").get(u.id);
   ok(st2.list.every(x => x.have === 0 && !x.done) && !st2.bonus && st2.day !== st.day, "новый день — новые задания с нуля", st2);
   ok(st.ends > NOW && st.ends - NOW <= 86400e3 && new Date(st.ends + 3 * 3600e3).toISOString().slice(11, 16) === "00:00", "таймер до 00:00 по Москве", new Date(st.ends).toISOString());
   ok(Q.state(null).list.length === 3 && Q.state(null).list.every(x => x.have === 0), "гость видит задания без прогресса");
+  // еженедельные задания: 5 штук, 1 000–5 000 ТК, неделя с понедельника по Москве
+  {
+    const wl = Q.state(sid).week;
+    ok(wl && wl.list.length === 5 && wl.list.map(x => x.reward).join() === "1000,1500,2500,3500,5000", "5 заданий недели с наградами 1 000–5 000 ТК", wl);
+    ok(new Date(wl.ends + 3 * 3600e3).getUTCDay() === 1 && new Date(wl.ends + 3 * 3600e3).toISOString().slice(11, 16) === "00:00" && wl.ends > NOW && wl.ends - NOW <= 7 * 86400e3, "неделя кончается в понедельник 00:00 по Москве", new Date(wl.ends).toISOString());
+    const wu = user(302), ws = wu.steamid, wq = QM.forWeek(NOW)[0], t0 = bal(wu).tk;
+    for (let i = 0; i < wq.goal + 3; i++) step(wq, ws);
+    const ww = Q.state(ws).week.list[0];
+    ok(ww.done && ww.have === wq.goal && bal(wu).tk - t0 >= wq.reward && db.prepare("SELECT COUNT(*) n FROM ledger WHERE user_id=? AND ref=?").get(wu.id, `${wl.key}:${wq.id}`).n === 1, "задание недели оплачивается один раз", { ww, d: bal(wu).tk - t0 });
+    ok(done.some(d => d.week && d.q.id === wq.id), "выполненное задание недели передаётся дальше (опыт пропуска)");
+    const nx = Q.state(ws, wl.ends + 1000).week;
+    ok(nx.key !== wl.key && nx.list.every(x => x.have === 0 && !x.done), "новая неделя — задания с нуля", nx);
+    const wall = QM.WEEK.flatMap(x => x.pool), dall = Object.values(QM.POOL).flat();
+    ok(new Set([...wall, ...dall].map(x => x.id)).size === wall.length + dall.length, "коды заданий недели не совпадают с дневными");
+  }
 
   // данные для команд в игре
   const sql = INFO.sqlFor([{ sid, n: "Ник'с\\бэкслэшем", tier: "KING", place: 3, pts: 120, k: 40, d: 20, hs: 9, tk: 5000, pending: 12, earn: { base: 340, cap: 2000, mult: 2 }, quests: st },

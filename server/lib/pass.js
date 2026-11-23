@@ -7,7 +7,7 @@ const LEVELS = 50, XP_LEVEL = 2000, DAY_CAP = 1500, PREMIUM_PRICE = 349;
 // опыт за игру (до множителя события «Выходные опыта»), в сутки по Москве не больше DAY_CAP
 const XP = { kill: 10, killBot: 2, hs: 3, assist: 5, plant: 10, defuse: 15, roundWin: 10, minute: 5 };
 // за задания дня — без суточного лимита
-const XP_QUEST = { easy: 150, medium: 300, hard: 500, all: 300 };
+const XP_QUEST = { easy: 150, medium: 300, hard: 500, all: 300, week: 800 };
 const MSK = 3 * 3600e3;
 const SEASONS = [
   { id: "s1", n: "Сезон 1 · Зима", from: Date.UTC(2026, 10, 19, 21), to: Date.UTC(2027, 0, 31, 21) }, // 20.11.2026 00:00 — 01.02.2027 00:00 МСК
