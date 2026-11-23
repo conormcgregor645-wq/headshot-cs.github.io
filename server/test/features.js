@@ -480,6 +480,17 @@ const bal = u => db.prepare("SELECT tk, rub FROM users WHERE id=?").get(u.id);
   ok(!("bounties" in F) && !("bounty" in F.info()), "награды за голову нет");
 }
 
+// ---------- наклейки с сайта уходят в WeaponPaints ----------
+{
+  const WP = require("../lib/wp"), sf = path.join(dir, "stickers.json");
+  fs.writeFileSync(sf, JSON.stringify({ "G2 Esports | Paris 2023": 6789, "Crown (Foil)": 76 }));
+  ok(WP.loadStickers(sf) === 2, "номера наклеек загружены");
+  const cols = WP.stickerCols([{ n: "G2 Esports | Paris 2023", wear: 0.25 }, null, { n: "Неизвестная", wear: 0 }, { n: "Crown (Foil)", wear: 0 }]);
+  ok(cols[0] === "6789;0;0;0;0.25;1;0" && cols[1] === "0;0;0;0;0;0;0" && cols[2] === "0;0;0;0;0;0;0" && cols[3] === "76;0;0;0;0;1;0" && cols.length === 5, "слоты наклеек в формате WeaponPaints", cols);
+  const sql = WP.sqlFor("76561198000000001", WP.rowsFor([{ team: "ct", it: { w: "AK-47", s: "Vanilla", wear: 0.1, seed: 1, st: false, stk: [{ n: "Crown (Foil)", wear: 0 }] } }]));
+  ok(/COLUMN_NAME = 'weapon_sticker_4'/.test(sql) && /weapon_sticker_0='76;0;0;0;0;1;0'/.test(sql) && /weapon_defindex=7"/.test(sql), "наклейки пишутся, только если в базе есть колонки", sql.slice(-600));
+}
+
 db.close(); fs.rmSync(dir, { recursive: true, force: true });
 console.log(fails ? `\nОШИБОК: ${fails}` : "\nТК за игру, Фортуна, джекпот, кланы и стиль работают");
 process.exit(fails ? 1 : 0);

@@ -40,7 +40,27 @@ function paintOf(def, skin, seed) {
   return l[Math.abs(seed | 0) % l.length]; // у некоторых скинов несколько вариантов, выбираем по сиду предмета
 }
 
-// строки для базы WeaponPaints по списку надетых предметов: [{team:"ct"|"t", it:{w,s,wear,seed,st}}]
+// номера наклеек: файл собирается при установке вместе с раскрасками, ключ — английское название наклейки
+let STICKERS = {};
+function loadStickers(file) {
+  try { STICKERS = JSON.parse(fs.readFileSync(file, "utf8")); } catch (e) { STICKERS = {}; }
+  return Object.keys(STICKERS).length;
+}
+// 5 слотов в формате WeaponPaints: "номер;схема;x;y;потёртость;масштаб;поворот"; пустой слот — "0;0;0;0;0;0;0"
+const STK_EMPTY = "0;0;0;0;0;0;0";
+function stickerCols(stk) {
+  const out = [STK_EMPTY, STK_EMPTY, STK_EMPTY, STK_EMPTY, STK_EMPTY];
+  if (!Array.isArray(stk)) return out;
+  for (let i = 0; i < 5; i++) {
+    const x = stk[i]; const id = x && STICKERS[x.n];
+    if (!(id > 0)) continue;
+    const wear = Math.min(1, Math.max(0, +x.wear || 0));
+    out[i] = `${id | 0};0;0;0;${+wear.toFixed(3)};1;0`;
+  }
+  return out;
+}
+
+// строки для базы WeaponPaints по списку надетых предметов: [{team:"ct"|"t", it:{w,s,wear,seed,st,stk}}]
 function rowsFor(loadout) {
   const skins = [], knife = [], gloves = [], miss = [];
   for (const { team, it } of loadout) {
@@ -50,7 +70,7 @@ function rowsFor(loadout) {
     if (KNIFE[it.w]) knife.push({ t, cls: KNIFE[it.w][1] });
     if (paint == null) { miss.push(it.w + " | " + it.s); continue; }
     if (GLOVES[it.w]) { if (!paint) continue; gloves.push({ t, def }); }
-    if (paint || !KNIFE[it.w]) skins.push({ t, def, paint, wear: Math.min(1, Math.max(0.000001, +it.wear || 0)), seed: Math.max(0, Math.min(1000, it.seed | 0)), st: it.st ? 1 : 0 });
+    if (paint || !KNIFE[it.w]) skins.push({ t, def, paint, wear: Math.min(1, Math.max(0.000001, +it.wear || 0)), seed: Math.max(0, Math.min(1000, it.seed | 0)), st: it.st ? 1 : 0, stk: stickerCols(it.stk) });
   }
   return { skins, knife, gloves, miss };
 }
@@ -64,6 +84,13 @@ function sqlFor(steamid, rows) {
     q.push(`INSERT INTO wp_player_skins (steamid,weapon_team,weapon_defindex,weapon_paint_id,weapon_wear,weapon_seed,weapon_stattrak) VALUES ${rows.skins.map(r => `(${S},${n(r.t)},${n(r.def)},${n(r.paint)},${n(r.wear)},${n(r.seed)},${n(r.st)})`).join(",")}` +
       ` ON DUPLICATE KEY UPDATE weapon_stattrak_count=IF(weapon_paint_id=VALUES(weapon_paint_id),weapon_stattrak_count,0),weapon_paint_id=VALUES(weapon_paint_id),weapon_wear=VALUES(weapon_wear),weapon_seed=VALUES(weapon_seed),weapon_stattrak=VALUES(weapon_stattrak);`);
   } else q.push(`DELETE FROM wp_player_skins WHERE steamid=${S};`);
+  // наклейки: колонки weapon_sticker_0..4 есть в WeaponPaints последних версий; в старой базе их нет — тогда пропускаем
+  for (const r of rows.skins) {
+    if (!r.stk) continue;
+    const set = r.stk.map((v, i) => `weapon_sticker_${i}='${String(v).replace(/[^0-9;.]/g, "")}'`).join(",");
+    q.push(`SET @q = IF(EXISTS(SELECT 1 FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'wp_player_skins' AND COLUMN_NAME = 'weapon_sticker_4'), "UPDATE wp_player_skins SET ${set} WHERE steamid=${S} AND weapon_team=${n(r.t)} AND weapon_defindex=${n(r.def)}", 'DO 0');`);
+    q.push("PREPARE wp_stk_q FROM @q; EXECUTE wp_stk_q; DEALLOCATE PREPARE wp_stk_q;");
+  }
   q.push(`DELETE FROM wp_player_knife WHERE steamid=${S};`);
   if (rows.knife.length) q.push(`INSERT INTO wp_player_knife (steamid,weapon_team,knife) VALUES ${rows.knife.map(r => `(${S},${n(r.t)},${s(r.cls)})`).join(",")};`);
   q.push(`DELETE FROM wp_player_gloves WHERE steamid=${S};`);
@@ -99,4 +126,4 @@ function makeSync({ cnf, bin = "mysql", db = "weaponpaints", log = console, onDo
   };
 }
 
-module.exports = { DEF, KNIFE, GLOVES, defOf, loadPaints, paintOf, rowsFor, sqlFor, makeSync };
+module.exports = { DEF, KNIFE, GLOVES, defOf, loadPaints, paintOf, loadStickers, stickerCols, rowsFor, sqlFor, makeSync };

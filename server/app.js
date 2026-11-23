@@ -74,6 +74,7 @@ const db = open(CFG.db);
 }
 const now = () => Date.now();
 const PAINTS_N = WP.loadPaints(CFG.wpPaints);
+const STICKERS_N = WP.loadStickers(path.join(path.dirname(CFG.wpPaints), "stickers.json"));
 // после записи скинов плагин сам применяет их в игре (таблица wp_player_refresh, см. lib/wp.js)
 const wpSync = WP.makeSync({ cnf: CFG.wpCnf, bin: CFG.mysqlBin });
 const STATS = GL.makeStats(db, { bots: CFG.statsBots });
@@ -159,7 +160,8 @@ function addMoney(uid, cur, delta, kind, ref, meta) {
 }
 const insItem = db.prepare("INSERT INTO items(id,user_id,w,s,r,wear,st,sv,sp,fx,seed,src,src_ref,state,created_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,'inv',?)");
 function giveItem(uid, it, src, ref) { insItem.run(it.id, uid, it.w, it.s, it.r, it.wear, it.st ? 1 : 0, it.sv ? 1 : 0, it.sp || null, it.fx || 0, it.seed || 0, src, ref || null, now()); return it; }
-const pubItem = r => ({ id: r.id, w: r.w, s: r.s, r: r.r, wear: r.wear, st: !!r.st, sv: !!r.sv, sp: r.sp || undefined, fx: r.fx || undefined, seed: r.seed, t: r.created_at });
+const pubItem = r => ({ id: r.id, w: r.w, s: r.s, r: r.r, wear: r.wear, st: !!r.st, sv: !!r.sv, sp: r.sp || undefined, fx: r.fx || undefined, seed: r.seed, stk: stkOf(r), t: r.created_at });
+function stkOf(r) { if (!r.stk) return undefined; try { const a = JSON.parse(r.stk); return Array.isArray(a) && a.some(Boolean) ? a : undefined; } catch (e) { return undefined; } }
 function userItems(uid) { return db.prepare("SELECT * FROM items WHERE user_id=? AND state='inv' ORDER BY created_at").all(uid).map(pubItem); }
 function takeItems(uid, ids, state) {
   if (!Array.isArray(ids) || ids.length > 200 || ids.some(x => typeof x !== "string" || x.length > 40)) bad("Неверный список предметов");
@@ -180,8 +182,8 @@ const slotOf = w => { const c = W_CAT.get(w); return c === "knife" || c === "glo
 const teamsOf = w => T_ONLY.has(w) ? ["t"] : CT_ONLY.has(w) ? ["ct"] : ["ct", "t"];
 const userLoadout = uid => db.prepare("SELECT team, item_id id FROM loadout WHERE user_id=? ORDER BY team, slot").all(uid).map(r => ({ team: r.team, id: r.id }));
 function syncGame(u) {
-  wpSync(u.steamid, () => db.prepare("SELECT l.team, i.w, i.s, i.wear, i.seed, i.st FROM loadout l JOIN items i ON i.id=l.item_id WHERE l.user_id=? AND i.state='inv'").all(u.id)
-    .map(r => ({ team: r.team, it: { w: r.w, s: r.s, wear: r.wear, seed: r.seed, st: !!r.st } })));
+  wpSync(u.steamid, () => db.prepare("SELECT l.team, i.w, i.s, i.wear, i.seed, i.st, i.stk FROM loadout l JOIN items i ON i.id=l.item_id WHERE l.user_id=? AND i.state='inv'").all(u.id)
+    .map(r => ({ team: r.team, it: { w: r.w, s: r.s, wear: r.wear, seed: r.seed, st: !!r.st, stk: stkOf(r) } })));
 }
 const pubUser = u => ({ id: u.id, steamid: u.steamid, n: u.name || ("Player" + u.id), av: u.avatar, role: u.role, tk: u.tk, balance: u.rub, created: u.created_at, dailyUsed: u.daily_day === mskDay() });
 const isAdmin = u => u && (u.role === "admin" || u.role === "owner");
@@ -245,6 +247,21 @@ post("/api/cases/open", ctx => {
     const after = db.prepare("SELECT tk FROM users WHERE id=?").get(u.id).tk;
     return { items: items.map(it => ({ ...it, t: now() })), tk: after, price, freeCases: freeCases(u.id) };
   });
+});
+
+// наклейки на предмет: 5 слотов, в каждом {n: название наклейки, wear: 0..1} или null; надетый предмет сразу обновляется в игре
+post("/api/items/stickers", ctx => {
+  const u = needUser(ctx); rateLimit("stk:" + u.id, 30, 60e3);
+  const id = typeof ctx.body.id === "string" && ctx.body.id.length <= 40 ? ctx.body.id : bad("Неверный предмет");
+  const raw = ctx.body.stk; if (raw != null && (!Array.isArray(raw) || raw.length > 5)) bad("Неверные наклейки");
+  const stk = Array.from({ length: 5 }, (_, i) => { const x = raw && raw[i]; if (!x) return null;
+    const n = typeof x.n === "string" ? x.n.trim().slice(0, 120) : ""; if (!n) bad("Неверная наклейка");
+    return { n, wear: Math.round(Math.min(1, Math.max(0, +x.wear || 0)) * 100) / 100 }; });
+  const it = db.prepare("SELECT * FROM items WHERE id=? AND user_id=? AND state='inv'").get(id, u.id); if (!it) bad("Предмет не найден", 404);
+  const val = stk.some(Boolean) ? JSON.stringify(stk) : null;
+  db.prepare("UPDATE items SET stk=? WHERE id=?").run(val, id);
+  if (db.prepare("SELECT 1 FROM loadout WHERE user_id=? AND item_id=?").get(u.id, id)) syncGame(u);
+  return { item: pubItem({ ...it, stk: val }) };
 });
 
 post("/api/items/sell", ctx => {
