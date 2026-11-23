@@ -15,7 +15,7 @@ public partial class TasherStyle
     private int _tick;
     private readonly List<GrenadeTrail> _trails = new();
     private readonly Dictionary<ulong, DateTime> _lastTracer = new();
-    // Лучи эффекта фрага передаются только игрокам, наблюдающим за убийцей.
+    // Лучи эффекта фрага передаются только самому убийце и тем, кто за ним наблюдает.
     private readonly Dictionary<CBeam, ulong> _spectatorBeams = new();
     private ulong _killFxOwner;
 
@@ -74,7 +74,8 @@ public partial class TasherStyle
     }
 
     // Проверка сетевой передачи происходит отдельно для каждого зрителя.
-    // Живые игроки не получают эффект, даже если находятся рядом с местом убийства.
+    // Владелец эффекта видит его всегда. Другие живые игроки не получают эффект, даже если находятся рядом с местом убийства;
+    // мёртвые и зрители видят его, только когда наблюдают за владельцем.
     private void OnEffectsTransmit(CCheckTransmitInfoList infoList)
     {
         if (_spectatorBeams.Count == 0) return;
@@ -96,8 +97,10 @@ public partial class TasherStyle
                     pawnOwners.TryGetValue(target.Handle, out var ownerSid))
                     watching = ownerSid;
             }
+            var self = viewer.SteamID;
+            // эффект видит сам владелец и те, кто за ним наблюдает; остальным живым игрокам он не передаётся
             foreach (var (beam, ownerSid) in _spectatorBeams)
-                if (beam.IsValid && watching != ownerSid) info.TransmitEntities.Remove(beam);
+                if (beam.IsValid && self != ownerSid && watching != ownerSid) info.TransmitEntities.Remove(beam);
         }
     }
 

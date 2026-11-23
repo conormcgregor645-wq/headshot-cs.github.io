@@ -54,7 +54,6 @@ public partial class TasherStyle
     private volatile bool _infoLoaded;
     private volatile bool _infoExt; // в tasher_player есть колонки лиги и пропуска (1.3)
     private readonly ConcurrentDictionary<ulong, DateTime> _greeted = new();
-    private DateTime _lastGreetSound = DateTime.MinValue;
 
     private static readonly Dictionary<string, string> TierColor = new()
     {
@@ -71,7 +70,8 @@ public partial class TasherStyle
             if (p is { IsValid: true, IsBot: false, IsHLTV: false })
             {
                 var sid = p.SteamID;
-                AddTimer(3f, () => { Welcome(sid); ApplyPremierRanking(p); });
+                // через 3 с игрок мог уже выйти — ищем его заново по SteamID, а не берём старый объект
+                AddTimer(3f, () => Welcome(sid), CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
             }
             return HookResult.Continue;
         });
@@ -202,6 +202,7 @@ public partial class TasherStyle
     {
         var p = Utilities.GetPlayers().FirstOrDefault(x => x is { IsValid: true, IsBot: false } && x.SteamID == sid);
         if (p == null) return;
+        ApplyPremierRanking(p);
         p.PrintToChat($"{Prefix}Команды: {ChatColors.Lime}!rank !top !tk !quests !pass{ChatColors.Default} — рейтинг, баланс, задания и пропуск");
         var info = InfoOf(p);
         if (info == null || info.Tier.Length == 0) return;
@@ -209,7 +210,7 @@ public partial class TasherStyle
         if (_greeted.TryGetValue(sid, out var last) && (now - last).TotalMinutes < Math.Max(0, Config.GreetCooldownMinutes)) return;
         _greeted[sid] = now;
         var col = TagColors.ColorChar(TierColor.GetValueOrDefault(info.Tier, "default"), p.Team);
-        Server.PrintToChatAll($" {col}[{info.Tier}] {p.PlayerName}{ChatColors.Default} заходит на сервер!");
+        Server.PrintToChatAll($" {col}[{info.Tier}] {StripControl(p.PlayerName)}{ChatColors.Default} заходит на сервер!");
         // UPD: вход игрока сопровождается сообщением, без дополнительного звука.
         // В игре слышны только приобретённые звуки убийства.
     }
@@ -258,7 +259,7 @@ public partial class TasherStyle
         foreach (var t in top)
         {
             var c = t.Place switch { 1 => ChatColors.Gold, 2 => ChatColors.Silver, 3 => ChatColors.Orange, _ => ChatColors.Default };
-            player.PrintToChat($" {c}{t.Place}. {t.Name}{ChatColors.Default} — {t.Pts} очк., K/D {Kd(t.Kills, t.Deaths)}");
+            player.PrintToChat($" {c}{t.Place}. {StripControl(t.Name)}{ChatColors.Default} — {t.Pts} очк., K/D {Kd(t.Kills, t.Deaths)}");
         }
     }
 

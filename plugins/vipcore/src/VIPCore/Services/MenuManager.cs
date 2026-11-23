@@ -59,6 +59,17 @@ public class MenuManager
         _sortedItems = File.ReadAllLines(SortMenuPath);
     }
 
+    private static readonly string[] TasherOrder =
+        ["Health", "Armor", "DefuseKit", "Grenades", "Healthshot", "Zeus", "Money", "HealthRegen", "Vampirism"];
+
+    private int SortKey(string name)
+    {
+        var i = Array.IndexOf(_sortedItems, name);
+        if (i >= 0) return i;
+        var j = Array.IndexOf(TasherOrder, name);
+        return 1000 + (j >= 0 ? j : TasherOrder.Length);
+    }
+
     private void OpenVipMenu(CCSPlayerController? player)
     {
         if (player is null) return;
@@ -71,9 +82,10 @@ public class MenuManager
 
         var menu = _api.CreateMenu(_plugin.Translate(player, "menu.Title", vipPlayer.Group));
 
+        // TASHER: сначала порядок из sort_menu.txt, остальные — в порядке TASHER (снаряжение, потом бонусы), а не по алфавиту
         var features = _featureManager.GetFeatures()
             .Where(f => f.Type is not FeatureType.Hide && vipPlayer.HasFeature(f.Name))
-            .OrderBy(f => Array.IndexOf(_sortedItems, f.Name))
+            .OrderBy(f => SortKey(f.Name))
             .ThenBy(f => f.Name);
 
         foreach (var feature in features)
