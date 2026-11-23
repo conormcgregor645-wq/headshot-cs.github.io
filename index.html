@@ -5108,7 +5108,7 @@ $("tkmClose").onclick=()=>$("tkModal").hidden=true;$("tkModal").onclick=e=>{if(e
 document.addEventListener("keydown",e=>{if(e.key==="Escape")$("tkModal").hidden=true});
 function drawOwnLink(){const al=document.querySelector('.adm-link[data-v="admin"]');if(al&&SRV)al.hidden=!isStaff();const l=document.querySelector(".own-link");if(!l)return;l.hidden=!isOwner();const n=TICKETS.filter(t=>t.st==="wait").length;$("tkCnt").textContent=n||"";$("tkCnt").hidden=!n}
 // ---------- магазин ----------
-const TIERIMG={"VIP": "img/tier/vip.jpg?v=6c7e2367", "PREMIUM": "img/tier/premium.jpg?v=aa901830", "LEGEND": "img/tier/legend.jpg?v=58f3fea4", "ELITE": "img/tier/elite.jpg?v=9ac26fd5", "TITAN": "img/tier/titan.jpg?v=56d95929", "GOD": "img/tier/god.jpg?v=7d1fccc4"};
+const TIERIMG={"VIP": "img/tier/vip.jpg?v=5ca8e71a", "PREMIUM": "img/tier/premium.jpg?v=b8e9f686", "LEGEND": "img/tier/legend.jpg?v=d0c906e8", "ELITE": "img/tier/elite.jpg?v=44d49415", "TITAN": "img/tier/titan.jpg?v=84792a58", "GOD": "img/tier/god.jpg?v=1feb8c72"};
 const T6=[
  {k:"VIP",n:"VIP",c:"#b8c0cc",p:99,f:["105 HP, броня и шлем","+$300 каждый раунд","Флешка при возрождении","Тег [VIP] в чате и в таблице счёта"]},
  {k:"PREMIUM",n:"PREMIUM",c:"#5aa9ff",p:199,f:["110 HP, броня и шлем","+$500 каждый раунд","Флешка и дым","Набор сапёра за CT","Тег [PREMIUM]"]},
