@@ -64,6 +64,7 @@
 | Сделать копию базы сейчас | `tasher-backup` |
 | Проверить управление сервером (кик, чат, карты) | `bash /opt/tasher/server/deploy/ctl-check.sh` (быть на сервере) |
 | Поставить или обновить VIP-плагин и TASHER Style | `bash /opt/tasher/server/deploy/vip-setup.sh` |
+| Новогодняя карта из Мастерской Steam вместо de_dust2 (и обратно) | `bash /opt/tasher/server/deploy/winter-map.sh <ID>` / `… off` |
 | Проверить скины в игре | `bash /opt/tasher/server/deploy/check-skins.sh` |
 
 База лежит в `/var/lib/tasher/tasher.db`, ежедневные копии за 14 дней — в `/var/backups/tasher/`.
