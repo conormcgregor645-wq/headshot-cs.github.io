@@ -1,5 +1,6 @@
 // TASHER Style: тег и цвет ника в чате, тег в таблице счёта, цвет дыма, эффекты (убийство, звук, трассеры, след гранат),
-// команды !rank !top !tk !quests, приветствие статусов с музыкой, особые раунды и звуки серий — по данным с сайта tashercs.ru.
+// команды !rank !top !tk !quests !pass, приветствие статусов (только сообщение), особые раунды — по данным с сайта tashercs.ru.
+// UPD: из звуков в игре остался только купленный звук убийства.
 // Сайт пишет готовые значения в таблицу tasher_style (база weaponpaints), плагин перечитывает её раз в 20 секунд
 // и сразу по команде сервера css_tasher_style_reload (сайт присылает её по RCON после покупки).
 using System.Collections.Concurrent;
@@ -34,7 +35,7 @@ public class StyleConfig : BasePluginConfig
         ["8bit"] = "sounds/ui/armsrace_level_up.vsnd",
         ["coin"] = "sounds/ui/coin_pickup_01.vsnd",
     };
-    // приветствие игрока со статусом: короткая мелодия для всех на сервере (файлы звуков из самой игры)
+    // UPD: не используется — приветствие без звука. Оставлено, чтобы старые конфиги читались без ошибок.
     [JsonPropertyName("GreetSounds")] public Dictionary<string, string> GreetSounds { get; set; } = new()
     {
         ["VIP"] = "sounds/ui/item_drop2_uncommon.vsnd",
@@ -55,7 +56,7 @@ public class StyleConfig : BasePluginConfig
     [JsonPropertyName("SpecialEveryMax")] public int SpecialEveryMax { get; set; } = 3;
     [JsonPropertyName("SpecialMinHumans")] public int SpecialMinHumans { get; set; } = 1;
     [JsonPropertyName("SpecialModes")] public List<string> SpecialModes { get; set; } = new() { "knife", "deagle", "awp", "scout", "zeus", "onehp", "nades", "invis", "wh", "hs", "bhop", "vampire", "ammo" };
-    // звуки серий (из самой игры, слышит только убивший): first — первая кровь, 2…5 — двойное…эйс; special — начало особого раунда (всем)
+    // UPD: не используется — звуки серий и начала особого раунда отключены. Оставлено для совместимости со старыми конфигами.
     [JsonPropertyName("StreakSounds")] public Dictionary<string, string> StreakSounds { get; set; } = new()
     {
         ["first"] = "sounds/ui/deathmatch_bonuskill.vsnd",
@@ -72,7 +73,7 @@ public record PlayerStyle(string ChatTag, string NameColor, string ScoreTag, str
 public partial class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
 {
     public override string ModuleName => "TASHER Style";
-    public override string ModuleVersion => "1.4.4";
+    public override string ModuleVersion => "1.4.5";
     public override string ModuleAuthor => "tashercs.ru";
 
     public StyleConfig Config { get; set; } = new();
@@ -210,10 +211,13 @@ public partial class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
     private HookResult HandleChat(CCSPlayerController? player, CommandInfo info, bool teamOnly)
     {
         if (player is not { IsValid: true } || player.IsBot || player.IsHLTV) return HookResult.Continue;
-        var message = info.GetArg(1);
-        if (string.IsNullOrWhiteSpace(message)) return HookResult.Continue;
-        if (BlockGagged(player, message)) return HookResult.Handled;
-        if (IsChatTrigger(message)) return HookResult.Continue;
+        var raw = info.GetArg(1);
+        if (string.IsNullOrWhiteSpace(raw)) return HookResult.Continue;
+        if (BlockGagged(player, raw)) return HookResult.Handled;
+        if (IsChatTrigger(raw)) return HookResult.Continue;
+        // управляющие символы — это цвета чата CS2: без очистки игрок мог перекрасить строку и подделать чужой тег
+        var message = StripControl(raw);
+        if (string.IsNullOrWhiteSpace(message)) return HookResult.Handled;
         var s = StyleOf(player);
         var team = player.Team;
         // UPD: даже новый игрок без записи в базе получает серверный тег «Новенький».
@@ -222,9 +226,10 @@ public partial class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
         var nameColor = s == null || string.IsNullOrEmpty(s.NameColor)
             ? ChatColors.ForTeam(team) : TagColors.ColorChar(s.NameColor, team);
         // Градиентный ник сдвигает цветовую фазу при каждом новом сообщении.
+        var plainName = StripControl(player.PlayerName);
         var displayName = s?.NameColor is "grad-sunset" or "grad-toxic"
-            ? AnimatedChatName(player.PlayerName, s.NameColor, team)
-            : $"{nameColor}{player.PlayerName}";
+            ? AnimatedChatName(plainName, s.NameColor, team)
+            : $"{nameColor}{plainName}";
         var dead = player.PawnIsAlive ? "" : $"{ChatColors.Grey}*DEAD* ";
         var teamPrefix = teamOnly ? $"{ChatColors.Default}(team) " : "";
         var line = $" {dead}{(tag.Length > 0 ? tag + " " : "")}{teamPrefix}{displayName}{ChatColors.Default}: {message}";
@@ -252,6 +257,15 @@ public partial class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
             sb.Append(TagColors.ColorChar(palette[(i + phase) % palette.Length], team));
             sb.Append(name[i]);
         }
+        return sb.ToString();
+    }
+
+    // убирает управляющие символы (цвета чата CS2 \x01–\x10, переносы и т.п.)
+    internal static string StripControl(string? s)
+    {
+        if (string.IsNullOrEmpty(s)) return string.Empty;
+        var sb = new System.Text.StringBuilder(s.Length);
+        foreach (var ch in s) if (!char.IsControl(ch)) sb.Append(ch);
         return sb.ToString();
     }
 

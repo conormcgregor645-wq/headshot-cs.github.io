@@ -3,7 +3,8 @@
 //  • одинаковое оружие у всех (ножи, Deagle, AWP, скауты, Zeus, 1 HP, гранаты, невидимки с ножами) — закупка и подбор чужого запрещены;
 //  • правило поверх обычной игры (все с ВХ, только в голову, распрыжка, вампиры, бесконечные патроны) — закупка как обычно.
 // Итог раунда плагин пишет в консоль строкой «TASHERFUN special_win <режим> <ct|t>» — сайт читает журнал и начисляет ТК победителям.
-// Серии: двойное / тройное / ультра / эйс — только звук и только самому убившему, без надписей.
+// UPD: дополнительных звуков в игре нет (ни серий, ни начала особого раунда) — слышен только купленный звук убийства (Effects.cs).
+// Первая кровь и эйс по-прежнему дают ТК и опыт пропуска — их считает сайт по журналу (server/lib/fun.js).
 using System.Drawing;
 using System.Globalization;
 using CounterStrikeSharp.API;
@@ -55,8 +56,6 @@ public partial class TasherStyle
     private readonly Dictionary<string, string> _cvarOrig = new();
     private readonly Dictionary<int, (CBaseModelEntity R, CBaseModelEntity G)> _glows = new();
     private readonly HashSet<int> _resetNext = new(); // кто дожил до конца особого раунда — в следующем раунде забираем «подарочное» оружие
-    private readonly Dictionary<int, int> _roundKills = new();
-    private bool _firstBlood;
     private CCSGameRulesProxy? _rulesProxy;
 
     private void LoadFun()
@@ -125,7 +124,6 @@ public partial class TasherStyle
         {
             _glows.Clear(); // сущности прошлой карты уже удалены
             RestoreSpecial(); _forcedSpecial = null; _resetNext.Clear(); _sinceSpecial = 0; _specialGap = NextGap(); _rulesProxy = null;
-            _roundKills.Clear(); _firstBlood = false;
         });
         AddCommand("css_special", "Следующий раунд — особый: css_special <режим|random|off>", CmdSpecial);
         // запрет закупки и подбора чужого оружия на время особого раунда
@@ -204,18 +202,11 @@ public partial class TasherStyle
 
     private static int HumansInTeams() => Utilities.GetPlayers().Count(p => p is { IsValid: true, IsBot: false, IsHLTV: false } && p.Team is CsTeam.Terrorist or CsTeam.CounterTerrorist);
 
-    private void PlayTo(CCSPlayerController p, string key)
-    {
-        if (Config.StreakSounds.TryGetValue(key, out var snd) && IsSafeSound(snd) && p is { IsValid: true, IsBot: false, IsHLTV: false })
-            p.ExecuteClientCommand($"play {snd}");
-    }
-
     private static bool ModeReady(SpecialMode m) => m.NeedCvar.Length == 0 || ConVar.Find(m.NeedCvar) != null;
 
     // ---------- начало раунда: решаем, особый ли он ----------
     private HookResult FunRoundStart(EventRoundStart e, GameEventInfo info)
     {
-        _roundKills.Clear(); _firstBlood = false;
         RestoreSpecial();
         var rules = Rules();
         if (rules == null || rules.WarmupPeriod) return HookResult.Continue;
@@ -252,7 +243,7 @@ public partial class TasherStyle
         Server.PrintToChatAll($"{Prefix}{ChatColors.Gold}ОСОБЫЙ РАУНД: {m.Name}!{ChatColors.Default} {m.Hint}. Победившей команде — бонус ТК");
         foreach (var p in Utilities.GetPlayers())
             if (p is { IsValid: true, IsBot: false, IsHLTV: false }) p.PrintToCenter($"ОСОБЫЙ РАУНД: {m.Name}");
-        foreach (var p in Utilities.GetPlayers()) PlayTo(p, "special");
+        // UPD: без звука начала особого раунда — объявление только в чате и по центру экрана.
         AddTimer(0.3f, () => { if (_special == m) foreach (var p in Utilities.GetPlayers()) ArmPlayer(p, true); }, TimerFlags.STOP_ON_MAPCHANGE);
         Logger.LogInformation("Особый раунд: {Kind}", kind);
     }
@@ -396,7 +387,15 @@ public partial class TasherStyle
         if (p != null && !AdminManager.PlayerHasPermissions(p, "@css/root")) { info.ReplyToCommand("[TASHER] Нет доступа"); return; }
         var arg = info.ArgCount > 1 ? info.GetArg(1).Trim().ToLowerInvariant() : "random";
         if (arg == "off") { _forcedSpecial = null; info.ReplyToCommand("[TASHER] Особый раунд отменён"); return; }
-        if (arg == "random") { var keys = SpecialModes.Where(x => x.Key != _lastSpecial && ModeReady(x.Value)).Select(x => x.Key).ToList(); arg = keys[Random.Shared.Next(keys.Count)]; }
+        if (arg == "random")
+        {
+            // раньше при единственном доступном режиме (он же прошлый) список был пуст и команда падала
+            var ready = SpecialModes.Where(x => ModeReady(x.Value)).Select(x => x.Key).ToList();
+            var keys = ready.Where(k => k != _lastSpecial).ToList();
+            if (keys.Count == 0) keys = ready;
+            if (keys.Count == 0) { info.ReplyToCommand("[TASHER] На этом сервере нет доступных особых режимов"); return; }
+            arg = keys[Random.Shared.Next(keys.Count)];
+        }
         if (!SpecialModes.TryGetValue(arg, out var m)) { info.ReplyToCommand("[TASHER] Режимы: " + string.Join(", ", SpecialModes.Keys) + ", random, off"); return; }
         if (!ModeReady(m)) { info.ReplyToCommand($"[TASHER] Режим {arg} на этом сервере недоступен (нет квара {m.NeedCvar})"); return; }
         _forcedSpecial = arg;
@@ -404,22 +403,11 @@ public partial class TasherStyle
         Server.PrintToChatAll($"{Prefix}Следующий раунд — {ChatColors.Gold}особый: {m.Name}");
     }
 
-    // ---------- серии за раунд: только звук и только себе ----------
+    // ---------- смерть игрока ----------
+    // UPD: звуки серий (первая кровь, двойное … эйс) отключены — слышен только купленный звук убийства из Effects.cs.
     private HookResult FunPlayerDeath(EventPlayerDeath e, GameEventInfo info)
     {
-        var v = e.Userid;
-        if (v is { IsValid: true }) RemoveGlow(v.Slot); // убитый больше не светится
-        if (!Config.FunEnabled) return HookResult.Continue;
-        var a = e.Attacker;
-        if (a is not { IsValid: true } || v is not { IsValid: true } || a.IsHLTV || a.Slot == v.Slot || a.Team == v.Team) return HookResult.Continue;
-        var rules = Rules();
-        if (rules == null || rules.WarmupPeriod) return HookResult.Continue;
-        var first = !_firstBlood; _firstBlood = true;
-        if (a.IsBot) return HookResult.Continue;
-        var n = _roundKills[a.Slot] = _roundKills.GetValueOrDefault(a.Slot) + 1;
-        var key = n >= 2 ? (n > 5 ? "5" : n.ToString()) : first ? "first" : null;
-        if (key == null) return HookResult.Continue;
-        // UPD: дополнительные звуки фрагов отключены — слышен только купленный звук убийства из Effects.cs.
+        if (e.Userid is { IsValid: true } v) RemoveGlow(v.Slot); // убитый больше не светится
         return HookResult.Continue;
     }
 }

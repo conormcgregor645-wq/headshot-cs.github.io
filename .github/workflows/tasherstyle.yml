@@ -32,4 +32,4 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release delete tasherstyle --yes --cleanup-tag 2>/dev/null || true
-          gh release create tasherstyle plugins/tasherstyle/TasherStyle.zip --title "TASHER Style" --notes "Тег и цвет ника в чате, тег в таблице счёта, цвет дыма, эффект и звук убийства, трассеры пуль, след гранат, команды !rank !top !tk !quests !pass, приветствие статусов, мут и гег, особые раунды (в том числе «все с ВХ», невидимки, распрыжка, вампиры) и звуки серий убийств — по данным сайта. Ставится скриптом server/deploy/vip-setup.sh" --target "$GITHUB_SHA"
+          gh release create tasherstyle plugins/tasherstyle/TasherStyle.zip --title "TASHER Style" --notes "Тег и цвет ника в чате, тег в таблице счёта, цвет дыма, эффект и звук убийства, трассеры пуль, след гранат, команды !rank !top !tk !quests !pass, приветствие статусов, мут и гег, особые раунды (в том числе «все с ВХ», невидимки, распрыжка, вампиры) — по данным сайта. Из звуков в игре только купленный звук убийства. Ставится скриптом server/deploy/vip-setup.sh" --target "$GITHUB_SHA"

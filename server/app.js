@@ -532,8 +532,7 @@ function styleRows() {
   const st = new Map(CTL.statuses().map(s => [s.sid, s.t])), rows = new Map();
   const row = sid => { let r = rows.get(sid); if (!r) rows.set(sid, r = { sid, tier: st.get(sid) || null, clanTag: "", clanColor: "", nick: "", tag: "", smokeHex: "", killFx: "", killSnd: "", trailHex: "", tracerHex: "" }); return r; };
   for (const sid of st.keys()) row(sid);
-  // UPD: в Tab отображаем очки нашего месячного рейтинга, без лиг.
-  for (const p of STATS.top(GL.month(now()), 1000)) if (/^\d{17}$/.test(p.sid)) row(p.sid).pts = p.pts;
+  // UPD: в Tab только название привилегии (лиг и чисел нет); очки месяца идут отдельно через tasher_player.pts (lib/gameinfo.js).
   for (const c of db.prepare("SELECT u.steamid sid, c.tag, c.color FROM clan_members m JOIN clans c ON c.id=m.clan_id JOIN users u ON u.id=m.user_id").all()) { const r = row(c.sid); r.clanTag = c.tag; r.clanColor = c.color; }
   for (const u of db.prepare("SELECT steamid, cos_eq, cos_tag FROM users WHERE cos_eq<>'{}' OR cos_tag<>''").all()) {
     let eq = {}; try { eq = JSON.parse(u.cos_eq || "{}"); } catch (e) {}
@@ -854,7 +853,7 @@ function serveIndex(req, res) {
   data.bans = CTL.listBans(); data.statuses = CTL.statuses(); data.awards = CTL.listAwards();
   // статистика призёров прошлых месяцев (для их профилей и медалей), даже если в этом месяце они не играли
   if (CFG.gameLogUnit) data.awardsP = [...new Set(data.awards.map(a => a.sid))].slice(0, 60).map(sid => withSkill(STATS.player(sid))).filter(Boolean);
-  if (CFG.gameLogUnit) { data.stats = { period: GL.month(now()), players: statsTop(GL.month(now())).slice(0, 100) }; if (u) data.myStats = withSkill(STATS.player(u.steamid)) || null; data.leagues = SKILL.board(10); if (u) data.mySkill = SKILL.info(u.steamid); }
+  if (CFG.gameLogUnit) { data.stats = { period: GL.month(now()), players: statsTop(GL.month(now())).slice(0, 100) }; if (u) data.myStats = withSkill(STATS.player(u.steamid)) || null; if (LEAGUES_ENABLED) { data.leagues = SKILL.board(10); if (u) data.mySkill = SKILL.info(u.steamid); } } // UPD: лиги выключены — их данные на страницу не отдаём
   const js = JSON.stringify(data).replace(/</g, "\\u003c").replace(/\u2028|\u2029/g, "");
   // страница личная: браузер каждый раз сверяется с сервером и не качает её заново, если ничего не изменилось
   const etag = '"' + INDEX.tag + "-" + sha(js).slice(0, 16) + '"';
