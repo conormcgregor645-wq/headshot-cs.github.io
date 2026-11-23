@@ -2896,50 +2896,146 @@ html.on-server #v-jackpot,html.on-server #v-wheel{position:relative}
 @media(max-width:560px){.ps-rows{padding:10px 6px}.ps-track{grid-auto-columns:120px}.srv-sheet{margin:12px auto}}
 
 
-/* Winter OPS 2026 — visual pass redesign; no changes to reward logic */
-#v-pass .ps-scene{position:relative;isolation:isolate;display:grid;grid-template-columns:minmax(0,1fr) minmax(210px,295px);align-items:center;gap:clamp(12px,3vw,34px);min-height:350px;padding:clamp(22px,3.4vw,44px);margin:18px 0 18px;overflow:hidden;border-radius:22px;border:1px solid rgba(255,255,255,.15);background:radial-gradient(65% 130% at 94% 12%,rgba(245,45,180,.18),transparent 70%),radial-gradient(65% 95% at 2% 100%,rgba(181,232,83,.15),transparent 70%),linear-gradient(130deg,#1c222e 0%,#11151e 55%,#19151f 100%);box-shadow:0 22px 60px rgba(0,0,0,.28),inset 0 1px rgba(255,255,255,.07)}
-#v-pass .ps-scene::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;opacity:.28;background:repeating-linear-gradient(115deg,transparent 0 29px,rgba(255,255,255,.04) 30px,transparent 31px),linear-gradient(0deg,rgba(255,255,255,.04) 1px,transparent 1px) 0 0/100% 32px}
-#v-pass .ps-scene.winter::after{content:"WINTER / 26";position:absolute;right:-28px;top:18px;font:900 clamp(46px,7vw,110px)/1 var(--f-display);letter-spacing:-.06em;color:rgba(255,255,255,.035);pointer-events:none;z-index:-1}
-#v-pass .ps-scene-copy{position:relative;z-index:1;min-width:0}
-#v-pass .ps-kicker{display:inline-flex;gap:8px;align-items:center;color:#e9f59b;font-weight:900;letter-spacing:.18em;text-transform:uppercase;font-size:11px}
-#v-pass .ps-kicker::before{content:"";width:24px;height:3px;background:#b5e853;box-shadow:0 0 16px rgba(181,232,83,.6)}
-#v-pass .ps-scene h2{margin:16px 0 10px;font-family:var(--f-display);font-size:clamp(34px,5.2vw,65px);font-style:italic;font-weight:950;text-transform:uppercase;letter-spacing:-.03em;line-height:1.02;color:#f5f6fa}
-#v-pass .ps-scene h2 em{display:block;color:#f02fba;font-style:inherit;text-shadow:0 5px 28px rgba(240,47,186,.18)}
-#v-pass .ps-scene p{max-width:53ch;margin:0;color:#b9c1ce;font-size:14px;line-height:1.62}
-#v-pass .ps-scene-badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:22px}
-#v-pass .ps-scene-badges span{border-radius:8px;padding:9px 12px;border:1px solid rgba(255,255,255,.16);background:rgba(7,10,15,.5);font-size:11px;letter-spacing:.045em;font-weight:900;color:#e2e7ef}
-#v-pass .ps-scene-badges span:last-child{color:#ffd78b;border-color:rgba(245,196,81,.3)}
-#v-pass .ps-scene-visual{position:relative;align-self:stretch;display:grid;place-items:center;min-width:0}
-#v-pass .ps-scene-visual::before{content:"";position:absolute;inset:12% 0 7%;background:radial-gradient(ellipse,rgba(233,42,177,.24),transparent 65%);filter:blur(12px);pointer-events:none}
-#v-pass .ps-scene-placeholder{font-family:var(--f-display);font-size:clamp(22px,4vw,48px);font-weight:900;font-style:italic;color:#f5c451;opacity:.7}#v-pass .ps-scene-visual img{position:relative;display:block;width:min(100%,255px);max-width:100%;height:auto;max-height:350px;object-fit:contain;filter:drop-shadow(0 18px 28px rgba(0,0,0,.65));transition:transform .4s ease}
-@media(hover:hover){#v-pass .ps-scene:hover .ps-scene-visual img{transform:translateY(-5px) rotate(-1deg)}}
-#v-pass .ps-hero{grid-template-columns:minmax(0,1fr) minmax(280px,340px);gap:12px;margin:0 0 18px}
-#v-pass .ps-lvl{min-height:170px;background:linear-gradient(130deg,rgba(30,39,35,.96),rgba(17,21,25,.98));border-color:rgba(181,232,83,.25)}
-#v-pass .ps-num{background:linear-gradient(145deg,#e8ffb1,#a4dc45);box-shadow:0 8px 22px rgba(181,232,83,.22)}
-#v-pass .ps-prem{justify-content:center;background:linear-gradient(145deg,rgba(55,42,28,.98),rgba(24,24,25,.98));border-color:rgba(245,196,81,.42)}
-#v-pass .ps-prem h3{font-family:var(--f-display);font-size:19px;text-transform:uppercase;letter-spacing:.015em}
-#v-pass .ps-tools{margin-top:16px;gap:14px}
-#v-pass .ps-rows{border-color:rgba(245,196,81,.2);background:linear-gradient(145deg,rgba(15,18,25,.98),rgba(22,23,29,.98));box-shadow:0 12px 44px rgba(0,0,0,.14)}
-#v-pass .ps-track{grid-auto-columns:146px;gap:11px;scroll-padding:8px;scrollbar-color:rgba(245,196,81,.5) transparent}
-#v-pass .ps-lv{font-family:var(--f-display);font-size:13px;letter-spacing:.04em}
-#v-pass .ps-c{min-height:142px;padding:15px 10px 12px;gap:7px;overflow:hidden;border-radius:13px;background:radial-gradient(100% 80% at 50% 0%,color-mix(in srgb,var(--ic) 13%,transparent),transparent),linear-gradient(150deg,#282d37,#191d25);border-color:rgba(255,255,255,.11);box-shadow:inset 0 1px rgba(255,255,255,.04);transition:transform .17s ease,border-color .17s ease,box-shadow .17s ease}
-#v-pass .ps-c.pr{background:radial-gradient(100% 85% at 50% 0%,rgba(245,196,81,.22),transparent),linear-gradient(155deg,#302a22,#1d1b1a);border-color:rgba(245,196,81,.32)}
-#v-pass .ps-c-icon{display:grid;place-items:center;width:54px;height:54px;flex:none;border-radius:14px;border:1px solid color-mix(in srgb,var(--ic) 32%,transparent);background:color-mix(in srgb,var(--ic) 10%,rgba(0,0,0,.35));box-shadow:inset 0 1px rgba(255,255,255,.05)}
-#v-pass .ps-c svg{width:32px;height:32px}
-#v-pass .ps-c b{font-size:13px;line-height:1.3;max-width:100%;overflow-wrap:anywhere}
-#v-pass .ps-c small{font-size:10px;line-height:1.35;letter-spacing:.035em}
-#v-pass .ps-c.ready{border-color:var(--accent);box-shadow:inset 0 0 0 1px rgba(181,232,83,.35),0 3px 18px rgba(181,232,83,.08)}
-#v-pass .ps-c.ready:hover{transform:translateY(-4px);box-shadow:inset 0 0 0 1px rgba(181,232,83,.55),0 10px 25px rgba(181,232,83,.15)}
+/* Winter OPS 2026 — вкладка «Пропуск» по макету: шапка с таймером, баннер, уровень, две ветки наград, справа премиум и задания дня, внизу ссылки. Логика наград не менялась */
+#v-pass .pz{--pz-gold:#f5c451;--pz-line:rgba(255,255,255,.09);display:flex;flex-direction:column;gap:16px;margin-top:6px}
+#v-pass .pz-cap{display:block;font-family:var(--f-display);font-size:13px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:#f1f3f6}
+#v-pass .pz-card{position:relative;border-radius:18px;border:1px solid var(--pz-line);background:linear-gradient(150deg,#1a1f25,#12151a);box-shadow:inset 0 1px rgba(255,255,255,.05),0 14px 40px rgba(0,0,0,.18)}
+/* шапка */
+#v-pass .pz-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px 24px;flex-wrap:wrap}
+#v-pass .pz-head h1{margin:0;font-family:var(--f-display);font-size:clamp(26px,3.4vw,40px);font-style:italic;font-weight:900;line-height:1;letter-spacing:-.01em;text-transform:uppercase;color:#f5f7fa}
+#v-pass .pz-head p{margin:8px 0 0;color:var(--muted);font-size:14px}
+#v-pass .pz-timer{display:flex;align-items:center;gap:12px;padding:10px 16px;border-radius:14px;border:1px solid rgba(181,232,83,.22);background:rgba(10,13,16,.7)}
+#v-pass .pz-timer svg{width:24px;height:24px;flex:none;fill:none;stroke:var(--accent);stroke-width:2;stroke-linecap:round}
+#v-pass .pz-timer small{display:block;font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+#v-pass .pz-timer b{display:block;font-family:var(--f-display);font-size:18px;font-weight:900;color:#fff;font-variant-numeric:tabular-nums;white-space:nowrap}
+/* баннер */
+#v-pass .pz-banner{position:relative;isolation:isolate;display:grid;grid-template-columns:minmax(0,1fr) minmax(200px,270px);align-items:center;gap:clamp(12px,3vw,40px);min-height:360px;padding:clamp(22px,3.4vw,44px);overflow:hidden;border-radius:22px;border:1px solid rgba(255,255,255,.12);background:radial-gradient(60% 120% at 92% 10%,rgba(181,232,83,.13),transparent 70%),radial-gradient(70% 100% at 0% 100%,rgba(84,132,196,.16),transparent 70%),linear-gradient(130deg,#151b24 0%,#0d1117 60%,#111821 100%);box-shadow:0 22px 60px rgba(0,0,0,.3),inset 0 1px rgba(255,255,255,.06)}
+#v-pass .pz-banner::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:repeating-linear-gradient(115deg,transparent 0 29px,rgba(255,255,255,.025) 30px,transparent 31px)}
+#v-pass .pz-banner.has-art{background:linear-gradient(90deg,rgba(7,9,13,.97) 0%,rgba(7,9,13,.86) 34%,rgba(7,9,13,.2) 64%,rgba(7,9,13,.35) 100%),linear-gradient(0deg,rgba(7,9,13,.75),transparent 40%),url(/assets/winter-ops-hero.webp) 62% 28%/cover no-repeat,#0b0f15}
+#v-pass .pz-banner.has-art::before{display:none}
+#v-pass .pz-copy{position:relative;z-index:1;min-width:0}
+#v-pass .pz-kicker{display:inline-flex;gap:8px;align-items:center;font-size:11px;font-weight:900;letter-spacing:.18em;text-transform:uppercase;color:var(--accent)}
+#v-pass .pz-kicker::before{content:"";width:24px;height:3px;background:var(--accent);box-shadow:0 0 14px rgba(181,232,83,.6)}
+#v-pass .pz-banner h2{margin:14px 0 12px;font-family:var(--f-display);font-size:clamp(34px,5vw,64px);font-style:italic;font-weight:900;line-height:.98;letter-spacing:-.02em;text-transform:uppercase;color:#f5f7fa;text-shadow:0 4px 30px rgba(0,0,0,.55)}
+#v-pass .pz-banner h2 em{display:block;font-style:inherit;color:var(--accent);text-shadow:0 0 34px rgba(181,232,83,.28)}
+#v-pass .pz-banner p{max-width:46ch;margin:0;color:#c3cad4;font-size:14px;line-height:1.6}
+#v-pass .pz-tags{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+#v-pass .pz-tag{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.14);background:rgba(7,10,14,.66);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+#v-pass .pz-tag b{font-family:var(--f-display);font-size:22px;font-weight:900;line-height:1;color:#fff}
+#v-pass .pz-tag span{font-size:10px;font-weight:800;line-height:1.25;letter-spacing:.07em;text-transform:uppercase;color:#aeb6c2}
+#v-pass .pz-tag.free{border-color:rgba(181,232,83,.3)}#v-pass .pz-tag.free b{color:var(--accent)}
+#v-pass .pz-tag.prem{border-color:rgba(245,196,81,.34)}#v-pass .pz-tag.prem b{color:var(--pz-gold)}
+#v-pass .ps-scene-visual{position:relative;z-index:1;align-self:stretch;display:grid;place-items:center;min-width:0}
+#v-pass .ps-scene-visual::before{content:"";position:absolute;inset:14% 4% 8%;background:radial-gradient(ellipse,rgba(181,232,83,.2),transparent 65%);filter:blur(14px);pointer-events:none}
+#v-pass .ps-scene-visual img{position:relative;display:block;width:min(100%,250px);height:auto;max-height:340px;object-fit:contain;filter:drop-shadow(0 18px 28px rgba(0,0,0,.7));transition:transform .4s ease}
+#v-pass .ps-scene-placeholder{font-family:var(--f-display);font-size:clamp(22px,4vw,48px);font-style:italic;font-weight:900;color:var(--accent);opacity:.6}
+@media(hover:hover){#v-pass .pz-banner:hover .ps-scene-visual img{transform:translateY(-5px) rotate(-1deg)}}
+/* основная сетка */
+#v-pass .pz-main{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:16px;align-items:start}
+#v-pass .pz-col,#v-pass .pz-side{display:flex;flex-direction:column;gap:16px;min-width:0}
+/* уровень */
+#v-pass .pz-level{display:flex;align-items:center;gap:22px;padding:18px 22px;border-color:rgba(181,232,83,.24);background:radial-gradient(80% 160% at 0% 50%,rgba(181,232,83,.12),transparent 62%),linear-gradient(150deg,#1a1f25,#12151a)}
+#v-pass .pz-hex{position:relative;flex:none;display:grid;place-items:center;width:86px;height:96px;clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);background:linear-gradient(160deg,#e8ffb1,#7fb52a)}
+#v-pass .pz-hex::before{content:"";position:absolute;inset:3px;clip-path:inherit;background:radial-gradient(70% 60% at 50% 30%,rgba(181,232,83,.22),transparent),linear-gradient(160deg,#1f2b18,#0f150d)}
+#v-pass .pz-hex span{position:relative;display:flex;flex-direction:column;align-items:center;line-height:1}
+#v-pass .pz-hex small{font-size:9px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:#cfe8a0}
+#v-pass .pz-hex b{font-family:var(--f-display);font-size:36px;font-weight:900;color:var(--accent);text-shadow:0 0 18px rgba(181,232,83,.35)}
+#v-pass .pz-lvi{flex:1;min-width:0;display:flex;flex-direction:column;gap:8px}
+#v-pass .pz-lvt{display:flex;justify-content:space-between;align-items:baseline;gap:6px 14px;flex-wrap:wrap}
+#v-pass .pz-lvt b{font-family:var(--f-display);font-size:20px;font-weight:900;color:#fff}
+#v-pass .pz-lvt span{font-size:14px;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums}
+#v-pass .pz-bar{height:12px;border-radius:99px;background:rgba(255,255,255,.07);box-shadow:inset 0 1px 2px rgba(0,0,0,.5);overflow:hidden}
+#v-pass .pz-bar i{display:block;height:100%;width:var(--p);border-radius:inherit;background:linear-gradient(90deg,#7fb52a,var(--accent) 60%,#e8ffb1);box-shadow:0 0 16px rgba(181,232,83,.5)}
+#v-pass .pz-lvi small{font-size:12px;line-height:1.45;color:var(--muted)}
+/* награды */
+#v-pass .pz-rw{padding:16px 16px 8px}
+#v-pass .pz-rwh{display:flex;align-items:center;justify-content:space-between;gap:10px 16px;flex-wrap:wrap;margin:0 2px 12px}
+#v-pass .pz-rwh small{display:block;margin-top:4px;font-size:12px;color:var(--muted)}
+#v-pass .ps-rows{display:grid;grid-template-columns:96px minmax(0,1fr);gap:10px;padding:0;margin:0;border:0;background:none;box-shadow:none}
+#v-pass .ps-lab{display:grid;grid-template-rows:34px 1fr 1fr;gap:10px;padding-bottom:14px}
+#v-pass .ps-lab span{display:flex;align-items:center;justify-content:center;writing-mode:horizontal-tb;transform:none;border-radius:12px;padding:6px;font-size:10px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;text-align:center;color:#dfe5ec;background:rgba(255,255,255,.04);border:1px solid var(--pz-line)}
+#v-pass .ps-lab span.pr{color:var(--pz-gold);background:rgba(245,196,81,.07);border-color:rgba(245,196,81,.25)}
+#v-pass .ps-track{grid-auto-columns:132px;gap:10px;padding:0 2px 14px;scroll-padding:8px;scroll-snap-type:x proximity;scrollbar-width:thin;scrollbar-color:rgba(181,232,83,.45) transparent;overscroll-behavior-x:contain}
+#v-pass .ps-col{position:relative;grid-template-rows:34px 1fr 1fr;gap:10px}
+#v-pass .ps-col.cur::before{content:"";position:absolute;inset:-4px -5px -6px;z-index:0;border-radius:16px;background:linear-gradient(180deg,rgba(181,232,83,.14),rgba(181,232,83,.03));border:1px solid rgba(181,232,83,.32);pointer-events:none}
+#v-pass .ps-col>*{position:relative;z-index:1}
+#v-pass .ps-lv{justify-self:center;display:grid;place-items:center;width:34px;height:34px;padding:0;border-radius:50%;font-family:var(--f-display);font-size:13px;font-weight:900;letter-spacing:0;color:var(--muted);background:#151a20;outline:0;border:2px solid rgba(255,255,255,.12)}
+#v-pass .ps-col:nth-child(5n) .ps-lv{color:var(--pz-gold);background:#1d1a14;outline:0;border-color:rgba(245,196,81,.45)}
+#v-pass .ps-col.got .ps-lv{color:var(--accent);border-color:rgba(181,232,83,.55)}
+#v-pass .ps-col.cur .ps-lv{color:var(--on-accent);background:var(--accent);border-color:#e8ffb1;box-shadow:0 0 0 4px rgba(181,232,83,.2),0 0 18px rgba(181,232,83,.5)}
+#v-pass .ps-c{min-height:146px;padding:16px 10px 12px;gap:7px;overflow:hidden;border-radius:14px;border:1px solid rgba(255,255,255,.1);background:radial-gradient(100% 80% at 50% 0%,color-mix(in srgb,var(--ic) 12%,transparent),transparent),linear-gradient(150deg,#232930,#171b21);box-shadow:inset 0 1px rgba(255,255,255,.04);transition:transform .17s ease,border-color .17s ease,box-shadow .17s ease,opacity .17s ease}
+#v-pass .ps-c.pr{border-color:rgba(245,196,81,.28);background:radial-gradient(100% 85% at 50% 0%,rgba(245,196,81,.18),transparent),linear-gradient(155deg,#2b261f,#1b1a19)}
+#v-pass .ps-c-icon{display:grid;place-items:center;width:52px;height:52px;flex:none;border-radius:14px;border:1px solid color-mix(in srgb,var(--ic) 32%,transparent);background:color-mix(in srgb,var(--ic) 10%,rgba(0,0,0,.35));box-shadow:inset 0 1px rgba(255,255,255,.05)}
+#v-pass .ps-c svg{width:30px;height:30px}
+#v-pass .ps-c b{max-width:100%;font-size:12.5px;line-height:1.3;overflow-wrap:anywhere}
+#v-pass .ps-c small{font-size:10px;line-height:1.35;letter-spacing:.04em}
+#v-pass .ps-c.lock{opacity:.55}
+#v-pass .ps-c.done{opacity:.6}
+#v-pass .ps-c.done::after{content:"✓";top:7px;right:7px;display:grid;place-items:center;width:20px;height:20px;border-radius:50%;font-size:12px;line-height:1;color:var(--on-accent);background:var(--accent);box-shadow:0 0 10px rgba(181,232,83,.45)}
+#v-pass .ps-c.plock::before{content:"";position:absolute;top:7px;right:7px;width:22px;height:22px;border-radius:50%;background:rgba(245,196,81,.14);border:1px solid rgba(245,196,81,.4)}
+#v-pass .ps-c.plock::after{top:12px;right:12.5px;width:11px;height:12px}
+#v-pass .ps-c.ready{opacity:1;border-color:var(--accent);box-shadow:inset 0 0 0 1px rgba(181,232,83,.4),0 4px 20px rgba(181,232,83,.12)}
+#v-pass .ps-c.ready small{padding:3px 9px;border-radius:99px;color:var(--on-accent);background:var(--accent);letter-spacing:.06em}
+#v-pass .ps-c.ready:hover{transform:translateY(-4px);box-shadow:inset 0 0 0 1px rgba(181,232,83,.6),0 10px 26px rgba(181,232,83,.18)}
 #v-pass .ps-c:focus-visible{outline:3px solid #e8ffb1;outline-offset:3px}
-#v-pass .ps-c.done{opacity:.72}
-#v-pass .ps-c.lock{opacity:.7}
-#v-pass .ps-c.pr.ps-milestone{border-color:#f5c451;box-shadow:inset 0 0 0 1px rgba(245,196,81,.4),0 0 23px rgba(245,196,81,.1)}
-#v-pass .ps-how div{border-color:rgba(255,255,255,.11);background:linear-gradient(145deg,#1e242b,#171b22);min-height:95px}
-#v-pass .ps-how b{color:#e8ffb1;margin-bottom:6px}
-@media(max-width:900px){#v-pass .ps-hero{grid-template-columns:1fr}#v-pass .ps-scene{grid-template-columns:minmax(0,1fr) 210px;min-height:315px;padding:24px}#v-pass .ps-scene-visual img{width:195px}#v-pass .ps-scene h2{font-size:clamp(32px,5vw,54px)}}
-@media(max-width:620px){#v-pass .ps-scene{grid-template-columns:minmax(0,1fr) 112px;gap:4px;min-height:245px;padding:17px}#v-pass .ps-scene-visual img{width:132px;max-height:215px}#v-pass .ps-scene h2{font-size:clamp(27px,7vw,40px)}#v-pass .ps-scene p{font-size:12px;line-height:1.46}#v-pass .ps-scene-badges{gap:5px;margin-top:12px}#v-pass .ps-scene-badges span{padding:6px 7px;font-size:9px}#v-pass .ps-kicker{font-size:9px;letter-spacing:.1em}#v-pass .ps-track{grid-auto-columns:126px;gap:7px}#v-pass .ps-c{min-height:132px;padding:10px 6px}#v-pass .ps-c-icon{width:44px;height:44px}#v-pass .ps-c svg{width:27px;height:27px}#v-pass .ps-rows{padding:10px 5px}}
-@media(max-width:380px){#v-pass .ps-scene{grid-template-columns:minmax(0,1fr) 92px}#v-pass .ps-scene h2{font-size:26px}#v-pass .ps-scene-visual img{width:105px;max-height:166px}}
-@media(prefers-reduced-motion:reduce){#v-pass .ps-scene-visual img,#v-pass .ps-c{transition:none!important}#v-pass .ps-scene:hover .ps-scene-visual img{transform:none}}
+#v-pass .ps-col.cur .ps-c:not(.ready):not(.plock){border-color:rgba(181,232,83,.4)}
+#v-pass .ps-c.pr.ps-milestone{border-color:var(--pz-gold);box-shadow:inset 0 0 0 1px rgba(245,196,81,.4),0 0 23px rgba(245,196,81,.1)}
+#v-pass .ps-how{grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:0;scroll-margin:90px}
+#v-pass .ps-how div{min-height:0;padding:14px 16px;border-radius:14px;border:1px solid var(--pz-line);background:linear-gradient(145deg,#1a1f25,#14171c);font-size:12.5px;line-height:1.45;color:var(--muted)}
+#v-pass .ps-how b{display:block;margin-bottom:4px;font-family:var(--f-display);font-size:15px;color:var(--accent)}
+/* премиум */
+#v-pass .pz-prem{display:flex;flex-direction:column;gap:14px;padding:20px;overflow:hidden;border-color:rgba(245,196,81,.42);background:radial-gradient(120% 90% at 100% 0%,rgba(245,196,81,.2),transparent 62%),linear-gradient(150deg,#2a231a,#15151a 80%)}
+#v-pass .pz-prem::after{content:"";position:absolute;top:-40px;right:-40px;width:140px;height:140px;border-radius:50%;background:radial-gradient(circle,rgba(245,196,81,.22),transparent 70%);pointer-events:none}
+#v-pass .pz-prem .pz-cap{color:var(--pz-gold)}
+#v-pass .pz-price{display:flex;align-items:baseline;gap:10px}
+#v-pass .pz-price b{font-family:var(--f-display);font-size:40px;font-weight:900;line-height:1;color:#fff}
+#v-pass .pz-price small{font-size:12px;color:#c9b99a}
+#v-pass .pz-list{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:9px}
+#v-pass .pz-list li{display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.45;color:#d8d2c6}
+#v-pass .pz-list svg,#v-pass .pz-qck svg{width:16px;height:16px;flex:none;margin-top:2px;fill:none;stroke:var(--pz-gold);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+#v-pass .pz-prem .steam{justify-content:center;width:100%;margin-top:2px}
+#v-pass .pz-prem.on{border-color:rgba(181,232,83,.4);background:radial-gradient(120% 90% at 100% 0%,rgba(181,232,83,.16),transparent 62%),linear-gradient(150deg,#18241b,#121519 80%)}
+#v-pass .pz-prem.on .pz-cap,#v-pass .pz-prem.on .pz-price b{color:var(--accent)}#v-pass .pz-prem.on .pz-list svg{stroke:var(--accent)}
+/* задания дня */
+#v-pass .pz-quests{display:flex;flex-direction:column;gap:12px;padding:18px}
+#v-pass .pz-qhead{display:flex;justify-content:space-between;align-items:baseline;gap:4px 10px;flex-wrap:wrap}
+#v-pass .pz-qleft{font-size:12px;color:var(--muted)}#v-pass .pz-qleft b{color:#fff;font-variant-numeric:tabular-nums}
+#v-pass .pz-qlist{display:flex;flex-direction:column;gap:8px}
+#v-pass .pz-q{display:grid;grid-template-columns:24px minmax(0,1fr) auto;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid var(--pz-line)}
+#v-pass .pz-qck{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;border:2px solid rgba(255,255,255,.18)}
+#v-pass .pz-q.done .pz-qck{border-color:var(--accent);background:var(--accent)}#v-pass .pz-q.done .pz-qck svg{width:13px;height:13px;margin:0;stroke:var(--on-accent)}
+#v-pass .pz-qb{min-width:0;display:flex;flex-direction:column;gap:7px}
+#v-pass .pz-qb b{font-size:13px;line-height:1.3;color:#e9edf2}
+#v-pass .pz-q.done .pz-qb b{color:var(--muted)}
+#v-pass .pz-qbar{height:6px;border-radius:99px;background:rgba(255,255,255,.07);overflow:hidden}
+#v-pass .pz-qbar i{display:block;height:100%;width:var(--p);border-radius:inherit;background:var(--accent)}
+#v-pass .pz-qr{display:flex;flex-direction:column;align-items:flex-end;gap:1px;text-align:right;white-space:nowrap}
+#v-pass .pz-qr b{font-size:14px;font-weight:900;line-height:1.1;color:var(--accent)}
+#v-pass .pz-qr small{font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+#v-pass .pz-qr span{margin-top:3px;font-size:11px;color:#c4cbd4;font-variant-numeric:tabular-nums}
+#v-pass .pz-qfoot{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:12px;color:var(--muted)}
+#v-pass .pz-qfoot a{font-weight:800;color:var(--accent);text-decoration:none}#v-pass .pz-qfoot a:hover{text-decoration:underline}
+#v-pass .pz-quests .steam{justify-content:center;width:100%}
+/* ссылки внизу */
+#v-pass .pz-links{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+#v-pass .pz-link{display:flex;align-items:center;gap:14px;padding:18px;border-radius:18px;border:1px solid var(--pz-line);background:radial-gradient(90% 140% at 0% 0%,color-mix(in srgb,var(--lc) 13%,transparent),transparent 62%),linear-gradient(150deg,#1a1f25,#12151a);color:inherit;text-decoration:none;transition:transform .17s ease,border-color .17s ease}
+#v-pass .pz-link:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--lc) 50%,transparent)}
+#v-pass .pz-link:focus-visible{outline:3px solid #e8ffb1;outline-offset:3px}
+#v-pass .pz-li{display:grid;place-items:center;width:50px;height:50px;flex:none;border-radius:14px;border:1px solid color-mix(in srgb,var(--lc) 35%,transparent);background:color-mix(in srgb,var(--lc) 10%,rgba(0,0,0,.35))}
+#v-pass .pz-li svg{width:26px;height:26px;fill:none;stroke:var(--lc);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+#v-pass .pz-lt{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+#v-pass .pz-lt b{font-family:var(--f-display);font-size:15px;font-weight:900;text-transform:uppercase;letter-spacing:.02em;color:#fff}
+#v-pass .pz-lt small{font-size:12px;line-height:1.4;color:var(--muted)}
+#v-pass .pz-la{flex:none;width:10px;height:10px;border-top:2px solid var(--lc);border-right:2px solid var(--lc);transform:rotate(45deg);opacity:.8}
+/* планшет и телефон */
+@media(max-width:1100px){#v-pass .pz-main{grid-template-columns:minmax(0,1fr) 300px}#v-pass .ps-how{grid-template-columns:1fr 1fr}}
+@media(max-width:900px){#v-pass .pz-main{grid-template-columns:1fr}#v-pass .pz-side{display:grid;grid-template-columns:1fr 1fr;align-items:start}#v-pass .pz-links{grid-template-columns:1fr}#v-pass .pz-banner{grid-template-columns:minmax(0,1fr) 200px;min-height:320px;padding:26px}#v-pass .ps-scene-visual img{width:190px}}
+@media(max-width:620px){#v-pass .pz{gap:12px}#v-pass .pz-head{align-items:stretch}#v-pass .pz-timer{flex:1}#v-pass .pz-side{display:flex}#v-pass .pz-banner{grid-template-columns:minmax(0,1fr) 104px;gap:6px;min-height:0;padding:18px 16px;border-radius:18px}#v-pass .pz-banner.has-art{background:linear-gradient(90deg,rgba(7,9,13,.95) 0%,rgba(7,9,13,.72) 60%,rgba(7,9,13,.45) 100%),url(/assets/winter-ops-hero-800.webp) 72% 30%/cover no-repeat,#0b0f15}#v-pass .pz-banner h2{margin:10px 0 8px;font-size:clamp(26px,8vw,38px)}#v-pass .pz-banner p{font-size:12.5px;line-height:1.5}#v-pass .pz-kicker{font-size:9px;letter-spacing:.12em}#v-pass .pz-tags{grid-column:1/-1;gap:6px;margin-top:6px}#v-pass .pz-tags{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}#v-pass .pz-tag{flex-direction:column;align-items:flex-start;gap:4px;padding:8px 10px}#v-pass .pz-tag b{font-size:18px}#v-pass .pz-tag span{font-size:8.5px}#v-pass .pz-tag span br{display:none}#v-pass .pz-copy{display:contents}#v-pass .pz-copy>:not(.pz-tags){grid-column:1}#v-pass .ps-scene-visual{grid-column:2;grid-row:1/span 3}#v-pass .ps-scene-visual img{width:104px;max-height:150px}
+ #v-pass .pz-level{gap:14px;padding:14px}#v-pass .pz-hex{width:64px;height:72px}#v-pass .pz-hex b{font-size:26px}#v-pass .pz-lvt b{font-size:16px}#v-pass .pz-lvt span{font-size:12.5px}
+ #v-pass .pz-rw{padding:12px 10px 4px}#v-pass .pz-rwh .steam{width:100%;justify-content:center}#v-pass .ps-rows{grid-template-columns:28px minmax(0,1fr);gap:6px}#v-pass .ps-lab span{writing-mode:vertical-rl;transform:rotate(180deg);padding:4px 0;font-size:9px;letter-spacing:.1em}#v-pass .ps-track{grid-auto-columns:116px;gap:8px}#v-pass .ps-c{min-height:132px;padding:12px 6px 10px}#v-pass .ps-c-icon{width:42px;height:42px}#v-pass .ps-c svg{width:26px;height:26px}#v-pass .ps-c b{font-size:11.5px}
+ #v-pass .ps-how{grid-template-columns:1fr 1fr;gap:8px}#v-pass .ps-how div{padding:12px}#v-pass .pz-price b{font-size:34px}#v-pass .pz-link{padding:14px}}
+@media(max-width:380px){#v-pass .pz-banner{grid-template-columns:minmax(0,1fr) 84px}#v-pass .ps-scene-visual img{width:84px}#v-pass .ps-how{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){#v-pass .ps-scene-visual img,#v-pass .ps-c,#v-pass .pz-link{transition:none!important}#v-pass .pz-banner:hover .ps-scene-visual img,#v-pass .pz-link:hover{transform:none}}
 
 /* События пока отключены по UPD */
 #admTabs [data-t="ev"],[data-pane="ev"]{display:none!important}
@@ -4656,17 +4752,40 @@ function drawPass(scroll){const box=$("psBody");if(!box)return;if(!PS&&SRV&&SRV.
   if(!p.season){box.innerHTML=`<div class="page-head"><h1>Боевой пропуск</h1><p>${p.next?`Следующий сезон «${esc(p.next.n)}» начнётся ${new Date(p.next.from).toLocaleDateString("ru-RU")}.`:"Сезон закончился. Новый скоро."}</p></div>`;return}
   const me=p.me,s=p.season,left=Math.max(0,s.to-Date.now()),days=Math.floor(left/864e5),hrs=Math.floor(left%864e5/36e5);
   const isWinter=/зим|winter/i.test(s.n);
-  const lvTxt=me?(me.lv>=p.levels?"Максимальный уровень":`${fmt(me.into)} / ${fmt(p.xpLevel)} опыта до уровня ${me.lv+1}`):"Войди через Steam, чтобы получать опыт";
-  const prem=me&&me.prem?`<div class="ps-prem on"><h3>Премиум активен</h3><ul><li>Премиум-награды всех уровней открыты</li><li>Уровень 50: KING на 14 дней и рамка «Зима 2026»</li></ul></div>`
-    :`<div class="ps-prem"><h3>Премиум-пропуск · ${fmt(p.price)} ₽</h3><ul><li>Вторая ветка наград на всех 50 уровнях</li><li>Кейсы «Огненный» и «Ножевой», статусы ELITE и LEGEND на 7 дней</li><li>Уровень 50: KING на 14 дней и рамка «Зима 2026»</li><li>Открывает награды уже пройденных уровней</li></ul>${me?`<button class="steam" type="button" id="psBuy">Купить за ${fmt(p.price)} ₽</button>`:`<button class="steam" type="button" data-login>Войти через Steam</button>`}</div>`;
+  // UPD: вёрстка по макету — шапка с таймером, баннер, уровень, две ветки наград, справа премиум и задания дня, внизу ссылки. Данные — только с сервера
+  const nFree=p.rewards.free.reduce((a,l)=>a+l.length,0),nPrem=p.rewards.prem.reduce((a,l)=>a+l.length,0);
+  const max=me&&me.lv>=p.levels,pct=me?(max?100:Math.round(me.into/p.xpLevel*100)):0;
+  const lvTxt=me?(max?"Максимальный уровень":`${fmt(me.into)} / ${fmt(p.xpLevel)} опыта`):`0 / ${fmt(p.xpLevel)} опыта`;
+  const lvSub=me?(max?"Все уровни сезона пройдены":`до уровня ${me.lv+1} · опыт за игру сегодня: ${fmt(me.today)} / ${fmt(p.dayCap)}, задания — без лимита`):"Войди через Steam, чтобы получать опыт";
+  const ck='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+  const prem=me&&me.prem?`<section class="pz-card pz-prem on"><span class="pz-cap">Премиум-пропуск</span><div class="pz-price"><b>Активен</b></div><ul class="pz-list"><li>${ck}Премиум-награды всех уровней открыты</li><li>${ck}Уровень 50: KING на 14 дней и рамка «Зима 2026»</li></ul></section>`
+    :`<section class="pz-card pz-prem"><span class="pz-cap">Премиум-пропуск</span><div class="pz-price"><b>${fmt(p.price)} ₽</b><small>на весь сезон</small></div><ul class="pz-list"><li>${ck}Вторая ветка наград на всех ${p.levels} уровнях</li><li>${ck}Кейсы «Огненный» и «Ножевой», статусы ELITE и LEGEND на 7 дней</li><li>${ck}Уровень 50: KING на 14 дней и рамка «Зима 2026»</li><li>${ck}Открывает награды уже пройденных уровней</li></ul>${me?`<button class="steam" type="button" id="psBuy">Купить за ${fmt(p.price)} ₽</button>`:`<button class="steam" type="button" data-login>Войти через Steam</button>`}</section>`;
+  const q=qsData(),guest=SRV&&!logged;
+  const quests=q?`<section class="pz-card pz-quests"><div class="pz-qhead"><span class="pz-cap">Ежедневные задания</span><span class="pz-qleft">Обновятся через <b id="psQLeft">${qsLeft()}</b></span></div>
+    <div class="pz-qlist">${q.list.map(x=>{const pc=guest?0:Math.round(Math.min(1,x.have/x.goal)*100),xp=p.xpQuest[x.lv];return`<div class="pz-q${x.done&&!guest?" done":""}"><span class="pz-qck">${x.done&&!guest?ck:""}</span><div class="pz-qb"><b>${esc(x.n)}</b><div class="pz-qbar"><i style="--p:${pc}%"></i></div></div><div class="pz-qr">${xp?`<b>+${fmt(xp)}</b><small>опыта</small>`:""}<span>${guest?`0 / ${x.goal}`:x.done?"Готово":`${x.have} / ${x.goal}`}</span></div></div>`}).join("")}</div>
+    <div class="pz-qfoot"><span>${p.xpQuest.all?`+${fmt(p.xpQuest.all)} опыта за все три`:""}</span><a href="#quests">Все задания</a></div></section>`:"";
+  // кейс сезона — кейс с самого высокого уровня премиум-ветки
+  let sc=null;const scLv=[];for(let i=p.rewards.prem.length-1;i>=0;i--)for(const r of p.rewards.prem[i])if(r.t==="case"){if(!sc)sc=r.k;if(r.k===sc)scLv.unshift(i+1)}
+  const scCase=sc?CASES.find(x=>x.k===sc):null,qDone=q&&!guest?q.list.filter(x=>x.done).length:0;
+  const links=[scCase?`<a class="pz-link" href="#skins" style="--lc:${scCase.c||"var(--accent)"}"><span class="pz-li"><svg viewBox="0 0 24 24">${PS_IC.case}</svg></span><span class="pz-lt"><b>Кейс сезона</b><small>«${esc(scCase.n)}» — премиум-награда ${scLv.length>1?"уровней":"уровня"} ${scLv.join(" и ")}</small></span><i class="pz-la"></i></a>`:"",
+    `<a class="pz-link" href="#pass" data-psto="psHow" style="--lc:var(--accent)"><span class="pz-li"><svg viewBox="0 0 24 24"><path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.4 6.8 19.1l1-5.8L3.5 9.2l5.9-.9z"/></svg></span><span class="pz-lt"><b>Бонусы пропуска</b><small>+${p.xp.kill} опыта за убийство, +${p.xp.roundWin} за раунд, ${fmt(p.xpLevel)} опыта на уровень</small></span><i class="pz-la"></i></a>`,
+    q?`<a class="pz-link" href="#quests" style="--lc:#38d3ff"><span class="pz-li"><svg viewBox="0 0 24 24"><path d="M9 11l2 2 4-4"/><rect x="4" y="3" width="16" height="18" rx="2"/></svg></span><span class="pz-lt"><b>Сезонные задания</b><small>Задания дня дают опыт пропуска${guest?"":` · выполнено ${qDone} из ${q.list.length}`}</small></span><i class="pz-la"></i></a>`:""].join("");
   const cols=Array.from({length:p.levels},(_,i)=>{const lv=i+1;return`<div class="ps-col${me&&me.lv===lv?" cur":""}${me&&me.lv>=lv?" got":""}" data-pslv="${lv}"><div class="ps-lv">${lv}</div>${psCell("f",lv,p.rewards.free[i],me)}${psCell("p",lv,p.rewards.prem[i],me)}</div>`}).join("");
-  box.innerHTML=`<div class="page-head"><h1>Боевой пропуск</h1><p>${esc(s.n)} · до конца сезона ${days} ${plural(days,"день","дня","дней")} ${hrs} ч. Играй на сервере и выполняй задания дня — получай опыт и забирай награды за каждый уровень.</p></div>
-   <section class="ps-scene${isWinter?" winter":""}" aria-label="Сезонный пропуск ${esc(s.n)}"><div class="ps-scene-copy"><span class="ps-kicker">TASHER / SEASON PASS</span><h2>${isWinter?'Зимняя операция <em>WINTER OPS</em>':esc(s.n)}</h2><p>Открывай награды за игру на сервере и ежедневные задания. Сезон: ${esc(s.n)}. До конца — ${days} ${plural(days,"день","дня","дней")} и ${hrs} ч.</p><div class="ps-scene-badges"><span>${p.levels} УРОВНЕЙ</span><span>БЕСПЛАТНАЯ ВЕТКА</span><span>PREMIUM REWARDS</span></div></div><div class="ps-scene-visual">${isWinter?'<img src="/assets/winter-ops-card.avif" alt="TASHER Winter Ops — коллекционная карточка премиум-пропуска" width="440" height="587" decoding="async">' : '<span class="ps-scene-placeholder" aria-hidden="true">TASHER</span>'}</div></section>
-   <div class="ps-hero"><div class="ps-lvl"><div class="ps-num">${me?me.lv:0}</div><div class="ps-info"><b>${me?`Уровень ${me.lv} из ${p.levels}`:"Уровень 0"}</b><div class="ps-bar"><i style="--p:${me?(me.lv>=p.levels?100:Math.round(me.into/p.xpLevel*100)):0}%"></i></div><span>${lvTxt}</span>${me?`<span>Опыт за игру сегодня: ${fmt(me.today)} / ${fmt(p.dayCap)} · задания — без лимита</span>`:""}</div></div>${prem}</div>
-   <div class="ps-tools"><small>${me&&me.unclaimed?`Ждут получения: ${me.unclaimed} ${plural(me.unclaimed,"награда","награды","наград")}`:"Награды забираются кнопкой — до конца сезона"}</small>${me&&me.unclaimed?`<button class="steam" type="button" id="psAll">Забрать всё (${me.unclaimed})</button>`:""}</div>
-   <div class="ps-rows"><div class="ps-lab"><i></i><span>Бесплатно</span><span class="pr">Премиум</span></div><div class="ps-track" id="psTrack">${cols}</div></div>
-   <div class="ps-how"><div><b>+${p.xp.kill} опыта</b>за убийство игрока (+${p.xp.hs} в голову), бот — +${p.xp.killBot}</div><div><b>+${p.xp.roundWin} / +${p.xp.minute}</b>за выигранный раунд / минуту в игре</div><div><b>+${p.xpQuest.easy}…${p.xpQuest.hard}</b>за задания дня, +${p.xpQuest.all} за все три</div><div><b>2 000 опыта</b>за каждый новый уровень пропуска</div></div>`;
+  box.innerHTML=`<div class="pz">
+   <header class="pz-head"><div><h1>Боевой пропуск</h1><p>${esc(s.n)}</p></div><div class="pz-timer"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9 2h6"/></svg><span><small>До конца сезона</small><b>${days} ${plural(days,"день","дня","дней")} ${hrs} ч</b></span></div></header>
+   <section class="pz-banner${isWinter?" has-art":""}" aria-label="Сезонный пропуск ${esc(s.n)}"><div class="pz-copy"><span class="pz-kicker">TASHER / Season pass</span><h2>${isWinter?'Зимняя операция <em>Winter Ops</em>':esc(s.n)}</h2><p>Играй на сервере и выполняй задания дня — получай опыт и забирай награды за каждый уровень.</p>
+    <div class="pz-tags"><div class="pz-tag"><b>${p.levels}</b><span>уровней <br>сезона</span></div><div class="pz-tag free"><b>${nFree}</b><span>наград в бесплатной <br>ветке</span></div><div class="pz-tag prem"><b>${nPrem}</b><span>премиум-<br>наград</span></div></div></div>
+    <div class="ps-scene-visual">${isWinter?'<img src="/assets/winter-ops-card.avif" alt="TASHER Winter Ops — коллекционная карточка премиум-пропуска" width="440" height="587" decoding="async">':'<span class="ps-scene-placeholder" aria-hidden="true">TASHER</span>'}</div></section>
+   <div class="pz-main"><div class="pz-col">
+    <section class="pz-card pz-level"><div class="pz-hex"><span><small>Ур.</small><b>${me?me.lv:0}</b></span></div><div class="pz-lvi"><div class="pz-lvt"><b>${me?`Уровень ${me.lv} из ${p.levels}`:"Уровень 0"}</b><span>${lvTxt}</span></div><div class="pz-bar"><i style="--p:${pct}%"></i></div><small>${lvSub}</small></div></section>
+    <section class="pz-card pz-rw"><div class="pz-rwh"><div><span class="pz-cap">Награды</span><small>${me&&me.unclaimed?`Ждут получения: ${me.unclaimed} ${plural(me.unclaimed,"награда","награды","наград")}`:"Награды забираются кнопкой — до конца сезона"}</small></div>${me&&me.unclaimed?`<button class="steam" type="button" id="psAll">Забрать всё (${me.unclaimed})</button>`:""}</div>
+     <div class="ps-rows"><div class="ps-lab"><i></i><span>Бесплатно</span><span class="pr">Премиум</span></div><div class="ps-track" id="psTrack">${cols}</div></div></section>
+    <div class="ps-how" id="psHow"><div><b>+${p.xp.kill} опыта</b>за убийство игрока (+${p.xp.hs} в голову), бот — +${p.xp.killBot}</div><div><b>+${p.xp.roundWin} / +${p.xp.minute}</b>за выигранный раунд / минуту в игре</div><div><b>+${p.xpQuest.easy}…${p.xpQuest.hard}</b>за задания дня, +${p.xpQuest.all} за все три</div><div><b>${fmt(p.xpLevel)} опыта</b>за каждый новый уровень пропуска</div></div>
+   </div><aside class="pz-side">${prem}${quests}</aside></div>
+   <nav class="pz-links" aria-label="Связанные разделы">${links}</nav></div>`;
   if(scroll){const tr=$("psTrack"),c=tr&&tr.querySelector(`[data-pslv="${Math.max(1,(me?me.lv:1)-1)}"]`);if(tr&&c)tr.scrollLeft=c.offsetLeft-tr.offsetLeft-8}}
+document.addEventListener("click",e=>{const t=e.target.closest("[data-psto]");if(!t||!$("v-pass").contains(t))return;const el=$(t.dataset.psto);if(!el)return;e.preventDefault();el.scrollIntoView({behavior:"smooth",block:"center"})});
+setInterval(()=>{const e=$("psQLeft");if(e)e.textContent=qsLeft()},30e3);
 async function psClaim(body,btn){if(!needLogin())return;if(btn)btn.disabled=true;
   try{const r=await api("/api/pass/claim",body);const keep=$("psTrack")?$("psTrack").scrollLeft:0;PS=r.pass;if(r.user){ME.tk=r.user.tk;ME.balance=r.user.balance}INV=srvItems(r.items);invSave();srvCosSet(r.cos);if(r.statuses){srvVipsSet(r.statuses);vipRedraw()}drawChip();psNav();drawPass();if($("psTrack"))$("psTrack").scrollLeft=keep;
     toast(r.got.length?"Получено: "+r.got.map(g=>g.txt).join(", "):"Нечего забирать")}

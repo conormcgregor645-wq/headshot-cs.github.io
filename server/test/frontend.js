@@ -23,4 +23,14 @@ assert.match(html, /assets\/winter-ops-card\.avif/, "Pass must reference its bun
 assert.match(html, /ps-scene-visual/, "Pass must have a dedicated hero-art layout");
 assert.match(html, /ps-c-icon/, "Reward cards must contain styled icon containers");
 assert.match(html, /@media\(max-width:620px\)/, "Pass must define phone layout rules");
+for (const f of ["winter-ops-hero.webp", "winter-ops-hero-800.webp"]) {
+  const b = fs.readFileSync(path.join(__dirname, "../../assets", f));
+  assert.ok(b.length > 5000 && b.length < 300000, `${f}: фон баннера пропуска отсутствует или слишком большой`);
+  assert.equal(b.toString("ascii", 0, 4) + b.toString("ascii", 8, 12), "RIFFWEBP", `${f} должен быть WebP`);
+  assert.match(html, new RegExp("assets/" + f.replace(/\./g, "\\.")), `Пропуск должен использовать ${f}`);
+}
+for (const cls of ["pz-head", "pz-timer", "pz-banner", "pz-level", "pz-hex", "pz-prem", "pz-quests", "pz-links"]) {
+  assert.match(html, new RegExp(`class="[^"]*\\b${cls}\\b`), `В пропуске нет блока ${cls}`);
+}
+assert.match(html, /id="psTrack"/, "Ряд наград пропуска должен остаться прокручиваемым треком");
 console.log(`Frontend: ${scripts.length} inline JS block(s) parsed; UPD smoke checks passed`);
