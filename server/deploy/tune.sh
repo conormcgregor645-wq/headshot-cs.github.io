@@ -1,17 +1,21 @@
 #!/usr/bin/env bash
-# Донастройка игрового сервера: фриз-тайм 3 с и серверная команда обновления скинов для сайта.
+# Донастройка игрового сервера: фриз-тайм 3 с, без урона по союзникам и серверная команда обновления скинов для сайта.
 # Запуск от root:  bash tune.sh
 set -euo pipefail
 CSGO=/home/cs2/server/game/csgo; WPJ=$CSGO/addons/counterstrikesharp/configs/plugins/WeaponPaints/WeaponPaints.json
 log() { printf '\n\033[1;32m=== %s ===\033[0m\n' "$*"; }
 [ "$(id -u)" = 0 ] || { echo "запусти от root"; exit 1; }
 
-log "1/3 Фриз-тайм 3 секунды"
+log "1/3 Фриз-тайм 3 секунды, без урона по союзникам"
 for f in server.cfg gamemode_competitive_server.cfg; do
   F=$CSGO/cfg/$f; touch "$F"
   if grep -q '^mp_freezetime' "$F"; then sed -i 's/^mp_freezetime.*/mp_freezetime 3/' "$F"; else echo 'mp_freezetime 3' >>"$F"; fi
 done
 echo "mp_freezetime 3 записан в server.cfg и gamemode_competitive_server.cfg"
+# союзники не наносят урон друг другу (в стандартном competitive mp_friendlyfire 1)
+F=$CSGO/cfg/gamemode_competitive_server.cfg
+if grep -q '^mp_friendlyfire' "$F"; then sed -i 's/^mp_friendlyfire.*/mp_friendlyfire 0/' "$F"; else echo 'mp_friendlyfire 0' >>"$F"; fi
+echo "mp_friendlyfire 0 записан в gamemode_competitive_server.cfg — урона по союзникам нет"
 
 log "2/3 Команда обновления скинов для сайта"
 systemctl stop cs2

@@ -129,6 +129,8 @@ chmod 640 "$CSGO/cfg/server.cfg"
 # настройки режима: выполняются после стандартного конфига competitive и перебивают его значения
 F="$CSGO/cfg/gamemode_competitive_server.cfg"; touch "$F"
 grep -q '^mp_freezetime' "$F" && sed -i 's/^mp_freezetime.*/mp_freezetime 3/' "$F" || echo 'mp_freezetime 3' >>"$F"
+# союзники не наносят урон друг другу (в стандартном competitive mp_friendlyfire 1)
+grep -q '^mp_friendlyfire' "$F" && sed -i 's/^mp_friendlyfire.*/mp_friendlyfire 0/' "$F" || echo 'mp_friendlyfire 0' >>"$F"
 
 cat >"$H/update.sh" <<'SH'
 #!/bin/sh
