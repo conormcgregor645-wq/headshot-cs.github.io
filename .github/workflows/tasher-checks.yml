@@ -22,7 +22,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for t in frontend smoke features control gamelog a2s; do
+          for t in frontend smoke features control gamelog a2s achievements; do
             echo "::group::${t}"
             node "server/test/${t}.js"
             echo "::endgroup::"
