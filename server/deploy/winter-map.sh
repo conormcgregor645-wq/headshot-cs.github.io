@@ -1,64 +1,119 @@
 #!/usr/bin/env bash
-# Новогодняя карта: сервер CS2 запускается на карте из Мастерской Steam вместо обычной de_dust2.
+# Новогодняя карта: сервер CS2 играет на карте из Мастерской Steam вместо обычной de_dust2.
 #   bash /opt/tasher/server/deploy/winter-map.sh <ID карты в Мастерской>   — включить
 #   bash /opt/tasher/server/deploy/winter-map.sh off                         — вернуть обычную de_dust2
+#   bash /opt/tasher/server/deploy/winter-map.sh status                      — что включено и на какой карте сервер
 # ID — число из ссылки на карту: steamcommunity.com/sharedfiles/filedetails/?id=ЧИСЛО
-# Если карта не загрузилась за 15 минут (скачивание может занять время), всё возвращается как было.
+#
+# Как это работает. С картой из Мастерской прямо в команде запуска (+host_workshop_map) CS2 зависает
+# на старте и не входит в Steam, поэтому сервер всегда стартует как обычно на de_dust2, а карта
+# включается командой host_workshop_map через RCON на уже работающем сервере. Карта заранее
+# скачивается через steamcmd. Таймер tasher-workshop-map раз в минуту проверяет карту и возвращает
+# её, если сервер с неё ушёл: после перезапуска CS2 (обновление, vip-setup.sh) или в конце матча.
+# (служебная команда таймера: winter-map.sh apply)
 set -euo pipefail
 ARG="${1:-}"
-DROP=/etc/systemd/system/cs2.service.d
-CONF=$DROP/workshop-map.conf
+STATE=/etc/tasher/workshop-map
+MARK=/run/tasher-workshop-map.last
+CSGO=/home/cs2/server/game/csgo
+RT=/home/cs2/server/game/bin/linuxsteamrt64
+UNIT=tasher-workshop-map
+OLD_DROP=/etc/systemd/system/cs2.service.d/workshop-map.conf   # от прежней версии скрипта
 log() { printf '\n\033[1;32m=== %s ===\033[0m\n' "$*"; }
 die() { printf '\n\033[1;31mОШИБКА: %s\033[0m\n' "$*"; exit 1; }
 [ "$(id -u)" = 0 ] || die "запусти от root"
-[ -f /etc/systemd/system/cs2.service ] || die "служба cs2 не установлена (сначала cs2-setup.sh)"
 
-# карта, на которой сервер сейчас (запрос A2S к самому себе)
+# карта, на которой сервер сейчас (запрос A2S к самому себе); пусто — сервер не отвечает
 current_map() {
   node -e 'require("/opt/tasher/server/lib/a2s").info("127.0.0.1",27015,1500).then(i=>console.log(i&&i.map||"")).catch(()=>console.log(""))' 2>/dev/null || true
 }
-
-if [ "$ARG" = "off" ]; then
-  log "Возвращаю обычную de_dust2"
-  rm -f "$CONF"; systemctl daemon-reload; systemctl restart cs2
-  echo "готово: сервер перезапускается на de_dust2"; exit 0
-fi
-[[ "$ARG" =~ ^[0-9]{6,12}$ ]] || die "укажи ID карты из Мастерской (число из ссылки ?id=…) или off"
-
-# команда запуска — та же, что в cs2-setup.sh, только вместо +map de_dust2 — карта из Мастерской
-BASE=$(systemctl cat cs2 | grep -E '^ExecStart=/' | tail -1 | sed 's/^ExecStart=//')
-[ -n "$BASE" ] || die "не нашёл команду запуска CS2"
-NEW=$(printf '%s' "$BASE" | sed -E "s/\+map [^ ]+/+host_workshop_map $ARG/; s/\+host_workshop_map [0-9]+/+host_workshop_map $ARG/")
-printf '%s' "$NEW" | grep -q "+host_workshop_map $ARG" || NEW="$BASE +host_workshop_map $ARG"
-
-OLD_CONF=""; [ -f "$CONF" ] && OLD_CONF=$(cat "$CONF")
-restore() {
-  echo "Возвращаю как было…"
-  if [ -n "$OLD_CONF" ]; then printf '%s\n' "$OLD_CONF" > "$CONF"; else rm -f "$CONF"; fi
-  systemctl daemon-reload; systemctl restart cs2
+# команда в консоль сервера по RCON; CS2 слушает TCP на адресе имени хоста (часто 127.0.1.1), поэтому пробуем оба
+rcon() {
+  local pass; pass=$(sed -nE 's/^rcon_password "(.*)"/\1/p' "$CSGO/cfg/server.cfg" | head -1)
+  [ -n "$pass" ] || { echo "нет rcon_password в server.cfg" >&2; return 1; }
+  RC_PASS="$pass" RC_CMD="$1" node -e '
+    const { exec } = require("/opt/tasher/server/lib/rcon");
+    (async () => { for (const h of ["127.0.0.1", "127.0.1.1"]) { try { process.stdout.write(await exec(h, 27015, process.env.RC_PASS, process.env.RC_CMD, 4000)); return; } catch (e) {} } process.exit(1); })();'
 }
+read_state() { ID=""; NAME=""; [ -f "$STATE" ] && . "$STATE"; return 0; }
+drop_old_dropin() { if [ -f "$OLD_DROP" ]; then rm -f "$OLD_DROP"; systemctl daemon-reload; echo "убрал старую настройку запуска с картой из Мастерской"; fi; }
 
-log "Включаю карту из Мастерской $ARG"
-mkdir -p "$DROP"
-printf '[Service]\nExecStart=\nExecStart=%s\n' "$NEW" > "$CONF"
-systemctl daemon-reload
-SINCE=$(date '+%Y-%m-%d %H:%M:%S')
-systemctl restart cs2
-
-log "Жду, пока сервер скачает и загрузит карту (до 15 минут)"
-OK=""
-for i in $(seq 1 90); do
-  sleep 10; printf '.'
+case "$ARG" in
+apply)
+  # раз в минуту из таймера: вернуть карту, если сервер ушёл с неё
+  read_state; [ -n "$ID" ] || exit 0
+  systemctl is-active --quiet cs2 || exit 0
+  M=$(current_map); [ -n "$M" ] || exit 0                       # сервер ещё запускается
+  [ "$M" = "$NAME" ] && exit 0
+  # недавно уже переключали — карта ещё грузится, не дёргаем сервер повторно
+  if [ -f "$MARK" ] && [ $(( $(date +%s) - $(stat -c %Y "$MARK") )) -lt 180 ]; then exit 0; fi
+  touch "$MARK"
+  echo "сервер на «$M», возвращаю карту из Мастерской $ID («$NAME»)"
+  rcon "host_workshop_map $ID" >/dev/null || echo "RCON не ответил — попробую через минуту"
+  exit 0 ;;
+status)
+  read_state
+  if [ -n "$ID" ]; then echo "включена карта из Мастерской $ID («$NAME»)"; else echo "карта из Мастерской не включена — обычная de_dust2"; fi
+  echo "таймер: $(systemctl is-active $UNIT.timer 2>/dev/null || true)"
+  echo "сервер сейчас на карте: $(current_map)"
+  exit 0 ;;
+off)
+  log "Возвращаю обычную de_dust2"
+  rm -f "$STATE" "$MARK"
+  systemctl disable --now $UNIT.timer >/dev/null 2>&1 || true
+  drop_old_dropin
   M=$(current_map)
-  if [ -n "$M" ]; then
-    if printf '%s' "$M" | grep -qiE "workshop|$ARG|dust2_|winter|xmas|christmas|new.?year"; then OK="$M"; break; fi
-    # сервер поднялся, но на другой карте — Мастерская не отдала карту
-    if [ "$i" -gt 12 ]; then echo; echo "сервер работает на «$M», а не на карте из Мастерской"; break; fi
-  fi
+  if [ -n "$M" ] && [ "$M" != de_dust2 ]; then rcon "map de_dust2" >/dev/null || systemctl restart cs2; fi
+  echo "готово: сервер на de_dust2, карта из Мастерской больше не включается"; exit 0 ;;
+esac
+[[ "$ARG" =~ ^[0-9]{6,12}$ ]] || die "укажи ID карты из Мастерской (число из ссылки ?id=…), off или status"
+systemctl is-active --quiet cs2 || die "сервер CS2 не запущен (systemctl start cs2)"
+
+log "1/3 Скачиваю карту $ARG через steamcmd (сервер в это время работает как обычно)"
+drop_old_dropin
+OUT=$(sudo -u cs2 -H /home/cs2/steamcmd/steamcmd.sh +force_install_dir "$RT" +login anonymous +workshop_download_item 730 "$ARG" validate +quit 2>&1 || true)
+printf '%s\n' "$OUT" | grep -q "Success. Downloaded item $ARG" || { printf '%s\n' "$OUT" | tail -5; die "steamcmd не скачал карту $ARG (проверь ID и что карта публичная)"; }
+echo "скачано: $(du -sh "$RT/steamapps/workshop/content/730/$ARG" | cut -f1)"
+
+log "2/3 Включаю карту на работающем сервере (до 5 минут)"
+rm -f "$MARK"; SINCE=$(date '+%Y-%m-%d %H:%M:%S')
+rcon "host_workshop_map $ARG" >/dev/null || die "RCON не ответил — карта не включена, сервер как был"
+# имя карты — из журнала CS2: «HostStateRequest … addons(ID,…) desc(Changelevel (имя))»; готово, когда сервер на ней
+NAME=""
+for i in $(seq 1 30); do
+  sleep 10; printf '.'
+  N=$(journalctl -u cs2 --since "$SINCE" --no-pager -o cat | grep -E "addons\($ARG[,)]" | grep -oE "desc\(Changelevel \([^)]+" | tail -1 | sed 's/.*(//')
+  if [ -n "$N" ] && [ "$(current_map)" = "$N" ]; then NAME="$N"; break; fi
 done; echo
-if [ -z "$OK" ]; then
-  journalctl -u cs2 --since "$SINCE" --no-pager -o cat | grep -iE "workshop|addon|map|error|fail" | tail -15 | cut -c1-220
-  restore; die "карта $ARG не загрузилась — вернул как было. Пришли вывод выше"
+if [ -z "$NAME" ]; then
+  journalctl -u cs2 --since "-6 min" --no-pager -o cat | grep -iE "workshop|addon|$ARG|changelevel|error|fail" | grep -v texturebase | tail -15 | cut -c1-220
+  die "карта $ARG не загрузилась за 5 минут — ничего не сохранено, сервер на «$(current_map)». Пришли вывод выше"
 fi
-echo "готово: сервер на карте «$OK»"
-echo "Проверь в игре: карта, бомбплейсы, скины и плагины (!vip, !rank). Вернуть обычную: bash $0 off"
+echo "сервер на карте «$NAME»"
+
+log "3/3 Держу карту после перезапусков и в конце матча"
+mkdir -p "$(dirname "$STATE")"
+printf 'ID=%s\nNAME=%s\n' "$ARG" "$NAME" > "$STATE"
+cat >/etc/systemd/system/$UNIT.service <<UNITF
+[Unit]
+Description=TASHER: вернуть карту из Мастерской на сервер CS2
+After=cs2.service
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/env bash /opt/tasher/server/deploy/winter-map.sh apply
+UNITF
+cat >/etc/systemd/system/$UNIT.timer <<UNITF
+[Unit]
+Description=TASHER: раз в минуту проверять карту из Мастерской
+[Timer]
+OnBootSec=90s
+OnUnitActiveSec=60s
+AccuracySec=5s
+[Install]
+WantedBy=timers.target
+UNITF
+systemctl daemon-reload; systemctl enable --now $UNIT.timer >/dev/null
+echo "таймер $UNIT включён: после перезапуска CS2 карта вернётся примерно через минуту"
+echo
+echo "Готово: карта «$NAME» ($ARG). Проверь в игре бомбплейсы, скины и плагины (!vip, !rank)."
+echo "Что включено: bash $0 status    Вернуть обычную de_dust2: bash $0 off"
