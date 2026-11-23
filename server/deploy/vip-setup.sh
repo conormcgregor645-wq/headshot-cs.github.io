@@ -30,8 +30,12 @@ log "1/6 Скачиваю VIPCore ($REPO)"
 TMP=$(mktemp -d); trap 'rm -rf "$TMP"' EXIT
 curl -fsSL "https://api.github.com/repos/$REPO/releases?per_page=30" -o "$TMP/rel.json" || die "GitHub не ответил"
 # полный набор модулей лежит в релизе ядра; релизы «vX.Y.Z-modules-N» содержат только изменённые модули — накладываем их по порядку
-CORE_TAG=$(jq -r '[.[] | select(.draft|not) | select(any(.assets[]; .name=="VIPCore.zip"))][0].tag_name // empty' "$TMP/rel.json")
-[ -n "$CORE_TAG" ] || die "не нашёл релиз с VIPCore.zip"
+# Версия закреплена: сборка TASHER (plugins/vipcore) сделана на VIPCore 2.0.3, а модули и библиотека VipCoreApi
+# должны быть той же версии — с 2.0.4 у ядра новые функции, и модули 2.0.4 с нашим ядром не загружаются.
+# Переход на новую версию — только вместе с обновлением plugins/vipcore. Свою версию можно задать: VIP_CORE_TAG=v2.0.4
+CORE_TAG="${VIP_CORE_TAG:-v2.0.3}"
+jq -e --arg t "$CORE_TAG" 'any(.[]; .tag_name==$t and any(.assets[]; .name=="VIPCore.zip"))' "$TMP/rel.json" >/dev/null \
+  || die "не нашёл релиз VIPCore $CORE_TAG с VIPCore.zip"
 url_of() { jq -r --arg t "$1" --arg n "$2" '.[] | select(.tag_name==$t) | .assets[] | select(.name==$n) | .browser_download_url' "$TMP/rel.json" | head -1; }
 CORE_URL=$(url_of "$CORE_TAG" VIPCore.zip); BASE_MODS=$(url_of "$CORE_TAG" VIP_Modules.zip)
 [ -n "$CORE_URL" ] && [ -n "$BASE_MODS" ] || die "в релизе $CORE_TAG нет VIPCore.zip или VIP_Modules.zip"
