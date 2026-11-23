@@ -35,6 +35,14 @@ public class StyleConfig : BasePluginConfig
         ["8bit"] = "sounds/ui/armsrace_level_up.vsnd",
         ["coin"] = "sounds/ui/coin_pickup_01.vsnd",
     };
+    // звук MVP раунда: код с сайта -> файл звука из игры (слышат все на сервере)
+    [JsonPropertyName("MvpSounds")] public Dictionary<string, string> MvpSounds { get; set; } = new()
+    {
+        ["legend"] = "sounds/ui/item_drop6_ancient.vsnd",
+        ["level"] = "sounds/ui/armsrace_level_up.vsnd",
+        ["alert"] = "sounds/ui/bonus_alert_start.vsnd",
+        ["wops"] = "sounds/ui/item_drop4_mythical.vsnd",
+    };
     // UPD: не используется — приветствие без звука. Оставлено, чтобы старые конфиги читались без ошибок.
     [JsonPropertyName("GreetSounds")] public Dictionary<string, string> GreetSounds { get; set; } = new()
     {
@@ -68,12 +76,12 @@ public class StyleConfig : BasePluginConfig
     };
 }
 
-public record PlayerStyle(string ChatTag, string NameColor, string ScoreTag, string Smoke, string KillFx, string KillSnd, string Trail, string Tracer);
+public record PlayerStyle(string ChatTag, string NameColor, string ScoreTag, string Smoke, string KillFx, string KillSnd, string Trail, string Tracer, string MvpSnd = "");
 
 public partial class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
 {
     public override string ModuleName => "TASHER Style";
-    public override string ModuleVersion => "1.4.5";
+    public override string ModuleVersion => "1.5.0";
     public override string ModuleAuthor => "tashercs.ru";
 
     public StyleConfig Config { get; set; } = new();
@@ -122,7 +130,8 @@ public partial class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
                     kill_fx VARCHAR(16) NOT NULL DEFAULT '',
                     kill_snd VARCHAR(16) NOT NULL DEFAULT '',
                     trail VARCHAR(16) NOT NULL DEFAULT '',
-                    tracer VARCHAR(16) NOT NULL DEFAULT ''
+                    tracer VARCHAR(16) NOT NULL DEFAULT '',
+                    mvp_snd VARCHAR(16) NOT NULL DEFAULT ''
                 ) DEFAULT CHARSET=utf8mb4";
                 await cmd.ExecuteNonQueryAsync();
                 // таблица от прошлой версии плагина — добавляем колонки эффектов
@@ -178,12 +187,12 @@ public partial class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
                         {
                             var fx = _fxColumns;
                             cmd.CommandText = fx
-                                ? "SELECT steamid, chat_tag, name_color, score_tag, smoke, kill_fx, kill_snd, trail, tracer FROM tasher_style"
+                                ? "SELECT steamid, chat_tag, name_color, score_tag, smoke, kill_fx, kill_snd, trail, tracer, mvp_snd FROM tasher_style"
                                 : "SELECT steamid, chat_tag, name_color, score_tag, smoke FROM tasher_style";
                             await using var r = await cmd.ExecuteReaderAsync();
                             while (await r.ReadAsync())
                                 map[r.GetUInt64(0)] = new PlayerStyle(r.GetString(1), r.GetString(2), r.GetString(3), r.GetString(4),
-                                    fx ? r.GetString(5) : "", fx ? r.GetString(6) : "", fx ? r.GetString(7) : "", fx ? r.GetString(8) : "");
+                                    fx ? r.GetString(5) : "", fx ? r.GetString(6) : "", fx ? r.GetString(7) : "", fx ? r.GetString(8) : "", fx ? r.GetString(9) : "");
                         }
                         _styles = map;
                         Server.NextFrame(() =>

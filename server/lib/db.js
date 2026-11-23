@@ -217,6 +217,8 @@ function open(file) {
     `CREATE TABLE fun_day(sid TEXT NOT NULL, day TEXT NOT NULL, tk INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(sid, day));`,
     // 14: достижения — за какие уже выплачены ТК (один раз на игрока и достижение)
     `CREATE TABLE ach_paid(sid TEXT NOT NULL, name TEXT NOT NULL, tk INTEGER NOT NULL, created_at INTEGER NOT NULL, PRIMARY KEY(sid, name));`,
+    // 15: бусты из боевого пропуска (tk2 — ×2 ТК за игру, xp2 — ×2 опыт пропуска) до момента until
+    `CREATE TABLE boost(sid TEXT NOT NULL, kind TEXT NOT NULL, until INTEGER NOT NULL, PRIMARY KEY(sid, kind));`,
   ];
   for (let v = ver; v < MIG.length; v++) {
     db.exec("BEGIN");

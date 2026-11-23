@@ -10,7 +10,7 @@ namespace TasherStyle;
 
 public partial class TasherStyle
 {
-    private static readonly string[] FxColumns = { "kill_fx", "kill_snd", "trail", "tracer" };
+    private static readonly string[] FxColumns = { "kill_fx", "kill_snd", "trail", "tracer", "mvp_snd" };
     private int _beams;
     private int _tick;
     private readonly List<GrenadeTrail> _trails = new();
@@ -31,6 +31,7 @@ public partial class TasherStyle
     {
         RegisterEventHandler<EventBulletImpact>(OnBulletImpact);
         RegisterEventHandler<EventPlayerDeath>(OnPlayerDeath);
+        RegisterEventHandler<EventRoundMvp>(OnRoundMvp);
         RegisterListener<Listeners.OnTick>(OnTick);
         RegisterListener<Listeners.CheckTransmit>(OnEffectsTransmit);
         RegisterListener<Listeners.OnMapStart>(_ => { _beams = 0; _trails.Clear(); _lastTracer.Clear(); _spectatorBeams.Clear(); _killFxOwner = 0; });
@@ -146,6 +147,18 @@ public partial class TasherStyle
                 finally { _killFxOwner = 0; }
             }
         }
+        return HookResult.Continue;
+    }
+
+    // --- MVP раунда: свой звук слышат все игроки на сервере ---
+    private HookResult OnRoundMvp(EventRoundMvp e, GameEventInfo info)
+    {
+        var m = e.Userid;
+        if (m is not { IsValid: true } || m.IsBot || m.IsHLTV) return HookResult.Continue;
+        var s = StyleOf(m);
+        if (s == null || s.MvpSnd.Length == 0 || !Config.MvpSounds.TryGetValue(s.MvpSnd, out var snd) || !IsSafeSound(snd)) return HookResult.Continue;
+        foreach (var p in Utilities.GetPlayers())
+            if (p is { IsValid: true, IsBot: false, IsHLTV: false }) p.ExecuteClientCommand($"play {snd}");
         return HookResult.Continue;
     }
 
@@ -288,6 +301,27 @@ public partial class TasherStyle
                         Beam(x + ux * MathF.Cos(a1) * r, y + uy * MathF.Cos(a1) * r, z + 4f + MathF.Sin(a1) * r,
                              x + ux * MathF.Cos(a2) * r, y + uy * MathF.Cos(a2) * r, z + 4f + MathF.Sin(a2) * r, rb[k], 3f, 1.4f);
                     }
+                }
+                break;
+            }
+            case "storm": // снежная буря (эксклюзив Winter Ops): ледяная воронка, кольца инея и снег
+            {
+                Color[] cols = { Color.FromArgb(255, 159, 220, 255), Color.FromArgb(255, 94, 240, 200), Color.FromArgb(255, 232, 247, 255) };
+                float gz = z + 4f;
+                for (var arm = 0; arm < 3; arm++)
+                    for (var i = 0; i < 12; i++)
+                    {
+                        float t1 = i / 12f, t2 = (i + 1) / 12f, a0 = arm * MathF.Tau / 3f;
+                        float a1 = a0 + t1 * MathF.Tau * 1.2f, a2 = a0 + t2 * MathF.Tau * 1.2f, r1 = 12f + t1 * 40f, r2 = 12f + t2 * 40f;
+                        Beam(x + MathF.Cos(a1) * r1, y + MathF.Sin(a1) * r1, gz + t1 * 110f, x + MathF.Cos(a2) * r2, y + MathF.Sin(a2) * r2, gz + t2 * 110f, cols[arm], 2f, 1.1f);
+                    }
+                Circle(x, y, gz, 48f, 18, cols[0], 2.4f, 1.2f);
+                Circle(x, y, gz, 30f, 14, cols[1], 1.6f, 1.2f);
+                for (var i = 0; i < 16; i++)
+                {
+                    var ang = rnd.NextSingle() * MathF.Tau; var rad = rnd.NextSingle() * 55f;
+                    float px = x + MathF.Cos(ang) * rad, py = y + MathF.Sin(ang) * rad, pz = z + 15f + rnd.NextSingle() * 100f;
+                    Beam(px, py, pz, px + 3f, py, pz - 6f, Color.White, 2.2f, 1.4f);
                 }
                 break;
             }
