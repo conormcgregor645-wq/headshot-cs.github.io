@@ -1572,75 +1572,96 @@ button.pf-role{cursor:pointer}button.pf-role:hover{border-color:color-mix(in srg
 @media (max-width:980px){.qx-day{grid-template-columns:1fr}.qx-info{grid-template-columns:1fr}}
 @media (max-width:560px){.qx-w{grid-template-columns:48px minmax(0,1fr);padding-right:14px}.qx-w .qx-rw{grid-column:2;font-size:16px}.qx-week::before{left:23px}.qx-pot{gap:18px}.qx-pot b{font-size:21px}}
 @media (prefers-reduced-motion:reduce){.qx-ring .fg{transition:none}}
-/* ===== Пропуск: трасса сезона ===== */
-.pz-hero{position:relative;display:grid;grid-template-columns:minmax(0,640px);align-items:end;min-height:420px;border-radius:28px;padding:40px 44px;overflow:hidden;margin-bottom:16px;
-  background:radial-gradient(70% 90% at 85% 10%,rgba(56,211,255,.22),transparent 60%),radial-gradient(60% 80% at 0% 100%,rgba(181,232,83,.14),transparent 60%),linear-gradient(160deg,#0f1b2b,#0a1018 60%,#0c1210)}
-.pz-hero.has-img{background:linear-gradient(90deg,rgba(8,14,28,.92) 0%,rgba(8,14,28,.72) 40%,rgba(8,14,28,.1) 75%),linear-gradient(0deg,rgba(8,14,28,.6),transparent 40%),var(--pzimg) 70% 30%/cover}
-.pz-hero.winter::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle,rgba(255,255,255,.8) 0 1px,transparent 1.6px) 0 0/90px 90px,radial-gradient(circle,rgba(255,255,255,.45) 0 1px,transparent 1.6px) 35px 50px/60px 60px;opacity:.5}
-.pz-copy{position:relative;z-index:1}
-.pz-season{display:inline-block;color:#9fdcff;font-weight:700;font-size:14px;margin-bottom:12px}
-.pz-hero h1{margin:0 0 14px;font:900 clamp(34px,5vw,62px)/.95 var(--f-display);font-style:italic;letter-spacing:-.01em}
-.pz-hero h1 span{display:block;background:linear-gradient(90deg,#e8f7ff,#7dd3fc 45%,#b5e853);-webkit-background-clip:text;background-clip:text;color:transparent}
-.pz-copy>p{margin:0 0 26px;max-width:52ch;color:#b9c4cf;line-height:1.55}
-.pz-lvl{display:flex;align-items:center;gap:18px;max-width:560px}
-.pz-big{font:900 72px/1 var(--f-display);font-style:italic;color:#b5e853;text-shadow:0 0 30px rgba(181,232,83,.35);min-width:1.1ch;text-align:center}
-.pz-lvi{flex:1;min-width:0}.pz-lvi b{display:block;font-size:17px;margin-bottom:8px}
-.pz-lvi span{display:block;margin-top:8px;color:#9aa6b2;font-size:13px;font-weight:600}
-.pz-xp{height:12px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden}
-.pz-xp i{display:block;height:100%;width:var(--p);border-radius:inherit;background:linear-gradient(90deg,#7dd3fc,#b5e853);box-shadow:0 0 16px rgba(181,232,83,.5)}
-.pz-art{position:relative;z-index:1;justify-self:center}
-.pz-art img{display:block;width:100%;max-width:280px;height:auto;transform:rotate(4deg);filter:drop-shadow(0 24px 40px rgba(0,0,0,.6))}
-.pz-prem{display:flex;align-items:center;gap:18px;border-radius:20px;padding:16px 20px;margin-bottom:34px;background:linear-gradient(90deg,rgba(245,196,81,.16),rgba(245,196,81,.04) 60%,transparent),var(--panel);border:1px solid rgba(245,196,81,.35)}
-.pz-prem>div{flex:1;min-width:0}.pz-prem b{display:block;font-size:17px;color:#f5c451;margin-bottom:3px}.pz-prem span{color:#c9bfa6;font-size:14px;line-height:1.45}
-.pz-crown{flex:none;width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:rgba(245,196,81,.15);color:#f5c451}
-.pz-crown svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:2;stroke-linejoin:round}
-.pz-buy{flex:none;border:0;border-radius:99px;padding:12px 22px;font:800 15px/1 inherit;font-family:inherit;color:#1a1408;background:linear-gradient(180deg,#ffd970,#f5b931);cursor:pointer;white-space:nowrap}
-.pz-buy:hover{filter:brightness(1.07)}.pz-buy:focus-visible,.pz-nav:focus-visible,.pz-all:focus-visible,.pz-rw:focus-visible{outline:2px solid #fff;outline-offset:2px}
-.pz-prem.on{border-color:rgba(245,196,81,.6)}
-.pz-road{margin-bottom:24px}
-.pz-rh{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
-.pz-rh h2{margin:0;font:900 22px/1.1 var(--f-display)}
-.pz-rt{display:flex;gap:8px;align-items:center}
-.pz-all{border:0;border-radius:99px;padding:10px 18px;font:800 14px/1 inherit;font-family:inherit;background:#b5e853;color:#11160a;cursor:pointer}
-.pz-nav{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--panel);color:var(--fg);font-size:22px;line-height:1;cursor:pointer}
-.pz-nav:hover{background:var(--panel-2)}
-.pz-wrap{display:grid;grid-template-columns:34px minmax(0,1fr);gap:8px;background:linear-gradient(180deg,rgba(125,211,252,.05),transparent 45%,rgba(245,196,81,.06)),var(--panel);border-radius:24px;padding:18px 0 18px 12px}
-.pz-side{display:grid;grid-template-rows:150px 46px 150px}
-.pz-side span{writing-mode:vertical-rl;transform:rotate(180deg);align-self:center;justify-self:center;font-weight:800;font-size:13px;color:#9fdcff}
-.pz-side span.pr{grid-row:3;color:#f5c451}
-.pz-track{overflow-x:auto;scroll-snap-type:x proximity;scrollbar-width:thin;padding:0 12px 6px 0}
-.pz-cols{position:relative;display:flex;width:max-content}
-.pz-rail{position:absolute;left:60px;right:60px;top:170px;height:6px;border-radius:99px;background:rgba(255,255,255,.08)}
-.pz-rail b{position:absolute;inset:0 auto 0 0;width:var(--fill);border-radius:inherit;background:linear-gradient(90deg,#7dd3fc,#b5e853);box-shadow:0 0 14px rgba(181,232,83,.45)}
-.pz-col{position:relative;width:120px;display:grid;grid-template-rows:150px 46px 150px;justify-items:center;scroll-snap-align:start}
-.pz-node{grid-row:2;align-self:center;position:relative;z-index:1;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font:800 13px/1 var(--f-display);background:#1b1f24;border:2px solid rgba(255,255,255,.14);color:#8b95a1}
-.pz-col.big .pz-node{width:42px;height:42px;font-size:15px}
-.pz-col.got .pz-node{background:#1d2a14;border-color:#b5e853;color:#d9f5a0}
-.pz-col.cur .pz-node{background:#b5e853;color:#11160a;border-color:#e8ffc0;box-shadow:0 0 0 6px rgba(181,232,83,.18)}
-.pz-rw{all:unset;box-sizing:border-box;width:108px;height:150px;overflow:hidden;display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;padding:10px 6px;border-radius:18px;cursor:default}
-.pz-rw.fr{justify-content:flex-end}.pz-rw.pr{justify-content:flex-start}
-.pz-med{position:relative;width:58px;height:58px;border-radius:50%;display:grid;place-items:center;color:var(--ic);background:radial-gradient(circle at 50% 35%,color-mix(in srgb,var(--ic) 32%,transparent),color-mix(in srgb,var(--ic) 8%,transparent) 70%);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--ic) 45%,transparent)}
-.pz-rw.big .pz-med{width:72px;height:72px;box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--ic) 70%,transparent),0 0 24px color-mix(in srgb,var(--ic) 35%,transparent)}
-.pz-med.pz-img{border-radius:16px;width:76px;height:76px;background-color:#0d1117;background-size:cover;background-position:center;box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--ic) 55%,transparent),0 6px 18px rgba(0,0,0,.4)}
-.pz-rw.big .pz-med.pz-img{width:88px;height:88px}
-.pz-med svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.pz-rw.big .pz-med svg{width:32px;height:32px}
-.pz-rw b{font-size:13px;font-weight:800;line-height:1.25}.pz-rw small{font-size:12px;color:var(--muted);font-weight:600}
-.pz-rw.pr .pz-med{background:radial-gradient(circle at 50% 35%,rgba(245,196,81,.28),rgba(245,196,81,.06) 70%);box-shadow:inset 0 0 0 1.5px rgba(245,196,81,.5)}
-.pz-rw.lock,.pz-rw.plock{opacity:.55}.pz-rw.lock .pz-med,.pz-rw.plock .pz-med{filter:grayscale(.6)}
-.pz-rw.done{opacity:.6}
-.pz-ok,.pz-lk{position:absolute;right:-2px;bottom:-2px;width:20px;height:20px;border-radius:50%}
-.pz-ok{background:#b5e853 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2311160a' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 12l4 4 8-9'/%3E%3C/svg%3E") center/13px no-repeat}
-.pz-lk{background:#2a2f36 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c8d0d8' stroke-width='2.4' stroke-linecap='round'%3E%3Crect x='6' y='11' width='12' height='9' rx='2'/%3E%3Cpath d='M9 11V8a3 3 0 0 1 6 0v3'/%3E%3C/svg%3E") center/12px no-repeat}
-.pz-rw.ready{cursor:pointer;background:rgba(181,232,83,.08);box-shadow:inset 0 0 0 1.5px rgba(181,232,83,.55)}
-.pz-rw.ready:hover{background:rgba(181,232,83,.14)}
-.pz-get{font-size:12px;font-weight:800;color:#11160a;background:#b5e853;border-radius:99px;padding:3px 10px}
-.pz-how{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
-.pz-how li{color:var(--muted);font-size:14px;line-height:1.45;padding:14px 16px;border-left:3px solid #7dd3fc;background:linear-gradient(90deg,rgba(125,211,252,.07),transparent)}
-.pz-how b{display:block;font:900 20px/1.1 var(--f-display);color:var(--fg);margin-bottom:4px}
-@media (max-width:980px){.pz-hero{grid-template-columns:1fr;padding:28px 22px}.pz-art{display:none}.pz-how{grid-template-columns:1fr 1fr}.pz-prem{flex-wrap:wrap}}
-@media (max-width:760px){.pz-hero{min-height:0}.pz-hero.has-img{background:linear-gradient(180deg,rgba(8,14,28,.45) 0%,rgba(8,14,28,.82) 38%,rgba(8,14,28,.95) 100%),var(--pzimg) 65% 0/cover}}
-@media (max-width:560px){.pz-big{font-size:54px}.pz-how{grid-template-columns:1fr}.pz-buy{width:100%}}
+/* ===== Пропуск: Winter Ops ===== */
+.pp-hero{position:relative;border-radius:28px;overflow:hidden;min-height:470px;display:flex;align-items:flex-end;padding:44px 48px;margin-bottom:18px;isolation:isolate;
+  background:radial-gradient(70% 90% at 85% 10%,rgba(56,211,255,.25),transparent 60%),linear-gradient(160deg,#0f1b2b,#0a1018)}
+.pp-hero.img{background:linear-gradient(90deg,rgba(6,12,26,.96) 0%,rgba(6,12,26,.78) 34%,rgba(6,12,26,0) 66%),linear-gradient(0deg,rgba(6,12,26,.85),transparent 45%),var(--ppimg) 78% 22%/cover no-repeat}
+.pp-hero::after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;box-shadow:inset 0 0 0 1px rgba(125,211,252,.18);border-radius:inherit}
+.pp-hc{max-width:560px}
+.pp-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.pp-sn{font-weight:800;color:#9fdcff}
+.pp-tm{font-size:13px;font-weight:800;color:#0b1220;background:#9fdcff;border-radius:99px;padding:4px 10px;font-variant-numeric:tabular-nums}
+.pp-hero h1{margin:0 0 26px;font:900 clamp(56px,8.4vw,112px)/.84 var(--f-display);font-style:italic;letter-spacing:-.02em;text-transform:uppercase;
+  background:linear-gradient(180deg,#ffffff 30%,#9fdcff 70%,#b5e853);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 6px 24px rgba(0,0,0,.45))}
+.pp-lvl{display:flex;align-items:center;gap:18px}
+.pp-hex{width:104px;height:104px;flex:none}
+.pp-hex path{fill:rgba(6,12,26,.72);stroke-width:7;stroke-linejoin:round}
+.pp-hex .bg{stroke:rgba(255,255,255,.14)}.pp-hex .fg{fill:none;stroke:#b5e853;filter:drop-shadow(0 0 6px rgba(181,232,83,.6))}
+.pp-hex text{font:900 44px/1 var(--f-display);font-style:italic;fill:#fff}
+.pp-lvt{min-width:0;flex:1;max-width:380px}.pp-lvt>b{display:block;font:900 22px/1.1 var(--f-display);margin-bottom:10px}
+.pp-xp{height:10px;border-radius:99px;background:rgba(255,255,255,.12);overflow:hidden}
+.pp-xp i{display:block;height:100%;width:var(--p);background:linear-gradient(90deg,#7dd3fc,#b5e853);border-radius:inherit}
+.pp-lvt>span{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:8px;font-size:13px;font-weight:700;color:#cfe6f5;font-variant-numeric:tabular-nums}
+.pp-lvt em{font-style:normal;color:#8ea3b5}
+.pp-offer{display:grid;grid-template-columns:150px minmax(0,1fr) auto;gap:28px;align-items:center;border-radius:24px;padding:22px 28px 22px 22px;margin-bottom:34px;
+  background:radial-gradient(60% 140% at 0% 50%,rgba(245,196,81,.22),transparent 60%),linear-gradient(90deg,#1d1709,#15130f 50%,#121212);border:1px solid rgba(245,196,81,.4)}
+.pp-card{width:150px;height:auto;display:block;transform:rotate(-6deg);filter:drop-shadow(0 16px 26px rgba(0,0,0,.6))}
+.pp-oc h2{margin:0 0 12px;font:900 26px/1 var(--f-display);font-style:italic;color:#f5c451}
+.pp-facts{list-style:none;margin:0 0 12px;padding:0;display:flex;gap:26px;flex-wrap:wrap}
+.pp-facts b{display:block;font:900 24px/1 var(--f-display);color:#fff}.pp-facts span{font-size:13px;color:#c9bfa6;font-weight:700}
+.pp-oc p{margin:0;color:#b8ad95;font-size:14px;line-height:1.5;max-width:62ch}
+.pp-buy{text-align:center}.pp-buy>b{display:block;font:900 34px/1 var(--f-display);color:#fff;margin-bottom:10px;white-space:nowrap}
+.pp-btn{position:relative;overflow:hidden;border:0;border-radius:14px;padding:14px 26px;font:900 16px/1 var(--f-display);color:#1a1205;background:linear-gradient(180deg,#ffe07a,#f0aa22);cursor:pointer;white-space:nowrap;box-shadow:0 8px 24px rgba(240,170,34,.3)}
+.pp-btn::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 35%,rgba(255,255,255,.55) 50%,transparent 65%);transform:translateX(-100%);animation:ppShine 3.2s ease-in-out infinite}
+@keyframes ppShine{0%,55%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+.pp-on{display:flex;align-items:center;gap:12px;border-radius:18px;padding:12px 18px;margin-bottom:34px;background:linear-gradient(90deg,rgba(245,196,81,.18),transparent 70%);border:1px solid rgba(245,196,81,.45)}
+.pp-on b{color:#f5c451}.pp-on span:last-child{color:#c9bfa6;font-size:14px}
+.pp-on .pp-tier svg{width:26px;height:26px}
+.pp-rh{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.pp-rh h2{margin:0;font:900 26px/1 var(--f-display);font-style:italic}
+.pp-rt{display:flex;gap:8px;align-items:center}
+.pp-all{border:0;border-radius:12px;padding:11px 18px;font:900 14px/1 var(--f-display);background:#b5e853;color:#11160a;cursor:pointer;box-shadow:0 0 0 4px rgba(181,232,83,.15)}
+.pp-nav{width:42px;height:42px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--fg);font-size:22px;line-height:1;cursor:pointer}
+.pp-nav:hover{background:var(--panel-2)}
+.pp-btn:focus-visible,.pp-all:focus-visible,.pp-nav:focus-visible,.pp-it:focus-visible{outline:2px solid #fff;outline-offset:3px}
+.pp-wrap{display:grid;grid-template-columns:40px minmax(0,1fr);background:linear-gradient(180deg,#121820,#0f1114 48%,#16130c);border-radius:24px;border:1px solid rgba(255,255,255,.06);padding:18px 0}
+.pp-side{display:grid;grid-template-rows:176px 56px 176px}
+.pp-side span{writing-mode:vertical-rl;transform:rotate(180deg);align-self:center;justify-self:center;font:900 13px/1 var(--f-display);letter-spacing:.04em;color:#9fdcff;display:flex;align-items:center;gap:6px}
+.pp-side span.pr{grid-row:3;color:#f5c451}.pp-side svg{width:16px;height:16px;transform:rotate(90deg)}
+.pp-track{overflow-x:auto;scroll-snap-type:x proximity;scrollbar-width:thin;scrollbar-color:#2a3340 transparent;padding:0 16px 8px 4px}
+.pp-cols{position:relative;display:flex;width:max-content}
+.pp-rail{position:absolute;left:76px;right:76px;top:201px;height:6px;border-radius:99px;background:rgba(255,255,255,.08)}
+.pp-rail b{position:absolute;inset:0 auto 0 0;width:var(--fill);border-radius:inherit;background:linear-gradient(90deg,#7dd3fc,#b5e853);box-shadow:0 0 16px rgba(181,232,83,.55)}
+.pp-col{position:relative;width:152px;display:grid;grid-template-rows:176px 56px 176px;justify-items:center;scroll-snap-align:start}
+.pp-col.cur::before{content:"";position:absolute;inset:-8px 6px;border-radius:20px;background:linear-gradient(180deg,rgba(181,232,83,.1),rgba(181,232,83,.04));box-shadow:inset 0 0 0 1px rgba(181,232,83,.35)}
+.pp-node{grid-row:2;align-self:center;position:relative;z-index:1;width:34px;height:34px;border-radius:10px;transform:rotate(45deg);display:grid;place-items:center;background:#171b21;border:2px solid rgba(255,255,255,.14);color:#8b95a1;font:900 13px/1 var(--f-display)}
+.pp-node>i{font-style:normal;transform:rotate(-45deg)}
+.pp-col.big .pp-node{width:40px;height:40px;font-size:15px}
+.pp-col.got .pp-node{background:#1d2a14;border-color:#b5e853;color:#e2fbb1}
+.pp-col.cur .pp-node{background:#b5e853;color:#11160a;border-color:#efffcc;box-shadow:0 0 0 6px rgba(181,232,83,.2)}
+.pp-it{all:unset;box-sizing:border-box;position:relative;width:136px;height:168px;border-radius:14px;overflow:hidden;display:flex;flex-direction:column;align-items:stretch;
+  background:radial-gradient(90% 60% at 50% 100%,color-mix(in srgb,var(--rc) 30%,transparent),transparent 70%),linear-gradient(180deg,#1c2027,#13161b);box-shadow:inset 0 0 0 1px rgba(255,255,255,.07);cursor:default}
+.pp-it.fr{align-self:end}.pp-it.pr{align-self:start;box-shadow:inset 0 0 0 1px rgba(245,196,81,.22)}
+.pp-it.big{box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--rc) 70%,transparent),0 0 26px color-mix(in srgb,var(--rc) 25%,transparent)}
+.pp-art{flex:1;display:grid;place-items:center;min-height:0;padding:10px 10px 0}
+.pp-art img{width:104px;height:104px;object-fit:cover;border-radius:10px;filter:drop-shadow(0 8px 14px rgba(0,0,0,.5))}
+.pp-coin{width:74px;height:74px;filter:drop-shadow(0 6px 10px rgba(0,0,0,.5))}
+.pp-tier{display:grid;place-items:center}.pp-tier svg{width:62px;height:62px;filter:drop-shadow(0 0 14px currentColor)}
+.pp-ic{width:44px;height:44px;fill:none;stroke:var(--rc);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.pp-cos{width:118px;height:92px;display:block;overflow:hidden;border-radius:10px}
+.pp-cos .co-sw{height:92px;cursor:inherit;border-radius:10px}
+.pp-nm{padding:6px 10px 10px;text-align:center}
+.pp-nm b{display:block;font-size:13px;font-weight:800;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pp-nm small{display:block;font-size:11px;color:#8b95a1;font-weight:700;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pp-bar{position:absolute;left:0;right:0;bottom:0;height:4px;background:var(--rc)}
+.pp-more{position:absolute;top:8px;right:8px;font:900 12px/1 var(--f-display);color:#11160a;background:#f5c451;border-radius:6px;padding:3px 6px}
+.pp-st{position:absolute;top:8px;left:8px;width:24px;height:24px;border-radius:8px}
+.pp-st.ok{background:#b5e853 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2311160a' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 12l4 4 8-9'/%3E%3C/svg%3E") center/14px no-repeat}
+.pp-st.lk{background:rgba(0,0,0,.55) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e8edf2' stroke-width='2.4' stroke-linecap='round'%3E%3Crect x='6' y='11' width='12' height='9' rx='2'/%3E%3Cpath d='M9 11V8a3 3 0 0 1 6 0v3'/%3E%3C/svg%3E") center/13px no-repeat}
+.pp-it.lock .pp-art,.pp-it.lock .pp-nm{opacity:.55}
+.pp-it.plock .pp-art{filter:saturate(.75) brightness(.8)}
+.pp-it.done .pp-art,.pp-it.done .pp-nm{opacity:.45}
+.pp-it.ready{cursor:pointer;box-shadow:inset 0 0 0 2px #b5e853,0 0 22px rgba(181,232,83,.35)}
+.pp-it.ready:hover{transform:translateY(-2px)}
+.pp-get{position:absolute;left:10px;right:10px;bottom:12px;text-align:center;font:900 13px/1 var(--f-display);color:#11160a;background:#b5e853;border-radius:8px;padding:8px 0}
+.pp-it.ready .pp-nm{visibility:hidden}
+.pp-xpw{list-style:none;margin:16px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+.pp-xpw li{display:flex;align-items:baseline;gap:6px;background:var(--panel);border-radius:10px;padding:8px 12px;color:var(--muted);font-size:13px;font-weight:700}
+.pp-xpw b{font:900 15px/1 var(--f-display);color:#b5e853}
+@media (max-width:980px){.pp-offer{grid-template-columns:1fr auto}.pp-card{display:none}}
+@media (max-width:760px){.pp-hero{min-height:0;padding:28px 22px}.pp-hero.img{background:linear-gradient(180deg,rgba(6,12,26,.3) 0%,rgba(6,12,26,.8) 45%,rgba(6,12,26,.97)),var(--ppimg) 70% 0/cover no-repeat;padding-top:200px}
+  .pp-offer{grid-template-columns:1fr;padding:20px}.pp-buy{display:flex;align-items:center;justify-content:space-between;gap:12px}.pp-buy>b{margin:0}.pp-hex{width:84px;height:84px}}
+@media (prefers-reduced-motion:reduce){.pp-btn::after{animation:none}.pp-it.ready:hover{transform:none}}
 
 
 @media (max-width:520px){.q-card{padding:14px;gap:6px 12px}.q-ic{width:40px;height:40px}.q-n{font-size:15px}.q-rw{font-size:14px}}
@@ -3957,19 +3978,24 @@ document.querySelectorAll("#clanPeriod button").forEach(b=>b.onclick=()=>{period
 $("clanQ").oninput=drawClans;
 document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.matches(".ccard[data-clan]"))openClan(+e.target.dataset.clan)});
 var CLN=null,clBack="clans";
-function openClan(i){if(!clans[i])return;CLN=i;if(curView!=="clan")clBack=curView;go("clan")}
-function drawClanPage(){const c=clans[CLN];if(!c)return;const lead=c.members[0],k=ranked().indexOf(c),pc=k<3?PLACE[k][0]:c.c,mine=c===myClan;
+var clMgr=false;
+function openClan(i){if(!clans[i])return;CLN=i;clMgr=false;if(curView!=="clan")clBack=curView;go("clan")}
+// лидер ли я этого клана (на сервере — по данным сервера)
+function isClanLead(c){if(!c||c!==myClan)return false;if(SRV)return!!(CLS&&CLS.my&&CLS.my.lead);return c.members[0]===ME}
+function drawClanPage(){const c=clans[CLN];if(!c)return;const lead=c.members[0],k=ranked().indexOf(c),pc=k<3?PLACE[k][0]:c.c,mine=c===myClan,boss=isClanLead(c);
+  if(clMgr&&boss){drawClanMgr(c);return}clMgr=false;
   const cov=c.cover?`background-image:linear-gradient(180deg,rgba(14,12,13,.15),rgba(14,12,13,.92)),url(${c.cover})`:`background:radial-gradient(90% 120% at 85% 0%,color-mix(in srgb,${c.c} 45%,transparent),transparent 60%),repeating-linear-gradient(135deg,rgba(255,255,255,.035) 0 2px,transparent 2px 14px),var(--panel)`;
   $("clBody").innerHTML=`<button class="pf-back" id="clBk">${svgI(PI.back)}Назад</button>
   <section class="cl-hero" style="${cov}"><span class="ava" style="${avaStyle(c)};--pc:${pc}">${avaHTML(c)}</span>
     <div class="cl-id"><div class="pf-nm"><h1>${esc(c.n)}</h1><span class="pf-lvl" style="--pc:${pc}">#${k+1} в рейтинге</span></div>
     <div class="pf-tags"><span class="pf-role"><i style="background:${c.c}"></i>[${esc(c.t)}]</span>${lead?`<button class="pf-role" data-p="${esc(lead.n)}">Лидер: ${esc(lead.n)}</button>`:""}</div>
     <p>${esc(c.d)}</p></div>
-    ${mine?`<span class="cl-mine">Твой клан</span>`:`<button class="steam" id="joinClan">${SRV&&CLS&&CLS.myApps.includes(c.id)?"Отменить заявку":"Подать заявку"}</button>`}</section>
+    ${boss?`<button class="steam" type="button" id="clMgrOpen">Управление кланом</button>`:mine?`<span class="cl-mine">Твой клан</span>`:`<button class="steam" id="joinClan">${SRV&&CLS&&CLS.myApps.includes(c.id)?"Отменить заявку":"Подать заявку"}</button>`}</section>
   <div class="pf-stats"><div><small>Очки за месяц</small><b>${fmt(c.month)}</b></div><div><small>Очки за всё время</small><b>${fmt(c.pts)}</b></div><div><small>Участников</small><b>${svgI('<circle cx="9" cy="8" r="3.5"/><path d="M2 21c0-4 3-7 7-7s7 3 7 7M16 4a3.5 3.5 0 0 1 0 7M18 14c2.4.7 4 3.2 4 7"/>')}${c.members.length}/${c.slots||30}</b></div><div><small>Средний У/С</small><b>${c.members.length?c.kd.toFixed(2):"—"}</b></div><div><small>Побед в месяце</small><b>${c.wins}</b></div></div>
-  ${mine?`<section class="pf-panel"><h2>Казна клана</h2><div id="clanBankBox">${cosClan()}</div></section>`:""}<section class="pf-panel"><h2>Участники</h2>${c.members.length?`<div class="cl-mem">${c.members.map((m,n)=>`<button class="cl-row" data-p="${esc(m.n)}"><span class="n">${n+1}</span><span class="who"><i class="av" style="background:${m.c}">${ini(m.n)}</i><span>${esc(m.n)}</span>${m===lead?'<span class="lead">Лидер</span>':""}</span><span class="k">У/С ${m.kd.toFixed(2)}</span>${ptsChip(m)}<span class="pt">#${placeOf(m)}</span></button>`).join("")}</div>`:`<div class="pf-empty">Пока никого</div>`}</section>`;
-  if(SRV)$("clBody").insertAdjacentHTML("beforeend",srvClanExtra(c,mine));
+  <section class="pf-panel"><h2>Участники</h2>${c.members.length?`<div class="cl-mem">${c.members.map((m,n)=>`<button class="cl-row" data-p="${esc(m.n)}"><span class="n">${n+1}</span><span class="who"><i class="av" style="background:${m.c}">${ini(m.n)}</i><span>${esc(m.n)}</span>${m===lead?'<span class="lead">Лидер</span>':""}</span><span class="k">У/С ${m.kd.toFixed(2)}</span>${ptsChip(m)}<span class="pt">#${placeOf(m)}</span></button>`).join("")}</div>`:`<div class="pf-empty">Пока никого</div>`}</section>`;
+  if(SRV&&mine&&!boss)$("clBody").insertAdjacentHTML("beforeend",srvClanExtra(c,mine,"leave"));
   $("clBk").onclick=()=>go(clBack&&clBack!=="clan"?clBack:"clans");
+  const mg=$("clMgrOpen");if(mg)mg.onclick=()=>{clMgr=true;drawClanPage();window.scrollTo(0,0)};
   const j=$("joinClan");if(j)j.onclick=()=>{if(!logged){toast("Сначала войди через Steam");return}if(SRV){const has=CLS&&CLS.myApps.includes(c.id);srvClan(has?"/api/clans/cancel":"/api/clans/apply",{id:c.id},has?"Заявка отменена":`Заявка в клан [${c.t}] отправлена лидеру`,j);return}if(myClan){toast("Ты уже в клане");return}if(c.members.length>=(c.slots||30)){toast(`В клане нет мест: максимум ${c.slots||30} человек`);return}toast(`Заявка в клан [${c.t}] отправлена лидеру`);j.disabled=true;j.textContent="Заявка отправлена"}}
 document.addEventListener("click",e=>{const c=e.target.closest("[data-clan]");if(c)openClan(+c.dataset.clan)});
 
@@ -4822,34 +4848,47 @@ function psRw(rw){if(rw.t==="tk")return{ic:"tk",c:"#f5c451",n:`${fmt(rw.v)} ТК
   if(rw.t==="case"){const c=CASES.find(x=>x.k===rw.k);return{ic:"case",c:c?c.c:"#b5e853",n:c?`«${c.n}»`:"Кейс",k:"Кейс",img:(typeof CASEIMG!=="undefined"&&CASEIMG[rw.k])||""}}
   if(rw.t==="cos"){const it=cosI(rw.id);return{ic:"cos",c:"#38d3ff",n:it?it.n:"Оформление",k:it?(CCAT[it.cat]||["Оформление"])[0]:"Оформление"}}
   if(rw.t==="status")return{ic:"status",c:PS_TC[rw.tier]||"#f5c451",n:`${rw.tier} на ${rw.d} ${plural(rw.d,"день","дня","дней")}`,k:"Статус"};return{ic:"tk",c:"#888",n:"",k:""}}
-// награда уровня: медальон с иконкой, без квадратной плитки
+// ===== пропуск: предметы наград в стиле инвентаря CS2 =====
+const PP_RAR=p=>p<1000?"#4b69ff":p<3000?"#8847ff":p<8000?"#d32ce6":p<20000?"#eb4b4b":"#e4ae39";
+const PP_COIN='<svg class="pp-coin" viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="ppg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe38a"/><stop offset="1" stop-color="#d99a1c"/></linearGradient></defs><ellipse cx="32" cy="46" rx="20" ry="7" fill="#a8720f"/><rect x="12" y="38" width="40" height="8" fill="#c88a17"/><ellipse cx="32" cy="38" rx="20" ry="7" fill="url(#ppg)"/><ellipse cx="32" cy="32" rx="20" ry="7" fill="#b37b12"/><rect x="12" y="24" width="40" height="8" fill="#d6981c"/><ellipse cx="32" cy="24" rx="20" ry="7" fill="url(#ppg)"/><text x="32" y="28" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-weight="900" font-size="9" fill="#6b4300">ТК</text></svg>';
+const PP_CROWN='<svg class="pp-crown" viewBox="0 0 64 64" aria-hidden="true"><path d="M10 46 6 20l15 12 11-20 11 20 15-12-4 26z" fill="currentColor"/><rect x="10" y="49" width="44" height="6" rx="2" fill="currentColor" opacity=".8"/><circle cx="32" cy="12" r="3.5" fill="currentColor"/></svg>';
+function ppInfo(rw){
+  if(rw.t==="case"){const c=CASES.find(x=>x.k===rw.k),pr=c?c.p:0;return{rc:PP_RAR(pr),n:c?c.n:"Кейс",k:"Кейс",art:CASEIMG[rw.k]?`<img src="${CASEIMG[rw.k]}" alt="" loading="lazy" decoding="async">`:`<svg viewBox="0 0 24 24" class="pp-ic">${PS_IC.case}</svg>`,val:pr}}
+  if(rw.t==="tk")return{rc:rw.v>=1000?"#5e98d9":"#b0c3d9",n:`${fmt(rw.v)} ТК`,k:"Тащер Коины",art:PP_COIN,val:rw.v};
+  if(rw.t==="status"){const c=PS_TC[rw.tier]||"#f5c451";return{rc:c,n:rw.tier,k:`Статус · ${rw.d} ${plural(rw.d,"день","дня","дней")}`,art:`<span class="pp-tier" style="color:${c}">${PP_CROWN}</span>`,val:0}}
+  if(rw.t==="cos"){const it=cosI(rw.id);const kind=it?(CCAT[it.cat]||["Оформление"])[0]:"Оформление";
+    return{rc:it&&["kill","frame","bg"].includes(it.cat)?"#d32ce6":"#8847ff",n:it?it.n:"Оформление",k:kind,art:it?`<span class="pp-cos">${cosSwatch(it)}</span>`:`<svg viewBox="0 0 24 24" class="pp-ic">${PS_IC.cos}</svg>`,val:0}}
+  return{rc:"#888",n:"",k:"",art:"",val:0}}
 function psCell(tr,lv,list,me){const done=me&&me.claimed.includes(tr+lv),reached=me&&me.lv>=lv,plock=tr==="p"&&!(me&&me.prem),ready=reached&&!done&&!plock;
-  const parts=list.map(psRw),a=parts[0],big=lv%5===0;
-  const st=done?"done":ready?"ready":plock?"plock":reached?"":"lock";
-  const tag=ready?`button type="button" data-psclaim="${tr}${lv}" title="Забрать награду уровня ${lv}"`:"div";
-  return`<${tag} class="pz-rw ${tr==="p"?"pr":"fr"} ${st}${big?" big":""}" style="--ic:${a.c}"><span class="pz-med${a.img?" pz-img":""}"${a.img?` style="background-image:url(${a.img})"`:""}>${a.img?"":`<svg viewBox="0 0 24 24" aria-hidden="true">${PS_IC[a.ic]}</svg>`}${done?'<i class="pz-ok" aria-label="Получено"></i>':plock||!reached?'<i class="pz-lk" aria-hidden="true"></i>':""}</span><b>${parts.map(x=>esc(x.n)).join(" + ")}</b>${ready?'<span class="pz-get">Забрать</span>':`<small>${esc(a.k)}</small>`}</${ready?"button":"div"}>`}
+  const a=ppInfo(list[0]),more=list.length-1,big=lv%5===0;
+  const st=done?" done":ready?" ready":plock?" plock":reached?"":" lock";
+  const tag=ready?`button type="button" data-psclaim="${tr}${lv}" aria-label="Забрать: ${esc(a.n)}"`:"div";
+  return`<${tag} class="pp-it ${tr==="p"?"pr":"fr"}${st}${big?" big":""}" style="--rc:${a.rc}"><span class="pp-art">${a.art}</span>${more?`<span class="pp-more">+${more}</span>`:""}<span class="pp-nm"><b>${esc(a.n)}</b><small>${esc(a.k)}</small></span><i class="pp-bar"></i>${done?'<span class="pp-st ok" aria-label="Получено"></span>':plock||!reached?'<span class="pp-st lk" aria-hidden="true"></span>':""}${ready?'<span class="pp-get">Забрать</span>':""}</${ready?"button":"div"}>`}
+// шестигранник уровня с кольцом прогресса
+function ppHex(lv,pct){const P="M60 6 107 33v54L60 114 13 87V33z",L=330;return`<svg class="pp-hex" viewBox="0 0 120 120" aria-hidden="true"><path d="${P}" class="bg"/><path d="${P}" class="fg" style="stroke-dasharray:${L};stroke-dashoffset:${(L*(1-pct/100)).toFixed(1)}"/><text x="60" y="74" text-anchor="middle">${lv}</text></svg>`}
 function drawPass(scroll){const box=$("psBody");if(!box)return;if(!PS&&SRV&&SRV.pass)PS=SRV.pass;const p=PS;
   if(!SRV||!p){box.innerHTML=`<div class="page-head"><h1>Боевой пропуск</h1><p>Сезонный пропуск работает на сайте с игровым сервером.</p></div>`;return}
   if(!p.season){box.innerHTML=`<div class="page-head"><h1>Боевой пропуск</h1><p>${p.next?`Следующий сезон «${esc(p.next.n)}» начнётся ${new Date(p.next.from).toLocaleDateString("ru-RU")}.`:"Сезон закончился. Новый скоро."}</p></div>`;return}
   const me=p.me,s=p.season,left=Math.max(0,s.to-Date.now()),days=Math.floor(left/864e5),hrs=Math.floor(left%864e5/36e5);
-  const isWinter=/зим|winter/i.test(s.n),lv=me?me.lv:0,pct=me?(me.lv>=p.levels?100:Math.round(me.into/p.xpLevel*100)):0;
-  // заполнение трассы: до текущего уровня + доля опыта к следующему
-  const fill=me?Math.min(100,((Math.max(0,lv-1)+(lv>=p.levels?0:me.into/p.xpLevel))/(p.levels-1))*100):0;
-  const cols=Array.from({length:p.levels},(_,i)=>{const l=i+1;return`<div class="pz-col${lv===l?" cur":""}${lv>=l?" got":""}${l%5===0?" big":""}" data-pslv="${l}">${psCell("f",l,p.rewards.free[i],me)}<span class="pz-node">${l}</span>${psCell("p",l,p.rewards.prem[i],me)}</div>`}).join("");
-  box.innerHTML=`<section class="pz-hero${isWinter?" winter has-img":""}"${isWinter?' style="--pzimg:url(/assets/pass-hero.jpg?v=7e596ea2)"':""} aria-label="Сезонный пропуск ${esc(s.n)}">
-     <div class="pz-copy"><span class="pz-season">${esc(s.n)} · ещё ${days} ${plural(days,"день","дня","дней")} ${hrs} ч</span>
-       <h1>${isWinter?'Зимняя операция<span>Winter Ops</span>':esc(s.n)}</h1>
-       <p>Играй на сервере и выполняй задания — опыт копится сам. Каждый уровень открывает награду, премиум-пропуск добавляет вторую.</p>
-       <div class="pz-lvl"><span class="pz-big">${lv}</span><div class="pz-lvi"><b>${me?(lv>=p.levels?"Максимальный уровень":`Уровень ${lv} из ${p.levels}`):"Войди через Steam, чтобы получать опыт"}</b>
-         <div class="pz-xp"><i style="--p:${pct}%"></i></div>
-         <span>${me?(lv>=p.levels?"Все уровни сезона пройдены":`${fmt(me.into)} из ${fmt(p.xpLevel)} опыта до уровня ${lv+1}`):""}${me?` · за игру сегодня ${fmt(me.today)} из ${fmt(p.dayCap)}`:""}</span></div></div></div>
-     </section>
-   ${me&&me.prem?`<div class="pz-prem on"><span class="pz-crown" aria-hidden="true"><svg viewBox="0 0 24 24">${PS_IC.status}</svg></span><div><b>Премиум-пропуск активен</b><span>Открыты награды обеих веток на всех ${p.levels} уровнях</span></div></div>`
-     :`<div class="pz-prem"><span class="pz-crown" aria-hidden="true"><svg viewBox="0 0 24 24">${PS_IC.status}</svg></span><div><b>Премиум-пропуск</b><span>Вторая ветка наград на всех ${p.levels} уровнях: кейсы «Огненный» и «Ножевой», ELITE и LEGEND на 7 дней, на 50-м — KING на 14 дней и рамка «Зима 2026». Награды пройденных уровней откроются сразу.</span></div>${me?`<button class="pz-buy" type="button" id="psBuy">Купить за ${fmt(p.price)} ₽</button>`:`<button class="steam" type="button" data-login>Войти через Steam</button>`}</div>`}
-   <section class="pz-road"><div class="pz-rh"><h2>Награды сезона</h2><div class="pz-rt">${me&&me.unclaimed?`<button class="pz-all" type="button" id="psAll">Забрать всё · ${me.unclaimed}</button>`:""}<button class="pz-nav" type="button" data-psnav="-1" aria-label="Назад по уровням">‹</button><button class="pz-nav" type="button" data-psnav="1" aria-label="Вперёд по уровням">›</button></div></div>
-     <div class="pz-wrap"><div class="pz-side"><span>Бесплатно</span><span class="pr">Премиум</span></div>
-       <div class="pz-track" id="psTrack" style="--fill:${fill}%"><div class="pz-cols"><i class="pz-rail" aria-hidden="true"><b></b></i>${cols}</div></div></div></section>
-   <ul class="pz-how"><li><b>+${p.xp.kill}</b> опыта за убийство игрока, +${p.xp.hs} в голову, бот +${p.xp.killBot}</li><li><b>+${p.xp.roundWin} / +${p.xp.minute}</b> за выигранный раунд и минуту в игре</li><li><b>+${p.xpQuest.easy}…${p.xpQuest.hard}</b> за задания дня, +${p.xpQuest.all} за все три, +${p.xpQuest.week||800} за задание недели</li><li><b>${fmt(p.xpLevel)}</b> опыта — один уровень пропуска</li></ul>`;
+  const isWinter=/зим|winter/i.test(s.n),lv=me?me.lv:0,max=me&&lv>=p.levels,pct=me?(max?100:Math.round(me.into/p.xpLevel*100)):0;
+  const fill=me?Math.min(100,((Math.max(0,lv-1)+(max?0:me.into/p.xpLevel))/(p.levels-1))*100):0;
+  const pc=p.rewards.prem.flat(),cases=pc.filter(r=>r.t==="case"),caseVal=cases.reduce((t,r)=>{const c=CASES.find(x=>x.k===r.k);return t+(c?c.p:0)},0);
+  const tiers=[...new Set(pc.filter(r=>r.t==="status").map(r=>r.tier))];
+  const cols=Array.from({length:p.levels},(_,i)=>{const l=i+1;return`<div class="pp-col${lv===l?" cur":""}${lv>=l?" got":""}${l%5===0?" big":""}" data-pslv="${l}">${psCell("f",l,p.rewards.free[i],me)}<span class="pp-node"><i>${l}</i></span>${psCell("p",l,p.rewards.prem[i],me)}</div>`}).join("");
+  const xpLine=me?(max?"Все уровни пройдены":`${fmt(me.into)} / ${fmt(p.xpLevel)} XP`):"";
+  box.innerHTML=`<section class="pp-hero${isWinter?" img":""}"${isWinter?' style="--ppimg:url(/assets/pass-hero.jpg?v=7e596ea2)"':""}>
+     <div class="pp-hc"><div class="pp-top"><span class="pp-sn">${esc(s.n)}</span><span class="pp-tm">${days} д ${hrs} ч до конца</span></div>
+       <h1>${isWinter?"Winter<br>Ops":esc(s.n)}</h1>
+       <div class="pp-lvl">${ppHex(lv,pct)}<div class="pp-lvt"><b>${me?(max?"Максимальный уровень":`Уровень ${lv}`):"Войди, чтобы качать пропуск"}</b>${me?`<div class="pp-xp"><i style="--p:${pct}%"></i></div><span>${xpLine}<em>Сегодня за игру ${fmt(me.today)} / ${fmt(p.dayCap)}</em></span>`:`<button class="steam" type="button" data-login>Войти через Steam</button>`}</div></div></div></section>
+   ${me&&me.prem?`<div class="pp-on"><span class="pp-tier" style="color:#f5c451">${PP_CROWN}</span><b>Премиум активен</b><span>Обе ветки открыты на всех ${p.levels} уровнях</span></div>`
+     :`<section class="pp-offer"><img class="pp-card" src="/assets/winter-ops-card.avif" alt="" width="440" height="587" decoding="async" loading="lazy">
+       <div class="pp-oc"><h2>Премиум-пропуск</h2><ul class="pp-facts"><li><b>${cases.length}</b><span>кейсов</span></li><li><b>${caseVal>=1e3?fmt(Math.round(caseVal/1e3))+" тыс.":fmt(caseVal)}</b><span>ТК в кейсах</span></li><li><b>${tiers.join(" · ")}</b><span>статусы</span></li></ul>
+       <p>Ножевые и перчаточные кейсы, King Case и рамка «Зима 2026» на 50-м уровне. Пройденные уровни открываются сразу.</p></div>
+       <div class="pp-buy"><b>${fmt(p.price)} ₽</b>${me?`<button class="pp-btn" type="button" id="psBuy">Купить премиум</button>`:`<button class="pp-btn" type="button" data-login>Войти через Steam</button>`}</div></section>`}
+   <section class="pp-road"><div class="pp-rh"><h2>Награды</h2><div class="pp-rt">${me&&me.unclaimed?`<button class="pp-all" type="button" id="psAll">Забрать всё · ${me.unclaimed}</button>`:""}<button class="pp-nav" type="button" data-psnav="-1" aria-label="Назад по уровням">‹</button><button class="pp-nav" type="button" data-psnav="1" aria-label="Вперёд по уровням">›</button></div></div>
+     <div class="pp-wrap"><div class="pp-side"><span>Бесплатно</span><span class="pr">${PP_CROWN}Премиум</span></div>
+       <div class="pp-track" id="psTrack"><div class="pp-cols" style="--fill:${fill}%"><i class="pp-rail" aria-hidden="true"><b></b></i>${cols}</div></div></div></section>
+   <ul class="pp-xpw"><li><b>+${p.xp.kill}</b>убийство</li><li><b>+${p.xp.hs}</b>в голову</li><li><b>+${p.xp.roundWin}</b>победа в раунде</li><li><b>+${p.xp.minute}</b>минута в игре</li><li><b>+${p.xpQuest.easy}–${p.xpQuest.week||800}</b>задания</li><li><b>${fmt(p.xpLevel)}</b>XP на уровень</li></ul>`;
   if(scroll){const tr=$("psTrack"),c=tr&&tr.querySelector(`[data-pslv="${Math.max(1,lv-1)}"]`);if(tr&&c)tr.scrollLeft=c.offsetLeft-12}}
 document.addEventListener("click",e=>{const b=e.target.closest("[data-psnav]");if(!b)return;const tr=$("psTrack");if(tr)tr.scrollBy({left:+b.dataset.psnav*tr.clientWidth*0.8,behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"})});
 async function psClaim(body,btn){if(!needLogin())return;if(btn)btn.disabled=true;
@@ -5488,9 +5527,15 @@ async function srvClan(url,body,msg,btn){if(btn)btn.disabled=true;
     if(curView==="clan"&&clans[CLN])keepScroll(drawClanPage);else if(curView==="me")keepScroll(drawMe);else cosRefresh();if(msg)toast(msg)}
   catch(e){toast(e.message)}finally{if(btn&&btn.isConnected)btn.disabled=false}}
 // панель на странице клана: заявки, участники, описание (лидер) и выход из клана
-function srvClanExtra(c,mine){if(!mine||!CLS||!CLS.my)return"";const lead=CLS.my.lead,me=String(ME.steamid);
+// экран «Управление кланом»: казна, улучшения, заявки, участники, описание — только у лидера
+function drawClanMgr(c){
+  $("clBody").innerHTML=`<button class="pf-back" id="clMgrBk">${svgI(PI.back)}К клану</button>
+  <div class="page-head"><h1>Управление кланом</h1><p>[${esc(c.t)}] ${esc(c.n)} — видишь только ты как лидер.</p></div>
+  <section class="pf-panel"><h2>Казна и улучшения</h2><div id="clanBankBox">${cosClan()}</div></section>${SRV?srvClanExtra(c,true,"mgr"):""}`;
+  $("clMgrBk").onclick=()=>{clMgr=false;drawClanPage();window.scrollTo(0,0)}}
+function srvClanExtra(c,mine,mode){if(!mine||!CLS||!CLS.my)return"";const lead=CLS.my.lead,me=String(ME.steamid);
   let h="";
-  if(lead){h+=`<section class="pf-panel"><h2>Заявки в клан</h2>${CLS.my.apps.length?`<div class="cl-mem">${CLS.my.apps.map(a=>`<div class="cl-row"><span class="who"><span>${esc(a.n||"Игрок")}</span></span><span class="k">${new Date(a.t).toLocaleDateString("ru-RU")}</span><span class="cl-act"><button type="button" class="steam" data-capp="${a.id}" data-acc="1">Принять</button><button type="button" class="ghost" data-capp="${a.id}" data-acc="0">Отклонить</button></span></div>`).join("")}</div>`:`<div class="pf-empty">Новых заявок нет</div>`}</section>`;
+  if(lead&&mode==="mgr"){h+=`<section class="pf-panel"><h2>Заявки в клан</h2>${CLS.my.apps.length?`<div class="cl-mem">${CLS.my.apps.map(a=>`<div class="cl-row"><span class="who"><span>${esc(a.n||"Игрок")}</span></span><span class="k">${new Date(a.t).toLocaleDateString("ru-RU")}</span><span class="cl-act"><button type="button" class="steam" data-capp="${a.id}" data-acc="1">Принять</button><button type="button" class="ghost" data-capp="${a.id}" data-acc="0">Отклонить</button></span></div>`).join("")}</div>`:`<div class="pf-empty">Новых заявок нет</div>`}</section>`;
     h+=`<section class="pf-panel"><h2>Управление участниками</h2><div class="cl-mem">${(c.mem||[]).filter(m=>m.sid!==me).map(m=>`<div class="cl-row"><span class="who"><span>${esc(m.n)}</span></span><span class="cl-act"><button type="button" class="ghost" data-clead="${m.id}">Сделать лидером</button><button type="button" class="ghost" data-ckick="${m.id}">Исключить</button></span></div>`).join("")||`<div class="pf-empty">Кроме тебя в клане пока никого</div>`}</div></section>`;
     h+=`<section class="pf-panel"><h2>Описание клана</h2><div class="co-tagin"><input id="clDescIn" maxlength="200" value="${esc(c.d)}" autocomplete="off"><button type="button" class="steam" data-cdesc>Сохранить</button></div></section>`}
   const alone=(c.mem||[]).length<=1;
