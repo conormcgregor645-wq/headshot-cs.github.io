@@ -289,7 +289,7 @@ const call = async (cookie, p, body, h = {}) => { const r = await fetch(B + p, b
     await new Promise(z => setTimeout(z, 900));
     { const c = STYLE.compose({ tier: "VIP", clanTag: "TST", clanColor: "#5aa9ff" }); ok(c.chat === "{silver}[VIP] {lightblue}[TST]" && c.score === "VIP", "без своего тега в чате — тег клана", c); }
     // эффекты в игре: эффект и звук убийства, трассеры, след гранат, цвет дыма
-    await call(O4, "/api/admin/balance", { user: wid, cur: "rub", delta: 500, reason: "тест эффектов" });
+    await call(O4, "/api/admin/balance", { user: wid, cur: "rub", delta: 1000, reason: "тест эффектов" });
     for (const id of ["kl_bolt", "sd_coin", "tc_3", "tr_2", "sm_1"]) { r = await call(W, "/api/shop/cos", { id }); ok(r.s === 200 && Object.values(r.j.cos.eq).includes(id), "куплено и надето: " + id, r.j); }
     await new Promise(z => setTimeout(z, 900));
     { const c = STYLE.compose({ tier: "VIP", clanTag: "TST", clanColor: "#5aa9ff", killFx: "bolt", killSnd: "coin", trailHex: "#38d3ff", tracerHex: "#f5c451", smokeHex: "#ff6b8b" }); ok(c.killFx === "bolt" && c.killSnd === "coin" && c.trail === "56,211,255" && c.tracer === "245,196,81" && c.smoke === "255,107,139", "эффекты, звук, трассеры, след гранат и дым уходят в игру", c); }
