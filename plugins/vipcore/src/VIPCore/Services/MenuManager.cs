@@ -67,8 +67,7 @@ public class MenuManager
 
     private int SortKey(string name)
     {
-        // снаряжение всегда идёт раньше бонусов, чтобы вкладки не дробились
-        return (EquipmentFeatures.Contains(name) ? 0 : 10000) + RawSortKey(name);
+        return RawSortKey(name);
     }
 
     private int RawSortKey(string name)
@@ -97,15 +96,11 @@ public class MenuManager
             .OrderBy(f => SortKey(f.Name))
             .ThenBy(f => f.Name);
 
-        string? tab = null;
         foreach (var feature in features)
         {
-            // TASHER: вкладки, как в меню закупки — «Снаряжение» и «Бонусы»
-            if (menu is VIPCore.Menus.TasherMenu tasher)
-            {
-                var t = EquipmentFeatures.Contains(feature.Name) ? "Снаряжение" : "Бонусы";
-                if (t != tab) { tasher.Tab(t); tab = t; }
-            }
+            // TASHER: снаряжение (HP, броня, сапёр, гранаты, шприц, Zeus) выдаётся автоматически и в меню не показывается —
+            // в меню только бонусы, которые можно включать и выключать
+            if (EquipmentFeatures.Contains(feature.Name)) continue;
 
             var state = vipPlayer.FeatureStates.GetValueOrDefault(feature.Name, FeatureState.NoAccess);
 
