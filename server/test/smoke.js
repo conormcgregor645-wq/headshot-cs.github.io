@@ -338,6 +338,7 @@ const call = async (cookie, p, body, h = {}) => { const r = await fetch(B + p, b
   // владельцы берутся из настроек: после перезапуска с другим списком роли меняются
   await new Promise(z => { srv.once("exit", z); srv.kill(); }); srv = start("76561190000000002"); await up();
   const A2 = await login("76561190000000001"), P2 = await login("76561190000000002");
+  r = await call(P2, "/api/cases/open", { k: "army", n: 1, free: true }); ok(r.s === 409, "без кейсов из пропуска бесплатно не открыть", r);
   r = await call(A2, "/api/me"); ok(r.j.user && r.j.user.role === "player", "убранный из настроек владелец теряет права", r.j.user && r.j.user.role);
   r = await call(P2, "/api/me"); ok(r.j.user && r.j.user.role === "owner", "новый владелец из настроек получает права", r.j.user && r.j.user.role);
   r = await call(A2, "/api/admin/users"); ok(r.s === 403, "бывший владелец не видит админку", r.s);

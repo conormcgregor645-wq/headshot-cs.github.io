@@ -35,13 +35,20 @@ public class StyleConfig : BasePluginConfig
         ["8bit"] = "sounds/ui/armsrace_level_up.vsnd",
         ["coin"] = "sounds/ui/coin_pickup_01.vsnd",
     };
-    // звук MVP раунда: код с сайта -> файл звука из игры (слышат все на сервере)
-    [JsonPropertyName("MvpSounds")] public Dictionary<string, string> MvpSounds { get; set; } = new()
+    // звук MVP раунда: код с сайта -> MVP-тема музыкального набора из самой игры (слышат все на сервере).
+    // Пути — как у наборов CS:GO (music/<набор>/roundmvpanthem_01); если в игре путь другой, его можно поправить здесь, в конфиге.
+    [JsonPropertyName("MvpSounds")] public Dictionary<string, string> MvpSounds { get; set; } = DefaultMvpSounds();
+    public static Dictionary<string, string> DefaultMvpSounds() => new()
     {
-        ["legend"] = "sounds/ui/item_drop6_ancient.vsnd",
-        ["level"] = "sounds/ui/armsrace_level_up.vsnd",
-        ["alert"] = "sounds/ui/bonus_alert_start.vsnd",
-        ["wops"] = "sounds/ui/item_drop4_mythical.vsnd",
+        ["csgo"] = "sounds/music/valve_csgo_01/roundmvpanthem_01.vsnd", // Valve — CS:GO
+        ["crimson"] = "sounds/music/danielsadowski_01/roundmvpanthem_01.vsnd", // Daniel Sadowski — Crimson Assault
+        ["sharpened"] = "sounds/music/noisia_01/roundmvpanthem_01.vsnd", // Noisia — Sharpened
+        ["highnoon"] = "sounds/music/feedme_01/roundmvpanthem_01.vsnd", // Feed Me — High Noon
+        ["iam"] = "sounds/music/awolnation_01/roundmvpanthem_01.vsnd", // AWOLNATION — I Am
+        ["diamonds"] = "sounds/music/mordfustang_01/roundmvpanthem_01.vsnd", // Mord Fustang — Diamonds
+        ["moments"] = "sounds/music/darude_01/roundmvpanthem_01.vsnd", // Darude — Moments
+        ["disgusting"] = "sounds/music/beartooth_01/roundmvpanthem_01.vsnd", // Beartooth — Disgusting
+        ["wops"] = "sounds/music/midnightriders_01/roundmvpanthem_01.vsnd", // Winter Ops (эксклюзив пропуска): Midnight Riders — All I Want for Christmas
     };
     // UPD: не используется — приветствие без звука. Оставлено, чтобы старые конфиги читались без ошибок.
     [JsonPropertyName("GreetSounds")] public Dictionary<string, string> GreetSounds { get; set; } = new()
@@ -57,7 +64,7 @@ public class StyleConfig : BasePluginConfig
     [JsonPropertyName("GreetCooldownMinutes")] public int GreetCooldownMinutes { get; set; } = 15;
     [JsonPropertyName("Site")] public string Site { get; set; } = "tashercs.ru";
     // ограничение на число лучей эффектов одновременно (защита от перегрузки сервера)
-    [JsonPropertyName("MaxBeams")] public int MaxBeams { get; set; } = 160;
+    [JsonPropertyName("MaxBeams")] public int MaxBeams { get; set; } = 320;
     // особые раунды и серии убийств
     [JsonPropertyName("FunEnabled")] public bool FunEnabled { get; set; } = true;
     [JsonPropertyName("SpecialEveryMin")] public int SpecialEveryMin { get; set; } = 2;
@@ -90,7 +97,12 @@ public partial class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
     private int _loading;
     private volatile bool _fxColumns; // в таблице есть колонки эффектов
 
-    public void OnConfigParsed(StyleConfig config) => Config = config;
+    public void OnConfigParsed(StyleConfig config)
+    {
+        // новые звуки MVP добавляются и в старый конфиг (свои правки владельца не трогаем)
+        foreach (var (k, v) in StyleConfig.DefaultMvpSounds()) config.MvpSounds.TryAdd(k, v);
+        Config = config;
+    }
 
     private string ConnString => new MySqlConnectionStringBuilder
     {
@@ -371,7 +383,7 @@ public partial class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
         var style = controller.IsValid && !controller.IsBot ? StyleOf(controller) : null;
         if (style == null) return;
         if (isSmoke) ApplySmoke(new CSmokeGrenadeProjectile(g.Handle), style.Smoke);
-        if (style.Trail.Length > 0 && TryColor(style.Trail, out var col)) StartTrail(g, col);
+        if (style.Trail.Length > 0 && TryColor(style.Trail, out var col)) StartTrail(g, col, controller.SteamID);
     }
 
     private static void ApplySmoke(CSmokeGrenadeProjectile g, string smoke)

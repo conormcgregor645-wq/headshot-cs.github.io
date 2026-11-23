@@ -219,6 +219,8 @@ function open(file) {
     `CREATE TABLE ach_paid(sid TEXT NOT NULL, name TEXT NOT NULL, tk INTEGER NOT NULL, created_at INTEGER NOT NULL, PRIMARY KEY(sid, name));`,
     // 15: бусты из боевого пропуска (tk2 — ×2 ТК за игру, xp2 — ×2 опыт пропуска) до момента until
     `CREATE TABLE boost(sid TEXT NOT NULL, kind TEXT NOT NULL, until INTEGER NOT NULL, PRIMARY KEY(sid, kind));`,
+    // 16: кейсы из боевого пропуска — не открываются сразу, а копятся и открываются бесплатно во вкладке «Кейсы»
+    `CREATE TABLE case_free(user_id INTEGER NOT NULL, k TEXT NOT NULL, n INTEGER NOT NULL, PRIMARY KEY(user_id, k));`,
   ];
   for (let v = ver; v < MIG.length; v++) {
     db.exec("BEGIN");

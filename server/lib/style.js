@@ -17,7 +17,7 @@ const STEAM64 = 76561197960265728n;
 const KILL_FX = new Set(["spark", "bolt", "conf", "ring", "frost", "fire", "tornado", "star", "rainbow", "nova", "storm"]);
 const KILL_SND = new Set(["ding", "drum", "bell", "8bit", "coin"]);
 // звук MVP раунда (слышат все на сервере)
-const MVP_SND = new Set(["legend", "level", "alert", "wops"]);
+const MVP_SND = new Set(["csgo", "crimson", "sharpened", "highnoon", "iam", "diamonds", "moments", "disgusting", "wops"]);
 // rows: [{sid, tier, clanTag, clanColor, nick (id), tag (свой тег), smokeHex, killFx, killSnd, trailHex, tracerHex, mvpSnd}]
 function compose(r) {
   const parts = [];

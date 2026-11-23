@@ -196,7 +196,7 @@ get("/api/health", () => ({ ok: true, t: now() }));
 
 get("/api/me", ctx => {
   if (!ctx.user) return { user: null };
-  return { user: pubUser(ctx.user), items: userItems(ctx.user.id), loadout: userLoadout(ctx.user.id), cos: userCos(ctx.user), purchases: userPurchases(ctx.user.id), wheel: WHEEL.state(ctx.user), earn: EARN.today(ctx.user.steamid), quests: QUESTS.state(ctx.user.steamid), achPaid: ACH.paid(ctx.user.steamid), pass: PASS.state(ctx.user.steamid) };
+  return { user: pubUser(ctx.user), items: userItems(ctx.user.id), loadout: userLoadout(ctx.user.id), cos: userCos(ctx.user), purchases: userPurchases(ctx.user.id), freeCases: freeCases(ctx.user.id), wheel: WHEEL.state(ctx.user), earn: EARN.today(ctx.user.steamid), quests: QUESTS.state(ctx.user.steamid), achPaid: ACH.paid(ctx.user.steamid), pass: PASS.state(ctx.user.steamid) };
 });
 
 // надеть / снять предмет за сторону (ct или t)
@@ -217,27 +217,33 @@ post("/api/equip", ctx => {
   return out;
 });
 
+// кейсы из пропуска, которые можно открыть бесплатно: { k: сколько }
+const freeCases = uid => Object.fromEntries(db.prepare("SELECT k, n FROM case_free WHERE user_id=? AND n>0").all(uid).map(r => [r.k, r.n]));
 get("/api/cases", () => ({ cases: Object.fromEntries(G.CASES.map(c => [c.k, c.p])) }));
 
 post("/api/cases/open", ctx => {
   const u = needUser(ctx); rateLimit("open:" + u.id, 8, 10e3);
   const c = G.CASE_BY_K.get(String(ctx.body.k || "")); if (!c) bad("Кейс не найден", 404);
   const nRaw = ctx.body.n === undefined ? 1 : ctx.body.n; if (!Number.isInteger(nRaw) || nRaw < 1 || nRaw > 5) bad("Можно открыть от 1 до 5 кейсов");
-  const n = c.p ? nRaw : 1;
+  const n = c.p ? nRaw : 1, fromPass = ctx.body.free === true;
   return tx(db, () => {
     const fresh = db.prepare("SELECT * FROM users WHERE id=?").get(u.id);
-    if (!c.p) {
+    if (fromPass) {
+      const have = (db.prepare("SELECT n FROM case_free WHERE user_id=? AND k=?").get(u.id, c.k) || {}).n || 0;
+      if (have < n) bad(have ? `Из пропуска осталось только ${have}` : "Бесплатных кейсов из пропуска нет", 409);
+      db.prepare("UPDATE case_free SET n=n-? WHERE user_id=? AND k=?").run(n, u.id, c.k);
+    } else if (!c.p) {
       if (fresh.daily_day === mskDay()) bad("Бесплатный кейс уже открыт сегодня", 409);
       db.prepare("UPDATE users SET daily_day=? WHERE id=?").run(mskDay(), u.id);
     }
-    const price = c.p * n;
+    const price = fromPass ? 0 : c.p * n;
     const ref = "case:" + c.k + ":" + crypto.randomBytes(4).toString("hex");
     if (price) addMoney(u.id, "tk", -price, "case", ref, { k: c.k, n });
-    const items = Array.from({ length: n }, () => giveItem(u.id, G.rollCase(c), "case", c.k));
+    const items = Array.from({ length: n }, () => giveItem(u.id, G.rollCase(c), fromPass ? "pass" : "case", c.k));
     const value = items.reduce((s, it) => s + G.itemValue(it), 0);
     db.prepare("INSERT INTO case_opens(user_id,case_k,n,price,value,created_at) VALUES(?,?,?,?,?,?)").run(u.id, c.k, n, price, value, now());
     const after = db.prepare("SELECT tk FROM users WHERE id=?").get(u.id).tk;
-    return { items: items.map(it => ({ ...it, t: now() })), tk: after, price };
+    return { items: items.map(it => ({ ...it, t: now() })), tk: after, price, freeCases: freeCases(u.id) };
   });
 });
 
@@ -399,7 +405,7 @@ post("/api/pass/claim", ctx => {
   const r = passCall(() => PASS.claim(u, ctx.body || {}));
   const fresh = db.prepare("SELECT * FROM users WHERE id=?").get(u.id);
   infoSoon();
-  return { ...r, pass: PASS.state(u.steamid), user: pubUser(fresh), items: userItems(u.id), cos: userCos(fresh), statuses: r.status ? CTL.statuses() : undefined };
+  return { ...r, pass: PASS.state(u.steamid), user: pubUser(fresh), items: userItems(u.id), cos: userCos(fresh), freeCases: freeCases(u.id), statuses: r.status ? CTL.statuses() : undefined };
 });
 get("/api/events", () => EVENTS.state());
 get("/api/admin/events", ctx => { needAdmin(ctx); return { events: EVENTS.list(), kinds: Object.entries(EVENTS.KINDS).map(([k, v]) => ({ k, n: v.n })) }; });
@@ -871,7 +877,7 @@ function serveIndex(req, res) {
     INDEX = { mtime: st.mtimeMs, a: html.slice(0, i), b: html.slice(i), tag: sha(html).slice(0, 16) };
   }
   const u = sessionUser(req);
-  const data = u ? { user: pubUser(u), items: userItems(u.id), loadout: userLoadout(u.id), cos: userCos(u), purchases: userPurchases(u.id), wheel: WHEEL.state(u), earn: EARN.today(u.steamid), quests: QUESTS.state(u.steamid), achPaid: ACH.paid(u.steamid), pass: PASS.state(u.steamid) } : { user: null, quests: QUESTS.state(null), pass: PASS.state(null) };
+  const data = u ? { user: pubUser(u), items: userItems(u.id), loadout: userLoadout(u.id), cos: userCos(u), purchases: userPurchases(u.id), freeCases: freeCases(u.id), wheel: WHEEL.state(u), earn: EARN.today(u.steamid), quests: QUESTS.state(u.steamid), achPaid: ACH.paid(u.steamid), pass: PASS.state(u.steamid) } : { user: null, quests: QUESTS.state(null), pass: PASS.state(null) };
   // джекпот без отметки времени сервера — иначе страница никогда не отдавалась бы из кэша (время сверит первый опрос)
   data.clans = clansOut(u); { const ev = EVENTS.state(); delete ev.now; data.events = ev; } { const v = JP.view(u); delete v.now; data.jackpot = v; }
   if (GS) data.servers = GS; else if (CFG.gameServers.length) data.servers = []; // опрос ещё не прошёл — страница сама запросит список
