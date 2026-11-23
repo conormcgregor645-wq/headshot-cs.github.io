@@ -1,8 +1,8 @@
-// TASHER: меню !vip (и админ-меню VIP) — один список в центре экрана, управление клавишами.
-//   W / S — вверх / вниз, E или D — выбрать (вкл/выкл), A, R или Tab — закрыть. Пока меню открыто, игрок стоит на месте.
-// Почему не три колонки, как было раньше: панель в центре экрана CS2 узкая — длинные строки переносились и ломали сетку,
-// часть значков псевдографики шрифт игры не рисует, а админ-меню попадало в колонку «БОНУСЫ».
-// Панель отправляется игроку только при изменении (и раз в несколько секунд, чтобы не погасла), а не каждый кадр.
+// TASHER: меню !vip (и админ-меню VIP) в духе меню закупки CS2 — вкладки сверху и карточки в 2 колонки.
+//   A / D — вкладки, W / S — выбор пункта, E — выбрать (вкл/выкл), R или Tab — закрыть. Пока меню открыто, игрок стоит на месте.
+// Вкладки задаёт MenuManager через Tab("…") перед пунктами; меню без вкладок (админ-меню) — один список карточек.
+// Панель в центре экрана держится, только пока её присылают постоянно: её перебивают подсказки игры и другие сообщения,
+// поэтому она отправляется игроку каждый тик (как в стандартном меню CounterStrikeSharp), иначе меню мигает.
 using System.Text;
 using System.Text.RegularExpressions;
 using CounterStrikeSharp.API;
@@ -17,30 +17,48 @@ public class TasherMenu(string title, BasePlugin plugin) : IMenu
     private sealed class State
     {
         public required TasherMenu Menu;
-        public int Index;
+        public int Tab, Index;           // Index — номер пункта внутри вкладки
         public PlayerButtons Prev;
-        public DateTime Sent = DateTime.MinValue, Touched = DateTime.UtcNow;
+        public DateTime Touched = DateTime.UtcNow;
+        public string Html = "";
         public bool Dirty = true;
         public MoveType_t Move = MoveType_t.MOVETYPE_WALK;
     }
 
     private static readonly Dictionary<int, State> Opened = new();
     private static BasePlugin? _hookedBy;
-    private const int Refresh = 4;      // секунд: панель живёт Refresh + 2 с, обновляем заранее
     private const int IdleClose = 30;   // секунд без нажатий — закрыть
-    private const int Visible = 6;      // столько пунктов видно сразу, остальные — прокруткой
+    private const int Cols = 2, Rows = 4; // карточек в строке и строк на экране
+
+    private readonly List<string> _tabs = new();
+    private readonly List<int> _optionTab = new();
 
     public string Title { get; set; } = title;
     public List<ChatMenuOption> MenuOptions { get; } = new();
     public PostSelectAction PostSelectAction { get; set; } = PostSelectAction.Close;
     public bool ExitButton { get; set; } = true;
 
+    /// <summary>Пункты, добавленные после этого вызова, попадают во вкладку с таким названием.</summary>
+    public void Tab(string name) => _tabs.Add(name);
+
     public ChatMenuOption AddMenuOption(string display, Action<CCSPlayerController, ChatMenuOption> onSelect, bool disabled = false)
     {
         var option = new ChatMenuOption(display, disabled, onSelect);
         MenuOptions.Add(option);
+        _optionTab.Add(Math.Max(0, _tabs.Count - 1));
         return option;
     }
+
+    private int TabCount => Math.Max(1, _tabs.Count);
+
+    private List<int> ItemsOf(int tab)
+    {
+        var list = new List<int>();
+        for (var i = 0; i < MenuOptions.Count; i++) if (_optionTab[i] == tab) list.Add(i);
+        return list;
+    }
+
+    private string Signature => $"{Title}|{string.Join(",", _tabs)}|{MenuOptions.Count}";
 
     public void Open(CCSPlayerController player)
     {
@@ -50,22 +68,24 @@ public class TasherMenu(string title, BasePlugin plugin) : IMenu
         var pawn = player.PlayerPawn.Value;
         if (pawn is not { IsValid: true } || pawn.LifeState != (byte)LifeState_t.LIFE_ALIVE)
         {
-            // клавиши мёртвого игрока управляют камерой наблюдения, а не меню — раньше меню открывалось и молча закрывалось
+            // клавиши мёртвого игрока управляют камерой наблюдения, а не меню
             player.PrintToChat($" {ChatColors.Gold}[VIP]{ChatColors.Default} Меню открывается, пока ты жив. Настройки действуют со следующего возрождения.");
             return;
         }
 
         if (Opened.TryGetValue(player.Slot, out var old))
         {
-            // меню открылось заново (после выбора пункта или перехода в подменю): если это то же меню — курсор остаётся на месте
-            var same = old.Menu.Title == Title && old.Menu.MenuOptions.Count == MenuOptions.Count;
+            // меню открылось заново (после выбора пункта или перехода в подменю): то же меню — вкладка и курсор остаются
+            var same = old.Menu.Signature == Signature;
             old.Menu = this;
-            old.Index = same ? Math.Clamp(old.Index, 0, Math.Max(0, MenuOptions.Count - 1)) : FirstEnabled(MenuOptions);
+            if (!same) { old.Tab = FirstTab(); old.Index = FirstEnabled(old.Tab); }
+            Fix(old);
             old.Dirty = true; old.Touched = DateTime.UtcNow;
             return;
         }
 
-        var st = new State { Menu = this, Prev = player.Buttons, Index = FirstEnabled(MenuOptions) };
+        var st = new State { Menu = this, Prev = player.Buttons, Tab = FirstTab() };
+        st.Index = FirstEnabled(st.Tab);
         st.Move = pawn.MoveType == MoveType_t.MOVETYPE_NONE ? MoveType_t.MOVETYPE_WALK : pawn.MoveType;
         SetMove(pawn, MoveType_t.MOVETYPE_NONE);
         Opened[player.Slot] = st;
@@ -77,10 +97,23 @@ public class TasherMenu(string title, BasePlugin plugin) : IMenu
             if (p is { IsValid: true, IsBot: false }) Open(p);
     }
 
-    private static int FirstEnabled(List<ChatMenuOption> opts)
+    private int FirstTab()
     {
-        var i = opts.FindIndex(o => !o.Disabled);
+        for (var t = 0; t < TabCount; t++) if (ItemsOf(t).Count > 0) return t;
+        return 0;
+    }
+
+    private int FirstEnabled(int tab)
+    {
+        var items = ItemsOf(tab);
+        var i = items.FindIndex(o => !MenuOptions[o].Disabled);
         return i < 0 ? 0 : i;
+    }
+
+    private static void Fix(State st)
+    {
+        st.Tab = Math.Clamp(st.Tab, 0, st.Menu.TabCount - 1);
+        st.Index = Math.Clamp(st.Index, 0, Math.Max(0, st.Menu.ItemsOf(st.Tab).Count - 1));
     }
 
     private static void SetMove(CCSPlayerPawn pawn, MoveType_t t)
@@ -118,47 +151,59 @@ public class TasherMenu(string title, BasePlugin plugin) : IMenu
 
                 var b = p.Buttons; var pressed = b & ~st.Prev; st.Prev = b;
                 if (pressed != 0) st.Touched = DateTime.UtcNow;
-                if ((pressed & (PlayerButtons.Scoreboard | PlayerButtons.Reload | PlayerButtons.Moveleft)) != 0) { Close(p, slot, st); continue; }
+                if ((pressed & (PlayerButtons.Scoreboard | PlayerButtons.Reload)) != 0) { Close(p, slot, st); continue; }
 
-                var opts = st.Menu.MenuOptions;
-                if (opts.Count > 0)
+                var m = st.Menu;
+                if ((pressed & PlayerButtons.Moveleft) != 0) { SwitchTab(st, -1); st.Dirty = true; }
+                if ((pressed & PlayerButtons.Moveright) != 0) { SwitchTab(st, 1); st.Dirty = true; }
+                if ((pressed & PlayerButtons.Forward) != 0) { Step(st, -1); st.Dirty = true; }
+                if ((pressed & PlayerButtons.Back) != 0) { Step(st, 1); st.Dirty = true; }
+                if ((pressed & PlayerButtons.Use) != 0)
                 {
-                    if ((pressed & PlayerButtons.Forward) != 0) { Step(st, -1); st.Dirty = true; }
-                    if ((pressed & PlayerButtons.Back) != 0) { Step(st, 1); st.Dirty = true; }
-                    if ((pressed & (PlayerButtons.Use | PlayerButtons.Moveright)) != 0)
+                    var items = m.ItemsOf(st.Tab);
+                    if (items.Count > 0)
                     {
-                        var o = opts[Math.Clamp(st.Index, 0, opts.Count - 1)];
+                        var o = m.MenuOptions[items[Math.Clamp(st.Index, 0, items.Count - 1)]];
                         if (!o.Disabled)
                         {
                             var who = p;
                             // действие пункта — на следующем кадре: оно может открыть это же или другое меню заново
                             Server.NextFrame(() => { if (who.IsValid) o.OnSelect(who, o); });
                         }
-                        st.Dirty = true;
                     }
+                    st.Dirty = true;
                 }
 
-                if (st.Dirty || (DateTime.UtcNow - st.Sent).TotalSeconds >= Refresh)
-                {
-                    p.PrintToCenterHtml(Render(st), Refresh + 2);
-                    st.Sent = DateTime.UtcNow; st.Dirty = false;
-                }
+                if (st.Dirty) { st.Html = Render(st); st.Dirty = false; }
+                p.PrintToCenterHtml(st.Html, 1);
             }
             catch { Close(p, slot, st); }
         }
     }
 
-    // вверх/вниз по кругу, недоступные пункты пропускаем
+    // вкладки по кругу, пустые пропускаем
+    private static void SwitchTab(State st, int dir)
+    {
+        var m = st.Menu; var n = m.TabCount;
+        if (n <= 1) return;
+        var t = st.Tab;
+        for (var k = 0; k < n; k++)
+        {
+            t = (t + dir + n) % n;
+            if (m.ItemsOf(t).Count > 0) { st.Tab = t; st.Index = m.FirstEnabled(t); return; }
+        }
+    }
+
+    // вверх/вниз по пунктам вкладки (слева направо, сверху вниз), по кругу; недоступные пропускаем
     private static void Step(State st, int dir)
     {
-        var opts = st.Menu.MenuOptions;
-        var n = opts.Count;
+        var m = st.Menu; var items = m.ItemsOf(st.Tab); var n = items.Count;
         if (n == 0) return;
         var i = Math.Clamp(st.Index, 0, n - 1);
         for (var k = 0; k < n; k++)
         {
             i = (i + dir + n) % n;
-            if (!opts[i].Disabled) { st.Index = i; return; }
+            if (!m.MenuOptions[items[i]].Disabled) { st.Index = i; return; }
         }
     }
 
@@ -185,45 +230,77 @@ public class TasherMenu(string title, BasePlugin plugin) : IMenu
         return (plain, "");
     }
 
-    private static string Line(ChatMenuOption o, bool selected)
+    private static string Card(ChatMenuOption o, bool selected, int maxName)
     {
         var (name, state) = Split(o.Text);
-        if (name.Length > 24) name = name[..23] + "…";
+        if (name.Length > maxName) name = name[..(maxName - 1)] + "…";
         var disabled = o.Disabled || state is "НЕТ ДОСТУПА" or "NO ACCESS";
-        var nameColor = disabled ? Na : selected ? Gold : Txt;
-        var mark = selected ? $"<font color='{Gold}'>► </font>" : "&nbsp;&nbsp;&nbsp;";
-        var sb = new StringBuilder(mark);
-        sb.Append($"<font color='{nameColor}'>{(selected ? "<b>" : "")}{Esc(name)}{(selected ? "</b>" : "")}</font>");
+        var sb = new StringBuilder();
+        sb.Append(selected ? $"<font color='{Gold}'>&gt; </font>" : "&nbsp;&nbsp;&nbsp;");
+        var nc = disabled ? Na : selected ? Gold : Txt;
+        sb.Append($"<font color='{nc}'>{(selected ? "<b>" : "")}{Esc(name)}{(selected ? "</b>" : "")}</font>");
         if (state.Length > 0)
         {
             var c = disabled ? Na : state is "ВКЛ" or "ON" ? On : Off;
-            sb.Append($"<font color='{c}'>&nbsp;&nbsp;{Esc(state)}</font>");
+            var label = state is "НЕТ ДОСТУПА" or "NO ACCESS" ? "—" : state;
+            sb.Append($"<font color='{c}'>&nbsp;{Esc(label)}</font>");
         }
         return sb.ToString();
     }
 
     private static string Render(State st)
     {
-        var opts = st.Menu.MenuOptions;
-        var sb = new StringBuilder(900);
-        sb.Append($"<font class='fontSize-m' color='{Gold}'>TASHER · {Esc(Clean(st.Menu.Title))}</font><br>");
-        if (opts.Count == 0)
+        var m = st.Menu;
+        var sb = new StringBuilder(1200);
+        sb.Append($"<font class='fontSize-m' color='{Gold}'>TASHER · {Esc(Clean(m.Title))}</font><br>");
+
+        var tabs = m.TabCount > 1;
+        if (tabs)
         {
-            sb.Append($"<font color='{Dim}'>Здесь пока ничего нет</font><br>");
-            sb.Append($"<font class='fontSize-s' color='{Dim}'>R — закрыть</font>");
-            return sb.ToString();
+            sb.Append($"<font class='fontSize-s' color='{Dim}'>A&nbsp;&nbsp;</font>");
+            for (var t = 0; t < m.TabCount; t++)
+            {
+                if (t > 0) sb.Append($"<font color='{Dim}'>&nbsp;|&nbsp;</font>");
+                var name = Esc(m._tabs[t].ToUpperInvariant());
+                sb.Append(t == st.Tab ? $"<font color='{Gold}'><b>{name}</b></font>" : $"<font color='{Dim}'>{name}</font>");
+            }
+            sb.Append($"<font class='fontSize-s' color='{Dim}'>&nbsp;&nbsp;D</font><br>");
         }
 
-        var sel = Math.Clamp(st.Index, 0, opts.Count - 1);
-        // окно прокрутки: выбранный пункт всегда виден
-        var start = Math.Clamp(sel - Visible / 2, 0, Math.Max(0, opts.Count - Visible));
-        var end = Math.Min(opts.Count, start + Visible);
-        sb.Append(start > 0 ? $"<font class='fontSize-s' color='{Dim}'>▲ ещё {start}</font><br>" : "");
-        for (var i = start; i < end; i++) sb.Append(Line(opts[i], i == sel)).Append("<br>");
-        sb.Append(end < opts.Count ? $"<font class='fontSize-s' color='{Dim}'>▼ ещё {opts.Count - end}</font><br>" : "");
+        var items = m.ItemsOf(st.Tab);
+        if (items.Count == 0)
+        {
+            sb.Append($"<font color='{Dim}'>Здесь пока ничего нет</font><br>");
+        }
+        else
+        {
+            // одна колонка, если пунктов мало или это меню без вкладок с длинными названиями (админ-меню, список игроков)
+            var cols = tabs ? Cols : 1;
+            var sel = Math.Clamp(st.Index, 0, items.Count - 1);
+            var totalRows = (items.Count + cols - 1) / cols;
+            var visRows = tabs ? Rows : Rows + 2;
+            var selRow = sel / cols;
+            var startRow = Math.Clamp(selRow - visRows / 2, 0, Math.Max(0, totalRows - visRows));
+            var endRow = Math.Min(totalRows, startRow + visRows);
+            var maxName = cols == 1 ? 26 : 12;
 
-        var toggles = opts.Any(o => Split(o.Text).State.Length > 0);
-        sb.Append($"<font class='fontSize-s' color='{Dim}'>W/S — выбор · E — {(toggles ? "вкл/выкл" : "открыть")} · R — закрыть</font>");
+            if (startRow > 0) sb.Append($"<font class='fontSize-s' color='{Dim}'>▲</font><br>");
+            for (var r = startRow; r < endRow; r++)
+            {
+                for (var c = 0; c < cols; c++)
+                {
+                    var i = r * cols + c;
+                    if (i >= items.Count) break;
+                    if (c > 0) sb.Append($"<font color='{Dim}'>&nbsp;&nbsp;&nbsp;</font>");
+                    sb.Append(Card(m.MenuOptions[items[i]], i == sel, maxName));
+                }
+                sb.Append("<br>");
+            }
+            if (endRow < totalRows) sb.Append($"<font class='fontSize-s' color='{Dim}'>▼</font><br>");
+        }
+
+        var toggles = items.Any(i => Split(m.MenuOptions[i].Text).State.Length > 0);
+        sb.Append($"<font class='fontSize-s' color='{Dim}'>W/S — выбор{(tabs ? " · A/D — вкладки" : "")} · E — {(toggles ? "вкл/выкл" : "открыть")} · R — закрыть</font>");
         return sb.ToString();
     }
 }
