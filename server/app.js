@@ -25,6 +25,7 @@ const { makeJackpot } = require("./lib/jackpot");
 const { makeClans } = require("./lib/clans");
 const STYLE = require("./lib/style");
 const { makeQuests } = require("./lib/quests");
+const { makeAchievements } = require("./lib/achievements");
 const INFO = require("./lib/gameinfo");
 const { makeMarket } = require("./lib/market");
 const SKILLM = require("./lib/skill");
@@ -195,7 +196,7 @@ get("/api/health", () => ({ ok: true, t: now() }));
 
 get("/api/me", ctx => {
   if (!ctx.user) return { user: null };
-  return { user: pubUser(ctx.user), items: userItems(ctx.user.id), loadout: userLoadout(ctx.user.id), cos: userCos(ctx.user), purchases: userPurchases(ctx.user.id), wheel: WHEEL.state(ctx.user), earn: EARN.today(ctx.user.steamid), quests: QUESTS.state(ctx.user.steamid), pass: PASS.state(ctx.user.steamid) };
+  return { user: pubUser(ctx.user), items: userItems(ctx.user.id), loadout: userLoadout(ctx.user.id), cos: userCos(ctx.user), purchases: userPurchases(ctx.user.id), wheel: WHEEL.state(ctx.user), earn: EARN.today(ctx.user.steamid), quests: QUESTS.state(ctx.user.steamid), achPaid: ACH.paid(ctx.user.steamid), pass: PASS.state(ctx.user.steamid) };
 });
 
 // надеть / снять предмет за сторону (ct или t)
@@ -438,6 +439,11 @@ const QUESTS = makeQuests({ db, tx: fn => tx(db, fn), addMoney, eventMult: t => 
   infoSoon(); // плагин сразу напишет игроку «Задание выполнено»
 } });
 get("/api/quests", ctx => ({ quests: QUESTS.state(ctx.user ? ctx.user.steamid : null) }));
+// ---------- достижения: разовая награда ТК за каждое выполненное ----------
+const ACH = makeAchievements({ db, tx: fn => tx(db, fn), addMoney, PTS: GL.PTS });
+// при запуске — проверить всех (в том числе выплатить за уже выполненное), потом раз в минуту — тех, кто играет
+setTimeout(() => { try { ACH.checkAll(); } catch (e) { console.error("[ach]", e.message); } }, 20e3).unref();
+setInterval(() => { try { for (const sid of STATS.state.sess.keys()) ACH.check(sid); } catch (e) { console.error("[ach]", e.message); } }, 60e3).unref();
 
 // ---------- данные для команд в игре (!rank, !top, !tk, !quests) и приветствия статусов ----------
 const ruPlural = (n, a, b, c) => { const m = n % 10, h = n % 100; return m === 1 && h !== 11 ? a : m >= 2 && m <= 4 && (h < 12 || h > 14) ? b : c; };
@@ -846,7 +852,7 @@ function serveIndex(req, res) {
     INDEX = { mtime: st.mtimeMs, a: html.slice(0, i), b: html.slice(i), tag: sha(html).slice(0, 16) };
   }
   const u = sessionUser(req);
-  const data = u ? { user: pubUser(u), items: userItems(u.id), loadout: userLoadout(u.id), cos: userCos(u), purchases: userPurchases(u.id), wheel: WHEEL.state(u), earn: EARN.today(u.steamid), quests: QUESTS.state(u.steamid), pass: PASS.state(u.steamid) } : { user: null, quests: QUESTS.state(null), pass: PASS.state(null) };
+  const data = u ? { user: pubUser(u), items: userItems(u.id), loadout: userLoadout(u.id), cos: userCos(u), purchases: userPurchases(u.id), wheel: WHEEL.state(u), earn: EARN.today(u.steamid), quests: QUESTS.state(u.steamid), achPaid: ACH.paid(u.steamid), pass: PASS.state(u.steamid) } : { user: null, quests: QUESTS.state(null), pass: PASS.state(null) };
   // джекпот без отметки времени сервера — иначе страница никогда не отдавалась бы из кэша (время сверит первый опрос)
   data.clans = clansOut(u); { const ev = EVENTS.state(); delete ev.now; data.events = ev; } { const v = JP.view(u); delete v.now; data.jackpot = v; }
   if (GS) data.servers = GS; else if (CFG.gameServers.length) data.servers = []; // опрос ещё не прошёл — страница сама запросит список

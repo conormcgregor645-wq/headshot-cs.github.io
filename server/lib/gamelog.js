@@ -55,6 +55,9 @@ const WEAPON = {
 };
 const weaponName = w => WEAPON[w] || (/^knife|bayonet/.test(w) ? "Нож" : w);
 
+// очки рейтинга из строки gstats
+const PTS = "MAX(0, k*2 + hs + a + pl*2 + df*3 + rw - tk*5)";
+
 const month = t => new Date(t + 3 * 3600e3).toISOString().slice(0, 7); // месяц по Москве: "2026-11"
 // сессия не длиннее 12 ч; тишина в журнале дольше 30 мин — считаем, что сервер был выключен
 const MAX_SESSION = 12 * 3600e3, GAP = 30 * 60e3;
@@ -123,16 +126,16 @@ function makeStats(db, { bots = true } = {}) {
   // время текущей (ещё не закрытой) сессии — чтобы «время в игре» шло, пока игрок на сервере
   const openSec = sid => { const st = S.sess.get(sid); return st == null ? 0 : Math.round(Math.min(Math.max(0, Date.now() - st), MAX_SESSION) / 1000); };
   // очки рейтинга: убийство 2, хедшот +1, помощь 1, бомба 2, разминирование 3, победа в раунде 1, тимкилл −5
-  const PTS = "MAX(0, k*2 + hs + a + pl*2 + df*3 + rw - tk*5)";
   function top(period, limit = 200) {
     const rows = db.prepare(`SELECT m.sid, p.name, p.last_seen, m.k mk, m.d md, m.hs mhs, m.a ma, m.pt mpt, ${PTS.replace(/\b(k|hs|a|pl|df|rw|tk)\b/g, "m.$1")} pts,
+        (SELECT MAX(${PTS.replace(/\b(k|hs|a|pl|df|rw|tk)\b/g, "b.$1")}) FROM gstats b WHERE b.sid=m.sid AND b.period!='all') bm,
         z.k, z.d, z.hs, z.a, z.pt, z.rw, z.rp, z.tk, z.pl, z.df
       FROM gstats m JOIN gplayers p ON p.sid=m.sid JOIN gstats z ON z.sid=m.sid AND z.period='all'
       WHERE m.period=? ORDER BY pts DESC, m.k DESC, p.last_seen DESC LIMIT ?`).all(period, limit);
     const wq = db.prepare("SELECT w, k FROM gweapons WHERE sid=? ORDER BY k DESC");
     // w — 4 любимых ствола (для профиля), wa — убийства по всем стволам и pl/df — закладки/разминирования (для достижений)
     return rows.map(r => { const o = openSec(r.sid), wa = wq.all(r.sid).map(x => [x.w, x.k]); return { sid: r.sid, n: r.name, last: r.last_seen, pts: r.pts, mk: r.mk, md: r.md, mhs: r.mhs, ma: r.ma, mpt: r.mpt + o,
-      k: r.k, d: r.d, hs: r.hs, a: r.a, pt: r.pt + o, rw: r.rw, rp: r.rp, pl: r.pl || 0, df: r.df || 0, w: wa.slice(0, 4), wa }; });
+      k: r.k, d: r.d, hs: r.hs, a: r.a, pt: r.pt + o, rw: r.rw, rp: r.rp, pl: r.pl || 0, df: r.df || 0, bm: r.bm || 0, w: wa.slice(0, 4), wa }; });
   }
   function player(sid) {
     const p = db.prepare("SELECT * FROM gplayers WHERE sid=?").get(sid); if (!p) return null;
@@ -141,6 +144,7 @@ function makeStats(db, { bots = true } = {}) {
     const o = openSec(sid);
     return { sid, n: p.name, last: p.last_seen, first: p.first_seen, pts: m.pts || 0, mk: m.k || 0, md: m.d || 0, mhs: m.hs || 0, ma: m.a || 0, mpt: (m.pt || 0) + o,
       k: z.k || 0, d: z.d || 0, hs: z.hs || 0, a: z.a || 0, pt: (z.pt || 0) + o, rw: z.rw || 0, rp: z.rp || 0, pl: z.pl || 0, df: z.df || 0,
+      bm: (db.prepare(`SELECT MAX(${PTS}) v FROM gstats WHERE sid=? AND period!='all'`).get(sid) || {}).v || 0,
       ...(wa => ({ w: wa.slice(0, 4), wa }))(db.prepare("SELECT w, k FROM gweapons WHERE sid=? ORDER BY k DESC").all(sid).map(x => [x.w, x.k])) };
   }
   // остановка/запуск сервера (из системного журнала): закрываем сессии, счёт на карте сбрасываем
@@ -155,4 +159,4 @@ function makeStats(db, { bots = true } = {}) {
   return { apply, serverStop, top, player, liveScore, online, sidByName, teamOf, match, state: S, month };
 }
 
-module.exports = { parseLine, weaponName, makeStats, month, who };
+module.exports = { parseLine, weaponName, makeStats, month, who, PTS };
