@@ -62,7 +62,16 @@ public class MenuManager
     private static readonly string[] TasherOrder =
         ["Health", "Armor", "DefuseKit", "Grenades", "Healthshot", "Zeus", "Money", "HealthRegen", "Vampirism"];
 
+    private static readonly HashSet<string> EquipmentFeatures =
+        ["Health", "Armor", "DefuseKit", "Grenades", "Healthshot", "Zeus"];
+
     private int SortKey(string name)
+    {
+        // снаряжение всегда идёт раньше бонусов, чтобы вкладки не дробились
+        return (EquipmentFeatures.Contains(name) ? 0 : 10000) + RawSortKey(name);
+    }
+
+    private int RawSortKey(string name)
     {
         var i = Array.IndexOf(_sortedItems, name);
         if (i >= 0) return i;
@@ -88,8 +97,16 @@ public class MenuManager
             .OrderBy(f => SortKey(f.Name))
             .ThenBy(f => f.Name);
 
+        string? tab = null;
         foreach (var feature in features)
         {
+            // TASHER: вкладки, как в меню закупки — «Снаряжение» и «Бонусы»
+            if (menu is VIPCore.Menus.TasherMenu tasher)
+            {
+                var t = EquipmentFeatures.Contains(feature.Name) ? "Снаряжение" : "Бонусы";
+                if (t != tab) { tasher.Tab(t); tab = t; }
+            }
+
             var state = vipPlayer.FeatureStates.GetValueOrDefault(feature.Name, FeatureState.NoAccess);
 
             var args = new FeatureDisplayArgs
