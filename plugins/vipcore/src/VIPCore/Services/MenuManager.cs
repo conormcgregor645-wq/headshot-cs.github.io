@@ -46,6 +46,7 @@ public class MenuManager
         LoadSortOrder();
 
         plugin.AddCommand("css_vip", "command that opens the VIP MENU", (player, _) => OpenVipMenu(player));
+        plugin.AddCommand("css_vip_diag", "Проверить открытие VIP-меню для своего игрока", DiagnoseVipMenu);
         plugin.AddCommand("css_vip_admin", "opens the VIP admin menu", OnAdminMenuCommand);
         plugin.AddCommand("css_admin_vip", "opens the VIP admin menu", OnAdminMenuCommand);
         plugin.AddCommandListener("say", OnSayCommand);
@@ -61,6 +62,32 @@ public class MenuManager
     }
 
     public void CloseBuyMenu() => _buyMenu?.Reset();
+
+    private void DiagnoseVipMenu(CCSPlayerController? player, CommandInfo command)
+    {
+        if (player is null)
+        {
+            command.ReplyToCommand("Введи css_vip_diag в игровой консоли.");
+            return;
+        }
+
+        var loaded = _players.TryGetPlayer(player, out var vip);
+        command.ReplyToCommand($"[VIPCore] Режим={_coreConfig.Value.MenuType}, плагин включён={_plugin.EnableConVar.Value}, " +
+            $"профиль загружен={loaded}, VIP-доступ={_api.IsPlayerVip(player)}");
+        if (vip is null || !_api.IsPlayerVip(player)) return;
+
+        try
+        {
+            OpenVipMenu(player);
+            command.ReplyToCommand($"[VIPCore] Группа={vip.Group}. " +
+                (_buyMenu?.Describe(player) ?? "Полноэкранный HUD не создавался."));
+        }
+        catch (Exception ex)
+        {
+            _plugin.Logger.LogError(ex, "Ошибка открытия меню при css_vip_diag");
+            command.ReplyToCommand($"[VIPCore] Ошибка открытия: {ex.GetType().Name}: {ex.Message}");
+        }
+    }
 
     private void OpenVipMenu(CCSPlayerController? player, int page = 0)
     {

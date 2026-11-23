@@ -76,6 +76,13 @@ public sealed class BuyMenu
         return true;
     }
 
+    public string Describe(CCSPlayerController player)
+    {
+        if (_hud is not { IsValid: true }) return "Серверный HUD отсутствует.";
+        return $"HUD={_hud.Index}, макет={_hud.StrLayout}, сеанс={_sessions.ContainsKey(player.Slot)}, " +
+            $"захват ввода={_hud.IsInputCaptureEnabled(player)}";
+    }
+
     private void Draw(CCSPlayerController player, Session s)
     {
         var hud = _hud!;
