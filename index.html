@@ -431,6 +431,7 @@ footer nav{flex-direction:row;gap:16px;flex-wrap:wrap}
 .c-banner .ava{width:84px;aspect-ratio:1;border-radius:50%;border:3px solid var(--pc);background:var(--panel-2) center/cover;display:grid;place-items:center;overflow:hidden;flex:none;margin-top:-50px;position:relative}
 .drawer .x{position:relative;z-index:2}
 /* achievements v2 */
+.a3.na{opacity:.62}.a3.na .a-prog span{color:var(--muted)}
 .a3{display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;transition:transform .2s,border-color .2s}
 .a3:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--rc) 60%,var(--line))}
 .a3-img{position:relative;aspect-ratio:360/148;background:var(--panel-2) center/cover}
@@ -2963,7 +2964,6 @@ html.on-server #v-jackpot,html.on-server #v-wheel{position:relative}
       <span class="nav-h">Игра</span>
       <a href="#play" data-v="play"><i class="nv-ic"><svg viewBox="0 0 24 24"><polygon points="6 4 20 12 6 20 6 4"/></svg></i><span class="nv-t">Играть</span></a>
       <a href="#stats" data-v="stats"><i class="nv-ic"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></i><span class="nv-t">Рейтинг</span></a>
-      <a href="#quests" data-v="quests"><i class="nv-ic"><svg viewBox="0 0 24 24"><path d="M9 11l2 2 4-4"/><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 17h8"/></svg></i><span class="nv-t">Задания</span><span class="nv-qn" id="qNav" hidden></span></a>
       <a href="#pass" data-v="pass"><i class="nv-ic"><svg viewBox="0 0 24 24"><path d="M4 7h16v4a2 2 0 0 0 0 4v4H4v-4a2 2 0 0 0 0-4z"/><path d="M14 7v12" stroke-dasharray="2 2"/></svg></i><span class="nv-t">Пропуск</span><span class="nv-qn" id="psNav" hidden></span></a>
       <a href="#clans" data-v="clans"><i class="nv-ic"><svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></svg></i><span class="nv-t">Кланы</span></a>
       <a href="#shop" data-v="shop"><i class="nv-ic"><svg viewBox="0 0 24 24"><path d="M12 3l3 6 6 .9-4.5 4.3 1 6.3L12 17.6 6.5 20.5l1-6.3L3 9.9 9 9z"/></svg></i><span class="nv-t">Магазин</span><em class="nv-tag">VIP</em></a>
@@ -2971,9 +2971,9 @@ html.on-server #v-jackpot,html.on-server #v-wheel{position:relative}
       <a href="#skins" data-v="skins"><i class="nv-ic"><svg viewBox="0 0 24 24"><path d="M4 20l9-9M13 11l7-8-1 7-6 1z"/><path d="M15 15l4 4"/></svg></i><span class="nv-t">Кейсы</span></a>
       <a href="#upgrade" data-v="upgrade"><i class="nv-ic"><svg viewBox="0 0 24 24"><path d="M12 20V5M6 11l6-6 6 6"/><path d="M5 20h14"/></svg></i><span class="nv-t">Апгрейд</span></a>
       <a href="#jackpot" data-v="jackpot"><i class="nv-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v9l6.4 6.4"/><path d="M12 12 3.6 9.2"/></svg></i><span class="nv-t">Джекпот</span><em class="nv-dot" title="Идёт раунд"></em></a>
-      <a href="#market" data-v="market"><i class="nv-ic"><svg viewBox="0 0 24 24"><path d="M3 9l1.5-5h15L21 9"/><path d="M3 9h18v2a3 3 0 0 1-6 0 3 3 0 0 1-6 0 3 3 0 0 1-6 0z"/><path d="M5 13v7h14v-7"/></svg></i><span class="nv-t">Площадка</span></a>
       <span class="nav-h">Мои предметы</span>
       <a href="#inventory" data-v="inventory"><i class="nv-ic"><svg viewBox="0 0 24 24"><path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5z"/><path d="M3 7.5 12 12l9-4.5M12 12v9"/></svg></i><span class="nv-t">Инвентарь</span><span id="invCnt" hidden></span></a>
+      <a href="#market" data-v="market"><i class="nv-ic"><svg viewBox="0 0 24 24"><path d="M3 9l1.5-5h15L21 9"/><path d="M3 9h18v2a3 3 0 0 1-6 0 3 3 0 0 1-6 0 3 3 0 0 1-6 0z"/><path d="M5 13v7h14v-7"/></svg></i><span class="nv-t">Площадка</span></a>
       <span class="nav-h">Помощь</span>
       <a href="#rules" data-v="rules"><i class="nv-ic"><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M9 11h7M9 15h7"/></svg></i><span class="nv-t">Правила</span></a>
       <a href="#bans" data-v="bans"><i class="nv-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></svg></i><span class="nv-t">Баны</span></a>
@@ -3743,8 +3743,9 @@ $("achMore").onclick=()=>{achShown+=24;drawAch()};
 let ACHPR=null,ACHFOR=null,ACHFLAG=0,achDone="all";const isLg=()=>{try{return logged}catch(e){return false}};
 function achCard(a){const r=rarity(a[3]);const src=achSrc(a);const col=achColor(a);
   const img=src?`<div class="a3-img" style="background-image:url(${src})">${a[4][0]!=="m"||ACHGOLD[ACHS.indexOf(a)]?svgIco(a,"bi"):""}`:`<div class="a3-img ph" style="--ic:${col}"><svg class="bigi" viewBox="0 0 24 24">${AIC[achIconKey(a)]||AIC.star}</svg>${svgIco(a,"bi")}`;
-  const pr=ACHPR?ACHPR[ACHS.indexOf(a)]:null,t=pr?pr.t:targetOf(a),cur=pr?Math.min(pr.cur,t):0,done=pr&&pr.done;
-  return`<article class="a3 ${done?"done":""}" style="--rc:${r[2]}">${img}${a[0]==="Ивент"?'<span class="lim">ИВЕНТ</span>':""}</div><div class="a3-body"><h3>${a[1]}</h3><p>${a[2]}</p><div class="a-prog"><span>${done?"Выполнено":ACHPR?"Прогресс":"Войди, чтобы видеть прогресс"}</span><b>${fmt(cur)} / ${fmt(t)}</b></div><div class="a-bar"><span style="width:${t?Math.max(done?100:0,cur/t*100):0}%"></span></div><div class="a-foot"><span><span class="rar">${r[1]}</span> · ${String(a[3]).replace(".",",")}%</span><span class="tkr" title="Награда за достижение">+${fmt(achTK(a))} ТК</span></div></div></article>`}
+  const pr=ACHPR?ACHPR[ACHS.indexOf(a)]:null,t=pr?pr.t:targetOf(a),cur=pr?Math.min(pr.cur,t):0,done=pr&&pr.done,na=pr&&pr.na;
+  const lbl=done?"Выполнено":na?"Пока не отслеживается":ACHPR?"Прогресс":"Войди, чтобы видеть прогресс";
+  return`<article class="a3 ${done?"done":""}${na?" na":""}" style="--rc:${r[2]}">${img}${a[0]==="Ивент"?'<span class="lim">ИВЕНТ</span>':""}</div><div class="a3-body"><h3>${a[1]}</h3><p>${a[2]}</p><div class="a-prog"><span>${lbl}</span><b>${na?"—":`${fmt(cur)} / ${fmt(t)}`}</b></div><div class="a-bar"><span style="width:${t&&!na?Math.max(done?100:0,cur/t*100):0}%"></span></div><div class="a-foot"><span><span class="rar">${r[1]}</span> · ${String(a[3]).replace(".",",")}%</span>${BAN_SRV?"":`<span class="tkr" title="Награда за достижение">+${fmt(achTK(a))} ТК</span>`}</div></div></article>`}
 function drawAch(){const P2=ACHFOR&&P(ACHFOR);if(!P2)ACHFOR=null;ACHPR=P2?achProgress(P2):isLg()?achProgress():null;
   {const b=$("achWho");if(b){if(P2||ACHPR){const dn=ACHPR.filter(x=>x.done).length;b.hidden=false;b.innerHTML=`<div class="aw-l"><i class="aw-av" style="--ac:${(P2||ME).c}">${ini((P2||ME).n)}</i><div><small>${P2?"Достижения игрока":"Твои достижения"}</small><b>${esc((P2||ME).n)}</b></div></div><div class="aw-p"><b>${dn}</b><small>из ${ACHS.length} выполнено</small><div class="aw-bar"><span style="width:${dn/ACHS.length*100}%"></span></div></div><div class="aw-f seg" role="group" aria-label="Показать">${[["all","Все"],["done","Выполненные"],["todo","Не выполненные"]].map(([k,t])=>`<button type="button" data-achd="${k}" aria-pressed="${achDone===k}">${t}</button>`).join("")}</div>${P2?`<div class="aw-b"><button class="ghost" type="button" data-achback>К профилю</button>${isLg()?'<button class="ghost" type="button" data-achmine>Мои достижения</button>':""}</div>`:""}`}else b.hidden=true}}
   const hd=$("v-ach").querySelector(".page-head h1");if(hd)hd.textContent=P2?`Достижения · ${P2.n}`:"Достижения";
@@ -3754,7 +3755,43 @@ function drawAch(){const P2=ACHFOR&&P(ACHFOR);if(!P2)ACHFOR=null;ACHPR=P2?achPro
 drawAch();
 const rarest=[...ACHS].sort((a,b)=>a[3]-b[3])[0];
 $("achSum").innerHTML=`<div><b>${ACHS.length}</b>достижений</div><div><b>${ACAT.length-1}</b>категорий</div><div><b>${fmt(ACHS.reduce((s,a)=>s+achTK(a),0))} ТК</b>награда за все достижения</div><div><b>${rarest[1]}</b>самое редкое · ${String(rarest[3]).replace(".",",")}%</div>`;
-const achOf=p=>(SRV&&(p===ME||p.real))?[]:ACHS.filter((a,i)=>a[1]!=="Легенда сервера"&&(a[3]>45||((p.pts/37+i*13)%100)<a[3]*1.6+p.hrs/15));
+// ===== Достижения по настоящей статистике сервера =====
+// Считается то, что сервер реально записывает: убийства, хедшоты, помощи, раунды, победы, бомба, часы, стволы, очки месяца.
+// Остальное (прострелы, флешки, клатчи, серии дней…) пока не отслеживается — без выдуманного прогресса.
+const AW=(p,...ws)=>{const m=p.wa||{};return ws.reduce((s,w)=>s+(m[w]|0),0)};
+const AWS={pist:["Glock-18","P2000","USP-S","P250","Five-SeveN","Tec-9","CZ75-Auto","Desert Eagle","Dual Berettas","R8 Revolver"],
+  rif:["Galil AR","FAMAS","AUG","SG 553"],smg:["MAC-10","MP9","MP7","MP5-SD","UMP-45","P90","PP-Bizon"],sg:["Nova","XM1014","Sawed-Off","MAG-7"]};
+const ACH_METRIC={};
+[["k",["Новобранец","Боец","Опытный стрелок","Машина войны","Живая легенда"]],
+ ["hs",["Хедшот-машина","Меткий глаз","Снайперский инстинкт","Мастер хедшотов","Безупречный"]],
+ ["as",["Помощник","Плечом к плечу","Правая рука"]],
+ ["rp",["Первые шаги","Командный игрок","Ветеран раундов"]],
+ ["rw",["Победитель","Чемпион","Непобедимый"]],
+ ["pl",["Сапёр-новичок","Мастер установки","Подрывных дел мастер"]],
+ ["df",["Кусачки","Мастер разминировки","Главный сапёр"]],
+ ["h",["Завсегдатай","Свой человек","Ветеран","Старожил","Часть сервера"]],
+ ["m",["Золотая лихорадка","Хранитель","Орёл","Высший класс"]]].forEach(([k,names])=>names.forEach(n=>ACH_METRIC[n]={f:p=>k==="k"?p.kills|0:k==="hs"?p.hsN|0:k==="as"?p.as|0:k==="h"?Math.floor((p.pt|0)/3600):k==="m"?p.pts|0:p[k]|0}));
+[["AK-47",["Калаш","Мастер калаша","Легенда АК"]],["M4A4",["Эмка"]],["M4A1-S",["Глушитель"]],["AWP",["Снайпер","Снайпер-ветеран","Глаз бога"]],
+ ["SSG 08",["Скаут"]],["Desert Eagle",["Дигл","Король дигла"]],["USP-S",["Юсп","Мастер USP-S"]],["Glock-18",["Глок"]],["R8 Revolver",["Ковбой"]],
+ ["Нож",["Финка","Ножевик","Резник"]],["Граната",["Подрывник","Гранатомёт"]],["Молотов",["Поджигатель"]],["decoy",["Обманщик"]]]
+ .forEach(([w,names])=>names.forEach(n=>ACH_METRIC[n]={f:p=>AW(p,w)}));
+Object.assign(ACH_METRIC,{
+  "Электрик":{f:p=>AW(p,"Zeus x27"),t:1},
+  "Тройка":{f:p=>AW(p,"Five-SeveN","Tec-9","CZ75-Auto")},
+  "Пистолетный король":{f:p=>AW(p,...AWS.pist)},
+  "Винтовочник":{f:p=>AW(p,...AWS.rif)},
+  "Пистолет-пулемётчик":{f:p=>AW(p,...AWS.smg)},
+  "Дробовик":{f:p=>AW(p,...AWS.sg)},
+  "Пулемётчик":{f:p=>AW(p,"Negev","M249")},
+  "Арсенал":{f:p=>Object.values(p.wa||{}).filter(v=>v>0).length,t:20},
+  "Добро пожаловать":{f:p=>(p.pt|0)>0||(p.rp|0)>0||(p.kills|0)>0?1:0,t:1},
+  "Король месяца":{f:p=>{try{return(MEDALS.get(p)||[]).some(m=>m.place===1)?1:0}catch(e){return null}},t:1}});
+function achReal(p){
+  const res=ACHS.map(a=>{if(a[1]==="Легенда сервера")return null;const m=ACH_METRIC[a[1]];if(!m)return{a,cur:0,t:targetOf(a),done:0,na:1};
+    const t=m.t||targetOf(a);let v;try{v=m.f(p)}catch(e){v=null}if(v==null)return{a,cur:0,t,done:0,na:1};v=Math.max(0,v|0);return{a,cur:Math.min(v,t),t,done:v>=t?1:0}});
+  const others=res.filter(Boolean),dn=others.filter(x=>x.done).length;
+  return res.map((x,i)=>x||{a:ACHS[i],cur:dn,t:others.length,done:dn===others.length?1:0})}
+const achOf=p=>(SRV&&(p===ME||p.real))?achReal(p).filter(x=>x.done).map(x=>x.a):ACHS.filter((a,i)=>a[1]!=="Легенда сервера"&&(a[3]>45||((p.pts/37+i*13)%100)<a[3]*1.6+p.hrs/15));
 
 // ---------- кланы ----------
 const CL=[["Волки Севера","WOLF","#5aa9ff","Играем каждый вечер, ищем тех, кто держит позицию и не уходит в AFK."],["Бетонщики","BETON","#a8a29e","Стоим насмерть на B. Микрофон обязателен."],["Headhunters","HH","#b5e853","Только хедшоты. Средний HS% клана выше 50."],["Сибирские Валенки","VLNK","#3ddc97","Из Новосибирска с любовью. Пинг не помеха."],["Пельменная","PLMN","#f5c451","Весело играем, вкусно едим. Новички приветствуются."],["Dust Kings","DK","#ff8a3d","Короли Даста. Знаем каждый пиксель карты."],["Дымовая Завеса","SMOK","#a78bfa","Раскидки, тактика и командная игра."],["Тихий Час","ZZZ","#fbbf24","Играем тихо, побеждаем громко."]];
@@ -3891,7 +3928,7 @@ function drawLeagues(){const box=$("lgBox");if(!box)return;const b=LGB||(SRV&&SR
 function statP(x,i){const k=x.k|0,d=x.d|0,pt=x.pt|0,w=Array.isArray(x.w)?x.w:[],tot=w.reduce((s,y)=>s+(y[1]|0),0);
   return{id:1000+i,n:String(x.n||"Игрок").slice(0,32),sid:String(x.sid||""),real:1,kills:k,deaths:d,kd:+(d?k/d:k).toFixed(2),hs:k?Math.round((x.hs|0)/k*100):0,hsN:x.hs|0,as:x.a|0,
     hrs:Math.floor(pt/3600),pt,pts:x.pts|0,m:x.pts|0,mk:x.mk|0,md:x.md|0,mhs:x.mhs|0,ma:x.ma|0,mpt:x.mpt|0,rw:x.rw|0,rp:x.rp|0,mvp:0,c:AVC[i%AVC.length],r:rankIdx(x.pts|0),
-    w:tot?w.map(([n,v])=>[String(n),Math.round((v|0)/tot*100)]):[],last:+x.last||0,online:!!x.on,sr:x.sr|0,lg:Number.isInteger(x.lg)&&LG[x.lg]?x.lg:null,cl:x.cl|0,nx:x.nx&&typeof x.nx.n==="string"?{n:x.nx.n,need:x.nx.need|0}:null}}
+    w:tot?w.map(([n,v])=>[String(n),Math.round((v|0)/tot*100)]):[],pl:x.pl|0,df:x.df|0,wa:Array.isArray(x.wa)?Object.fromEntries(x.wa.map(([n,v])=>[String(n),v|0])):null,last:+x.last||0,online:!!x.on,sr:x.sr|0,lg:Number.isInteger(x.lg)&&LG[x.lg]?x.lg:null,cl:x.cl|0,nx:x.nx&&typeof x.nx.n==="string"?{n:x.nx.n,need:x.nx.need|0}:null}}
 function srvStatsApply(st,my){if(!st||!Array.isArray(st.players))return;
   players.length=0;guests.length=0;
   st.players.forEach((x,i)=>{const p=statP(x,i);if(SRV.user&&p.sid===ME.steamid){Object.assign(ME,p,{id:ME.id,n:ME.n,c:ME.c});players.push(ME)}else players.push(p)});
@@ -3902,7 +3939,7 @@ const ptStr=s=>{s=s|0;const h=Math.floor(s/3600),m=Math.floor(s%3600/60);return 
 function srvPurchasesSet(list){PURCHASES.length=0;(Array.isArray(list)?list:[]).forEach(x=>PURCHASES.push([new Date(+x.t),String(x.what||"Покупка"),x.p|0]))}
 const PURCHASES=[[new Date(today.getFullYear(),today.getMonth(),1),`Приз: 7 место в рейтинге за ${LAST_MONTH.split(" ")[0]} · LEGEND на 30 дней`,0],[daysAgo(12),"PREMIUM на 30 дней",199],[daysAgo(43),"VIP на 30 дней",99],[daysAgo(74),"VIP на 30 дней",99]].sort((a,b)=>b[0]-a[0]);
 function targetOf(a){let t=a[2].replace(/(\d)\s(\d)/g,"$1$2");let m=t.match(/(\d+) раз(?![а-яё])/);if(m)return+m[1];if(/за (один )?раунд/.test(t))return 1;t=t.replace(/\d\d:\d\d/g,"").replace(/больше \d+ метров/g,"").replace(/\d+ HP/g,"").replace(/\$\d+/g,"");m=t.match(/\d+/);return m?+m[0]:1}
-function achProgress(p){p=p||ME;const own=new Set(achOf(p));let h=77;if(p!==ME)for(const c of p.n)h=(h*31+c.charCodeAt(0))%2147483646+1;const rnd=rng(h);
+function achProgress(p){p=p||ME;if(SRV&&(p===ME||p.real))return achReal(p);const own=new Set(achOf(p));let h=77;if(p!==ME)for(const c of p.n)h=(h*31+c.charCodeAt(0))%2147483646+1;const rnd=rng(h);
   return ACHS.map(a=>{const t=targetOf(a);if(own.has(a))return{a,cur:t,t,done:1};const cur=a[1]==="Легенда сервера"?own.size:(SRV&&p===ME)?0:Math.floor(t*rnd()*0.97);return{a,cur,t:a[1]==="Легенда сервера"?ACHS.length-1:t,done:0}})}
 function drawMe(){rescueSet();$("meGate").hidden=logged;$("meBody").hidden=!logged;
   drawChip();if(!logged)return;
@@ -4285,7 +4322,8 @@ function czItem([wn,sn,r,,,st,fx],c,pc){const w=W.find(x=>x.n===wn),sk=w&&w.skin
 const CZBG={};
 function czBg(c){return"--czmap:none;--czcase:none"}
 function drawCasePage(){const c=CASES[CZ];if(!c)return;const free=!c.p,used=free&&csDay===mskDay();
-  const items=[...c.items].map(i=>[i,itemVal(i)]).sort((a,b)=>b[1]-a[1]).map(x=>x[0]);
+  // от самых редких (золото, тайное) к частым (ширпотреб); внутри одной редкости — от дорогих к дешёвым
+  const items=[...c.items].map(i=>[i,itemVal(i)]).sort((a,b)=>((b[0][2]|0)-(a[0][2]|0))||b[1]-a[1]).map(x=>x[0]);
   $("czBody").innerHTML=`<button class="pf-back" id="czBack">${svgI(PI.back)}Все кейсы</button>
   <section style="--cc:${c.c};${czBg(c)}" id="czTop" class="cz-top${CZBG[c.k]?" full":""}">${czTopHTML(c,free,used)}</section>
   <section class="cz-cont"><div class="hdr"><h2>Содержимое кейса</h2><span>${items.length} ${plural(items.length,"предмет","предмета","предметов")}</span></div><div class="cz-grid">${items.map(x=>czItem(x,c,c.fixed?(()=>{const j=c.items.indexOf(x),ws=c.wt.reduce((a,b)=>a+b,0);return j>=0?c.wt[j]/ws*100:null})():null)).join("")}</div></section>`;
@@ -5414,12 +5452,13 @@ function drawChip(){
   const chev='<svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>';
   const chip=logged?`<button class="me-chip" id="meBtn" aria-haspopup="menu" aria-expanded="false"><i class="av${cosFrame(ME.n)}${cosAvInner(ME.n)?" hasav":""}" style="background:${ME.c}">${cosAvInner(ME.n)||ini(ME.n)}</i><span class="nm">${esc(ME.n)}<small>${ME.vip?ME.vip.tier:"Игрок"} · <span class="bal">${fmt(ME.tk)} ТК</span></small></span>${chev}</button>`
     :`<button class="me-chip guest" id="meBtn" aria-haspopup="menu" aria-expanded="false"><i class="av">?</i><span class="nm">Гость<small>Войди через Steam</small></span>${chev}</button>`;
-  const items=(logged?`<div class="bal-row"><span>Баланс</span><b>${fmt(ME.balance)} ₽</b></div><div class="bal-row"><span>Тащер Коины</span><b class="tkc">${fmt(ME.tk)} ТК</b></div><a href="#me">${ico("u")}Мой профиль</a>`:`<button class="login" data-login>${ico("steam")}Войти через Steam</button><div class="sep"></div>`)
+  const items=(logged?`<div class="bal-row"><span>Баланс</span><b>${fmt(ME.balance)} ₽</b></div><div class="bal-row"><span>Тащер Коины</span><b class="tkc">${fmt(ME.tk)} ТК</b></div><a href="#me">${ico("u")}Мой профиль</a><a href="#quests">${ico("task")}Задания дня<span class="nv-qn" id="qNav" hidden></span></a>`:`<button class="login" data-login>${ico("steam")}Войти через Steam</button><div class="sep"></div>`)
     +`<a href="#ach">${ico("ach")}Достижения</a><a href="#settings" data-pfset>${ico("set")}Настройки</a>`
     +(logged?`<div class="sep"></div><button class="out" id="umOut">${ico("out")}Выйти</button>`:"");
   $("steamSlot").innerHTML=chip+`<div class="umenu" id="umenu" role="menu" hidden>${items}</div>`;
   $("meBtn").onclick=e=>{e.stopPropagation();const m=$("umenu"),o=m.hidden;m.hidden=!o;$("meBtn").setAttribute("aria-expanded",o)};
-  const out=$("umOut");if(out)out.onclick=()=>setLogin(false)}
+  const out=$("umOut");if(out)out.onclick=()=>setLogin(false);
+  try{qsNav()}catch(e){}}
 function closeUm(){const m=$("umenu");if(m&&!m.hidden){m.hidden=true;$("meBtn").setAttribute("aria-expanded","false")}}
 document.addEventListener("click",e=>{if(!e.target.closest("#umenu")||e.target.closest("a,button"))if(!e.target.closest("#meBtn"))closeUm()});
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closeUm()});

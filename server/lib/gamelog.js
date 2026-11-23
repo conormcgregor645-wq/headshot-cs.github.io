@@ -129,9 +129,10 @@ function makeStats(db, { bots = true } = {}) {
         z.k, z.d, z.hs, z.a, z.pt, z.rw, z.rp, z.tk, z.pl, z.df
       FROM gstats m JOIN gplayers p ON p.sid=m.sid JOIN gstats z ON z.sid=m.sid AND z.period='all'
       WHERE m.period=? ORDER BY pts DESC, m.k DESC, p.last_seen DESC LIMIT ?`).all(period, limit);
-    const wq = db.prepare("SELECT w, k FROM gweapons WHERE sid=? ORDER BY k DESC LIMIT 4");
-    return rows.map(r => { const o = openSec(r.sid); return { sid: r.sid, n: r.name, last: r.last_seen, pts: r.pts, mk: r.mk, md: r.md, mhs: r.mhs, ma: r.ma, mpt: r.mpt + o,
-      k: r.k, d: r.d, hs: r.hs, a: r.a, pt: r.pt + o, rw: r.rw, rp: r.rp, w: wq.all(r.sid).map(x => [x.w, x.k]) }; });
+    const wq = db.prepare("SELECT w, k FROM gweapons WHERE sid=? ORDER BY k DESC");
+    // w — 4 любимых ствола (для профиля), wa — убийства по всем стволам и pl/df — закладки/разминирования (для достижений)
+    return rows.map(r => { const o = openSec(r.sid), wa = wq.all(r.sid).map(x => [x.w, x.k]); return { sid: r.sid, n: r.name, last: r.last_seen, pts: r.pts, mk: r.mk, md: r.md, mhs: r.mhs, ma: r.ma, mpt: r.mpt + o,
+      k: r.k, d: r.d, hs: r.hs, a: r.a, pt: r.pt + o, rw: r.rw, rp: r.rp, pl: r.pl || 0, df: r.df || 0, w: wa.slice(0, 4), wa }; });
   }
   function player(sid) {
     const p = db.prepare("SELECT * FROM gplayers WHERE sid=?").get(sid); if (!p) return null;
@@ -139,8 +140,8 @@ function makeStats(db, { bots = true } = {}) {
     const m = db.prepare(`SELECT *, ${PTS} pts FROM gstats WHERE sid=? AND period=?`).get(sid, month(Date.now())) || {};
     const o = openSec(sid);
     return { sid, n: p.name, last: p.last_seen, first: p.first_seen, pts: m.pts || 0, mk: m.k || 0, md: m.d || 0, mhs: m.hs || 0, ma: m.a || 0, mpt: (m.pt || 0) + o,
-      k: z.k || 0, d: z.d || 0, hs: z.hs || 0, a: z.a || 0, pt: (z.pt || 0) + o, rw: z.rw || 0, rp: z.rp || 0,
-      w: db.prepare("SELECT w, k FROM gweapons WHERE sid=? ORDER BY k DESC LIMIT 4").all(sid).map(x => [x.w, x.k]) };
+      k: z.k || 0, d: z.d || 0, hs: z.hs || 0, a: z.a || 0, pt: (z.pt || 0) + o, rw: z.rw || 0, rp: z.rp || 0, pl: z.pl || 0, df: z.df || 0,
+      ...(wa => ({ w: wa.slice(0, 4), wa }))(db.prepare("SELECT w, k FROM gweapons WHERE sid=? ORDER BY k DESC").all(sid).map(x => [x.w, x.k])) };
   }
   // остановка/запуск сервера (из системного журнала): закрываем сессии, счёт на карте сбрасываем
   function serverStop(t) { closeAll(Math.max(S.lastT || t, Math.min(t, (S.lastT || t) + MAX_SESSION))); S.live.clear(); S.team.clear(); S.uid.clear(); S.nteam.clear(); resetMatch(); S.warm = false; S.lastT = Math.max(S.lastT, t); }
