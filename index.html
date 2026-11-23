@@ -207,7 +207,7 @@ footer nav{flex-direction:row;gap:16px;flex-wrap:wrap}
   .steam span,.ip code{display:none}
 }
 /* modes */
-:root{--railimg:none;--bnr-rating:url(img/banner-rating.jpg?v=19d45884);--bgimg:url(img/bg.jpg?v=58a08ffe);--photo:url(img/public.jpg?v=3cc58889);--card:url(img/card-public.jpg?v=66d41f36)}
+:root{--railimg:none;--bnr-rating:url(img/banner-rating.jpg?v=19d45884);--bgimg:url(img/bg.jpg?v=58a08ffe);--photo:url(img/public.jpg?v=3cc58889);--card:url(img/card-public.jpg?v=5175e84b)}
 .modes-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,250px));gap:14px}
 .mode-card{position:relative;aspect-ratio:483/696;border-radius:18px;overflow:hidden;border:1px solid color-mix(in srgb,var(--accent) 55%,var(--line));background:var(--panel-2) var(--card) center/cover;padding:18px 16px;display:flex;flex-direction:column;justify-content:space-between;transition:transform .2s,box-shadow .2s;max-width:100%;box-shadow:0 0 0 0 var(--glow)}
 .mode-card::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.55),transparent 30%,transparent 70%,rgba(0,0,0,.7))}
@@ -1346,6 +1346,12 @@ button.pf-role{cursor:pointer}button.pf-role:hover{border-color:color-mix(in srg
 .rt-clan .rt-row{grid-template-columns:62px minmax(220px,1.8fr) 140px repeat(4,minmax(90px,.8fr)) 150px}
 .rt-row:not(.rt-h):hover{background:var(--panel-2);transform:translateX(3px)}
 .rt-row>span{min-width:0}
+/* фон профиля в строке рейтинга: на всю строку, под затемнением, чтобы читались цифры */
+.rt-row.has-bg{position:relative;isolation:isolate}
+.rt-row.has-bg>.pbx{position:absolute;inset:0;z-index:-2;display:block;aspect-ratio:auto;-webkit-mask:none;mask:none;border-radius:inherit;overflow:hidden}
+.rt-row.has-bg>.pbx .pbx-im{background-size:cover;background-position:center 42%;animation:none}
+.rt-row.has-bg>.rt-sh{position:absolute;inset:0;z-index:-1;border-radius:inherit;pointer-events:none;background:linear-gradient(90deg,rgba(9,10,8,.9) 0%,rgba(9,10,8,.6) 30%,rgba(9,10,8,.42) 62%,rgba(9,10,8,.7) 100%);transition:opacity .2s}
+.rt-row.has-bg:not(.rt-h):hover>.rt-sh{opacity:.8}
 .rt-row,.who{overflow:hidden}
 .rt-h{height:auto;padding:4px 16px 2px;background:none;cursor:default;font-size:13px;font-weight:700;color:var(--muted)}
 .rt-h span:nth-child(n+4){text-align:center}
@@ -1518,6 +1524,125 @@ button.pf-role{cursor:pointer}button.pf-role:hover{border-color:color-mix(in srg
 .q-mu{color:var(--muted);font-size:13px}
 .nv-qn{margin-left:auto;font-size:11px;font-weight:800;background:color-mix(in srgb,var(--accent) 20%,transparent);color:var(--accent);border-radius:99px;padding:2px 7px}
 @media (max-width:900px){.q-wrap{grid-template-columns:1fr}}
+/* ===== Задания: день и неделя ===== */
+.qx-head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;margin-bottom:34px}
+.qx-head h1{margin:0 0 6px;font:900 clamp(30px,4vw,44px)/1 var(--f-display);font-style:italic}
+.qx-head p{margin:0;max-width:60ch;color:var(--muted);line-height:1.5}
+.qx-x2{color:#1a1a1a;background:#f5c451;border-radius:6px;padding:1px 7px;font-weight:900}
+.qx-pot{display:flex;gap:28px}
+.qx-pot small{display:block;color:var(--muted);font-size:13px;font-weight:700;margin-bottom:2px}
+.qx-pot b{font:900 26px/1 var(--f-display);color:#f5c451;white-space:nowrap}
+.qx-guest{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 16px;margin-bottom:18px;font-weight:700}
+.qx-sec{margin-bottom:34px}
+.qx-sh{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.qx-sh h2{margin:0;font:900 22px/1.1 var(--f-display)}
+.qx-tm{color:var(--muted);font-size:14px;font-weight:700}.qx-tm b{color:var(--fg);font-variant-numeric:tabular-nums}
+.qx-day{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.qx-t{position:relative;background:linear-gradient(160deg,color-mix(in srgb,var(--qc) 14%,var(--panel)) 0%,var(--panel) 55%);border:1px solid color-mix(in srgb,var(--qc) 22%,transparent);border-radius:20px;padding:18px 18px 20px;overflow:hidden}
+.qx-t::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:var(--qc)}
+.qx-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.qx-lv{font-weight:800;font-size:14px;color:var(--qc)}
+.qx-rw{font:900 17px/1 var(--f-display);color:#f5c451;white-space:nowrap}
+.qx-mid{display:flex;align-items:center;gap:16px}
+.qx-ring{width:64px;height:64px;flex:none;transform:rotate(-90deg)}
+.qx-ring circle{fill:none;stroke-width:6}.qx-ring .bg{stroke:rgba(255,255,255,.08)}.qx-ring .fg{stroke-linecap:round;transition:stroke-dashoffset .6s ease}
+.qx-ring .ok{fill:none;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;transform:rotate(90deg);transform-origin:32px 32px}
+.qx-n{display:block;font-weight:800;font-size:17px;line-height:1.3}
+.qx-pg{display:block;margin-top:4px;color:var(--muted);font-size:14px;font-weight:700;font-variant-numeric:tabular-nums}
+.qx-t.done{border-color:color-mix(in srgb,var(--qc) 60%,transparent)}.qx-t.done .qx-pg{color:var(--qc)}
+.qx-bonus{display:flex;align-items:center;gap:14px;margin-top:12px;background:var(--panel);border:1px dashed rgba(245,196,81,.35);border-radius:16px;padding:14px 18px;font-weight:700}
+.qx-bonus span{flex:1}.qx-bonus b{font:900 17px/1 var(--f-display);color:#f5c451}
+.qx-bonus.done{border-style:solid;background:linear-gradient(90deg,rgba(245,196,81,.14),var(--panel) 60%)}
+.qx-dots{display:flex;gap:6px}.qx-dots i{width:22px;height:8px;border-radius:99px;background:rgba(255,255,255,.1)}.qx-dots i.on{background:#f5c451}
+.qx-wn{margin:-6px 0 14px;color:var(--muted)}
+.qx-week{list-style:none;margin:0;padding:0;position:relative;display:flex;flex-direction:column;gap:10px}
+.qx-week::before{content:"";position:absolute;left:27px;top:24px;bottom:24px;width:2px;background:linear-gradient(#7dd3fc,#38d3ff,#a78bfa,#ff8a3d,#f5c451);opacity:.35}
+.qx-w{position:relative;display:grid;grid-template-columns:56px minmax(0,1fr) auto;align-items:center;gap:16px;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:14px 18px 14px 0}
+.qx-st{justify-self:center;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font:900 15px/1 var(--f-display);color:var(--qc);background:var(--bg,#0d0d0d);border:2px solid var(--qc);position:relative;z-index:1}
+.qx-w.done .qx-st{background:var(--qc);color:#111}
+.qx-bar{height:10px;border-radius:99px;background:rgba(255,255,255,.07);margin-top:9px;overflow:hidden}
+.qx-bar i{display:block;height:100%;width:var(--p);border-radius:inherit;background:var(--qc);box-shadow:0 0 12px color-mix(in srgb,var(--qc) 60%,transparent)}
+.qx-w .qx-rw{font-size:19px}
+.qx-w.done{border-color:color-mix(in srgb,var(--qc) 45%,transparent)}.qx-w.done .qx-pg{color:var(--qc)}
+.qx-info{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.qx-info>div{background:var(--panel);border-radius:18px;padding:18px 20px}
+.qx-info h3{margin:0 0 10px;font-size:16px;font-weight:800}
+.qx-info ul{margin:0;padding-left:18px;color:var(--muted);line-height:1.55}.qx-info li b{color:#f5c451}
+.qx-info code{background:rgba(255,255,255,.07);border-radius:6px;padding:1px 6px;color:var(--fg)}
+@media (max-width:980px){.qx-day{grid-template-columns:1fr}.qx-info{grid-template-columns:1fr}}
+@media (max-width:560px){.qx-w{grid-template-columns:48px minmax(0,1fr);padding-right:14px}.qx-w .qx-rw{grid-column:2;font-size:16px}.qx-week::before{left:23px}.qx-pot{gap:18px}.qx-pot b{font-size:21px}}
+@media (prefers-reduced-motion:reduce){.qx-ring .fg{transition:none}}
+/* ===== Пропуск: трасса сезона ===== */
+.pz-hero{position:relative;display:grid;grid-template-columns:minmax(0,640px);align-items:end;min-height:420px;border-radius:28px;padding:40px 44px;overflow:hidden;margin-bottom:16px;
+  background:radial-gradient(70% 90% at 85% 10%,rgba(56,211,255,.22),transparent 60%),radial-gradient(60% 80% at 0% 100%,rgba(181,232,83,.14),transparent 60%),linear-gradient(160deg,#0f1b2b,#0a1018 60%,#0c1210)}
+.pz-hero.has-img{background:linear-gradient(90deg,rgba(8,14,28,.92) 0%,rgba(8,14,28,.72) 40%,rgba(8,14,28,.1) 75%),linear-gradient(0deg,rgba(8,14,28,.6),transparent 40%),var(--pzimg) 70% 30%/cover}
+.pz-hero.winter::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle,rgba(255,255,255,.8) 0 1px,transparent 1.6px) 0 0/90px 90px,radial-gradient(circle,rgba(255,255,255,.45) 0 1px,transparent 1.6px) 35px 50px/60px 60px;opacity:.5}
+.pz-copy{position:relative;z-index:1}
+.pz-season{display:inline-block;color:#9fdcff;font-weight:700;font-size:14px;margin-bottom:12px}
+.pz-hero h1{margin:0 0 14px;font:900 clamp(34px,5vw,62px)/.95 var(--f-display);font-style:italic;letter-spacing:-.01em}
+.pz-hero h1 span{display:block;background:linear-gradient(90deg,#e8f7ff,#7dd3fc 45%,#b5e853);-webkit-background-clip:text;background-clip:text;color:transparent}
+.pz-copy>p{margin:0 0 26px;max-width:52ch;color:#b9c4cf;line-height:1.55}
+.pz-lvl{display:flex;align-items:center;gap:18px;max-width:560px}
+.pz-big{font:900 72px/1 var(--f-display);font-style:italic;color:#b5e853;text-shadow:0 0 30px rgba(181,232,83,.35);min-width:1.1ch;text-align:center}
+.pz-lvi{flex:1;min-width:0}.pz-lvi b{display:block;font-size:17px;margin-bottom:8px}
+.pz-lvi span{display:block;margin-top:8px;color:#9aa6b2;font-size:13px;font-weight:600}
+.pz-xp{height:12px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden}
+.pz-xp i{display:block;height:100%;width:var(--p);border-radius:inherit;background:linear-gradient(90deg,#7dd3fc,#b5e853);box-shadow:0 0 16px rgba(181,232,83,.5)}
+.pz-art{position:relative;z-index:1;justify-self:center}
+.pz-art img{display:block;width:100%;max-width:280px;height:auto;transform:rotate(4deg);filter:drop-shadow(0 24px 40px rgba(0,0,0,.6))}
+.pz-prem{display:flex;align-items:center;gap:18px;border-radius:20px;padding:16px 20px;margin-bottom:34px;background:linear-gradient(90deg,rgba(245,196,81,.16),rgba(245,196,81,.04) 60%,transparent),var(--panel);border:1px solid rgba(245,196,81,.35)}
+.pz-prem>div{flex:1;min-width:0}.pz-prem b{display:block;font-size:17px;color:#f5c451;margin-bottom:3px}.pz-prem span{color:#c9bfa6;font-size:14px;line-height:1.45}
+.pz-crown{flex:none;width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:rgba(245,196,81,.15);color:#f5c451}
+.pz-crown svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:2;stroke-linejoin:round}
+.pz-buy{flex:none;border:0;border-radius:99px;padding:12px 22px;font:800 15px/1 inherit;font-family:inherit;color:#1a1408;background:linear-gradient(180deg,#ffd970,#f5b931);cursor:pointer;white-space:nowrap}
+.pz-buy:hover{filter:brightness(1.07)}.pz-buy:focus-visible,.pz-nav:focus-visible,.pz-all:focus-visible,.pz-rw:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.pz-prem.on{border-color:rgba(245,196,81,.6)}
+.pz-road{margin-bottom:24px}
+.pz-rh{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.pz-rh h2{margin:0;font:900 22px/1.1 var(--f-display)}
+.pz-rt{display:flex;gap:8px;align-items:center}
+.pz-all{border:0;border-radius:99px;padding:10px 18px;font:800 14px/1 inherit;font-family:inherit;background:#b5e853;color:#11160a;cursor:pointer}
+.pz-nav{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--panel);color:var(--fg);font-size:22px;line-height:1;cursor:pointer}
+.pz-nav:hover{background:var(--panel-2)}
+.pz-wrap{display:grid;grid-template-columns:34px minmax(0,1fr);gap:8px;background:linear-gradient(180deg,rgba(125,211,252,.05),transparent 45%,rgba(245,196,81,.06)),var(--panel);border-radius:24px;padding:18px 0 18px 12px}
+.pz-side{display:grid;grid-template-rows:150px 46px 150px}
+.pz-side span{writing-mode:vertical-rl;transform:rotate(180deg);align-self:center;justify-self:center;font-weight:800;font-size:13px;color:#9fdcff}
+.pz-side span.pr{grid-row:3;color:#f5c451}
+.pz-track{overflow-x:auto;scroll-snap-type:x proximity;scrollbar-width:thin;padding:0 12px 6px 0}
+.pz-cols{position:relative;display:flex;width:max-content}
+.pz-rail{position:absolute;left:60px;right:60px;top:170px;height:6px;border-radius:99px;background:rgba(255,255,255,.08)}
+.pz-rail b{position:absolute;inset:0 auto 0 0;width:var(--fill);border-radius:inherit;background:linear-gradient(90deg,#7dd3fc,#b5e853);box-shadow:0 0 14px rgba(181,232,83,.45)}
+.pz-col{position:relative;width:120px;display:grid;grid-template-rows:150px 46px 150px;justify-items:center;scroll-snap-align:start}
+.pz-node{grid-row:2;align-self:center;position:relative;z-index:1;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font:800 13px/1 var(--f-display);background:#1b1f24;border:2px solid rgba(255,255,255,.14);color:#8b95a1}
+.pz-col.big .pz-node{width:42px;height:42px;font-size:15px}
+.pz-col.got .pz-node{background:#1d2a14;border-color:#b5e853;color:#d9f5a0}
+.pz-col.cur .pz-node{background:#b5e853;color:#11160a;border-color:#e8ffc0;box-shadow:0 0 0 6px rgba(181,232,83,.18)}
+.pz-rw{all:unset;box-sizing:border-box;width:108px;height:150px;overflow:hidden;display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;padding:10px 6px;border-radius:18px;cursor:default}
+.pz-rw.fr{justify-content:flex-end}.pz-rw.pr{justify-content:flex-start}
+.pz-med{position:relative;width:58px;height:58px;border-radius:50%;display:grid;place-items:center;color:var(--ic);background:radial-gradient(circle at 50% 35%,color-mix(in srgb,var(--ic) 32%,transparent),color-mix(in srgb,var(--ic) 8%,transparent) 70%);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--ic) 45%,transparent)}
+.pz-rw.big .pz-med{width:72px;height:72px;box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--ic) 70%,transparent),0 0 24px color-mix(in srgb,var(--ic) 35%,transparent)}
+.pz-med.pz-img{border-radius:16px;width:76px;height:76px;background-color:#0d1117;background-size:cover;background-position:center;box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--ic) 55%,transparent),0 6px 18px rgba(0,0,0,.4)}
+.pz-rw.big .pz-med.pz-img{width:88px;height:88px}
+.pz-med svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.pz-rw.big .pz-med svg{width:32px;height:32px}
+.pz-rw b{font-size:13px;font-weight:800;line-height:1.25}.pz-rw small{font-size:12px;color:var(--muted);font-weight:600}
+.pz-rw.pr .pz-med{background:radial-gradient(circle at 50% 35%,rgba(245,196,81,.28),rgba(245,196,81,.06) 70%);box-shadow:inset 0 0 0 1.5px rgba(245,196,81,.5)}
+.pz-rw.lock,.pz-rw.plock{opacity:.55}.pz-rw.lock .pz-med,.pz-rw.plock .pz-med{filter:grayscale(.6)}
+.pz-rw.done{opacity:.6}
+.pz-ok,.pz-lk{position:absolute;right:-2px;bottom:-2px;width:20px;height:20px;border-radius:50%}
+.pz-ok{background:#b5e853 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2311160a' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 12l4 4 8-9'/%3E%3C/svg%3E") center/13px no-repeat}
+.pz-lk{background:#2a2f36 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c8d0d8' stroke-width='2.4' stroke-linecap='round'%3E%3Crect x='6' y='11' width='12' height='9' rx='2'/%3E%3Cpath d='M9 11V8a3 3 0 0 1 6 0v3'/%3E%3C/svg%3E") center/12px no-repeat}
+.pz-rw.ready{cursor:pointer;background:rgba(181,232,83,.08);box-shadow:inset 0 0 0 1.5px rgba(181,232,83,.55)}
+.pz-rw.ready:hover{background:rgba(181,232,83,.14)}
+.pz-get{font-size:12px;font-weight:800;color:#11160a;background:#b5e853;border-radius:99px;padding:3px 10px}
+.pz-how{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.pz-how li{color:var(--muted);font-size:14px;line-height:1.45;padding:14px 16px;border-left:3px solid #7dd3fc;background:linear-gradient(90deg,rgba(125,211,252,.07),transparent)}
+.pz-how b{display:block;font:900 20px/1.1 var(--f-display);color:var(--fg);margin-bottom:4px}
+@media (max-width:980px){.pz-hero{grid-template-columns:1fr;padding:28px 22px}.pz-art{display:none}.pz-how{grid-template-columns:1fr 1fr}.pz-prem{flex-wrap:wrap}}
+@media (max-width:760px){.pz-hero{min-height:0}.pz-hero.has-img{background:linear-gradient(180deg,rgba(8,14,28,.45) 0%,rgba(8,14,28,.82) 38%,rgba(8,14,28,.95) 100%),var(--pzimg) 65% 0/cover}}
+@media (max-width:560px){.pz-big{font-size:54px}.pz-how{grid-template-columns:1fr}.pz-buy{width:100%}}
+
+
 @media (max-width:520px){.q-card{padding:14px;gap:6px 12px}.q-ic{width:40px;height:40px}.q-n{font-size:15px}.q-rw{font-size:14px}}
 .wf-card{background:var(--panel);border-radius:16px;padding:16px 18px;display:flex;flex-direction:column;gap:10px}
 .wf-card>small,.wf-row small{font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
@@ -2627,6 +2752,12 @@ nav a.on,nav a.on svg{color:#b5e853!important}
 .kfx-bolt{background:radial-gradient(circle,rgba(56,211,255,.6),transparent 55%)}
 .kfx-conf{background:linear-gradient(30deg,#ff6b8b,#ff6b8b) 34% 28%/8px 4px no-repeat,linear-gradient(#b5e853,#b5e853) 66% 32%/4px 8px no-repeat,linear-gradient(#38d3ff,#38d3ff) 28% 66%/7px 4px no-repeat,linear-gradient(#f5c451,#f5c451) 70% 70%/4px 7px no-repeat,linear-gradient(#a78bfa,#a78bfa) 52% 18%/6px 4px no-repeat,linear-gradient(#ff6b8b,#ff6b8b) 48% 82%/4px 6px no-repeat}
 .kfx-ring{background:radial-gradient(circle,transparent 0 30%,#f5c451 31% 35%,transparent 36% 45%,rgba(255,255,255,.9) 46% 48%,transparent 49%)}
+.kfx-frost{background:linear-gradient(#bfe9ff,#bfe9ff) center/3px 70% no-repeat,linear-gradient(60deg,transparent 48.5%,#bfe9ff 49% 51%,transparent 51.5%) center/70% 70% no-repeat,linear-gradient(-60deg,transparent 48.5%,#bfe9ff 49% 51%,transparent 51.5%) center/70% 70% no-repeat,radial-gradient(circle,rgba(125,211,252,.45),transparent 55%)}
+.kfx-fire{background:radial-gradient(40% 55% at 50% 75%,#ffdc6e,#ff8a3d 45%,rgba(255,70,40,.55) 70%,transparent 72%),radial-gradient(18% 30% at 35% 55%,#ff8a3d,transparent 70%),radial-gradient(18% 30% at 66% 52%,#ff5a28,transparent 70%)}
+.kfx-tornado{background:repeating-radial-gradient(circle at 50% 60%,transparent 0 5px,rgba(181,232,83,.85) 5px 6.5px,transparent 6.5px 11px);-webkit-mask:radial-gradient(circle at 50% 60%,#000 40%,transparent 62%);mask:radial-gradient(circle at 50% 60%,#000 40%,transparent 62%)}
+.kfx-star{background:radial-gradient(circle,rgba(255,207,64,.55),transparent 55%);clip-path:polygon(50% 8%,61% 38%,93% 38%,67% 57%,77% 88%,50% 70%,23% 88%,33% 57%,7% 38%,39% 38%)}
+.kfx-rainbow{background:radial-gradient(circle at 50% 80%,transparent 0 26%,#a064ff 27% 31%,#46aaff 32% 36%,#78e664 37% 41%,#ffe650 42% 46%,#ffa03c 47% 51%,#ff5050 52% 56%,transparent 57%)}
+.kfx-nova{background:conic-gradient(from 0deg,transparent 0 4%,rgba(200,90,255,.9) 5%,transparent 6% 12%,rgba(255,90,200,.9) 13%,transparent 14% 21%,#fff 22%,transparent 23% 30%,rgba(200,90,255,.9) 31%,transparent 32% 40%,rgba(255,90,200,.9) 41%,transparent 42% 50%,#fff 51%,transparent 52% 61%,rgba(200,90,255,.9) 62%,transparent 63% 71%,rgba(255,90,200,.9) 72%,transparent 73% 82%,#fff 83%,transparent 84% 92%,rgba(200,90,255,.9) 93%,transparent 94%);-webkit-mask:radial-gradient(circle,#000 20%,transparent 60%);mask:radial-gradient(circle,#000 20%,transparent 60%)}
 .kfx.go{animation:kfxGo .7s ease-out}
 @keyframes kfxGo{0%{transform:scale(.3);opacity:1}100%{transform:scale(1.6);opacity:0}}
 .co-tagin{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
@@ -3539,7 +3670,8 @@ const players=NICKS.map((n,i)=>{const kills=Math.round(300+R()*5600);const death
   const w=[...WEAP].sort(()=>R()-.5).slice(0,4);let left=100;const share=w.map((x,k)=>{const v=k===3?left:Math.round(left*(.35+R()*.3));left-=v;return[x,v]}).sort((a,b)=>b[1]-a[1]);
   return{id:i,n,kills,deaths,kd:+(kills/deaths).toFixed(2),hs,hrs,pts,mvp:Math.round(kills/18),c:AVC[i%6],r:rankIdx(pts),w:share}});
 const XPL=[];// игроки из итогов месяца, которых нет в рейтинге текущего месяца
-const P=n=>players.find(p=>p.n===n)||(typeof guests!=="undefined"&&guests.find(p=>p.n===n))||XPL.find(p=>p.n===n);
+const CLX=[];// участники кланов без статистики за месяц — чтобы их профиль тоже открывался
+const P=n=>players.find(p=>p.n===n)||(typeof guests!=="undefined"&&guests.find(p=>p.n===n))||XPL.find(p=>p.n===n)||CLX.find(p=>p.n===n)||(()=>{try{return logged&&ME.n===n?ME:undefined}catch(e){return undefined}})();
 const isKing=p=>{try{if(window.TSRV){const s=srvStatusOf(p);return!!s&&s.t==="KING"}return(MEDALS.get(p)||[]).some(m=>m.place<=3&&m.month===LAST_MONTH)}catch(e){return false}};
 // статусы игроков с сервера: SteamID64 -> {t, u, f}
 let SRV_ST=new Map();
@@ -3604,7 +3736,7 @@ async function copyText(text,btn,el){const old=btn.textContent;try{await navigat
 $("copy").onclick=e=>copyText(cmd.textContent,e.currentTarget,cmd);
 
 // ---------- сервера режима Public (пример) ----------
-const MAPIMG={"Mirage": "img/map-mirage.jpg?v=ca8d094d", "Dust2": "img/map-dust2.jpg?v=6d825604", "Inferno": "img/map-inferno.jpg?v=c41a0665"};
+const MAPIMG={"Mirage": "img/map-mirage.jpg?v=ca8d094d", "Dust2": "img/map-dust2.jpg?v=893244f0", "Inferno": "img/map-inferno.jpg?v=c41a0665"};
 const mapBg=m=>MAPIMG[m]?`--mimg:url(${MAPIMG[m]});`:"";
 const MAPC={Mirage:"#d9a35a",Dust2:"#f5c451",Inferno:"#ff6a3d",Ancient:"#3ddc97"};
 const SERVERS=[];
@@ -3614,7 +3746,10 @@ let totalOnline=0;
 function srvCounts(){totalOnline=SERVERS.reduce((a,s)=>a+s.cur,0);$("online").textContent=fmt(totalOnline);$("pubOnline").textContent=fmt(totalOnline);$("pmOnline").textContent=fmt(totalOnline);
   const n=SERVERS.length;$("pubCount").textContent=n+" "+plural(n,"сервер","сервера","серверов");$("pmServers").textContent=n}
 // настоящие серверы: сайт на VPS вписывает их в страницу и отдаёт свежие по /api/servers
-const mapName=id=>{const m=String(id||"").replace(/^[a-z]+_/,"");return m?({dust2:"Dust2",mirage:"Mirage",inferno:"Inferno",ancient:"Ancient",nuke:"Nuke",anubis:"Anubis",vertigo:"Vertigo",overpass:"Overpass",train:"Train"}[m]||m[0].toUpperCase()+m.slice(1)):"—"};
+// имя карты для сайта; карты из Мастерской («workshop/ID/de_dust2_winter», «de_dust2_christmas») — по известной основе
+const mapName=id=>{const raw=String(id||"").replace(/^workshop\/\d+\//,"").toLowerCase(),m=raw.replace(/^[a-z]+_/,"");if(!m)return"—";
+  const K={dust2:"Dust2",mirage:"Mirage",inferno:"Inferno",ancient:"Ancient",nuke:"Nuke",anubis:"Anubis",vertigo:"Vertigo",overpass:"Overpass",train:"Train"};
+  if(K[m])return K[m];const base=Object.keys(K).find(k=>m.startsWith(k+"_")||m.startsWith(k));return base?K[base]:m[0].toUpperCase()+m.slice(1)};
 function srvServersSet(l){SERVERS.length=0;l.forEach((x,i)=>SERVERS.push({name:String(x.name||"Сервер").slice(0,64),map:x.online?mapName(x.map):"Офлайн",mapId:x.online?String(x.map||""):"не отвечает",port:i,ip:String(x.addr||""),cur:x.online?Math.max(0,x.players|0):0,max:Math.max(1,x.max|0||10),t:0,ct:0,real:1,on:!!x.online,list:Array.isArray(x.list)?x.list.filter(p=>p&&typeof p.n==="string"):[],score:x.score&&Number.isInteger(x.score.ct)&&Number.isInteger(x.score.t)?{ct:x.score.ct,t:x.score.t,warm:!!x.score.warm}:null}));
   maps=["Все",...new Set(SERVERS.map(s=>s.map))];if(!maps.includes(mapF))mapF="Все";$("mapFilter").innerHTML=maps.map(m=>`<button data-m="${esc(m)}" aria-pressed="${m===mapF}">${esc(m)}</button>`).join("");srvCounts();
   const sm=$("srvModal");if(!sm.hidden&&SERVERS[sm.dataset.i])openServer(+sm.dataset.i,1)}
@@ -3929,7 +4064,7 @@ function drawLeagues(){const box=$("lgBox");if(!box)return;const b=LGB||(SRV&&SR
 function statP(x,i){const k=x.k|0,d=x.d|0,pt=x.pt|0,w=Array.isArray(x.w)?x.w:[],tot=w.reduce((s,y)=>s+(y[1]|0),0);
   return{id:1000+i,n:String(x.n||"Игрок").slice(0,32),sid:String(x.sid||""),real:1,kills:k,deaths:d,kd:+(d?k/d:k).toFixed(2),hs:k?Math.round((x.hs|0)/k*100):0,hsN:x.hs|0,as:x.a|0,
     hrs:Math.floor(pt/3600),pt,pts:x.pts|0,m:x.pts|0,mk:x.mk|0,md:x.md|0,mhs:x.mhs|0,ma:x.ma|0,mpt:x.mpt|0,rw:x.rw|0,rp:x.rp|0,mvp:0,c:AVC[i%AVC.length],r:rankIdx(x.pts|0),
-    w:tot?w.map(([n,v])=>[String(n),Math.round((v|0)/tot*100)]):[],pl:x.pl|0,df:x.df|0,bm:x.bm|0,wa:Array.isArray(x.wa)?Object.fromEntries(x.wa.map(([n,v])=>[String(n),v|0])):null,last:+x.last||0,online:!!x.on,sr:x.sr|0,lg:Number.isInteger(x.lg)&&LG[x.lg]?x.lg:null,cl:x.cl|0,nx:x.nx&&typeof x.nx.n==="string"?{n:x.nx.n,need:x.nx.need|0}:null}}
+    w:tot?w.map(([n,v])=>[String(n),Math.round((v|0)/tot*100)]):[],pl:x.pl|0,df:x.df|0,bm:x.bm|0,bg:typeof x.bg==="string"?x.bg:null,wa:Array.isArray(x.wa)?Object.fromEntries(x.wa.map(([n,v])=>[String(n),v|0])):null,last:+x.last||0,online:!!x.on,sr:x.sr|0,lg:Number.isInteger(x.lg)&&LG[x.lg]?x.lg:null,cl:x.cl|0,nx:x.nx&&typeof x.nx.n==="string"?{n:x.nx.n,need:x.nx.need|0}:null}}
 function srvStatsApply(st,my){if(!st||!Array.isArray(st.players))return;
   players.length=0;guests.length=0;
   st.players.forEach((x,i)=>{const p=statP(x,i);if(SRV.user&&p.sid===ME.steamid){Object.assign(ME,p,{id:ME.id,n:ME.n,c:ME.c});players.push(ME)}else players.push(p)});
@@ -4684,28 +4819,39 @@ const PS_TC={VIP:"#b8c0cc",PREMIUM:"#5aa9ff",ELITE:"#3ddc97",LEGEND:"#a78bfa",TI
 function psSet(p){if(p&&p.rewards)PS=p;psNav();if(curView==="pass")drawPass()}
 function psNav(){const e=$("psNav");if(!e)return;if(!PS&&SRV&&SRV.pass)PS=SRV.pass;const p=PS;if(!p||!p.season||!p.me){e.hidden=true;return}e.textContent=p.me.unclaimed?"+"+p.me.unclaimed:"ур. "+p.me.lv;e.hidden=false}
 function psRw(rw){if(rw.t==="tk")return{ic:"tk",c:"#f5c451",n:`${fmt(rw.v)} ТК`,k:"Тащер Коины"};
-  if(rw.t==="case"){const c=CASES.find(x=>x.k===rw.k);return{ic:"case",c:c?c.c:"#b5e853",n:c?`«${c.n}»`:"Кейс",k:"Кейс"}}
+  if(rw.t==="case"){const c=CASES.find(x=>x.k===rw.k);return{ic:"case",c:c?c.c:"#b5e853",n:c?`«${c.n}»`:"Кейс",k:"Кейс",img:(typeof CASEIMG!=="undefined"&&CASEIMG[rw.k])||""}}
   if(rw.t==="cos"){const it=cosI(rw.id);return{ic:"cos",c:"#38d3ff",n:it?it.n:"Оформление",k:it?(CCAT[it.cat]||["Оформление"])[0]:"Оформление"}}
   if(rw.t==="status")return{ic:"status",c:PS_TC[rw.tier]||"#f5c451",n:`${rw.tier} на ${rw.d} ${plural(rw.d,"день","дня","дней")}`,k:"Статус"};return{ic:"tk",c:"#888",n:"",k:""}}
+// награда уровня: медальон с иконкой, без квадратной плитки
 function psCell(tr,lv,list,me){const done=me&&me.claimed.includes(tr+lv),reached=me&&me.lv>=lv,plock=tr==="p"&&!(me&&me.prem),ready=reached&&!done&&!plock;
-  const parts=list.map(psRw),a=parts[0];
-  return`<${ready?"button type=\"button\"":"div"} class="ps-c ps-${a.ic}${lv%10===0?" ps-milestone":""}${tr==="p"?" pr":""}${done?" done":ready?" ready":reached?"":" lock"}${plock?" plock":""}" style="--ic:${a.c}"${ready?` data-psclaim="${tr}${lv}" title="Забрать награду уровня ${lv}"`:""}><span class="ps-c-icon"><svg viewBox="0 0 24 24" aria-hidden="true">${PS_IC[a.ic]}</svg></span><b>${parts.map(x=>esc(x.n)).join(" + ")}</b><small>${ready?"Забрать":esc(a.k)}</small></${ready?"button":"div"}>`}
+  const parts=list.map(psRw),a=parts[0],big=lv%5===0;
+  const st=done?"done":ready?"ready":plock?"plock":reached?"":"lock";
+  const tag=ready?`button type="button" data-psclaim="${tr}${lv}" title="Забрать награду уровня ${lv}"`:"div";
+  return`<${tag} class="pz-rw ${tr==="p"?"pr":"fr"} ${st}${big?" big":""}" style="--ic:${a.c}"><span class="pz-med${a.img?" pz-img":""}"${a.img?` style="background-image:url(${a.img})"`:""}>${a.img?"":`<svg viewBox="0 0 24 24" aria-hidden="true">${PS_IC[a.ic]}</svg>`}${done?'<i class="pz-ok" aria-label="Получено"></i>':plock||!reached?'<i class="pz-lk" aria-hidden="true"></i>':""}</span><b>${parts.map(x=>esc(x.n)).join(" + ")}</b>${ready?'<span class="pz-get">Забрать</span>':`<small>${esc(a.k)}</small>`}</${ready?"button":"div"}>`}
 function drawPass(scroll){const box=$("psBody");if(!box)return;if(!PS&&SRV&&SRV.pass)PS=SRV.pass;const p=PS;
   if(!SRV||!p){box.innerHTML=`<div class="page-head"><h1>Боевой пропуск</h1><p>Сезонный пропуск работает на сайте с игровым сервером.</p></div>`;return}
   if(!p.season){box.innerHTML=`<div class="page-head"><h1>Боевой пропуск</h1><p>${p.next?`Следующий сезон «${esc(p.next.n)}» начнётся ${new Date(p.next.from).toLocaleDateString("ru-RU")}.`:"Сезон закончился. Новый скоро."}</p></div>`;return}
   const me=p.me,s=p.season,left=Math.max(0,s.to-Date.now()),days=Math.floor(left/864e5),hrs=Math.floor(left%864e5/36e5);
-  const isWinter=/зим|winter/i.test(s.n);
-  const lvTxt=me?(me.lv>=p.levels?"Максимальный уровень":`${fmt(me.into)} / ${fmt(p.xpLevel)} опыта до уровня ${me.lv+1}`):"Войди через Steam, чтобы получать опыт";
-  const prem=me&&me.prem?`<div class="ps-prem on"><h3>Премиум активен</h3><ul><li>Премиум-награды всех уровней открыты</li><li>Уровень 50: KING на 14 дней и рамка «Зима 2026»</li></ul></div>`
-    :`<div class="ps-prem"><h3>Премиум-пропуск · ${fmt(p.price)} ₽</h3><ul><li>Вторая ветка наград на всех 50 уровнях</li><li>Кейсы «Огненный» и «Ножевой», статусы ELITE и LEGEND на 7 дней</li><li>Уровень 50: KING на 14 дней и рамка «Зима 2026»</li><li>Открывает награды уже пройденных уровней</li></ul>${me?`<button class="steam" type="button" id="psBuy">Купить за ${fmt(p.price)} ₽</button>`:`<button class="steam" type="button" data-login>Войти через Steam</button>`}</div>`;
-  const cols=Array.from({length:p.levels},(_,i)=>{const lv=i+1;return`<div class="ps-col${me&&me.lv===lv?" cur":""}${me&&me.lv>=lv?" got":""}" data-pslv="${lv}"><div class="ps-lv">${lv}</div>${psCell("f",lv,p.rewards.free[i],me)}${psCell("p",lv,p.rewards.prem[i],me)}</div>`}).join("");
-  box.innerHTML=`<div class="page-head"><h1>Боевой пропуск</h1><p>${esc(s.n)} · до конца сезона ${days} ${plural(days,"день","дня","дней")} ${hrs} ч. Играй на сервере и выполняй задания дня — получай опыт и забирай награды за каждый уровень.</p></div>
-   <section class="ps-scene${isWinter?" winter":""}" aria-label="Сезонный пропуск ${esc(s.n)}"><div class="ps-scene-copy"><span class="ps-kicker">TASHER / SEASON PASS</span><h2>${isWinter?'Зимняя операция <em>WINTER OPS</em>':esc(s.n)}</h2><p>Открывай награды за игру на сервере и ежедневные задания. Сезон: ${esc(s.n)}. До конца — ${days} ${plural(days,"день","дня","дней")} и ${hrs} ч.</p><div class="ps-scene-badges"><span>${p.levels} УРОВНЕЙ</span><span>БЕСПЛАТНАЯ ВЕТКА</span><span>PREMIUM REWARDS</span></div></div><div class="ps-scene-visual">${isWinter?'<img src="/assets/winter-ops-card.avif" alt="TASHER Winter Ops — коллекционная карточка премиум-пропуска" width="440" height="587" decoding="async">' : '<span class="ps-scene-placeholder" aria-hidden="true">TASHER</span>'}</div></section>
-   <div class="ps-hero"><div class="ps-lvl"><div class="ps-num">${me?me.lv:0}</div><div class="ps-info"><b>${me?`Уровень ${me.lv} из ${p.levels}`:"Уровень 0"}</b><div class="ps-bar"><i style="--p:${me?(me.lv>=p.levels?100:Math.round(me.into/p.xpLevel*100)):0}%"></i></div><span>${lvTxt}</span>${me?`<span>Опыт за игру сегодня: ${fmt(me.today)} / ${fmt(p.dayCap)} · задания — без лимита</span>`:""}</div></div>${prem}</div>
-   <div class="ps-tools"><small>${me&&me.unclaimed?`Ждут получения: ${me.unclaimed} ${plural(me.unclaimed,"награда","награды","наград")}`:"Награды забираются кнопкой — до конца сезона"}</small>${me&&me.unclaimed?`<button class="steam" type="button" id="psAll">Забрать всё (${me.unclaimed})</button>`:""}</div>
-   <div class="ps-rows"><div class="ps-lab"><i></i><span>Бесплатно</span><span class="pr">Премиум</span></div><div class="ps-track" id="psTrack">${cols}</div></div>
-   <div class="ps-how"><div><b>+${p.xp.kill} опыта</b>за убийство игрока (+${p.xp.hs} в голову), бот — +${p.xp.killBot}</div><div><b>+${p.xp.roundWin} / +${p.xp.minute}</b>за выигранный раунд / минуту в игре</div><div><b>+${p.xpQuest.easy}…${p.xpQuest.hard}</b>за задания дня, +${p.xpQuest.all} за все три</div><div><b>2 000 опыта</b>за каждый новый уровень пропуска</div></div>`;
-  if(scroll){const tr=$("psTrack"),c=tr&&tr.querySelector(`[data-pslv="${Math.max(1,(me?me.lv:1)-1)}"]`);if(tr&&c)tr.scrollLeft=c.offsetLeft-tr.offsetLeft-8}}
+  const isWinter=/зим|winter/i.test(s.n),lv=me?me.lv:0,pct=me?(me.lv>=p.levels?100:Math.round(me.into/p.xpLevel*100)):0;
+  // заполнение трассы: до текущего уровня + доля опыта к следующему
+  const fill=me?Math.min(100,((Math.max(0,lv-1)+(lv>=p.levels?0:me.into/p.xpLevel))/(p.levels-1))*100):0;
+  const cols=Array.from({length:p.levels},(_,i)=>{const l=i+1;return`<div class="pz-col${lv===l?" cur":""}${lv>=l?" got":""}${l%5===0?" big":""}" data-pslv="${l}">${psCell("f",l,p.rewards.free[i],me)}<span class="pz-node">${l}</span>${psCell("p",l,p.rewards.prem[i],me)}</div>`}).join("");
+  box.innerHTML=`<section class="pz-hero${isWinter?" winter has-img":""}"${isWinter?' style="--pzimg:url(/assets/pass-hero.jpg?v=7e596ea2)"':""} aria-label="Сезонный пропуск ${esc(s.n)}">
+     <div class="pz-copy"><span class="pz-season">${esc(s.n)} · ещё ${days} ${plural(days,"день","дня","дней")} ${hrs} ч</span>
+       <h1>${isWinter?'Зимняя операция<span>Winter Ops</span>':esc(s.n)}</h1>
+       <p>Играй на сервере и выполняй задания — опыт копится сам. Каждый уровень открывает награду, премиум-пропуск добавляет вторую.</p>
+       <div class="pz-lvl"><span class="pz-big">${lv}</span><div class="pz-lvi"><b>${me?(lv>=p.levels?"Максимальный уровень":`Уровень ${lv} из ${p.levels}`):"Войди через Steam, чтобы получать опыт"}</b>
+         <div class="pz-xp"><i style="--p:${pct}%"></i></div>
+         <span>${me?(lv>=p.levels?"Все уровни сезона пройдены":`${fmt(me.into)} из ${fmt(p.xpLevel)} опыта до уровня ${lv+1}`):""}${me?` · за игру сегодня ${fmt(me.today)} из ${fmt(p.dayCap)}`:""}</span></div></div></div>
+     </section>
+   ${me&&me.prem?`<div class="pz-prem on"><span class="pz-crown" aria-hidden="true"><svg viewBox="0 0 24 24">${PS_IC.status}</svg></span><div><b>Премиум-пропуск активен</b><span>Открыты награды обеих веток на всех ${p.levels} уровнях</span></div></div>`
+     :`<div class="pz-prem"><span class="pz-crown" aria-hidden="true"><svg viewBox="0 0 24 24">${PS_IC.status}</svg></span><div><b>Премиум-пропуск</b><span>Вторая ветка наград на всех ${p.levels} уровнях: кейсы «Огненный» и «Ножевой», ELITE и LEGEND на 7 дней, на 50-м — KING на 14 дней и рамка «Зима 2026». Награды пройденных уровней откроются сразу.</span></div>${me?`<button class="pz-buy" type="button" id="psBuy">Купить за ${fmt(p.price)} ₽</button>`:`<button class="steam" type="button" data-login>Войти через Steam</button>`}</div>`}
+   <section class="pz-road"><div class="pz-rh"><h2>Награды сезона</h2><div class="pz-rt">${me&&me.unclaimed?`<button class="pz-all" type="button" id="psAll">Забрать всё · ${me.unclaimed}</button>`:""}<button class="pz-nav" type="button" data-psnav="-1" aria-label="Назад по уровням">‹</button><button class="pz-nav" type="button" data-psnav="1" aria-label="Вперёд по уровням">›</button></div></div>
+     <div class="pz-wrap"><div class="pz-side"><span>Бесплатно</span><span class="pr">Премиум</span></div>
+       <div class="pz-track" id="psTrack" style="--fill:${fill}%"><div class="pz-cols"><i class="pz-rail" aria-hidden="true"><b></b></i>${cols}</div></div></div></section>
+   <ul class="pz-how"><li><b>+${p.xp.kill}</b> опыта за убийство игрока, +${p.xp.hs} в голову, бот +${p.xp.killBot}</li><li><b>+${p.xp.roundWin} / +${p.xp.minute}</b> за выигранный раунд и минуту в игре</li><li><b>+${p.xpQuest.easy}…${p.xpQuest.hard}</b> за задания дня, +${p.xpQuest.all} за все три, +${p.xpQuest.week||800} за задание недели</li><li><b>${fmt(p.xpLevel)}</b> опыта — один уровень пропуска</li></ul>`;
+  if(scroll){const tr=$("psTrack"),c=tr&&tr.querySelector(`[data-pslv="${Math.max(1,lv-1)}"]`);if(tr&&c)tr.scrollLeft=c.offsetLeft-12}}
+document.addEventListener("click",e=>{const b=e.target.closest("[data-psnav]");if(!b)return;const tr=$("psTrack");if(tr)tr.scrollBy({left:+b.dataset.psnav*tr.clientWidth*0.8,behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"})});
 async function psClaim(body,btn){if(!needLogin())return;if(btn)btn.disabled=true;
   try{const r=await api("/api/pass/claim",body);const keep=$("psTrack")?$("psTrack").scrollLeft:0;PS=r.pass;if(r.user){ME.tk=r.user.tk;ME.balance=r.user.balance}INV=srvItems(r.items);invSave();srvCosSet(r.cos);if(r.statuses){srvVipsSet(r.statuses);vipRedraw()}drawChip();psNav();drawPass();if($("psTrack"))$("psTrack").scrollLeft=keep;
     toast(r.got.length?"Получено: "+r.got.map(g=>g.txt).join(", "):"Нечего забирать")}
@@ -4747,7 +4893,7 @@ $("aEvents").addEventListener("click",async e=>{const b=e.target.closest("[data-
 // ===== Задания дня =====
 var QS=null;
 // пример для демо-режима (без сервера)
-const QS_DEMO={list:[{id:"k15",n:"Убей 15 противников",lv:"easy",lvn:"Лёгкое",goal:15,have:9,done:false,reward:150},{id:"ak15",n:"Убей 15 противников с AK-47",lv:"medium",lvn:"Среднее",goal:15,have:15,done:true,reward:300},{id:"awp15",n:"Убей 15 противников с AWP",lv:"hard",lvn:"Сложное",goal:15,have:2,done:false,reward:600}],bonus:false,bonusTk:300};
+const QS_DEMO={list:[{id:"k15",n:"Убей 15 противников",lv:"easy",lvn:"Лёгкое",goal:15,have:9,done:false,reward:150},{id:"ak15",n:"Убей 15 противников с AK-47",lv:"medium",lvn:"Среднее",goal:15,have:15,done:true,reward:300},{id:"awp15",n:"Убей 15 противников с AWP",lv:"hard",lvn:"Сложное",goal:15,have:2,done:false,reward:600}],bonus:false,bonusTk:300,week:{ends:(()=>{const d=new Date(Date.now()+3*3600e3),wd=(d.getUTCDay()+6)%7;d.setUTCHours(0,0,0,0);return d.getTime()-3*3600e3+(7-wd)*864e5})(),list:[{n:"Убей 150 противников",goal:150,have:150,done:true,reward:1000},{n:"Сделай 40 помощей в убийстве",goal:40,have:22,done:false,reward:1500},{n:"Убей 100 противников с AK-47",goal:100,have:37,done:false,reward:2500},{n:"Убей 15 противников гранатой или молотовым",goal:15,have:3,done:false,reward:3500},{n:"Сделай 250 убийств в голову",goal:250,have:41,done:false,reward:5000}]}};
 const QCOL={easy:"#3ddc97",medium:"#38d3ff",hard:"#ff8a3d"};
 const QICO={easy:'<path d="M5 12l5 5L20 7"/>',medium:'<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/>',hard:'<path d="M12 2l3 6 6 1-4.5 4.2L17.5 20 12 16.8 6.5 20l1-6.8L3 9l6-1z"/>'};
 function qsData(){return SRV?(QS||SRV.quests||null):QS_DEMO}
@@ -4758,26 +4904,34 @@ function qsLeft(){const q=qsData(),end=q&&q.ends?q.ends:(()=>{const d=new Date(D
 // игровые бонусы (значения с сайта, до загрузки — такие же по умолчанию)
 const FUNI={fb:20,ace:100,aceK:5,special:50};
 if(SRV)setTimeout(()=>{fetch("/api/fun",{credentials:"same-origin"}).then(r=>r.ok?r.json():null).then(d=>{if(!d||!d.ace)return;Object.assign(FUNI,{fb:d.firstBlood.human|0,ace:d.ace.tk|0,aceK:d.ace.kills|0,special:d.special.tk|0});if(curView==="quests")drawQuests()}).catch(()=>{})},1500);
+// кольцо прогресса для задания дня
+function qRing(have,goal,col,done){const r=26,c=2*Math.PI*r,p=goal?Math.min(1,have/goal):0;
+  return`<svg class="qx-ring" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="${r}" class="bg"/><circle cx="32" cy="32" r="${r}" class="fg" style="stroke:${col};stroke-dasharray:${c.toFixed(1)};stroke-dashoffset:${(c*(1-p)).toFixed(1)}"/>${done?`<path d="M22 33l7 7 13-15" class="ok" style="stroke:${col}"/>`:""}</svg>`}
+const QWCOL=["#7dd3fc","#38d3ff","#a78bfa","#ff8a3d","#f5c451"];
+function qWeekLeft(q){const w=q&&q.week;if(!w||!w.ends)return"";const ms=Math.max(0,w.ends-Date.now()),d=Math.floor(ms/864e5),h=Math.floor(ms%864e5/36e5),m=Math.floor(ms%36e5/6e4);return d?`${d} ${plural(d,"день","дня","дней")} ${h} ч`:`${h} ч ${m} мин`}
 function drawQuests(){const q=qsData(),box=$("qBody");if(!box)return;
-  if(!q){box.innerHTML=`<div class="page-head"><h1>Задания дня</h1><p>Задания загружаются…</p></div>`;return}
+  if(!q){box.innerHTML=`<div class="page-head"><h1>Задания</h1><p>Задания загружаются…</p></div>`;return}
   const guest=SRV&&!logged,done=q.list.filter(x=>x.done).length,sum=q.list.reduce((s,x)=>s+x.reward,0)+q.bonusTk;
-  box.innerHTML=`<div class="page-head"><h1>Задания дня</h1><p>Три задания на каждый день — одинаковые для всех. Играй на сервере, прогресс считается сам, награда в ТК приходит на счёт сразу.</p></div>
-  <div class="q-wrap"><div class="q-list">${q.list.map(x=>{const p=Math.round(Math.min(1,x.have/x.goal)*100);
-    return`<div class="q-card${x.done?" done":""}" style="--qc:${QCOL[x.lv]||"#b5e853"}"><span class="q-ic"><svg viewBox="0 0 24 24">${QICO[x.lv]||QICO.easy}</svg></span>
-      <span class="q-lv">${esc(x.lvn||"")}${q.x>1?`<i class="q-x2">×${q.x}</i>`:""}</span><span class="q-rw">+${fmt(x.reward)} ТК<small>${x.done?"получено":"награда"}</small></span>
-      <b class="q-n">${esc(x.n)}</b>
-      <div class="q-bar"><i><b style="--p:${guest?0:p}%"></b></i><span>${guest?`0 / ${x.goal}`:x.done?"Выполнено":`${x.have} / ${x.goal}`}</span></div></div>`}).join("")}
-    <div class="q-card q-bonus${q.bonus?" done":""}" style="--qc:#f5c451"><span class="q-ic"><svg viewBox="0 0 24 24"><path d="M20 12v9H4v-9M2 7h20v5H2zM12 21V7M12 7H7.5a2.5 2.5 0 1 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 1 0 0-5C13 2 12 7 12 7z"/></svg></span>
-      <span class="q-lv">Бонус</span><span class="q-rw">+${fmt(q.bonusTk)} ТК<small>${q.bonus?"получено":"награда"}</small></span>
-      <b class="q-n">Выполни все три задания</b>
-      <div class="q-bar"><i><b style="--p:${guest?0:Math.round(done/q.list.length*100)}%"></b></i><span>${guest?`0 / ${q.list.length}`:q.bonus?"Выполнено":`${done} / ${q.list.length}`}</span></div></div></div>
-  <aside class="q-side">
-    <div class="wf-card"><small>Новые задания через</small><b id="qLeft">${qsLeft()}</b><span class="q-mu">Обновляются в 00:00 по Москве</span></div>
-    <div class="wf-card"><small>Можно получить сегодня</small><b>${fmt(sum)} ТК</b>${guest?`<button class="steam" data-login>Войти через Steam</button><span class="q-mu">Чтобы видеть свой прогресс</span>`:""}</div>
-    <div class="wf-card"><small>Бонусы на сервере</small><ul class="q-fun"><li><b>+${FUNI.fb} ТК</b> за первую кровь в раунде</li><li><b>+${FUNI.ace} ТК</b> за эйс — ${FUNI.aceK} убийств за раунд</li><li><b>+${FUNI.special} ТК</b> команде, выигравшей особый раунд — они раз в 2–3 раунда: все с ВХ, невидимки, только в голову, распрыжка, вампиры, ножи, AWP…</li></ul></div>
-    <div class="wf-card"><small>Как это работает</small><ul><li>Считается только игра на нашем сервере, разминка не в счёт.</li><li>Убийства своих и самоубийства не засчитываются.</li><li>В игре: <code>!quests</code> — задания, <code>!rank</code> — место в рейтинге, <code>!tk</code> — баланс, <code>!top</code> — топ-10.</li><li>Если ещё не заходил на сайт, награды копятся и придут при первом входе через Steam.</li></ul></div>
-  </aside></div>`}
-setInterval(()=>{const e=$("qLeft");if(e)e.textContent=qsLeft();const q=qsData();if(SRV&&q&&q.ends&&Date.now()>q.ends+5e3&&!qsBusy){qsBusy=1;api("/api/quests").then(r=>qsSet(r.quests)).catch(()=>{}).finally(()=>{qsBusy=0})}},30e3);
+  const wk=q.week&&Array.isArray(q.week.list)?q.week:null,wsum=wk?wk.list.reduce((s,x)=>s+x.reward,0):0,wdone=wk?wk.list.filter(x=>x.done).length:0;
+  const hv=x=>guest?0:x.have;
+  box.innerHTML=`<header class="qx-head"><div><h1>Задания</h1><p>Играй на сервере — прогресс считается сам, ТК приходят на счёт сразу после выполнения.${q.x>1?` <b class="qx-x2">Сегодня награды ×${q.x}</b>`:""}</p></div>
+    <div class="qx-pot"><div><small>Сегодня</small><b>${fmt(sum)} ТК</b></div>${wk?`<div><small>За неделю</small><b>${fmt(wsum)} ТК</b></div>`:""}</div></header>
+  ${guest?`<div class="qx-guest"><span>Войди, чтобы видеть свой прогресс и получать награды.</span><button class="steam" data-login>Войти через Steam</button></div>`:""}
+  <section class="qx-sec"><div class="qx-sh"><h2>Задания дня</h2><span class="qx-tm">Новые через <b id="qLeft">${qsLeft()}</b></span></div>
+    <div class="qx-day">${q.list.map(x=>{const col=QCOL[x.lv]||"#b5e853";return`<article class="qx-t${x.done?" done":""}" style="--qc:${col}">
+      <div class="qx-top"><span class="qx-lv">${esc(x.lvn||"")}</span><span class="qx-rw">+${fmt(x.reward)} ТК</span></div>
+      <div class="qx-mid">${qRing(hv(x),x.goal,col,x.done&&!guest)}<div><b class="qx-n">${esc(x.n)}</b><span class="qx-pg">${x.done&&!guest?"Выполнено, ТК начислены":`${fmt(hv(x))} из ${fmt(x.goal)}`}</span></div></div></article>`}).join("")}</div>
+    <div class="qx-bonus${q.bonus&&!guest?" done":""}"><div class="qx-dots">${q.list.map(x=>`<i class="${x.done&&!guest?"on":""}"></i>`).join("")}</div>
+      <span>${q.bonus&&!guest?"Все задания дня выполнены":"Выполни все три задания дня"}</span><b>+${fmt(q.bonusTk)} ТК</b></div></section>
+  ${wk?`<section class="qx-sec"><div class="qx-sh"><h2>Задания недели</h2><span class="qx-tm">Новые через <b id="qwLeft">${qWeekLeft(q)}</b></span></div>
+    <p class="qx-wn">Пять ступеней, от простой к самой сложной. Выполнено ${guest?0:wdone} из ${wk.list.length}.</p>
+    <ol class="qx-week">${wk.list.map((x,i)=>{const col=QWCOL[i]||"#b5e853",p=x.goal?Math.round(Math.min(1,hv(x)/x.goal)*100):0,dn=x.done&&!guest;
+      return`<li class="qx-w${dn?" done":""}" style="--qc:${col};--p:${p}%"><span class="qx-st">${["I","II","III","IV","V"][i]||i+1}</span>
+        <div class="qx-wb"><b class="qx-n">${esc(x.n)}</b><div class="qx-bar"><i></i></div><span class="qx-pg">${dn?"Выполнено, ТК начислены":`${fmt(hv(x))} из ${fmt(x.goal)}`}</span></div>
+        <span class="qx-rw">+${fmt(x.reward)} ТК</span></li>`}).join("")}</ol></section>`:""}
+  <section class="qx-info"><div><h3>Бонусы прямо в игре</h3><ul><li><b>+${FUNI.fb} ТК</b> за первую кровь в раунде</li><li><b>+${FUNI.ace} ТК</b> за эйс — ${FUNI.aceK} убийств за раунд</li><li><b>+${FUNI.special} ТК</b> команде, выигравшей особый раунд. Они бывают раз в 2–3 раунда: все с ВХ, невидимки, только в голову, распрыжка, вампиры, ножи, AWP.</li></ul></div>
+    <div><h3>Что засчитывается</h3><ul><li>Только игра на нашем сервере, разминка не в счёт.</li><li>Убийства своих и самоубийства не засчитываются.</li><li>В игре: <code>!quests</code> — задания, <code>!rank</code> — место, <code>!tk</code> — баланс, <code>!top</code> — топ-10.</li><li>Если ещё не заходил на сайт, награды копятся и придут при первом входе через Steam.</li></ul></div></section>`}
+setInterval(()=>{const e=$("qLeft");if(e)e.textContent=qsLeft();const e2=$("qwLeft");if(e2)e2.textContent=qWeekLeft(qsData());const q=qsData();if(SRV&&q&&q.ends&&Date.now()>q.ends+5e3&&!qsBusy){qsBusy=1;api("/api/quests").then(r=>qsSet(r.quests)).catch(()=>{}).finally(()=>{qsBusy=0})}},30e3);
 var qsBusy=0;setTimeout(()=>{try{qsNav()}catch(e){}});
 function srvWheelSet(w){if(!w)return;WH.streak=Math.min(7,w.streak|0);WH.prize=Number.isInteger(w.prize)&&WSEG[w.prize]?w.prize:null;WH.again=w.again?1:0;WH.last=w.canSpin?"":mskDay()}
 function whRun(i,r,AG){const b=$("whSpin");b.disabled=true;b.textContent=WH.mode==="strip"?"Открываем…":"Сканируем…";
@@ -5047,7 +5201,7 @@ function drawStats(){const all=board(),q=$("q-stats").value.trim().toLowerCase()
   const rows=all.map((p,i)=>({p,i})).filter(({p})=>!q||p.n.toLowerCase().includes(q));
   if(REAL_STATS&&!all.length){$("rtList").innerHTML=`<div class="rt-empty">Рейтинг месяца пока пуст. Зайди на сервер — очки начисляются за убийства, хедшоты, помощь, бомбу и выигранные раунды.</div>`;return}
   const mk=p=>p.real?p.mk:p.kills,md=p=>p.real?p.md:p.deaths;
-  $("rtList").innerHTML=rtHead(["Место","Игрок","Рейтинг","Убийств","Смертей","Помощи","Хедшотов","K/D",REAL_STATS?"В игре":"Точность","Приз"])+(rows.length?rows.map(({p,i})=>`<div class="rt-row ${i<3?"top t"+(i+1):""} ${logged&&p===ME?"me":""}" data-p="${esc(p.n)}" tabindex="0" role="button"><span class="rt-pl">${i+1}</span><span class="rt-who"><i class="av${cosFrame(p.n)}${cosAvInner(p.n)?" hasav":""}" style="background:${p.c}">${cosAvInner(p.n)||ini(p.n)}</i><span class="nm"${cosNick(p.n)}>${esc(p.n)}</span>${cosBadge(p.n)}${kingBadge(p)}${clanTag(p)}</span><span>${rtPts(monthPts(p))}</span>${rc("kill",fmt(mk(p)))}${rc("skull",fmt(md(p)))}${rc("as",fmt(p.real?p.ma:stAs(p)))}${rc("hs",fmt(p.real?p.mhs:stHs(p)))}${rc("kd",(p.real?(md(p)?mk(p)/md(p):mk(p)):p.kd).toFixed(2))}${rc("acc",p.real?ptStr(p.mpt):stAcc(p)+"%")}<span>${i<3?'<span class="przc god">KING</span>':i<10?'<span class="przc leg">LEGEND</span>':""}</span></div>`).join(""):`<div class="rt-empty">Игрок «${esc(q)}» не найден</div>`)}
+  $("rtList").innerHTML=rtHead(["Место","Игрок","Рейтинг","Убийств","Смертей","Помощи","Хедшотов","K/D",REAL_STATS?"В игре":"Точность","Приз"])+(rows.length?rows.map(({p,i})=>{const bg=rowBg(p);return`<div class="rt-row ${i<3?"top t"+(i+1):""} ${logged&&p===ME?"me":""}${bg?" has-bg"+cosBgCls(bg):""}" data-p="${esc(p.n)}" tabindex="0" role="button"${bg&&cosBg(bg)?` style="${cosBg(bg)}"`:""}><span class="rt-pl">${i+1}</span><span class="rt-who"><i class="av${cosFrame(p.n)}${cosAvInner(p.n)?" hasav":""}" style="background:${p.c}">${cosAvInner(p.n)||ini(p.n)}</i><span class="nm"${cosNick(p.n)}>${esc(p.n)}</span>${cosBadge(p.n)}${kingBadge(p)}${clanTag(p)}</span><span>${rtPts(monthPts(p))}</span>${rc("kill",fmt(mk(p)))}${rc("skull",fmt(md(p)))}${rc("as",fmt(p.real?p.ma:stAs(p)))}${rc("hs",fmt(p.real?p.mhs:stHs(p)))}${rc("kd",(p.real?(md(p)?mk(p)/md(p):mk(p)):p.kd).toFixed(2))}${rc("acc",p.real?ptStr(p.mpt):stAcc(p)+"%")}<span>${i<3?'<span class="przc god">KING</span>':i<10?'<span class="przc leg">LEGEND</span>':""}</span>${bg?cosLayer(bg)+'<i class="rt-sh" aria-hidden="true"></i>':""}</div>`}).join(""):`<div class="rt-empty">Игрок «${esc(q)}» не найден</div>`)}
 document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.matches(".rt-row[data-p]"))openProfile(e.target.dataset.p)});
 $("q-stats").oninput=drawStats;
 function tickMonth(){const now=new Date(),msk=new Date(now.getTime()+3*3600e3);const end=Date.UTC(msk.getUTCFullYear(),msk.getUTCMonth()+1,1);const left=end-msk.getTime();
@@ -5256,7 +5410,7 @@ var CI=[
  ...[["#b5e853","Лайм"],["#38d3ff","Циан"],["#ff6b8b","Розовый"],["#f5c451","Золото"],["#a78bfa","Фиолет"],["#eb4b4b","Красный"]].map(([v,n],i)=>({id:"nk_"+i,cat:"nick",n,p:39,v})),
  {id:"nk_grad1",cat:"nick",n:"Закат",p:119,v:"linear-gradient(90deg,#ff8a3d,#ff6b8b,#a78bfa)",grad:1},{id:"nk_grad2",cat:"nick",n:"Токсик",p:119,v:"linear-gradient(90deg,#b5e853,#38d3ff)",grad:1},
  {id:"tag",cat:"tag",n:"Свой тег в чате",p:79,v:"tag"},
- {id:"kl_spark",cat:"kill",n:"Искры",p:79,v:"spark"},{id:"kl_bolt",cat:"kill",n:"Разряд",p:119,v:"bolt"},{id:"kl_conf",cat:"kill",n:"Конфетти",p:99,v:"conf"},{id:"kl_ring",cat:"kill",n:"Золотое кольцо",p:99,v:"ring"},
+ {id:"kl_spark",cat:"kill",n:"Искры",p:79,v:"spark"},{id:"kl_bolt",cat:"kill",n:"Разряд",p:119,v:"bolt"},{id:"kl_conf",cat:"kill",n:"Конфетти",p:99,v:"conf"},{id:"kl_ring",cat:"kill",n:"Золотое кольцо",p:99,v:"ring"},{id:"kl_frost",cat:"kill",n:"Снежинка",p:99,v:"frost"},{id:"kl_fire",cat:"kill",n:"Пламя",p:109,v:"fire"},{id:"kl_tornado",cat:"kill",n:"Вихрь",p:129,v:"tornado"},{id:"kl_star",cat:"kill",n:"Звезда",p:99,v:"star"},{id:"kl_rainbow",cat:"kill",n:"Радуга",p:119,v:"rainbow"},{id:"kl_nova",cat:"kill",n:"Сверхновая",p:149,v:"nova"},
  {id:"sd_ding",cat:"snd",n:"Дзынь",p:59,v:[[1760,.12],[2637,.25]]},{id:"sd_drum",cat:"snd",n:"Бонус",p:59,v:[[392,.08],[523,.08],[784,.2]]},{id:"sd_bell",cat:"snd",n:"Колокол",p:79,v:[[880,.6],[1320,.5]]},{id:"sd_8bit",cat:"snd",n:"Левел-ап",p:69,v:[[523,.07],[659,.07],[784,.07],[1047,.15]]},{id:"sd_coin",cat:"snd",n:"Монетка",p:59,v:[[988,.07],[1319,.22]]},
  ...[["#b5e853","Лайм"],["#ff6b8b","Розовый"],["#38d3ff","Голубой"],["#f5c451","Жёлтый"],["#a78bfa","Фиолетовый"],["#eb4b4b","Красный"]].map(([v,n],i)=>({id:"sm_"+i,cat:"smoke",n,p:79,v})),
  ...[["#ffffff","Белый"],["#b5e853","Лайм"],["#38d3ff","Голубой"],["#ff8a3d","Оранжевый"],["#ff6b8b","Розовый"]].map(([v,n],i)=>({id:"tr_"+i,cat:"trail",n,p:59,v})),
@@ -5277,6 +5431,8 @@ function cosLayer(it){if(!it||!it.v.startsWith("img:"))return"";const k=it.v.sli
 function pfBigLayer(){const it=cosEq("bg");return it&&it.v.startsWith("img:")?`<div class="pf-big">${cosLayer(it)}</div>`:""}
 function pfBigSet(){const m=$("meBody");if(m)m.classList.toggle("pfbig",!!m.querySelector(".pf-big"))}
 function cosBg(it){if(!it)return"";const v=it.v;if(v.startsWith("map:"))return`background-image:linear-gradient(90deg,rgba(10,10,10,.92) 20%,rgba(10,10,10,.55) 65%,rgba(10,10,10,.8)),url(${MAPIMG[v.slice(4)]||""});background-size:cover;background-position:center`;return""}
+// фон профиля игрока для строки рейтинга: свой — из надетого, чужой — с сервера
+function rowBg(p){try{if(logged&&p===ME)return cosEq("bg");return p&&p.bg?cosI(p.bg):null}catch(e){return null}}
 function cosBgCls(it){return!it||it.v.startsWith("map:")?"":it.v.startsWith("img:")?" pbg-img":" pbg-"+it.v}
 function cosSwatch(it){const c=it.cat;
   if(c==="frame")return`<span class="co-sw"><i class="co-avp big fr fr-${it.v}">${jpAvSvg("Demo_7","#2b2f36")}</i></span>`;
@@ -5319,7 +5475,7 @@ var EMBS={star:BADGES.star,skull:BADGES.skull,bolt:BADGES.bolt,crown:BADGES.crow
 // ---- кланы на сервере ----
 var CLS=null;
 function srvClanMember(m,i){if(logged&&String(ME.steamid)===String(m.sid))return ME;
-  return players.find(x=>x.sid===m.sid)||(typeof XPL!=="undefined"&&XPL.find(x=>x.sid===m.sid))||statP({sid:m.sid,n:m.n,pts:m.mpts},800+i)}
+  return players.find(x=>x.sid===m.sid)||(typeof XPL!=="undefined"&&XPL.find(x=>x.sid===m.sid))||CLX.find(x=>x.sid===m.sid)||(p=>(CLX.push(p),p))(statP({sid:m.sid,n:m.n,pts:m.mpts},800+i))}
 function srvClansApply(L){if(!L||!Array.isArray(L.clans))return;CLS=L;let i=0;clans.length=0;
   for(const c of L.clans)clans.push({id:c.id,n:String(c.n),t:String(c.t),c:c.c,d:String(c.d||""),emb:c.emb||null,ava:c.ava||null,cover:c.cover||null,slots:c.slots|0||30,
     members:c.members.map(m=>srvClanMember(m,i++)),mem:c.members,pts:c.pts|0,month:c.month|0,wins:c.wins|0,kd:+c.kd||0});
@@ -5436,7 +5592,7 @@ function route(forced){try{closeProfile()}catch(e){}["modal","srvModal","cmdModa
   if(SRV&&(v==="support"||v==="tickets"))srvTickets();
   if(SRV&&v==="admin"){try{drawTkAdm()}catch(e){}try{drawAdmin();if(!document.querySelector('.adm-pane[data-pane="srv"]').hidden)srvAdmServer()}catch(e){}}
   document.querySelector(".rail").classList.remove("open");$("burger").setAttribute("aria-expanded","false");
-  {const T={play:"",public:"Public",me:"Мой профиль",player:"Профиль игрока",clan:"Клан",case:"Кейс",wheel:"Фортуна",upgrade:"Апгрейд",inventory:"Инвентарь",jackpot:"Джекпот",support:"Поддержка",tickets:"Тикеты",shop:"Магазин",skins:"Кейсы",stats:"Рейтинг",clans:"Кланы",quests:"Задания дня",pass:"Боевой пропуск",market:"Торговая площадка",ach:"Достижения",bans:"Банлист",rules:"Правила",admin:"Админ-панель",offer:"Публичная оферта",privacy:"Конфиденциальность","404":"Страница не найдена"};document.title=(T[v]?T[v]+" — ":"")+"Tasher CS2"}
+  {const T={play:"",public:"Public",me:"Мой профиль",player:"Профиль игрока",clan:"Клан",case:"Кейс",wheel:"Фортуна",upgrade:"Апгрейд",inventory:"Инвентарь",jackpot:"Джекпот",support:"Поддержка",tickets:"Тикеты",shop:"Магазин",skins:"Кейсы",stats:"Рейтинг",clans:"Кланы",quests:"Задания",pass:"Боевой пропуск",market:"Торговая площадка",ach:"Достижения",bans:"Банлист",rules:"Правила",admin:"Админ-панель",offer:"Публичная оферта",privacy:"Конфиденциальность","404":"Страница не найдена"};document.title=(T[v]?T[v]+" — ":"")+"Tasher CS2"}
   window.scrollTo(0,0);setTimeout(()=>{try{if(!document.documentElement.classList.contains("no-anim"))countIn(document.getElementById("v-"+v))}catch(e){}},30)}
 // переход по странице: работает и там, где ссылки с # не меняют адрес
 function go(v){route(v);try{if(location.hash!=="#"+v)history.pushState(null,"","#"+v)}catch(e){try{history.replaceState(null,"","#"+v)}catch(_){}}}
@@ -5453,7 +5609,7 @@ function drawChip(){
   const chev='<svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>';
   const chip=logged?`<button class="me-chip" id="meBtn" aria-haspopup="menu" aria-expanded="false"><i class="av${cosFrame(ME.n)}${cosAvInner(ME.n)?" hasav":""}" style="background:${ME.c}">${cosAvInner(ME.n)||ini(ME.n)}</i><span class="nm">${esc(ME.n)}<small>${ME.vip?ME.vip.tier:"Игрок"} · <span class="bal">${fmt(ME.tk)} ТК</span></small></span>${chev}</button>`
     :`<button class="me-chip guest" id="meBtn" aria-haspopup="menu" aria-expanded="false"><i class="av">?</i><span class="nm">Гость<small>Войди через Steam</small></span>${chev}</button>`;
-  const items=(logged?`<div class="bal-row"><span>Баланс</span><b>${fmt(ME.balance)} ₽</b></div><div class="bal-row"><span>Тащер Коины</span><b class="tkc">${fmt(ME.tk)} ТК</b></div><a href="#me">${ico("u")}Мой профиль</a><a href="#quests">${ico("task")}Задания дня<span class="nv-qn" id="qNav" hidden></span></a>`:`<button class="login" data-login>${ico("steam")}Войти через Steam</button><div class="sep"></div>`)
+  const items=(logged?`<div class="bal-row"><span>Баланс</span><b>${fmt(ME.balance)} ₽</b></div><div class="bal-row"><span>Тащер Коины</span><b class="tkc">${fmt(ME.tk)} ТК</b></div><a href="#me">${ico("u")}Мой профиль</a><a href="#quests">${ico("task")}Задания<span class="nv-qn" id="qNav" hidden></span></a>`:`<button class="login" data-login>${ico("steam")}Войти через Steam</button><div class="sep"></div>`)
     +`<a href="#ach">${ico("ach")}Достижения</a><a href="#settings" data-pfset>${ico("set")}Настройки</a>`
     +(logged?`<div class="sep"></div><button class="out" id="umOut">${ico("out")}Выйти</button>`:"");
   $("steamSlot").innerHTML=chip+`<div class="umenu" id="umenu" role="menu" hidden>${items}</div>`;

@@ -19,8 +19,12 @@ assert.match(html, /\$\{esc\(m\)\}<small>/, "Имя карты экраниру�
 const passArt = fs.readFileSync(path.join(__dirname, "../../assets/winter-ops-card.avif"));
 assert.ok(passArt.length > 10000, "Winter Ops card is missing or unusually small");
 assert.equal(passArt.toString("ascii", 4, 8), "ftyp", "Winter Ops card must be a valid ISO-BMFF/AVIF container");
-assert.match(html, /assets\/winter-ops-card\.avif/, "Pass must reference its bundled card image");
-assert.match(html, /ps-scene-visual/, "Pass must have a dedicated hero-art layout");
-assert.match(html, /ps-c-icon/, "Reward cards must contain styled icon containers");
+// пропуск: трасса сезона с баннером и наградами-медальонами
+const passHero = fs.readFileSync(path.join(__dirname, "../../assets/pass-hero.jpg"));
+assert.ok(passHero.length > 50000 && passHero[0] === 0xff && passHero[1] === 0xd8, "Pass banner must be a real JPEG");
+assert.match(html, /assets\/pass-hero\.jpg/, "Pass must reference its banner image");
+assert.match(html, /class="pz-track" id="psTrack"/, "Pass must render the season track");
+assert.match(html, /pz-med/, "Rewards must use styled medallions");
+assert.match(html, /data-psclaim=/, "Rewards must stay claimable");
 assert.match(html, /@media\(max-width:620px\)/, "Pass must define phone layout rules");
 console.log(`Frontend: ${scripts.length} inline JS block(s) parsed; UPD smoke checks passed`);

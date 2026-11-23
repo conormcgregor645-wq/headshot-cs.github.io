@@ -1,5 +1,6 @@
 "use strict";
 // Ежедневные задания: каждый день (по Москве) три задания — лёгкое, среднее и сложное, одинаковые для всех.
+// Еженедельные: каждую неделю (с понедельника по Москве) пять заданий посложнее, награды 1 000–5 000 ТК.
 // Прогресс считается по журналу CS2 (как ТК за игру), награда в ТК приходит сама, как только задание выполнено.
 // За все три задания дня — бонус. Разминка, тимкиллы и самоубийства не считаются.
 
@@ -44,7 +45,46 @@ const REWARD = { easy: 150, medium: 300, hard: 600 };
 const ALL_BONUS = 300;
 const LEVEL_RU = { easy: "Лёгкое", medium: "Среднее", hard: "Сложное" };
 
+// еженедельные: 5 ступеней, на каждой — своё задание недели из небольшого набора
+const WEEK = [
+  { reward: 1000, pool: [
+    { id: "wk150", n: "Убей 150 противников", c: "kill", goal: 150 },
+    { id: "wrw60", n: "Выиграй 60 раундов", c: "roundWin", goal: 60 },
+    { id: "wpt300", n: "Отыграй на сервере 5 часов", c: "minute", goal: 300 } ] },
+  { reward: 1500, pool: [
+    { id: "whs75", n: "Сделай 75 убийств в голову", c: "kill", hs: true, goal: 75 },
+    { id: "was40", n: "Сделай 40 помощей в убийстве", c: "assist", goal: 40 },
+    { id: "wpl10", n: "Заложи бомбу 10 раз", c: "plant", goal: 10 } ] },
+  { reward: 2500, pool: [
+    { id: "wak100", n: "Убей 100 противников с AK-47", c: "kill", w: ["ak47"], goal: 100 },
+    { id: "wm480", n: "Убей 80 противников с M4A4 или M4A1-S", c: "kill", w: M4, goal: 80 },
+    { id: "wpis60", n: "Убей 60 противников из пистолета", c: "kill", w: PISTOLS, goal: 60 },
+    { id: "wsmg60", n: "Убей 60 противников из пистолета-пулемёта", c: "kill", w: SMGS, goal: 60 } ] },
+  { reward: 3500, pool: [
+    { id: "wawp50", n: "Убей 50 противников с AWP", c: "kill", w: ["awp"], goal: 50 },
+    { id: "wdf10", n: "Разминируй бомбу 10 раз", c: "defuse", goal: 10 },
+    { id: "wnade15", n: "Убей 15 противников гранатой или молотовым", c: "kill", w: NADES, goal: 15 },
+    { id: "wk400", n: "Убей 400 противников", c: "kill", goal: 400 } ] },
+  { reward: 5000, pool: [
+    { id: "wknife5", n: "Убей 5 противников ножом", c: "kill", knife: true, goal: 5 },
+    { id: "wzeus8", n: "Убей 8 противников из Zeus", c: "kill", w: ["taser"], goal: 8 },
+    { id: "whs250", n: "Сделай 250 убийств в голову", c: "kill", hs: true, goal: 250 },
+    { id: "wpt900", n: "Отыграй на сервере 15 часов", c: "minute", goal: 900 } ] },
+];
+const WEEK_RU = ["I", "II", "III", "IV", "V"];
+
 const mskDay = t => new Date(t + 3 * 3600e3).toISOString().slice(0, 10);
+// неделя по Москве: ключ — понедельник ("W2026-11-23"), конец — следующий понедельник 00:00 МСК
+function weekOf(t) {
+  const d = new Date(mskDay(t) + "T00:00:00Z"), wd = (d.getUTCDay() + 6) % 7; // 0 — понедельник
+  const mon = d.getTime() - wd * 86400e3;
+  return { key: "W" + new Date(mon).toISOString().slice(0, 10), n: Math.round(mon / (7 * 86400e3)), ends: mon - 3 * 3600e3 + 7 * 86400e3 };
+}
+// задания недели: на каждой ступени — по кругу из её набора (соседние недели не повторяются)
+function forWeek(t) {
+  const w = weekOf(t);
+  return WEEK.map((st, i) => { const n = st.pool.length, k = perm(n, "w" + i + Math.floor(w.n / n))[w.n % n]; return { ...st.pool[k], lv: "week", step: i, reward: st.reward }; });
+}
 // конец дня по Москве (для таймера «новые задания через …»)
 const dayEnd = t => { const d = new Date(mskDay(t) + "T00:00:00Z").getTime() - 3 * 3600e3; return d + 86400e3; };
 function hash(s) { let h = 2166136261; for (const ch of s) { h ^= ch.codePointAt(0); h = Math.imul(h, 16777619) >>> 0; } return h; }
@@ -96,7 +136,8 @@ function makeQuests({ db, tx, addMoney, eventMult = () => 1, now = Date.now, onD
   // прибавить прогресс игроку по событию типа c; вернёт выполненные сейчас задания
   function bump(sid, ev, t) {
     if (!sid) return [];
-    const day = mskDay(t), qs = forDay(day), out = [];
+    const out = bumpWeek(sid, ev, t);
+    const day = mskDay(t), qs = forDay(day);
     for (const q of qs) {
       if (!matches(q, ev)) continue;
       const cur = get.get(sid, day, q.id);
@@ -112,6 +153,28 @@ function makeQuests({ db, tx, addMoney, eventMult = () => 1, now = Date.now, onD
             // все три задания дня — бонус
             const all = qs.every(x => x.id === q.id || (get.get(sid, day, x.id) || {}).done);
             if (all && insDone.run(sid, day, "all").changes) { pay(sid, ALL_BONUS * k, "Все задания дня", `${day}:all`); out.push({ sid, q: { id: "all", n: "Все задания дня" }, reward: ALL_BONUS * k }); }
+          }
+        });
+      } catch (e) { log.error("[quests]", e.message); }
+    }
+    return out;
+  }
+
+  // еженедельные задания: тот же учёт, ключ периода — неделя
+  function bumpWeek(sid, ev, t) {
+    const wk = weekOf(t).key, out = [];
+    for (const q of forWeek(t)) {
+      if (!matches(q, ev)) continue;
+      const cur = get.get(sid, wk, q.id);
+      if (cur && cur.done) continue;
+      try {
+        tx(() => {
+          up.run(sid, wk, q.id, 1, q.goal);
+          const n = get.get(sid, wk, q.id).n;
+          if (n >= q.goal && setDone.run(q.goal, sid, wk, q.id).changes) {
+            const k = eventMult(t), rw = q.reward * k;
+            pay(sid, rw, `Задание недели: ${q.n}${k > 1 ? ` (×${k})` : ""}`, `${wk}:${q.id}`);
+            out.push({ sid, q, reward: rw, week: true });
           }
         });
       } catch (e) { log.error("[quests]", e.message); }
@@ -146,9 +209,14 @@ function makeQuests({ db, tx, addMoney, eventMult = () => 1, now = Date.now, onD
       return { id: q.id, n: q.n, lv: q.lv, lvn: LEVEL_RU[q.lv], goal: q.goal, have: p ? Math.min(q.goal, p.n) : 0, done: !!(p && p.done), reward: q.reward * k };
     });
     const bonus = !!(sid && get.get(sid, day, "all"));
-    return { day, list, bonus, bonusTk: ALL_BONUS * k, ends: dayEnd(t), x: k };
+    const w = weekOf(t);
+    const week = { key: w.key, ends: w.ends, list: forWeek(t).map(q => {
+      const p = sid ? get.get(sid, w.key, q.id) : null;
+      return { id: q.id, n: q.n, lv: "week", lvn: "Неделя · " + WEEK_RU[q.step], step: q.step, goal: q.goal, have: p ? Math.min(q.goal, p.n) : 0, done: !!(p && p.done), reward: q.reward * k };
+    }) };
+    return { day, list, bonus, bonusTk: ALL_BONUS * k, ends: dayEnd(t), x: k, week };
   }
   return { apply, roundWin, minute, state };
 }
 
-module.exports = { makeQuests, forDay, POOL, REWARD, ALL_BONUS, mskDay };
+module.exports = { makeQuests, forDay, forWeek, weekOf, POOL, WEEK, REWARD, ALL_BONUS, mskDay };
