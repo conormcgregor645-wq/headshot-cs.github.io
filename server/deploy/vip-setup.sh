@@ -10,7 +10,7 @@ PLG=$CSS/plugins; CFGD=$CSS/configs/plugins/VIPCore; SHARED=$CSS/shared/VipCoreA
 REPO="${VIP_REPO:-partiusfabaa/cs2-VIPCore}"
 # ядро и модуль цветного дыма с правками TASHER (меню на WASD, исправленный дым) — собираются на GitHub из plugins/vipcore
 TASHER_ZIP="${VIP_TASHER_ZIP:-https://github.com/conormcgregor645-wq/headshot-cs.github.io/releases/download/vipcore-tasher/VIPCore-tasher.zip}"
-MODS="VIP_Health VIP_Armor VIP_Money VIP_Grenades VIP_DefuseKit VIP_Healthshot VIP_Zeus VIP_RegenHealth VIP_Vampirism"
+MODS="VIP_Health VIP_Armor VIP_Money VIP_Grenades VIP_DefuseKit VIP_Healthshot VIP_RegenHealth VIP_Vampirism"
 # теги в чате и цвет дыма теперь делает TASHER Style (с учётом клана и купленного на сайте), модули VIP_Tag и VIP_SmokeColor не ставим
 STYLE_ZIP="${TASHER_STYLE_ZIP:-https://github.com/conormcgregor645-wq/headshot-cs.github.io/releases/download/tasherstyle/TasherStyle.zip}"
 # общая библиотека меню CS2MenuManager (форк mrc4tt) — без неё WeaponPaints не регистрирует свои команды (в том числе
@@ -125,10 +125,10 @@ groups = {
   "VIP":     {"Health": 105, "Armor": 100, "Money": "++300",  "Grenades": nades(1)},
   "PREMIUM": {"Health": 110, "Armor": 100, "Money": "++500",  "Grenades": nades(1, 1), "DefuseKit": True},
   "ELITE":   {"Health": 115, "Armor": 100, "Money": "++800",  "Grenades": nades(1, 1, 1, 1), "DefuseKit": True, "Healthshot": 1},
-  "LEGEND":  {"Health": 120, "Armor": 100, "Money": "++1000", "Grenades": nades(1, 1, 1, 1), "DefuseKit": True, "Healthshot": 1, "Zeus": True},
-  "TITAN":   {"Health": 125, "Armor": 100, "Money": "++1500", "Grenades": nades(1, 1, 1, 1), "DefuseKit": True, "Healthshot": 2, "Zeus": True,
+  "LEGEND":  {"Health": 120, "Armor": 100, "Money": "++1000", "Grenades": nades(1, 1, 1, 1), "DefuseKit": True, "Healthshot": 1},
+  "TITAN":   {"Health": 125, "Armor": 100, "Money": "++1500", "Grenades": nades(1, 1, 1, 1), "DefuseKit": True, "Healthshot": 2,
               "HealthRegen": {"Health": 5, "Delay": 5, "Interval": 2}, "Vampirism": 10},
-  "KING":    {"Health": 130, "Armor": 100, "Money": "++2000", "Grenades": nades(1, 1, 1, 1), "DefuseKit": True, "Healthshot": 2, "Zeus": True,
+  "KING":    {"Health": 130, "Armor": 100, "Money": "++2000", "Grenades": nades(1, 1, 1, 1), "DefuseKit": True, "Healthshot": 2,
               "HealthRegen": {"Health": 5, "Delay": 5, "Interval": 2}, "Vampirism": 15},
 }
 json.dump(core, open(os.path.join(d, "vip_core.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=2)

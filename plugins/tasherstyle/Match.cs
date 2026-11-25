@@ -1,7 +1,7 @@
 // Длинная карта и серии убийств.
 //  • Карта не заканчивается на 13 победах: играем без смены сторон, пока одна из команд не наберёт WinScore (100) побед.
 //    Тогда объявляем победителя и перезапускаем счёт с нуля на той же карте (mp_restartgame).
-//  • Серии убийств: несколько убийств подряд с паузой не больше StreakWindow секунд —
+//  • Серии убийств: убийства за раунд, пока игрок жив (пауза между ними не важна) —
 //    DOUBLE KILL, TRIPLE KILL, MEGA KILL, RAMPAGE (как в паке озвучки). Надпись — цветной текст посреди экрана убившего
 //    без серой плашки (point_worldtext перед глазами, видят только он и те, кто за ним наблюдает), и голос серии.
 //    В чат ничего не пишется. Первая кровь раунда — тоже надпись и голос.
@@ -76,22 +76,25 @@ public partial class TasherStyle
     {
         if (!Config.StreaksEnabled) return HookResult.Continue;
         var a = e.Attacker; var v = e.Userid;
+        // серия игрока сбрасывается, только когда он умирает или начинается новый раунд — пауза между убийствами не важна
+        if (v is { IsValid: true }) _streak.Remove(v.SteamID == 0 ? (ulong)v.Slot : v.SteamID);
         if (a is not { IsValid: true } || v is not { IsValid: true } || a == v || a.TeamNum == v.TeamNum) return HookResult.Continue;
         if (Rules() is { WarmupPeriod: true }) return HookResult.Continue;
         var now = Server.CurrentTime;
 
         if (!_firstBlood)
         {
-            _firstBlood = true;
-            if (!a.IsBot) { Announce(a, "FIRST BLOOD", "#ff8a3d"); PlayTo(a, "first"); }
+            _firstBlood = true; // первая кровь — первое убийство раунда на всём сервере, слышат все
+            if (!a.IsBot) { Announce(a, "FIRST BLOOD", "#ff8a3d"); PlayTo(a, "first", true); }
         }
 
-        var n = _streak.TryGetValue(a.SteamID == 0 ? (ulong)a.Slot : a.SteamID, out var s) && now - s.at <= Config.StreakWindow ? s.n + 1 : 1;
-        _streak[a.SteamID == 0 ? (ulong)a.Slot : a.SteamID] = (n, now);
+        var key0 = a.SteamID == 0 ? (ulong)a.Slot : a.SteamID;
+        var n = (_streak.TryGetValue(key0, out var s) ? s.n : 0) + 1;
+        _streak[key0] = (n, now);
         if (n < 2 || a.IsBot) return HookResult.Continue;
         var (text, color, key) = StreakNames[Math.Min(n, StreakNames.Length - 1)];
         Announce(a, text, color);
-        PlayTo(a, key, n >= 3);
+        PlayTo(a, key, true);
         return HookResult.Continue;
     }
 
@@ -191,12 +194,12 @@ public partial class TasherStyle
         }
     }
 
-    // голос (если аддон с озвучкой подключён) или встроенный звук; everyone — серию от тройной слышат все
+    // голос (если аддон с озвучкой подключён) или встроенный звук; everyone — слышат все игроки на сервере
     private void PlayTo(CCSPlayerController p, string key, bool everyone = false)
     {
         var map = Config.VoiceEnabled ? Config.VoiceSounds : Config.StreakSounds;
         if (!map.TryGetValue(key, out var snd) || !IsSafeSound(snd)) return;
-        if (!everyone || !Config.VoiceEnabled) { p.ExecuteClientCommand($"play {snd}"); return; }
+        if (!everyone) { p.ExecuteClientCommand($"play {snd}"); return; }
         foreach (var x in Utilities.GetPlayers())
             if (x is { IsValid: true, IsBot: false, IsHLTV: false }) x.ExecuteClientCommand($"play {snd}");
     }
