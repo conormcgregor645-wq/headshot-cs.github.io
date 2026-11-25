@@ -97,6 +97,10 @@ for m in $MODS; do cp -r "$TMP/m/$m" "$PLG/"; done
 rm -rf "$PLG/VIPCore"
 cp -r "$TA/plugins/VIPCore" "$PLG/"
 cp -r "$SA" "$PLG/TasherStyle"
+# данные, которые плагин хранит в своей папке (botmid.json — «боты против людей» и точки мида из test-bots.sh), переносим из копии
+for f in botmid.json; do
+  if [ -f "$BK/plugins/TasherStyle/$f" ]; then cp -a "$BK/plugins/TasherStyle/$f" "$PLG/TasherStyle/$f"; echo "сохранено: TasherStyle/$f"; fi
+done
 # библиотека меню целиком (нужна WeaponPaints и VIP), поверх — наши настройки меню (WASD, игрок стоит на месте)
 cp -r "$MMA" "$CSS/shared/CS2MenuManager"
 cp "$TA/shared/CS2MenuManager/config.toml" "$CSS/shared/CS2MenuManager/config.toml"
