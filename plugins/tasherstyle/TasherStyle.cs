@@ -82,6 +82,17 @@ public class StyleConfig : BasePluginConfig
     [JsonPropertyName("StreaksEnabled")] public bool StreaksEnabled { get; set; } = true;
     [JsonPropertyName("StreakWindow")] public float StreakWindow { get; set; } = 4f;
     // звуки серий — встроенные звуки CS2: first — первая кровь раунда, 2…5 — серия
+    // Голосовая озвучка серий из аддона Мастерской (пак «Announcer kill sounds», CC-BY 3.0: Antti Saari / TripleSnail).
+    // Включает server/deploy/voice-setup.sh, когда аддон загружен в Мастерскую; без аддона играют встроенные звуки ниже.
+    [JsonPropertyName("VoiceEnabled")] public bool VoiceEnabled { get; set; } = false;
+    [JsonPropertyName("VoiceSounds")] public Dictionary<string, string> VoiceSounds { get; set; } = new()
+    {
+        ["first"] = "sounds/tasher/first_blood.vsnd",
+        ["2"] = "sounds/tasher/double_kill.vsnd",
+        ["3"] = "sounds/tasher/triple_kill.vsnd",
+        ["4"] = "sounds/tasher/mega_kill.vsnd",
+        ["5"] = "sounds/tasher/rampage.vsnd",
+    };
     [JsonPropertyName("StreakSounds")] public Dictionary<string, string> StreakSounds { get; set; } = new()
     {
         ["first"] = "sounds/ui/deathmatch_bonuskill.vsnd",
