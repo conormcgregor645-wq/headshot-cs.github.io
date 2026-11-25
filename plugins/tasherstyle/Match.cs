@@ -2,7 +2,7 @@
 //  • Карта не заканчивается на 13 победах: играем без смены сторон, пока одна из команд не наберёт WinScore (100) побед.
 //    Тогда объявляем победителя и перезапускаем счёт с нуля на той же карте (mp_restartgame).
 //  • Серии убийств: несколько убийств подряд с паузой не больше StreakWindow секунд —
-//    DOUBLE KILL, MULTI KILL, ULTRA KILL, MONSTER KILL. Надпись по центру экрана у убившего, звук из игры,
+//    DOUBLE KILL, TRIPLE KILL, MEGA KILL, RAMPAGE (как в паке озвучки). Надпись по центру экрана у убившего, звук из игры,
 //    с тройной серии — строка в чат всем. Первая кровь раунда — тоже надпись и звук.
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
@@ -61,9 +61,9 @@ public partial class TasherStyle
     {
         ("", "", ""), ("", "", ""),
         ("DOUBLE KILL", "#b5e853", "2"),
-        ("MULTI KILL", "#38d3ff", "3"),
-        ("ULTRA KILL", "#d32ce6", "4"),
-        ("MONSTER KILL", "#ff4d4d", "5"),
+        ("TRIPLE KILL", "#38d3ff", "3"),
+        ("MEGA KILL", "#d32ce6", "4"),
+        ("RAMPAGE", "#ff4d4d", "5"),
     };
 
     private HookResult StreakDeath(EventPlayerDeath e, GameEventInfo info)
@@ -85,7 +85,7 @@ public partial class TasherStyle
         if (n < 2 || a.IsBot) return HookResult.Continue;
         var (text, color, key) = StreakNames[Math.Min(n, StreakNames.Length - 1)];
         Announce(a, text, color);
-        PlayTo(a, key);
+        PlayTo(a, key, n >= 3);
         if (n >= 3) Server.PrintToChatAll($"{Prefix}{ChatColors.Lime}{a.PlayerName}{ChatColors.Default} — {ChatColors.Red}{text}{ChatColors.Default}!");
         return HookResult.Continue;
     }
@@ -93,8 +93,13 @@ public partial class TasherStyle
     private static void Announce(CCSPlayerController p, string text, string color) =>
         p.PrintToCenterHtml($"<font class='fontSize-xl fontWeight-Bold' color='{color}'>{text}</font>", 2);
 
-    private void PlayTo(CCSPlayerController p, string key)
+    // голос (если аддон с озвучкой подключён) или встроенный звук; everyone — серию от тройной слышат все
+    private void PlayTo(CCSPlayerController p, string key, bool everyone = false)
     {
-        if (Config.StreakSounds.TryGetValue(key, out var snd) && IsSafeSound(snd)) p.ExecuteClientCommand($"play {snd}");
+        var map = Config.VoiceEnabled ? Config.VoiceSounds : Config.StreakSounds;
+        if (!map.TryGetValue(key, out var snd) || !IsSafeSound(snd)) return;
+        if (!everyone || !Config.VoiceEnabled) { p.ExecuteClientCommand($"play {snd}"); return; }
+        foreach (var x in Utilities.GetPlayers())
+            if (x is { IsValid: true, IsBot: false, IsHLTV: false }) x.ExecuteClientCommand($"play {snd}");
     }
 }
