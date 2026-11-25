@@ -4,7 +4,7 @@
 //  • Серии убийств: убийства за раунд, пока игрок жив (пауза между ними не важна) —
 //    DOUBLE KILL, TRIPLE KILL, MEGA KILL, RAMPAGE (как в паке озвучки). Надпись — цветной текст посреди экрана убившего
 //    без серой плашки (point_worldtext перед глазами, видят только он и те, кто за ним наблюдает), и голос серии.
-//    В чат ничего не пишется. Первая кровь раунда — тоже надпись и голос.
+//    В чат ничего не пишется. Первое убийство игрока в раунде — его личная «первая кровь». Звуки слышит только сам игрок.
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Timers;
@@ -17,7 +17,6 @@ namespace TasherStyle;
 public partial class TasherStyle
 {
     private readonly Dictionary<ulong, (int n, float at)> _streak = new();
-    private bool _firstBlood;
     private bool _restarting;
 
     private void LoadMatch()
@@ -25,7 +24,7 @@ public partial class TasherStyle
         RegisterListener<Listeners.OnMapStart>(_ => { _streak.Clear(); _restarting = false; AddTimer(2f, ApplyMatchCvars, TimerFlags.STOP_ON_MAPCHANGE); });
         RegisterEventHandler<EventRoundStart>((_, _) =>
         {
-            _firstBlood = false; _streak.Clear();
+            _streak.Clear();
             ApplyMatchCvars(); // конфиг режима мог вернуть обычные значения при смене карты
             return HookResult.Continue;
         });
@@ -82,19 +81,15 @@ public partial class TasherStyle
         if (Rules() is { WarmupPeriod: true }) return HookResult.Continue;
         var now = Server.CurrentTime;
 
-        if (!_firstBlood)
-        {
-            _firstBlood = true; // первая кровь — первое убийство раунда на всём сервере, слышат все
-            if (!a.IsBot) { Announce(a, "FIRST BLOOD", "#ff8a3d"); PlayTo(a, "first", true); }
-        }
-
         var key0 = a.SteamID == 0 ? (ulong)a.Slot : a.SteamID;
         var n = (_streak.TryGetValue(key0, out var s) ? s.n : 0) + 1;
         _streak[key0] = (n, now);
-        if (n < 2 || a.IsBot) return HookResult.Continue;
+        if (a.IsBot) return HookResult.Continue;
+        // первое убийство игрока в раунде — его личная «первая кровь»; дальше серия. Звук и надпись — только самому игроку
+        if (n == 1) { Announce(a, "FIRST BLOOD", "#ff8a3d"); PlayTo(a, "first"); return HookResult.Continue; }
         var (text, color, key) = StreakNames[Math.Min(n, StreakNames.Length - 1)];
         Announce(a, text, color);
-        PlayTo(a, key, true);
+        PlayTo(a, key);
         return HookResult.Continue;
     }
 
