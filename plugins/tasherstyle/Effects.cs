@@ -23,6 +23,7 @@ public partial class TasherStyle
     {
         public required CBaseCSGrenadeProjectile G;
         public Color C;
+        public string Anim = "";
         public ulong Owner;
         public float X, Y, Z;
         public int Still, Age;
@@ -32,7 +33,7 @@ public partial class TasherStyle
     {
         RegisterEventHandler<EventBulletImpact>(OnBulletImpact);
         RegisterEventHandler<EventPlayerDeath>(OnPlayerDeath);
-        RegisterEventHandler<EventRoundMvp>(OnRoundMvp);
+        // звук MVP убран (25.11.2026): обработчик EventRoundMvp не регистрируется
         RegisterListener<Listeners.OnTick>(OnTick);
         RegisterListener<Listeners.CheckTransmit>(OnEffectsTransmit);
         RegisterListener<Listeners.OnMapStart>(_ => { _beams = 0; _trails.Clear(); _lastTracer.Clear(); _spectatorBeams.Clear(); _killFxOwner = 0; });
@@ -42,8 +43,26 @@ public partial class TasherStyle
     private static bool TryColor(string s, out Color c)
     {
         if (s == "random") { c = RandomBright(); return true; }
+        if (s.StartsWith("anim:")) { c = AnimColor(s[5..], Server.CurrentTime); return true; }
         if (TryRgb(s, out var r, out var g, out var b)) { c = Color.FromArgb(255, (int)r, (int)g, (int)b); return true; }
         c = Color.White; return false;
+    }
+
+    // легендарные цвета: переливаются по кругу со временем (у следа гранаты — от сегмента к сегменту)
+    private static readonly Dictionary<string, (Color[] Cols, float Speed)> Anims = new()
+    {
+        ["rainbow"] = (new[] { Cl(255, 77, 77), Cl(255, 184, 77), Cl(245, 245, 77), Cl(93, 255, 107), Cl(77, 195, 255), Cl(176, 107, 255) }, 0.5f),
+        ["neon"] = (new[] { Cl(255, 43, 214), Cl(43, 240, 255) }, 0.8f),
+        ["flame"] = (new[] { Cl(255, 210, 63), Cl(255, 122, 26), Cl(255, 43, 43) }, 0.9f),
+        ["aurora"] = (new[] { Cl(125, 255, 176), Cl(56, 211, 255), Cl(167, 139, 250) }, 0.45f),
+        ["gold"] = (new[] { Cl(245, 196, 81), Cl(255, 241, 184) }, 0.7f),
+    };
+    private static Color Cl(int r, int g, int b) => Color.FromArgb(255, r, g, b);
+    private static Color AnimColor(string kind, float t)
+    {
+        if (!Anims.TryGetValue(kind, out var a)) return Color.White;
+        var x = (t * a.Speed) % 1f * a.Cols.Length; var i = (int)x;
+        return Mix(a.Cols[i % a.Cols.Length], a.Cols[(i + 1) % a.Cols.Length], x - i);
     }
 
     private static readonly Color[] Palette =
@@ -513,10 +532,10 @@ public partial class TasherStyle
     }
 
     // --- след гранаты: каждые 7 тиков луч от прошлой точки до текущей; видят бросивший и наблюдающие за ним ---
-    private void StartTrail(CBaseCSGrenadeProjectile g, Color c, ulong owner)
+    private void StartTrail(CBaseCSGrenadeProjectile g, Color c, ulong owner, string anim = "")
     {
         if (g.AbsOrigin is not { } o || _trails.Count >= 32) return;
-        _trails.Add(new GrenadeTrail { G = g, C = c, Owner = owner, X = o.X, Y = o.Y, Z = o.Z });
+        _trails.Add(new GrenadeTrail { G = g, C = c, Anim = anim, Owner = owner, X = o.X, Y = o.Y, Z = o.Z });
     }
 
     private void OnTick()
@@ -533,7 +552,8 @@ public partial class TasherStyle
                 continue;
             }
             t.Still = 0;
-            Frame(0, t.Owner, () => Beam(t.X, t.Y, t.Z, o.X, o.Y, o.Z, t.C, 1.6f, 0.35f)); // след видят бросивший и наблюдающие за ним
+            var col = t.Anim.Length > 0 ? AnimColor(t.Anim, Server.CurrentTime) : t.C;
+            Frame(0, t.Owner, () => Beam(t.X, t.Y, t.Z, o.X, o.Y, o.Z, col, t.Anim.Length > 0 ? 2.2f : 1.6f, t.Anim.Length > 0 ? 0.5f : 0.35f)); // след видят бросивший и наблюдающие за ним
             t.X = o.X; t.Y = o.Y; t.Z = o.Z;
         }
     }

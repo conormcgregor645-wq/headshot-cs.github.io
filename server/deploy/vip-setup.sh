@@ -133,7 +133,7 @@ groups = {
 }
 json.dump(core, open(os.path.join(d, "vip_core.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=2)
 sd = os.path.join(os.path.dirname(d), "TasherStyle"); os.makedirs(sd, exist_ok=True)
-json.dump({"Host": "127.0.0.1", "Port": 3306, "User": "wp", "Password": os.environ["DB_PASS"], "Database": "weaponpaints", "ReloadSeconds": 20, "PremierScoreboardEnabled": True, "ConfigVersion": 1},
+json.dump({"Host": "127.0.0.1", "Port": 3306, "User": "wp", "Password": os.environ["DB_PASS"], "Database": "weaponpaints", "ReloadSeconds": 20, "PremierScoreboardEnabled": True, "FunEnabled": False, "ConfigVersion": 1},
           open(os.path.join(sd, "TasherStyle.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=2)
 json.dump(groups, open(os.path.join(d, "vip.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=2)
 # сообщения плагинов на русском

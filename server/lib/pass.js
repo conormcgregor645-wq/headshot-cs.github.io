@@ -25,12 +25,12 @@ function rewards() {
     11: O("tc_1"), 12: O("nk_0"), 13: C("cgreen"), 14: O("sd_drum"), 15: C("army"), 16: B("tk2", 24), 17: C("cblue"), 18: O("bg_i_nydust"), 19: O("tr_wops"), 20: O("tc_4"),
     21: C("forb"), 22: O("nk_1"), 23: O("sd_ding"), 24: C("cgreen"), 25: S("VIP", 3), 26: O("sm_wops"), 27: C("cyellow"), 28: C("army"),
     29: B("xp2", 24), 30: O("kl_spark"), 31: C("cblue"), 32: O("kl_star"), 33: O("tr_1"), 34: C("secret"), 35: C("forb"), 36: S("PREMIUM", 2), 37: C("desert"),
-    38: O("sd_coin"), 39: O("mv_csgo"), 40: O("fr_lime"), 41: C("cyellow"), 42: B("tk2", 24), 43: O("fr_ice"), 44: C("secret"), 45: C("desert"),
+    38: O("sd_coin"), 39: O("tr_gold"), 40: O("fr_lime"), 41: C("cyellow"), 42: B("tk2", 24), 43: O("fr_ice"), 44: C("secret"), 45: C("desert"),
     46: O("tc_wops"), 47: C("cred"), 48: C("fire"), 50: S("PREMIUM", 7),
   };
   const PREM = {
     2: C("fire"), 3: O("sd_bell"), 4: C("tasher"), 5: C("cpremium1"), 6: B("xp2", 48), 7: C("sniper"), 8: O("fr_emer"),
-    9: C("cpremium2"), 10: O("nk_grad1"), 11: C("tasher"), 12: O("sd_8bit"), 13: C("cvanilla"), 14: O("mv_wops"), 15: S("ELITE", 7),
+    9: C("cpremium2"), 10: O("nk_grad1"), 11: C("tasher"), 12: O("sd_8bit"), 13: C("cvanilla"), 14: O("tc_neon"), 15: S("ELITE", 7),
     16: C("cdamascussteel"), 17: C("sniper"), 18: O("tr_4"), 19: C("cultraviolet"), 20: O("kl_bolt"), 21: C("cpremium3"), 22: O("nk_wops"),
     23: C("ctigertooth"), 24: O("kl_tornado"), 25: C("knife"), 26: C("ccasehardened"), 27: S("TITAN", 3), 28: O("kl_conf"), 29: C("ccrimsonweb"),
     30: O("tc_3"), 31: C("cpremium4"), 32: O("kl_storm"), 33: O("sm_2"), 34: C("cfade"), 35: S("LEGEND", 7), 36: C("cdoppler"), 37: O("bg_i_wops"),
