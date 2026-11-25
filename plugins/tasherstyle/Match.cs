@@ -6,9 +6,7 @@
 //    без серой плашки (point_worldtext перед глазами, видят только он и те, кто за ним наблюдает), и голос серии.
 //    В чат ничего не пишется. Первая кровь раунда — тоже надпись и голос.
 using CounterStrikeSharp.API;
-using System.Runtime.InteropServices;
 using CounterStrikeSharp.API.Core;
-using CounterStrikeSharp.API.Modules.Memory;
 using CounterStrikeSharp.API.Modules.Timers;
 using CounterStrikeSharp.API.Modules.Utils;
 using Microsoft.Extensions.Logging;
@@ -35,6 +33,7 @@ public partial class TasherStyle
         RegisterEventHandler<EventPlayerDeath>(StreakDeath);
         RegisterListener<Listeners.CheckTransmit>(StreakTransmit);
         RegisterListener<Listeners.OnMapStart>(_ => _streakText.Clear());
+        RegisterListener<Listeners.OnTick>(StreakTextTick);
         AddTimer(1f, ApplyMatchCvars);
     }
 
@@ -96,7 +95,7 @@ public partial class TasherStyle
         return HookResult.Continue;
     }
 
-    // --- надпись серии посреди экрана: point_worldtext в нескольких юнитах перед глазами, прикреплён к модели рук ---
+    // --- надпись серии посреди экрана: point_worldtext в нескольких юнитах перед глазами, прикреплён к игроку ---
     private readonly Dictionary<int, CPointWorldText> _streakText = new(); // слот игрока → его надпись
 
     private void Announce(CCSPlayerController p, string text, string color)
@@ -127,32 +126,36 @@ public partial class TasherStyle
         ent.ReorientMode = PointWorldTextReorientMode_t.POINT_WORLD_TEXT_REORIENT_NONE;
         ent.DispatchSpawn();
 
-        // глаза, направление взгляда и «вверх» экрана
-        var ang = pawn.EyeAngles;
-        double pr = ang.X * Math.PI / 180, yr = ang.Y * Math.PI / 180;
-        float cp = (float)Math.Cos(pr), sp = (float)Math.Sin(pr), cy = (float)Math.Cos(yr), sy = (float)Math.Sin(yr);
-        var o = pawn.AbsOrigin;
-        float ex = o.X, ey = o.Y, ez = o.Z + pawn.ViewOffset.Z;
-        const float dist = 9f, lift = 1.6f; // чуть выше прицела, чтобы не закрывать его
-        var pos = new Vector(ex + cp * cy * dist + sp * cy * lift, ey + cp * sy * dist + sp * sy * lift, ez - sp * dist + cp * lift);
-        ent.Teleport(pos, new QAngle(0, ang.Y + 270, 90 - ang.X), new Vector(0, 0, 0));
-
-        // прикрепляем к модели рук — надпись остаётся посреди экрана, даже если игрок крутится и бежит
-        var vm = ViewModelOf(pawn);
-        if (vm is { IsValid: true }) ent.AcceptInput("SetParent", vm, null, "!activator");
+        // ставим перед глазами и прикрепляем к игроку: движение сглаживает сама игра, а поворот взгляда догоняем каждый тик
+        PlaceText(ent, pawn);
+        ent.AcceptInput("SetParent", pawn, null, "!activator");
 
         _streakText[p.Slot] = ent;
         var slot = p.Slot;
         AddTimer(1.6f, () => { if (_streakText.TryGetValue(slot, out var e) && e == ent) RemoveStreakText(slot); }, TimerFlags.STOP_ON_MAPCHANGE);
     }
 
-    private static CBaseEntity? ViewModelOf(CCSPlayerPawn pawn)
+    private static void PlaceText(CPointWorldText ent, CCSPlayerPawn pawn)
     {
-        var vms = pawn.ViewModelServices;
-        if (vms is null || vms.Handle == IntPtr.Zero) return null;
-        var raw = (uint)Marshal.ReadInt32(vms.Handle + Schema.GetSchemaOffset("CCSPlayer_ViewModelServices", "m_hViewModel"));
-        var h = new CHandle<CBaseEntity>(raw);
-        return h.IsValid ? h.Value : null;
+        if (pawn.AbsOrigin is not { } o) return;
+        var ang = pawn.EyeAngles;
+        double pr = ang.X * Math.PI / 180, yr = ang.Y * Math.PI / 180;
+        float cp = (float)Math.Cos(pr), sp = (float)Math.Sin(pr), cy = (float)Math.Cos(yr), sy = (float)Math.Sin(yr);
+        float ex = o.X, ey = o.Y, ez = o.Z + pawn.ViewOffset.Z;
+        const float dist = 9f, lift = 1.6f; // чуть выше прицела, чтобы не закрывать его
+        var pos = new Vector(ex + cp * cy * dist + sp * cy * lift, ey + cp * sy * dist + sp * sy * lift, ez - sp * dist + cp * lift);
+        ent.Teleport(pos, new QAngle(0, ang.Y + 270, 90 - ang.X), new Vector(0, 0, 0));
+    }
+
+    private void StreakTextTick()
+    {
+        if (_streakText.Count == 0) return;
+        foreach (var (slot, ent) in _streakText.ToList())
+        {
+            var p = Utilities.GetPlayerFromSlot(slot);
+            if (!ent.IsValid || p is not { IsValid: true, PawnIsAlive: true } || p.PlayerPawn.Value is not { IsValid: true } pawn) { RemoveStreakText(slot); continue; }
+            PlaceText(ent, pawn);
+        }
     }
 
     private void RemoveStreakText(int slot)
