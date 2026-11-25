@@ -38,9 +38,13 @@ else echo "уже установлен"; fi
 
 log "2/3 Подключаю аддон $ID"
 mkdir -p "$(dirname "$MAMCFG")"; touch "$MAMCFG"
-CUR=$(sed -nE 's/^mm_extra_addons "([^"]*)".*/\1/p' "$MAMCFG" | head -1)
+# в конфиге MultiAddonManager между именем и значением бывают табы, а рядом есть mm_extra_addons_timeout —
+# поэтому ищем только строку «mm_extra_addons<пробелы>"…"» и меняем лишь значение в кавычках (табы и комментарий остаются)
+CUR=$(sed -nE 's/^mm_extra_addons[[:space:]]+"([^"]*)".*/\1/p' "$MAMCFG" | head -1)
 if [[ ",$CUR," == *",$ID,"* ]]; then NEW=$CUR; else NEW=${CUR:+$CUR,}$ID; fi
-if grep -q '^mm_extra_addons' "$MAMCFG"; then sed -i "s/^mm_extra_addons.*/mm_extra_addons \"$NEW\"/" "$MAMCFG"; else echo "mm_extra_addons \"$NEW\"" >>"$MAMCFG"; fi
+if grep -qE '^mm_extra_addons[[:space:]]+"' "$MAMCFG"; then
+  sed -i -E "s/^(mm_extra_addons[[:space:]]+)\"[^\"]*\"/\1\"$NEW\"/" "$MAMCFG"
+else echo "mm_extra_addons \"$NEW\"" >>"$MAMCFG"; fi
 chown cs2:cs2 "$MAMCFG" 2>/dev/null || true
 echo "mm_extra_addons \"$NEW\""
 
