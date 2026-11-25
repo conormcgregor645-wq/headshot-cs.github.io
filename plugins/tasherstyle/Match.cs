@@ -2,12 +2,17 @@
 //  • Карта не заканчивается на 13 победах: играем без смены сторон, пока одна из команд не наберёт WinScore (100) побед.
 //    Тогда объявляем победителя и перезапускаем счёт с нуля на той же карте (mp_restartgame).
 //  • Серии убийств: несколько убийств подряд с паузой не больше StreakWindow секунд —
-//    DOUBLE KILL, TRIPLE KILL, MEGA KILL, RAMPAGE (как в паке озвучки). Надпись по центру экрана у убившего, звук из игры,
-//    с тройной серии — строка в чат всем. Первая кровь раунда — тоже надпись и звук.
+//    DOUBLE KILL, TRIPLE KILL, MEGA KILL, RAMPAGE (как в паке озвучки). Надпись — цветной текст посреди экрана убившего
+//    без серой плашки (point_worldtext перед глазами, видят только он и те, кто за ним наблюдает), и голос серии.
+//    В чат ничего не пишется. Первая кровь раунда — тоже надпись и голос.
 using CounterStrikeSharp.API;
+using System.Runtime.InteropServices;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Memory;
 using CounterStrikeSharp.API.Modules.Timers;
 using CounterStrikeSharp.API.Modules.Utils;
+using Microsoft.Extensions.Logging;
+using Vector = CounterStrikeSharp.API.Modules.Utils.Vector;
 
 namespace TasherStyle;
 
@@ -28,6 +33,8 @@ public partial class TasherStyle
         });
         RegisterEventHandler<EventRoundEnd>(MatchRoundEnd, HookMode.Post);
         RegisterEventHandler<EventPlayerDeath>(StreakDeath);
+        RegisterListener<Listeners.CheckTransmit>(StreakTransmit);
+        RegisterListener<Listeners.OnMapStart>(_ => _streakText.Clear());
         AddTimer(1f, ApplyMatchCvars);
     }
 
@@ -86,12 +93,100 @@ public partial class TasherStyle
         var (text, color, key) = StreakNames[Math.Min(n, StreakNames.Length - 1)];
         Announce(a, text, color);
         PlayTo(a, key, n >= 3);
-        if (n >= 3) Server.PrintToChatAll($"{Prefix}{ChatColors.Lime}{a.PlayerName}{ChatColors.Default} — {ChatColors.Red}{text}{ChatColors.Default}!");
         return HookResult.Continue;
     }
 
-    private static void Announce(CCSPlayerController p, string text, string color) =>
-        p.PrintToCenterHtml($"<font class='fontSize-xl fontWeight-Bold' color='{color}'>{text}</font>", 2);
+    // --- надпись серии посреди экрана: point_worldtext в нескольких юнитах перед глазами, прикреплён к модели рук ---
+    private readonly Dictionary<int, CPointWorldText> _streakText = new(); // слот игрока → его надпись
+
+    private void Announce(CCSPlayerController p, string text, string color)
+    {
+        try { ShowScreenText(p, text, color); }
+        catch (Exception ex) { Logger.LogWarning("[TASHER Style] надпись серии: {Error}", ex.Message); }
+    }
+
+    private void ShowScreenText(CCSPlayerController p, string text, string color)
+    {
+        if (p.PlayerPawn.Value is not { IsValid: true } pawn || !p.PawnIsAlive || pawn.AbsOrigin is null) return;
+        RemoveStreakText(p.Slot);
+        if (!TryHex(color, out var c)) c = System.Drawing.Color.White;
+
+        var ent = Utilities.CreateEntityByName<CPointWorldText>("point_worldtext");
+        if (ent is null) return;
+        ent.MessageText = text;
+        ent.Enabled = true;
+        ent.Fullbright = true;
+        ent.FontName = "Arial Black";
+        ent.FontSize = 64;
+        ent.WorldUnitsPerPx = 0.0075f;
+        ent.Color = c;
+        ent.DrawBackground = false;
+        ent.DepthOffset = 0f;
+        ent.JustifyHorizontal = PointWorldTextJustifyHorizontal_t.POINT_WORLD_TEXT_JUSTIFY_HORIZONTAL_CENTER;
+        ent.JustifyVertical = PointWorldTextJustifyVertical_t.POINT_WORLD_TEXT_JUSTIFY_VERTICAL_CENTER;
+        ent.ReorientMode = PointWorldTextReorientMode_t.POINT_WORLD_TEXT_REORIENT_NONE;
+        ent.DispatchSpawn();
+
+        // глаза, направление взгляда и «вверх» экрана
+        var ang = pawn.EyeAngles;
+        double pr = ang.X * Math.PI / 180, yr = ang.Y * Math.PI / 180;
+        float cp = (float)Math.Cos(pr), sp = (float)Math.Sin(pr), cy = (float)Math.Cos(yr), sy = (float)Math.Sin(yr);
+        var o = pawn.AbsOrigin;
+        float ex = o.X, ey = o.Y, ez = o.Z + pawn.ViewOffset.Z;
+        const float dist = 9f, lift = 1.6f; // чуть выше прицела, чтобы не закрывать его
+        var pos = new Vector(ex + cp * cy * dist + sp * cy * lift, ey + cp * sy * dist + sp * sy * lift, ez - sp * dist + cp * lift);
+        ent.Teleport(pos, new QAngle(0, ang.Y + 270, 90 - ang.X), new Vector(0, 0, 0));
+
+        // прикрепляем к модели рук — надпись остаётся посреди экрана, даже если игрок крутится и бежит
+        var vm = ViewModelOf(pawn);
+        if (vm is { IsValid: true }) ent.AcceptInput("SetParent", vm, null, "!activator");
+
+        _streakText[p.Slot] = ent;
+        var slot = p.Slot;
+        AddTimer(1.6f, () => { if (_streakText.TryGetValue(slot, out var e) && e == ent) RemoveStreakText(slot); }, TimerFlags.STOP_ON_MAPCHANGE);
+    }
+
+    private static CBaseEntity? ViewModelOf(CCSPlayerPawn pawn)
+    {
+        var vms = pawn.ViewModelServices;
+        if (vms is null || vms.Handle == IntPtr.Zero) return null;
+        var raw = (uint)Marshal.ReadInt32(vms.Handle + Schema.GetSchemaOffset("CCSPlayer_ViewModelServices", "m_hViewModel"));
+        var h = new CHandle<CBaseEntity>(raw);
+        return h.IsValid ? h.Value : null;
+    }
+
+    private void RemoveStreakText(int slot)
+    {
+        if (_streakText.Remove(slot, out var e) && e.IsValid) e.Remove();
+    }
+
+    private static bool TryHex(string hex, out System.Drawing.Color c)
+    {
+        c = default;
+        hex = hex.TrimStart('#');
+        if (hex.Length != 6 || !int.TryParse(hex, System.Globalization.NumberStyles.HexNumber, null, out var v)) return false;
+        c = System.Drawing.Color.FromArgb(255, (v >> 16) & 255, (v >> 8) & 255, v & 255);
+        return true;
+    }
+
+    // надпись получает только её владелец и мёртвые/зрители, которые наблюдают за ним
+    private void StreakTransmit(CCheckTransmitInfoList infoList)
+    {
+        if (_streakText.Count == 0) return;
+        foreach (var (info, viewer) in infoList)
+        {
+            if (viewer is not { IsValid: true }) continue;
+            var target = viewer.PawnIsAlive ? null
+                : viewer.PlayerPawn.Value?.ObserverServices?.ObserverTarget.Value ?? viewer.ObserverPawn.Value?.ObserverServices?.ObserverTarget.Value;
+            foreach (var (slot, ent) in _streakText)
+            {
+                if (!ent.IsValid || slot == viewer.Slot) continue;
+                var owner = Utilities.GetPlayerFromSlot(slot);
+                if (target is { IsValid: true } && owner?.PlayerPawn.Value is { IsValid: true } op && op.Handle == target.Handle) continue;
+                info.TransmitEntities.Remove(ent);
+            }
+        }
+    }
 
     // голос (если аддон с озвучкой подключён) или встроенный звук; everyone — серию от тройной слышат все
     private void PlayTo(CCSPlayerController p, string key, bool everyone = false)
