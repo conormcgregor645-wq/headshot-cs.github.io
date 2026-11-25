@@ -73,8 +73,6 @@ public class StyleConfig : BasePluginConfig
     [JsonPropertyName("SpecialModes")] public List<string> SpecialModes { get; set; } = new() { "knife", "deagle", "awp", "scout", "zeus", "onehp", "nades", "invis", "wh", "hs", "bhop", "vampire", "ammo" };
     // Длинная карта: до стольких побед одной из команд, без смены сторон; потом счёт обнуляется (0 — обычный матч)
     [JsonPropertyName("WinScore")] public int WinScore { get; set; } = 100;
-    // пока людей в командах меньше стольких — проходы из walls.json закрыты (0 — никогда)
-    [JsonPropertyName("SmallOnlineBelow")] public int SmallOnlineBelow { get; set; } = 5;
     // общий голосовой чат: обе команды слышат друг друга, живые не слышат мёртвых
     [JsonPropertyName("AllTalk")] public bool AllTalk { get; set; } = true;
     // Серии убийств (DOUBLE / MULTI / ULTRA / MONSTER KILL): убийства подряд с паузой не больше StreakWindow секунд
@@ -129,10 +127,9 @@ public partial class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
         LoadPunish();
         LoadFun();
         LoadMatch();
-        LoadWalls();
         LoadTestBots();
-        // рейтинг в Tab сбрасывается игрой при смене карты/команды — обновляем в начале каждого раунда
-        RegisterEventHandler<EventRoundStart>((_, _) => { foreach (var pl in Utilities.GetPlayers()) ApplyPremierRanking(pl); return HookResult.Continue; });
+        // рейтинг в Tab игра сбрасывает постоянно — выставляем каждый тик, как плагины рангов
+        RegisterListener<Listeners.OnTick>(() => { if (Config.PremierScoreboardEnabled) foreach (var pl in Utilities.GetPlayers()) ApplyPremierRanking(pl); });
         RegisterEventHandler<EventPlayerSpawn>((e, _) =>
         {
             if (e.Userid is { } p) Server.NextFrame(() => { ApplyScoreboard(p); ApplyPremierRanking(p); });
@@ -350,22 +347,12 @@ public partial class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
         var kind = (sbyte)(pts > 0 ? 11 : 0); // 11 — Premier, 0 — без рейтинга
         try
         {
-            // игра показывает CS Rating только у тех, у кого не меньше 10 побед — иначе в Tab пусто
-            if (pts > 0 && player.CompetitiveWins < 10)
-            {
-                player.CompetitiveWins = 10;
-                Utilities.SetStateChanged(player, "CCSPlayerController", "m_iCompetitiveWins");
-            }
-            if (player.CompetitiveRanking != pts)
-            {
-                player.CompetitiveRanking = pts;
-                Utilities.SetStateChanged(player, "CCSPlayerController", "m_iCompetitiveRanking");
-            }
-            if (player.CompetitiveRankType != kind)
-            {
-                player.CompetitiveRankType = kind;
-                Utilities.SetStateChanged(player, "CCSPlayerController", "m_iCompetitiveRankType");
-            }
+            // игра сама сбрасывает эти поля, поэтому их выставляют каждый тик (так делают все плагины рангов, например K4 MMRanks);
+            // CS Rating виден только у тех, у кого не меньше 10 побед — ставим 10
+            player.CompetitiveWins = 10;
+            player.CompetitiveRanking = pts;
+            player.CompetitiveRankType = kind;
+            Utilities.SetStateChanged(player, "CCSPlayerController", "m_iCompetitiveRankType");
         }
         catch (Exception ex)
         {
