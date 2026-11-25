@@ -66,12 +66,21 @@ public class StyleConfig : BasePluginConfig
     // ограничение на число лучей эффектов одновременно (защита от перегрузки сервера)
     [JsonPropertyName("MaxBeams")] public int MaxBeams { get; set; } = 320;
     // особые раунды и серии убийств
-    [JsonPropertyName("FunEnabled")] public bool FunEnabled { get; set; } = true;
+    [JsonPropertyName("FunEnabled")] public bool FunEnabled { get; set; } = false; // особые раунды выключены (25.11.2026)
     [JsonPropertyName("SpecialEveryMin")] public int SpecialEveryMin { get; set; } = 2;
     [JsonPropertyName("SpecialEveryMax")] public int SpecialEveryMax { get; set; } = 3;
     [JsonPropertyName("SpecialMinHumans")] public int SpecialMinHumans { get; set; } = 1;
     [JsonPropertyName("SpecialModes")] public List<string> SpecialModes { get; set; } = new() { "knife", "deagle", "awp", "scout", "zeus", "onehp", "nades", "invis", "wh", "hs", "bhop", "vampire", "ammo" };
-    // UPD: не используется — звуки серий и начала особого раунда отключены. Оставлено для совместимости со старыми конфигами.
+    // Длинная карта: до стольких побед одной из команд, без смены сторон; потом счёт обнуляется (0 — обычный матч)
+    [JsonPropertyName("WinScore")] public int WinScore { get; set; } = 100;
+    // пока людей в командах меньше стольких — проходы из walls.json закрыты (0 — никогда)
+    [JsonPropertyName("SmallOnlineBelow")] public int SmallOnlineBelow { get; set; } = 5;
+    // общий голосовой чат: обе команды слышат друг друга, живые не слышат мёртвых
+    [JsonPropertyName("AllTalk")] public bool AllTalk { get; set; } = true;
+    // Серии убийств (DOUBLE / MULTI / ULTRA / MONSTER KILL): убийства подряд с паузой не больше StreakWindow секунд
+    [JsonPropertyName("StreaksEnabled")] public bool StreaksEnabled { get; set; } = true;
+    [JsonPropertyName("StreakWindow")] public float StreakWindow { get; set; } = 4f;
+    // звуки серий — встроенные звуки CS2: first — первая кровь раунда, 2…5 — серия
     [JsonPropertyName("StreakSounds")] public Dictionary<string, string> StreakSounds { get; set; } = new()
     {
         ["first"] = "sounds/ui/deathmatch_bonuskill.vsnd",
@@ -119,6 +128,8 @@ public partial class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
         LoadInfo();
         LoadPunish();
         LoadFun();
+        LoadMatch();
+        LoadWalls();
         LoadTestBots();
         // рейтинг в Tab сбрасывается игрой при смене карты/команды — обновляем в начале каждого раунда
         RegisterEventHandler<EventRoundStart>((_, _) => { foreach (var pl in Utilities.GetPlayers()) ApplyPremierRanking(pl); return HookResult.Continue; });
@@ -239,7 +250,20 @@ public partial class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
         var raw = info.GetArg(1);
         if (string.IsNullOrWhiteSpace(raw)) return HookResult.Continue;
         if (BlockGagged(player, raw)) return HookResult.Handled;
-        if (IsChatTrigger(raw)) return HookResult.Continue;
+        if (IsChatTrigger(raw))
+        {
+            // «/команда» CS# и так не показывает в чате; «!команда» видит только сам игрок, остальным она не приходит
+            if (raw.TrimStart()[0] == '/') return HookResult.Continue;
+            var cmdText = StripControl(raw.TrimStart()[1..]).Trim();
+            if (cmdText.Length == 0) return HookResult.Handled;
+            player.PrintToChat($" {ChatColors.Grey}{StripControl(player.PlayerName)}: {ChatColors.Default}{StripControl(raw.Trim())}");
+            var cmdName = cmdText.Split(' ', 2)[0].ToLowerInvariant();
+            var cmdArgs = cmdText.Length > cmdName.Length ? cmdText[cmdName.Length..] : "";
+            // выполняем команду так же, как CS# выполнил бы её из чата: css_<имя> <аргументы>
+            if (cmdName.All(ch => char.IsLetterOrDigit(ch) || ch == '_'))
+                player.ExecuteClientCommandFromServer($"css_{cmdName}{cmdArgs.Replace(";", "")}");
+            return HookResult.Handled;
+        }
         // управляющие символы — это цвета чата CS2: без очистки игрок мог перекрасить строку и подделать чужой тег
         var message = StripControl(raw);
         if (string.IsNullOrWhiteSpace(message)) return HookResult.Handled;
@@ -326,6 +350,12 @@ public partial class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
         var kind = (sbyte)(pts > 0 ? 11 : 0); // 11 — Premier, 0 — без рейтинга
         try
         {
+            // игра показывает CS Rating только у тех, у кого не меньше 10 побед — иначе в Tab пусто
+            if (pts > 0 && player.CompetitiveWins < 10)
+            {
+                player.CompetitiveWins = 10;
+                Utilities.SetStateChanged(player, "CCSPlayerController", "m_iCompetitiveWins");
+            }
             if (player.CompetitiveRanking != pts)
             {
                 player.CompetitiveRanking = pts;
@@ -388,7 +418,8 @@ public partial class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
         if (!controller.IsValid || controller.IsBot) return;
         if (isSmoke && style != null) ApplySmoke(new CSmokeGrenadeProjectile(g.Handle), style.Smoke);
         // белый след гранаты есть у всех; цветной — купленный на сайте; в !menu можно выключить
-        if (PrefOn(controller.SteamID, OffTrail) && TryColor(style is { Trail.Length: > 0 } ? style.Trail : DefaultWhite, out var col)) StartTrail(g, col, controller.SteamID);
+        var trailSpec = style is { Trail.Length: > 0 } ? style.Trail : DefaultWhite;
+        if (PrefOn(controller.SteamID, OffTrail) && TryColor(trailSpec, out var col)) StartTrail(g, col, controller.SteamID, trailSpec.StartsWith("anim:") ? trailSpec[5..] : "");
     }
 
     private static void ApplySmoke(CSmokeGrenadeProjectile g, string smoke)

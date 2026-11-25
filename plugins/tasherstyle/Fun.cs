@@ -127,6 +127,9 @@ public partial class TasherStyle
         });
         AddCommand("css_special", "Следующий раунд — особый: css_special <режим|random|off>", CmdSpecial);
         // запрет закупки и подбора чужого оружия на время особого раунда
+        // перехват подбора предметов нужен только особым раундам; когда они выключены — не трогаем закупку и подбор вовсе
+        // (лишний перехват мог сбивать иконку бомбы у игроков)
+        if (!Config.FunEnabled) return;
         try { VirtualFunctions.CCSPlayer_ItemServices_CanAcquireFunc.Hook(OnCanAcquire, HookMode.Pre); _acqHooked = true; }
         catch (Exception ex) { Logger.LogWarning("Особые раунды: запрет закупки недоступен ({Err}) — лишнее оружие будет отбираться после закупки", ex.Message); }
     }

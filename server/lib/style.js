@@ -10,6 +10,9 @@ const NICK_COL = { nk_0: "lime", nk_1: "lightblue", nk_2: "magenta", nk_3: "gold
 // цвет клана -> цвет тега в чате
 const CLAN_COL = { "#b5e853": "lime", "#ff8a3d": "orange", "#f5c451": "gold", "#3ddc97": "green", "#5aa9ff": "lightblue", "#a78bfa": "lightpurple", "#38d3ff": "lightblue", "#ff6b8b": "magenta", "#eb4b4b": "red" };
 const hexRgb = h => { const m = /^#([0-9a-f]{6})$/i.exec(h || ""); if (!m) return ""; const n = parseInt(m[1], 16); return `${n >> 16},${(n >> 8) & 255},${n & 255}`; };
+// цвет для плагина: #rrggbb -> "r,g,b"; легендарные переливающиеся передаются как есть ("anim:rainbow", дым — "random")
+const ANIM = new Set(["rainbow", "neon", "flame", "aurora", "gold"]);
+const fxColor = h => { const a = /^anim:([a-z]+)$/.exec(h || ""); return a && ANIM.has(a[1]) ? h : h === "random" ? "random" : hexRgb(h); };
 // свой тег: буквы, цифры, пробел и простые знаки; фигурные скобки нельзя (это цвета чата)
 const cleanTag = s => String(s || "").replace(/[^0-9A-Za-zА-Яа-яЁё _\-.!?*#]/g, "").replace(/\s+/g, " ").trim().slice(0, 12);
 const STEAM64 = 76561197960265728n;
@@ -30,9 +33,9 @@ function compose(r) {
   // В Tab — только название привилегии. Очки месяца хранятся отдельно
   // в tasher_player.pts и никогда не добавляются в клановый тег.
   const score = TIER_COL[r.tier] ? r.tier : "";
-  const smoke = r.smokeHex ? hexRgb(r.smokeHex) : r.tier === "KING" ? "random" : "";
+  const smoke = r.smokeHex ? fxColor(r.smokeHex) : r.tier === "KING" ? "random" : "";
   const killFx = KILL_FX.has(r.killFx) ? r.killFx : "", killSnd = KILL_SND.has(r.killSnd) ? r.killSnd : "";
-  return { chat: parts.join(" "), name, score: score.slice(0, 16), smoke, killFx, killSnd, trail: hexRgb(r.trailHex), tracer: hexRgb(r.tracerHex), mvpSnd: MVP_SND.has(r.mvpSnd) ? r.mvpSnd : "" };
+  return { chat: parts.join(" "), name, score: score.slice(0, 16), smoke, killFx, killSnd, trail: fxColor(r.trailHex), tracer: fxColor(r.tracerHex), mvpSnd: "" }; // звук MVP убран 25.11.2026
 }
 const q = s => "'" + String(s).replace(/[\\']/g, "") + "'";
 // fx — сколько колонок эффектов есть в таблице (их добавляет плагин): 0 — нет, 4 — kill_fx..tracer (1.1), 5 — ещё mvp_snd (1.3); true = 4

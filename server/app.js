@@ -600,8 +600,9 @@ function retireItems(key, ids, why) {
 }
 retireItems("badge_refund", { like: "bd\\_%" }, "значки убраны с сайта"); // 24.11.2026
 retireItems("white_fx_refund", { list: ["tr_0", "tc_0"] }, "белые трассеры и след гранат теперь у всех бесплатно"); // 25.11.2026
+retireItems("mvp_refund", { like: "mv\\_%" }, "звуки MVP убраны с сервера"); // 25.11.2026
 const COSM = new Map(JSON.parse(fs.readFileSync(path.join(__dirname, "data", "cosmetics.json"), "utf8")).map(x => [x.id, x]));
-const COS_EQ_CATS = ["frame", "bg", "nick", "smoke", "tag", "kill", "snd", "trail", "tracer", "mvp"]; // что надевается (свой тег покупается отдельно — /api/cos/tag)
+const COS_EQ_CATS = ["frame", "bg", "nick", "smoke", "tag", "kill", "snd", "trail", "tracer"]; // что надевается (свой тег покупается отдельно — /api/cos/tag)
 function userCos(u) { let eq = {}; try { eq = JSON.parse(u.cos_eq || "{}"); } catch (e) {} delete eq.badge; return { own: db.prepare("SELECT item_id FROM cos_own WHERE user_id=? ORDER BY created_at").all(u.id).map(r => r.item_id), eq, tag: u.cos_tag || "" }; }
 function userPurchases(uid) {
   return db.prepare("SELECT delta, meta, created_at FROM ledger WHERE user_id=? AND kind='shop' ORDER BY id DESC LIMIT 50").all(uid)

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Донастройка игрового сервера: фриз-тайм 3 с, без урона по союзникам, без автокика за тимкиллы и серверная команда обновления скинов для сайта.
+# Донастройка игрового сервера: фриз-тайм 3 с, без урона по союзникам, без автокика за тимкиллы, карта до 100 побед без смены сторон и серверная команда обновления скинов для сайта.
 # Запуск от root:  bash tune.sh
 set -euo pipefail
 CSGO=/home/cs2/server/game/csgo; WPJ=$CSGO/addons/counterstrikesharp/configs/plugins/WeaponPaints/WeaponPaints.json
@@ -21,6 +21,11 @@ for k in "mp_autokick 0" "sv_kick_ban_duration 0"; do
   n=${k%% *}; if grep -q "^$n" "$F"; then sed -i "s/^$n.*/$k/" "$F"; else echo "$k" >>"$F"; fi
 done
 echo "mp_autokick 0 и sv_kick_ban_duration 0 — за тимкиллы больше не кикает и не банит"
+# длинная карта: без смены сторон, до 100 побед одной из команд (дальше счёт обнуляет плагин TASHER Style)
+for k in "mp_maxrounds 201" "mp_halftime 0" "mp_match_can_clinch 0" "mp_overtime_enable 0"; do
+  n=${k%% *}; if grep -q "^$n" "$F"; then sed -i "s/^$n.*/$k/" "$F"; else echo "$k" >>"$F"; fi
+done
+echo "карта до 100 побед без смены сторон (mp_maxrounds 201, mp_halftime 0)"
 
 log "2/3 Команда обновления скинов для сайта"
 systemctl stop cs2

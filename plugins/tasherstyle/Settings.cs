@@ -1,4 +1,4 @@
-// !menu — личные настройки эффектов в игре: трассеры, след гранат, эффект и звук убийства, звук MVP.
+// !menu — личные настройки эффектов в игре (управление W/S/E): трассеры, след гранат, эффект и звук убийства, звук MVP.
 // Белые трассеры и след гранат есть у всех. Эффекты, звуки и цветные варианты покупаются на сайте.
 // Кто не купил, у того пункт выключен; попытка включить — сообщение в чат со ссылкой на сайт.
 // Выбор хранится в таблице tasher_prefs (биты «выключено»), поэтому сохраняется между картами и заходами.
@@ -7,7 +7,7 @@ using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes.Registration;
 using CounterStrikeSharp.API.Modules.Commands;
-using CounterStrikeSharp.API.Modules.Menu;
+using CounterStrikeSharp.API.Modules.Memory;
 using CounterStrikeSharp.API.Modules.Utils;
 using Microsoft.Extensions.Logging;
 using MySqlConnector;
@@ -30,7 +30,6 @@ public partial class TasherStyle
         new(OffTrail, "След гранат", "", _ => true),
         new(OffKillFx, "Эффект убийства", "эффекты убийства", s => s is { KillFx.Length: > 0 }),
         new(OffKillSnd, "Звук убийства", "звуки убийства", s => s is { KillSnd.Length: > 0 }),
-        new(OffMvp, "Звук MVP", "звуки MVP", s => s is { MvpSnd.Length: > 0 }),
     };
 
     private bool PrefOn(ulong sid, int bit) => !(_prefs.TryGetValue(sid, out var f) && (f & bit) != 0);
@@ -78,19 +77,75 @@ public partial class TasherStyle
         OpenSettings(player);
     }
 
+    // Меню на W/S/E: W — вверх, S — вниз, E — переключить, R или !menu ещё раз — закрыть.
+    // Пока меню открыто, живой игрок стоит на месте (иначе W/S двигали бы его); через 20 с без нажатий меню закрывается.
+    private sealed class MenuState { public int Idx; public ulong Prev; public float Last; public bool Frozen; }
+    private readonly Dictionary<int, MenuState> _menus = new();
+    private bool _menuTickOn;
+
     private void OpenSettings(CCSPlayerController player)
     {
-        var style = StyleOf(player);
-        var menu = new CenterHtmlMenu("<font color='#b5e853'>TASHER</font> · настройки", this);
-        foreach (var it in SettingsItems)
+        if (_menus.ContainsKey(player.Slot)) { CloseSettings(player); return; }
+        var st = new MenuState { Prev = (ulong)player.Buttons, Last = Server.CurrentTime };
+        if (player.PawnIsAlive && player.PlayerPawn.Value is { } pawn)
         {
-            var owned = it.Owned(style);
-            var on = owned && PrefOn(player.SteamID, it.Bit);
-            var state = on ? "<font color='#7dff8a'>ВКЛ</font>" : owned ? "<font color='#ff6b6b'>ВЫКЛ</font>" : "<font color='#8a8a8a'>ВЫКЛ · нет</font>";
-            var item = it;
-            menu.AddMenuOption($"{it.Name}: {state}", (p, _) => Toggle(p, item));
+            pawn.MoveType = MoveType_t.MOVETYPE_NONE;
+            Schema.SetSchemaValue(pawn.Handle, "CBaseEntity", "m_nActualMoveType", 0);
+            Utilities.SetStateChanged(pawn, "CBaseEntity", "m_MoveType");
+            st.Frozen = true;
         }
-        MenuManager.OpenCenterHtmlMenu(this, player, menu);
+        _menus[player.Slot] = st;
+        if (!_menuTickOn) { _menuTickOn = true; RegisterListener<Listeners.OnTick>(MenuTick); }
+    }
+
+    private void CloseSettings(CCSPlayerController player)
+    {
+        if (!_menus.Remove(player.Slot, out var st)) return;
+        if (st.Frozen && player.IsValid && player.PawnIsAlive && player.PlayerPawn.Value is { } pawn)
+        {
+            pawn.MoveType = MoveType_t.MOVETYPE_WALK;
+            Schema.SetSchemaValue(pawn.Handle, "CBaseEntity", "m_nActualMoveType", 2);
+            Utilities.SetStateChanged(pawn, "CBaseEntity", "m_MoveType");
+        }
+        if (player.IsValid) player.PrintToCenterHtml(" ", 1);
+    }
+
+    private void MenuTick()
+    {
+        if (_menus.Count == 0) return;
+        foreach (var slot in _menus.Keys.ToList())
+        {
+            var p = Utilities.GetPlayerFromSlot(slot);
+            if (p is not { IsValid: true } || p.IsBot) { _menus.Remove(slot); continue; }
+            var st = _menus[slot];
+            var b = (ulong)p.Buttons; var pressed = b & ~st.Prev; st.Prev = b;
+            var now = Server.CurrentTime;
+            if (pressed != 0) st.Last = now;
+            if ((pressed & (ulong)PlayerButtons.Forward) != 0) st.Idx = (st.Idx + SettingsItems.Length - 1) % SettingsItems.Length;
+            if ((pressed & (ulong)PlayerButtons.Back) != 0) st.Idx = (st.Idx + 1) % SettingsItems.Length;
+            if ((pressed & (ulong)PlayerButtons.Use) != 0) Toggle(p, SettingsItems[st.Idx]);
+            if ((pressed & (ulong)PlayerButtons.Reload) != 0 || now - st.Last > 20f) { CloseSettings(p); continue; }
+            // центр экрана перерисовываем каждый тик — иначе надпись мигает
+            p.PrintToCenterHtml(MenuHtml(p, st.Idx), 1);
+        }
+    }
+
+    private string MenuHtml(CCSPlayerController p, int idx)
+    {
+        var style = StyleOf(p);
+        var sb = new System.Text.StringBuilder("<font class='fontSize-m' color='#b5e853'>TASHER</font><font class='fontSize-m' color='#ffffff'> · настройки</font><br>");
+        for (var i = 0; i < SettingsItems.Length; i++)
+        {
+            var it = SettingsItems[i];
+            var owned = it.Owned(style);
+            var on = owned && PrefOn(p.SteamID, it.Bit);
+            var state = on ? "<font color='#7dff8a'>ВКЛ</font>" : owned ? "<font color='#ff6b6b'>ВЫКЛ</font>" : "<font color='#8a8a8a'>нет</font>";
+            sb.Append(i == idx
+                ? $"<font color='#f5c451'>▶ {it.Name}</font> {state}<br>"
+                : $"<font color='#cfcfcf'>{it.Name}</font> {state}<br>");
+        }
+        sb.Append("<font class='fontSize-s' color='#8a8a8a'>W/S — выбор · E — вкл/выкл · R — закрыть</font>");
+        return sb.ToString();
     }
 
     private void Toggle(CCSPlayerController p, MenuItem it)
@@ -99,13 +154,11 @@ public partial class TasherStyle
         if (!it.Owned(StyleOf(p)))
         {
             p.PrintToChat($"{Prefix}У тебя нет {it.Shop} — купить можно на {ChatColors.Lime}{Config.Site}{ChatColors.Default} в разделе «Оформление».");
-            OpenSettings(p);
             return;
         }
         var off = _prefs.GetValueOrDefault(p.SteamID) ^ it.Bit;
         SavePref(p.SteamID, off);
         var on = (off & it.Bit) == 0;
         p.PrintToChat($"{Prefix}{it.Name}: {(on ? $"{ChatColors.Lime}включено" : $"{ChatColors.Red}выключено")}");
-        OpenSettings(p);
     }
 }

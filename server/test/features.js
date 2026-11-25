@@ -177,7 +177,8 @@ const bal = u => db.prepare("SELECT tk, rub FROM users WHERE id=?").get(u.id);
   ok(!bad.killFx && !bad.killSnd && !bad.trail && !bad.tracer, "чужие значения эффектов не проходят", bad);
   ok(/kill_fx,kill_snd,trail,tracer\) VALUES \(\d{17},'\{grey\}\[Новенький\]','','','','ring','8bit','255,255,255','235,75,75'\)/.test(STYLE.sqlFor([{ sid: sidN(2), killFx: "ring", killSnd: "8bit", trailHex: "#ffffff", tracerHex: "#eb4b4b" }], true)), "эффекты пишутся в таблицу плагина");
   ok(!/kill_fx/.test(STYLE.sqlFor([{ sid: sidN(2), killFx: "ring" }], false)), "старый плагин без колонок эффектов — пишем без них");
-  ok(/tracer,mvp_snd\) VALUES \(\d{17},.*,'storm','','','','wops'\)/.test(STYLE.sqlFor([{ sid: sidN(2), killFx: "storm", mvpSnd: "wops" }], 5)) && !/mvp_snd/.test(STYLE.sqlFor([{ sid: sidN(2), mvpSnd: "wops" }], 4)), "звук MVP пишется, только если плагин уже знает колонку");
+  ok(/'storm','','','',''\)/.test(STYLE.sqlFor([{ sid: sidN(2), killFx: "storm", mvpSnd: "wops" }], 5)), "звук MVP больше не пишется (убран)");
+  ok(STYLE.compose({ trailHex: "anim:rainbow", tracerHex: "#ff8a3d", smokeHex: "random" }).trail === "anim:rainbow" && STYLE.compose({ tracerHex: "#ff8a3d" }).tracer === "255,138,61" && STYLE.compose({ trailHex: "anim:evil" }).trail === "", "легендарные цвета передаются плагину как есть, неизвестные — нет");
   const sql = STYLE.sqlFor([{ sid: sidN(1), tag: "a'b{red}" }, { sid: "123" }]);
   ok(!/\{red\}/.test(sql) && !/a'b/.test(sql) && (sql.match(/\(\d{17},/g) || []).length === 1, "в SQL нет кавычек и цветовых вставок из своего тега", sql);
 }
@@ -423,7 +424,7 @@ const bal = u => db.prepare("SELECT tk, rub FROM users WHERE id=?").get(u.id);
     ok(E3.add(sid, 5, T1) === 10 && E3.today(sid, T1).boost === 2, "с бустом ТК за игру ×2"); }
   // эксклюзивы сезона: только из пропуска, уровень и ветка в каталоге совпадают с наградами
   const EXI = [...COS.values()].filter(x => x.ex);
-  ok(EXI.length >= 8 && EXI.every(x => (x.tr === "p" ? PM.REWARDS.prem : PM.REWARDS.free)[x.lv - 1].some(r => r.t === "cos" && r.id === x.id)), "каждый эксклюзив выдаётся на своём уровне пропуска", EXI.map(x => x.id));
+  ok(EXI.length >= 7 && EXI.every(x => (x.tr === "p" ? PM.REWARDS.prem : PM.REWARDS.free)[x.lv - 1].some(r => r.t === "cos" && r.id === x.id)), "каждый эксклюзив выдаётся на своём уровне пропуска", EXI.map(x => x.id));
   ok(![...COS.values()].some(x => x.cat === "badge") && ![...PM.REWARDS.free, ...PM.REWARDS.prem].flat().some(r => r.t === "cos" && /^bd_/.test(r.id)), "значков больше нет");
   { const v = user(802, 0, 0); ok(P.adminXp(v.steamid, 4500).lv === 2 && P.adminXp(v.steamid, -9999).xp === 0 && P.adminXp(v.steamid, 1e9).lv === 50, "админ выдаёт и снимает опыт пропуска (в пределах 0…50 ур.)"); }
   const b = P.brief(sid); ok(b.lv === 50 && b.prem === 1 && b.s === "Сезон 1 · Зима" && b.un > 0, "данные для !pass", b);
