@@ -66,8 +66,8 @@ chown -R cs2:cs2 "$CSS/configs" "$PL" "$CFG"
 T0=$(date '+%Y-%m-%d %H:%M:%S')
 systemctl restart cs2
 printf 'перезапуск CS2 (до 2 минут)'
-for i in $(seq 1 30); do journalctl -u cs2 --since "$T0" --no-pager -o cat | grep -q "Finished loading plugin TASHER Style" && break; sleep 5; printf '.'; done; echo
-journalctl -u cs2 --since "$T0" --no-pager -o cat | grep -q "Finished loading plugin TASHER Style" || { echo "ВНИМАНИЕ: TASHER Style не загрузился — запусти tasher-check и пришли вывод"; exit 1; }
+for i in $(seq 1 30); do journalctl -u cs2 --since "$T0" --no-pager -o cat | grep -c "Finished loading plugin TASHER Style" >/dev/null && break; sleep 5; printf '.'; done; echo
+journalctl -u cs2 --since "$T0" --no-pager -o cat | grep -c "Finished loading plugin TASHER Style" >/dev/null || { echo "ВНИМАНИЕ: TASHER Style не загрузился — запусти tasher-check и пришли вывод"; exit 1; }
 sleep 10
 cd /opt/tasher/server && sudo -u tasher node --env-file=/etc/tasher.env -e '
 const A=require("./lib/a2s"),s=A.parse(process.env.GAME_SERVERS)[0];
