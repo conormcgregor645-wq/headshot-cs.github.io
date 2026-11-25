@@ -63,6 +63,9 @@ public class StyleConfig : BasePluginConfig
     // одного и того же игрока приветствуем не чаще, чем раз в столько минут (перезаходы не спамят)
     [JsonPropertyName("GreetCooldownMinutes")] public int GreetCooldownMinutes { get; set; } = 15;
     [JsonPropertyName("Site")] public string Site { get; set; } = "tashercs.ru";
+    // реклама сайта в чате: раз в столько минут (0 — выключено), тексты по кругу
+    [JsonPropertyName("AdvertMinutes")] public int AdvertMinutes { get; set; } = 3;
+    [JsonPropertyName("Adverts")] public List<string> Adverts { get; set; } = TasherStyle.DefaultAdverts();
     // ограничение на число лучей эффектов одновременно (защита от перегрузки сервера)
     [JsonPropertyName("MaxBeams")] public int MaxBeams { get; set; } = 320;
     // особые раунды и серии убийств
@@ -127,6 +130,7 @@ public partial class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
         LoadPunish();
         LoadFun();
         LoadMatch();
+        LoadAdverts();
         LoadTestBots();
         // рейтинг в Tab игра сбрасывает постоянно — выставляем каждый тик, как плагины рангов
         RegisterListener<Listeners.OnTick>(() => { if (Config.PremierScoreboardEnabled) foreach (var pl in Utilities.GetPlayers()) ApplyPremierRanking(pl); });
