@@ -4820,7 +4820,7 @@ $("dropsTr").addEventListener("click",e=>{const a=e.target.closest("[data-cprev]
 
 // окно наклеек
 let stw=null,sts=null,ssel=0,sVar=-1,sTy=-1,sLim=120,stkIt=null;
-function openStkItem(it){if(!STKREADY){toast("Загружаем наклейки…");return stkNeed(()=>openStkItem(it))}stkIt=it;stw=invW(it);const s=SKST.sets[stw.n];const src=it.stk||(isOnIt(it)&&s&&s.stk)||null;sts=src?src.map(x=>x?{...x}:null):[null,null,null,null,null];ssel=Math.max(0,sts.findIndex(x=>!x));$("stkQ").value="";drawStk();$("stkModal").hidden=false}
+function openStkItem(it){if(it.sv){toast("На сувенирном предмете наклейки турнира — их нельзя менять");return}if(!STKREADY){toast("Загружаем наклейки…");return stkNeed(()=>openStkItem(it))}stkIt=it;stw=invW(it);const s=SKST.sets[stw.n];const src=it.stk||(isOnIt(it)&&s&&s.stk)||null;sts=src?src.map(x=>x?{...x}:null):[null,null,null,null,null];ssel=Math.max(0,sts.findIndex(x=>!x));$("stkQ").value="";drawStk();$("stkModal").hidden=false}
 function openStk(i){if(!STKREADY)return stkNeed(()=>openStk(i));stkIt=null;stw=W[i];const s=SKST.sets[stw.n];sts=s&&s.stk?s.stk.map(x=>x?{...x}:null):[null,null,null,null,null];ssel=Math.max(0,sts.findIndex(x=>!x));if(ssel<0)ssel=0;
   $("stkQ").value="";drawStk();$("stkModal").hidden=false}
 function drawStk(){const s=stkIt?{wear:stkIt.wear}:SKST.sets[stw.n];const skin=stkIt?invSk(stkIt):(s&&s.name?stw.skins.find(x=>x[0]===s.name):null);

@@ -159,7 +159,39 @@ function addMoney(uid, cur, delta, kind, ref, meta) {
   return after;
 }
 const insItem = db.prepare("INSERT INTO items(id,user_id,w,s,r,wear,st,sv,sp,fx,seed,src,src_ref,state,created_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,'inv',?)");
-function giveItem(uid, it, src, ref) { insItem.run(it.id, uid, it.w, it.s, it.r, it.wear, it.st ? 1 : 0, it.sv ? 1 : 0, it.sp || null, it.fx || 0, it.seed || 0, src, ref || null, now()); return it; }
+function giveItem(uid, it, src, ref) {
+  insItem.run(it.id, uid, it.w, it.s, it.r, it.wear, it.st ? 1 : 0, it.sv ? 1 : 0, it.sp || null, it.fx || 0, it.seed || 0, src, ref || null, now());
+  if (it.sv && !it.stk) { const stk = souvenirStk(); if (stk) { it.stk = stk; db.prepare("UPDATE items SET stk=? WHERE id=?").run(JSON.stringify(stk), it.id); } }
+  return it;
+}
+
+// Сувенирные предметы, как в игре, идут с золотыми наклейками турнира: две команды финала, автограф игрока и логотип турнира.
+// Турнир и команды выбираются случайно при выдаче предмета; названия — из общего списка наклеек (img/stk.json).
+const SOUV_EVENTS = [
+  ["Cologne 2026", "IEM"], ["Austin 2025", "BLAST.tv"], ["Budapest 2025", "StarLadder"], ["Shanghai 2024", "Perfect World"],
+  ["Copenhagen 2024", "PGL"], ["Paris 2023", "BLAST.tv"], ["Rio 2022", "IEM"], ["Antwerp 2022", "PGL"],
+];
+const SOUV_TEAMS = ["Natus Vincere", "FaZe Clan", "Vitality", "G2 Esports", "MOUZ", "Team Spirit", "The MongolZ", "Aurora", "FURIA", "Eternal Fire",
+  "Team Liquid", "Astralis", "Heroic", "Virtus.pro", "Cloud9", "MIBR", "paiN Gaming", "Imperial Esports", "Apeks", "ENCE", "BIG", "3DMAX", "Falcons"];
+let SOUV = null;
+function souvenirPools() {
+  if (SOUV) return SOUV;
+  let names = [];
+  try { names = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "img", "stk.json"), "utf8")).map(x => x[0]); } catch (e) {}
+  const have = new Set(names);
+  SOUV = SOUV_EVENTS.map(([e, org]) => {
+    const tail = " (Gold) | " + e, teams = SOUV_TEAMS.filter(t => have.has(t + tail)).map(t => t + tail);
+    const players = names.filter(n => n.endsWith(tail) && !/[,|]/.test(n.slice(0, -tail.length)) && !teams.includes(n) && !n.startsWith(org + " ("));
+    return { org: have.has(org + tail) ? org + tail : null, teams, players };
+  }).filter(x => x.org && x.teams.length >= 2 && x.players.length);
+  return SOUV;
+}
+function souvenirStk() {
+  const ev = souvenirPools(); if (!ev.length) return null;
+  const pick = a => a[crypto.randomInt(0, a.length)];
+  const e = pick(ev), t1 = pick(e.teams); let t2 = pick(e.teams); while (t2 === t1) t2 = pick(e.teams);
+  return [t1, t2, pick(e.players), e.org].map(n => ({ n, wear: 0 })).concat([null]);
+}
 const pubItem = r => ({ id: r.id, w: r.w, s: r.s, r: r.r, wear: r.wear, st: !!r.st, sv: !!r.sv, sp: r.sp || undefined, fx: r.fx || undefined, seed: r.seed, stk: stkOf(r), t: r.created_at });
 function stkOf(r) { if (!r.stk) return undefined; try { const a = JSON.parse(r.stk); return Array.isArray(a) && a.some(Boolean) ? a : undefined; } catch (e) { return undefined; } }
 function userItems(uid) { return db.prepare("SELECT * FROM items WHERE user_id=? AND state='inv' ORDER BY created_at").all(uid).map(pubItem); }
@@ -258,6 +290,7 @@ post("/api/items/stickers", ctx => {
     const n = typeof x.n === "string" ? x.n.trim().slice(0, 120) : ""; if (!n) bad("Неверная наклейка");
     return { n, wear: Math.round(Math.min(1, Math.max(0, +x.wear || 0)) * 100) / 100 }; });
   const it = db.prepare("SELECT * FROM items WHERE id=? AND user_id=? AND state='inv'").get(id, u.id); if (!it) bad("Предмет не найден", 404);
+  if (it.sv) bad("На сувенирном предмете наклейки турнира, их нельзя менять", 409);
   const val = stk.some(Boolean) ? JSON.stringify(stk) : null;
   db.prepare("UPDATE items SET stk=? WHERE id=?").run(val, id);
   if (db.prepare("SELECT 1 FROM loadout WHERE user_id=? AND item_id=?").get(u.id, id)) syncGame(u);
@@ -603,6 +636,19 @@ retireItems("badge_refund", { like: "bd\\_%" }, "значки убраны с с
 retireItems("white_fx_refund", { list: ["tr_0", "tc_0"] }, "белые трассеры и след гранат теперь у всех бесплатно"); // 25.11.2026
 retireItems("mvp_refund", { like: "mv\\_%" }, "звуки MVP убраны с сервера"); // 25.11.2026
 retireItems("trail_cleanup_refund", { list: ["tr_3", "tr_7", "sm_9"] }, "оранжевый и золотой трейлы и графитовый дым убраны из магазина"); // 25.11.2026
+// 25.11.2026: сувенирные предметы без наклеек турнира получают их (и сразу обновляются в игре, если надеты)
+(function fixSouvenirStickers() {
+  if (db.prepare("SELECT 1 FROM meta WHERE k='sv_stk_fix'").get()) return;
+  const touched = new Set();
+  tx(db, () => {
+    for (const r of db.prepare("SELECT id, user_id FROM items WHERE sv=1 AND (stk IS NULL OR stk='')").all()) {
+      const stk = souvenirStk(); if (!stk) return; // списка наклеек нет — попробуем при следующем запуске
+      db.prepare("UPDATE items SET stk=? WHERE id=?").run(JSON.stringify(stk), r.id); touched.add(r.user_id);
+    }
+    db.prepare("INSERT OR REPLACE INTO meta(k,v) VALUES('sv_stk_fix','1')").run();
+  });
+  setTimeout(() => { for (const uid of touched) { const u = db.prepare("SELECT * FROM users WHERE id=?").get(uid); if (u) try { syncGame(u); } catch (e) {} } }, 3000);
+})();
 // 25.11.2026: у предметов Blue Gem / Fade 100% сид был случайным — в игре узор не совпадал. Ставим настоящий сид паттерна.
 (function fixPatternSeeds() {
   if (db.prepare("SELECT 1 FROM meta WHERE k='sp_seed_fix'").get()) return;
