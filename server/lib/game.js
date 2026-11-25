@@ -34,9 +34,13 @@ function wearRange(sk, i) {
   const lo = Math.max(sk[7] || 0, WBR[i][0]), hi = Math.min(sk[8] == null ? 1 : (sk[8] || 1), WBR[i][1]);
   return hi > lo ? [lo, hi] : WBR[i];
 }
+// Сиды паттернов: Blue Gem — самые синие сиды Case Hardened для каждого оружия (csgoskins.gg),
+// Fade 100% — сиды с максимальным процентом фейда (csgo-fade-percentage-calculator). Без сида в игре был бы случайный узор.
+const SP_SEEDS = {"bg":{"Керамбит":[387],"Нож-бабочка":[182,652],"Штык-нож M9":[601,417],"Штык-нож":[555,592],"Складной нож":[670,321],"Нож с лезвием-крюком":[567,962],"Охотничий нож":[618,652],"Фальшион":[494,838,638],"Нож Боуи":[182,398],"Тычковые ножи":[56,505],"Наваха":[398,407,838],"Стилет":[182,713,494],"Коготь":[55,923],"Медвежий нож":[494],"Классический нож":[403,58,681],"Паракорд-нож":[403,316],"Нож выживания":[403,456],"Нож «Бродяга»":[456,577,169],"Скелетный нож":[403,456],"Нож кукри":[494,770,575],"AK-47":[661],"Five-SeveN":[278,690],"MAC-10":[667,114,406]},"f100":{"AWP":[412,602,359],"Штык-нож":[763,575,897],"Нож Боуи":[763,575,897],"Нож-бабочка":[763,575,897],"Классический нож":[763,575,897],"Фальшион":[763,575,897],"Складной нож":[763,575,897],"Glock-18":[763,575,897],"Нож с лезвием-крюком":[763,575,897],"Охотничий нож":[763,575,897],"Керамбит":[412,602,359],"Нож кукри":[763,575,897],"M4A1-S":[374,279,80],"Штык-нож M9":[763,575,897],"MAC-10":[763,575,897],"MP7":[80,73,449],"Наваха":[763,575,897],"Нож «Бродяга»":[763,575,897],"Паракорд-нож":[763,575,897],"R8 Revolver":[763,575,897],"Тычковые ножи":[763,575,897],"Скелетный нож":[763,575,897],"Стилет":[763,575,897],"Нож выживания":[763,575,897],"Коготь":[412,602,359],"UMP-45":[763,575,897],"Медвежий нож":[763,575,897]}};
+const spSeed = (w, sp) => { const l = SP_SEEDS[sp] && SP_SEEDS[sp][w.n]; return l ? l[Math.floor(rnd() * l.length)] : null; };
 const SP = {
-  bg: { n: "Blue Gem", ok: (w, sk) => sk[0] === "Case Hardened", m: w => w.c === "knife" ? 10 : (w.n === "AK-47" || w.n === "Five-SeveN") ? 8 : 4 },
-  f100: { n: "Fade 100%", ok: (w, sk) => sk[0] === "Fade", m: () => 1.6 },
+  bg: { n: "Blue Gem", ok: (w, sk) => sk[0] === "Case Hardened" && !!SP_SEEDS.bg[w.n], m: w => w.c === "knife" ? 10 : (w.n === "AK-47" || w.n === "Five-SeveN") ? 8 : 4 },
+  f100: { n: "Fade 100%", ok: (w, sk) => sk[0] === "Fade" && !!SP_SEEDS.f100[w.n], m: () => 1.6 },
 };
 const spList = (w, sk) => Object.keys(SP).filter(k => SP[k].ok(w, sk));
 function spWear(sk, i) { const [lo, hi] = wearRange(sk, i); return Math.floor((lo + rnd() * (hi - lo)) * 1000) / 1000; }
@@ -64,7 +68,7 @@ function mkDrop(src, stForce) {
   const d = { id: newId(), w: src[0], s: src[1], r: src[2], wear: rollWear(sk, st), st: !!st, sv: false, sp: null, fx: 0, seed: crypto.randomInt(0, 1000) };
   if (rnd() < .005) {
     const wi = wIdx(d.wear), l = spList(w, sk);
-    if (l.length) { d.sp = l[Math.floor(rnd() * l.length)]; d.wear = spWear(sk, wi); }
+    if (l.length) { d.sp = l[Math.floor(rnd() * l.length)]; d.wear = spWear(sk, wi); d.seed = spSeed(w, d.sp); }
   }
   return d;
 }
@@ -111,7 +115,7 @@ function upTarget(key) {
 }
 function upChance(stake, price) { return Math.min(UP_MAX, stake / price * UP_EDGE * 100); }
 function upItem(t) {
-  return { id: newId(), w: t.w.n, s: t.sk[0], r: t.sk[5], wear: spWear(t.sk, t.i), st: t.st, sv: t.sv, sp: t.sp, fx: 0, seed: crypto.randomInt(0, 1000) };
+  return { id: newId(), w: t.w.n, s: t.sk[0], r: t.sk[5], wear: spWear(t.sk, t.i), st: t.st, sv: t.sv, sp: t.sp, fx: 0, seed: t.sp ? spSeed(t.w, t.sp) : crypto.randomInt(0, 1000) };
 }
 
-module.exports = { W, CASES, CASE_BY_K, rnd, rollCase, itemValue, upTarget, upChance, upItem, findSkin, UP_MAX };
+module.exports = { SP_SEEDS, spSeed, W, CASES, CASE_BY_K, rnd, rollCase, itemValue, upTarget, upChance, upItem, findSkin, UP_MAX };

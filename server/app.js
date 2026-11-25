@@ -603,6 +603,21 @@ retireItems("badge_refund", { like: "bd\\_%" }, "значки убраны с с
 retireItems("white_fx_refund", { list: ["tr_0", "tc_0"] }, "белые трассеры и след гранат теперь у всех бесплатно"); // 25.11.2026
 retireItems("mvp_refund", { like: "mv\\_%" }, "звуки MVP убраны с сервера"); // 25.11.2026
 retireItems("trail_cleanup_refund", { list: ["tr_3", "tr_7", "sm_9"] }, "оранжевый и золотой трейлы и графитовый дым убраны из магазина"); // 25.11.2026
+// 25.11.2026: у предметов Blue Gem / Fade 100% сид был случайным — в игре узор не совпадал. Ставим настоящий сид паттерна.
+(function fixPatternSeeds() {
+  if (db.prepare("SELECT 1 FROM meta WHERE k='sp_seed_fix'").get()) return;
+  const touched = new Set();
+  tx(db, () => {
+    for (const r of db.prepare("SELECT id, user_id, w, sp, seed FROM items WHERE sp IN ('bg','f100')").all()) {
+      const l = G.SP_SEEDS[r.sp] && G.SP_SEEDS[r.sp][r.w];
+      if (!l || l.includes(r.seed)) continue;
+      db.prepare("UPDATE items SET seed=? WHERE id=?").run(l[0], r.id);
+      touched.add(r.user_id);
+    }
+    db.prepare("INSERT OR REPLACE INTO meta(k,v) VALUES('sp_seed_fix','1')").run();
+  });
+  setTimeout(() => { for (const uid of touched) { const u = db.prepare("SELECT * FROM users WHERE id=?").get(uid); if (u) try { syncGame(u); } catch (e) {} } }, 3000);
+})();
 const COSM = new Map(JSON.parse(fs.readFileSync(path.join(__dirname, "data", "cosmetics.json"), "utf8")).map(x => [x.id, x]));
 const COS_EQ_CATS = ["frame", "bg", "rbg", "rrow", "nick", "smoke", "tag", "kill", "snd", "trail", "tracer"]; // что надевается (свой тег покупается отдельно — /api/cos/tag)
 function userCos(u) { let eq = {}; try { eq = JSON.parse(u.cos_eq || "{}"); } catch (e) {} delete eq.badge; return { own: db.prepare("SELECT item_id FROM cos_own WHERE user_id=? ORDER BY created_at").all(u.id).map(r => r.item_id), eq, tag: u.cos_tag || "" }; }
