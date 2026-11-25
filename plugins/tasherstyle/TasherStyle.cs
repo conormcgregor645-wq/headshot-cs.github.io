@@ -350,6 +350,12 @@ public partial class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
         var kind = (sbyte)(pts > 0 ? 11 : 0); // 11 — Premier, 0 — без рейтинга
         try
         {
+            // игра показывает CS Rating только у тех, у кого не меньше 10 побед — иначе в Tab пусто
+            if (pts > 0 && player.CompetitiveWins < 10)
+            {
+                player.CompetitiveWins = 10;
+                Utilities.SetStateChanged(player, "CCSPlayerController", "m_iCompetitiveWins");
+            }
             if (player.CompetitiveRanking != pts)
             {
                 player.CompetitiveRanking = pts;

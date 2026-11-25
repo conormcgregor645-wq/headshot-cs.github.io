@@ -2998,18 +2998,18 @@ html.on-server #v-jackpot,html.on-server #v-wheel{position:relative}
 .srv-soon b{display:block;font-family:var(--f-display);font-size:20px;font-weight:900;font-style:italic;text-transform:uppercase;margin-bottom:6px}
 .srv-soon span{font-size:14px;color:var(--muted);line-height:1.5}
 /* фон на весь профиль на вкладке «Информация» */
-#meBody{position:relative}
+#meBody,#plBody{position:relative}
 .pf-big .pbx{position:absolute;left:0;right:0;top:0;bottom:auto;aspect-ratio:3/2;-webkit-mask:linear-gradient(180deg,#000 60%,transparent);mask:linear-gradient(180deg,#000 60%,transparent)}
 .pf-big{display:none;position:absolute;left:0;right:0;top:0;bottom:0;z-index:0;border-radius:18px;overflow:hidden;-webkit-mask:linear-gradient(180deg,#000 55%,transparent 100%);mask:linear-gradient(180deg,#000 55%,transparent 100%);pointer-events:none}
 .pf-big .pbx-im{background-position:center top!important;animation:none!important;transform:none!important}
 .pf-big .pbx-sh{background:linear-gradient(90deg,rgba(0,0,0,.55),rgba(0,0,0,.1) 55%,transparent),linear-gradient(180deg,transparent 30%,rgba(0,0,0,.35))}
-#meBody.pfbig .pf-big{display:block}
-#meBody.pfbig>*:not(.pf-big){position:relative;z-index:1}
-#meBody.pfbig .pf-head{background:none!important}
-#meBody.pfbig .pf-head>.pbx{display:none}
-#meBody.pfbig .pf-tabs{background:rgba(8,8,8,.55);backdrop-filter:blur(6px)}
-#meBody.pfbig .pf-panel{background:rgba(8,8,8,.45)!important;backdrop-filter:blur(4px)}
-#meBody.pfbig .pf-rows>div{background:rgba(10,10,10,.55)!important}
+#meBody.pfbig .pf-big,#plBody.pfbig .pf-big{display:block}
+#meBody.pfbig>*:not(.pf-big),#plBody.pfbig>*:not(.pf-big){position:relative;z-index:1}
+#meBody.pfbig .pf-head,#plBody.pfbig .pf-head{background:none!important}
+#meBody.pfbig .pf-head>.pbx,#plBody.pfbig .pf-head>.pbx{display:none}
+#meBody.pfbig .pf-tabs,#plBody.pfbig .pf-tabs{background:rgba(8,8,8,.55);backdrop-filter:blur(6px)}
+#meBody.pfbig .pf-panel,#plBody.pfbig .pf-panel{background:rgba(8,8,8,.45)!important;backdrop-filter:blur(4px)}
+#meBody.pfbig .pf-rows>div,#plBody.pfbig .pf-rows>div{background:rgba(10,10,10,.55)!important}
 @media (hover:none){#meBody.pfbig .pf-tabs,#meBody.pfbig .pf-panel{backdrop-filter:none}}
 /* живые фоны профиля из картинок */
 .pbg-img{position:relative;overflow:hidden;background:#050505!important}
@@ -3140,6 +3140,48 @@ html.on-server #v-jackpot,html.on-server #v-wheel{position:relative}
 
 /* События пока отключены по UPD */
 #admTabs [data-t="ev"],[data-pane="ev"]{display:none!important}
+
+/* карточка инвентаря: кнопки всегда помещаются, у всех одинаковая подсветка при наведении */
+.iv .iv-acts{display:grid!important;grid-template-columns:minmax(0,1fr);gap:6px}
+.iv .iv-eq,.iv .iv-tools{display:grid!important;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:6px}
+.iv .iv-acts .iv-sd,.iv .iv-acts .iv-tl,.iv .iv-acts .iv-del{flex:none!important;width:auto!important;min-width:0;display:flex;align-items:center;justify-content:center;gap:5px;padding:8px 6px!important;font-size:12px;font-weight:800!important;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border:1px solid var(--line);border-radius:10px;background:var(--panel-2);color:var(--muted);transition:color .15s,border-color .15s,background .15s,box-shadow .15s}
+.iv .iv-acts .iv-tl{color:var(--fg)}
+.iv .iv-acts .iv-del{color:#d4f58a}
+.iv .iv-acts .iv-tl:hover,.iv .iv-acts .iv-tl:focus-visible{color:#b5e853;border-color:rgba(181,232,83,.55);background:rgba(181,232,83,.1);box-shadow:0 0 12px rgba(181,232,83,.2)}
+.iv .iv-acts .iv-del:hover,.iv .iv-acts .iv-del:focus-visible{color:#e9ffb8;border-color:rgba(181,232,83,.6);background:rgba(181,232,83,.14);box-shadow:0 0 12px rgba(181,232,83,.25)}
+.iv .iv-acts .iv-sd svg,.iv .iv-acts .iv-tl svg{flex:none}
+
+/* рейтинг: шапка без фото — слева текст и призы, справа таймер до итогов с мягко переливающейся рамкой */
+.rt-head{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:28px;align-items:center;margin:6px 0 30px}
+.rt-intro h1{margin:0 0 10px}.rt-intro p{margin:0 0 18px;color:var(--muted);max-width:46ch}
+.rt-prizes{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:10px}
+.rt-prizes li{display:flex;flex-direction:column;gap:3px;padding:10px 14px;border-radius:14px;background:var(--panel);border:1px solid var(--line);min-width:120px}
+.rt-prizes b{font:900 17px/1 var(--f-display);letter-spacing:.02em}.rt-prizes span{font-size:12px;color:var(--muted)}
+.rt-prizes .pz-king{background:linear-gradient(110deg,#f5c451,#ffe9a8 45%,#f0a92a);-webkit-background-clip:text;background-clip:text;color:transparent}
+.rt-prizes .pz-titan{color:#ffb27a}.rt-prizes .pz-cash{color:#3ddc97}
+.rt-head .rt-timer{margin:0;max-width:none;padding:24px 18px;background:radial-gradient(120% 140% at 50% 0%,rgba(245,196,81,.12),transparent 60%),var(--panel);box-shadow:0 18px 50px rgba(0,0,0,.35)}
+.rt-head .rt-timer::before{padding:1.5px;background:conic-gradient(from var(--ang,0deg),rgba(245,196,81,.95),rgba(181,232,83,.9) 25%,rgba(255,255,255,.15) 45%,rgba(181,232,83,.9) 70%,rgba(245,196,81,.95));animation:spinB 8s linear infinite;filter:drop-shadow(0 0 6px rgba(245,196,81,.35))}
+.rt-head .rt-timer .tp{background:rgba(9,10,8,.6)}
+.rt-head .rt-timer .colon{color:#f5c451}
+@media (max-width:900px){.rt-head{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){.rt-head .rt-timer::before{animation:none}}
+
+.pf-steam{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:9px;background:rgba(255,255,255,.06);border:1px solid var(--line);color:#c7d5e0;transition:color .15s,background .15s,border-color .15s;flex:none}
+.pf-steam svg{width:17px;height:17px;fill:currentColor}
+.pf-steam:hover,.pf-steam:focus-visible{color:#fff;background:#1b2838;border-color:#66c0f4}
+
+/* тег клана в строке рейтинга: подсказка справа от тега (строка обрезает всё, что выше неё), по нажатию — страница клана */
+.rt-row .ctag[data-tip]:hover::after,.rt-row .ctag[data-tip]:focus::after{left:calc(100% + 8px);bottom:auto;top:50%;transform:translateY(-50%);z-index:30}
+.ctag[data-clan]{cursor:pointer;transition:color .15s,background .15s}.ctag[data-clan]:hover{color:#fff!important;background:rgba(181,232,83,.18)!important}
+
+/* зима: снег лежит на вкладках и на иконках меню (только в новогоднем оформлении, html.ny) — чистый CSS, без скриптов */
+html.ny .seg>button,html.ny .pf-tabs>button,html.ny .shop-tabs>button,html.ny .co-tabs>button{position:relative}
+html.ny .seg>button::after,html.ny .pf-tabs>button::after,html.ny .shop-tabs>button::after,html.ny .co-tabs>button::after{content:"";position:absolute;left:10px;width:min(44px,55%);top:-3px;height:8px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 10' preserveAspectRatio='none'%3E%3Cpath d='M3 7C3 3 8 2 13 3S21 1 28 2 40 1 46 3 57 3 57 7C58 10 53 9 49 9 43 8 39 10 33 9S22 10 16 9 3 10 3 7Z' fill='%23f4f9ff'/%3E%3C/svg%3E") 0 0/100% 100% no-repeat;pointer-events:none;z-index:2;filter:drop-shadow(0 1px 1px rgba(0,0,0,.3));opacity:.95}
+html.ny .seg,html.ny .pf-tabs,html.ny .shop-tabs,html.ny .co-tabs{padding-top:6px}
+html.ny #mainnav a .nv-ic{position:relative}
+html.ny #mainnav a .nv-ic::after{content:"";position:absolute;left:-1px;right:-1px;top:-4px;height:8px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 9' preserveAspectRatio='none'%3E%3Cpath d='M2 6C2 2 6 1 10 2S16 0 20 1 30 1 32 5C33 8 30 7 28 8 24 7 22 9 18 8S10 9 8 7 2 9 2 6Z' fill='%23f4f9ff'/%3E%3C/svg%3E") 0 0/100% 100% no-repeat;pointer-events:none;filter:drop-shadow(0 1px 1px rgba(0,0,0,.3))}
+/* морозная подсветка поля ввода в фокусе */
+html.ny input[type=search]:focus,html.ny input[type=text]:focus{box-shadow:0 0 0 3px rgba(159,220,255,.18)}
 </style>
 </head>
 <body>
@@ -3247,16 +3289,21 @@ html.on-server #v-jackpot,html.on-server #v-wheel{position:relative}
 
     <!-- STATS -->
     <div class="view" id="v-stats" hidden>
-      <section class="pbanner" style="--bimg:var(--bnr-rating)">
-        <div class="pb-text">
+      <section class="rt-head">
+        <div class="rt-intro page-head">
           <h1>Рейтинг месяца</h1>
           <p>Играй, набирай очки и забирай призы. Лучшие десять игроков получают медаль в профиль.</p>
+          <ul class="rt-prizes" aria-label="Призы месяца">
+            <li><b class="pz-king">KING</b><span>1 место · 30 дней</span></li>
+            <li><b class="pz-titan">TITAN</b><span>2–3 место · 30 дней</span></li>
+            <li><b class="pz-cash">500 ₽</b><span>4–10 место · на баланс</span></li>
+          </ul>
+        </div>
           <div class="rt-timer">
             <small>До подведения итогов</small>
             <div class="tparts"><div class="tp"><b id="tD">0</b><span>дней</span></div><span class="colon">:</span><div class="tp"><b id="tH">00</b><span>часов</span></div><span class="colon">:</span><div class="tp"><b id="tM">00</b><span>минут</span></div><span class="colon">:</span><div class="tp"><b id="tS">00</b><span>секунд</span></div></div>
             <span id="mName" hidden></span><b id="mEnd" hidden></b>
           </div>
-        </div>
       </section>
       <section class="podium-m" id="podM" aria-label="Топ-3"></section>
       <input type="search" id="q-stats" placeholder="Найти себя или друга в рейтинге">
@@ -3747,7 +3794,7 @@ const who=p=>`<span class="who"><i class="av" style="background:${p.c}">${ini(p.
 function openProfile(n){const p=P(n);if(!p)return;if(logged&&p===ME){pfTab="info";go("me");return}PFN=p.n;pfTabO="info";if(curView!=="player")pfBack=curView;go("player")}
 function closeProfile(){$("drawer").hidden=true;$("scrim").hidden=true}
 $("scrim").onclick=closeProfile;
-document.addEventListener("click",e=>{const t=e.target.closest("[data-p]");if(t)openProfile(t.dataset.p)});
+document.addEventListener("click",e=>{if(e.target.closest(".ctag[data-clan]"))return;const t=e.target.closest("[data-p]");if(t)openProfile(t.dataset.p)});
 document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.matches("tr[data-p]"))openProfile(e.target.dataset.p)});
 
 // ---------- баны ----------
@@ -4001,7 +4048,8 @@ function achReal(p){const paid=p===ME?ACH_PAID:null;
 const achOf=p=>(SRV&&(p===ME||p.real))?achReal(p).filter(x=>x.done).map(x=>x.a):ACHS.filter((a,i)=>a[1]!=="Легенда сервера"&&(a[3]>45||((p.pts/37+i*13)%100)<a[3]*1.6+p.hrs/15));
 
 // ---------- кланы ----------
-const CL=[["Волки Севера","WOLF","#5aa9ff","Играем каждый вечер, ищем тех, кто держит позицию и не уходит в AFK."],["Бетонщики","BETON","#a8a29e","Стоим насмерть на B. Микрофон обязателен."],["Headhunters","HH","#b5e853","Только хедшоты. Средний HS% клана выше 50."],["Сибирские Валенки","VLNK","#3ddc97","Из Новосибирска с любовью. Пинг не помеха."],["Пельменная","PLMN","#f5c451","Весело играем, вкусно едим. Новички приветствуются."],["Dust Kings","DK","#ff8a3d","Короли Даста. Знаем каждый пиксель карты."],["Дымовая Завеса","SMOK","#a78bfa","Раскидки, тактика и командная игра."],["Тихий Час","ZZZ","#fbbf24","Играем тихо, побеждаем громко."]];
+// демо-кланы — только для просмотра сайта без сервера; на сервере список кланов приходит с сервера
+const CL=window.TSRV?[]:[["Волки Севера","WOLF","#5aa9ff","Играем каждый вечер, ищем тех, кто держит позицию и не уходит в AFK."],["Бетонщики","BETON","#a8a29e","Стоим насмерть на B. Микрофон обязателен."],["Headhunters","HH","#b5e853","Только хедшоты. Средний HS% клана выше 50."],["Сибирские Валенки","VLNK","#3ddc97","Из Новосибирска с любовью. Пинг не помеха."],["Пельменная","PLMN","#f5c451","Весело играем, вкусно едим. Новички приветствуются."],["Dust Kings","DK","#ff8a3d","Короли Даста. Знаем каждый пиксель карты."],["Дымовая Завеса","SMOK","#a78bfa","Раскидки, тактика и командная игра."],["Тихий Час","ZZZ","#fbbf24","Играем тихо, побеждаем громко."]];
 const allP=[...players,...guests].sort(()=>R()-.5);
 const clans=CL.map(([n,t,c,d],i)=>{const size=Math.min(10,Math.max(3,10-i+Math.round(R()*2)-1));const members=allP.splice(0,Math.min(size,allP.length)).sort((a,b)=>b.pts-a.pts);const pts=members.reduce((s,m)=>s+m.pts,0);
   return{n,t,c,d,members,pts,month:Math.round(pts*(.12+R()*.22)),wins:Math.round(pts/1800+R()*6),kd:+(members.reduce((s,m)=>s+m.kd,0)/members.length).toFixed(2),cover:null,ava:null}});
@@ -4171,8 +4219,9 @@ function pfBadges(p){const a=achOf(p);const md=(MEDALS.get(p)||[]).slice().sort(
 function pfHTML(p,own){const st=statusOf(p),cl=clanOf(p)||(own?myClan:null),on=isOn(p),pc=ptier(monthPts(p))[1];
   const tabs=own?[["info","Информация","info"],["skins","Надето","gun"],["mine","Мои вещи","brush"],["serv","Услуги","star"],["pay","Пополнения","wallet"],["set","Настройки","gear"]]:[["info","Информация","info"],["skins","Скины","gun"],["serv","Услуги","star"]];
   const cur=own?pfTab:pfTabO;
-  return`<section class="pf-head${own?cosBgCls(cosEq("bg")):""}" style="${MAPIMG.Dust2?`--pfbg:url(${MAPIMG.Dust2})`:""};${own?cosBg(cosEq("bg")):""}">${own?cosLayer(cosEq("bg")):""}<div class="pf-av${cosFrame(p.n)}${cosAvInner(p.n)?" hasav":""}" style="--ac:${p.c}">${cosAvInner(p.n)||ini(p.n)}</div>
-  <div class="pf-id"><div class="pf-nm"><h1${cosNick(p.n)}>${esc(p.n)}</h1>${cosBadge(p.n)}<span title="Очки рейтинга за месяц">${rtPts(monthPts(p))}</span></div>
+  const hb=own?cosEq("bg"):rowBg(p);
+  return`<section class="pf-head${hb?cosBgCls(hb):""}" style="${MAPIMG.Dust2?`--pfbg:url(${MAPIMG.Dust2})`:""};${hb?cosBg(hb):""}">${hb?cosLayer(hb):""}<div class="pf-av${cosFrame(p.n)}${cosAvInner(p.n)?" hasav":""}" style="--ac:${p.c}">${cosAvInner(p.n)||ini(p.n)}</div>
+  <div class="pf-id"><div class="pf-nm"><h1${cosNick(p.n)}>${esc(p.n)}</h1>${cosBadge(p.n)}<span title="Очки рейтинга за месяц">${rtPts(monthPts(p))}</span>${/^\d{17}$/.test(sidOfP(p))?`<a class="pf-steam" href="https://steamcommunity.com/profiles/${sidOfP(p)}" target="_blank" rel="noopener noreferrer" title="Профиль в Steam" aria-label="Профиль ${esc(p.n)} в Steam"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 0 0-9.96 9.1l5.36 2.22a2.82 2.82 0 0 1 1.6-.49h.15l2.39-3.46v-.05a3.78 3.78 0 1 1 3.78 3.78h-.09l-3.4 2.43v.13a2.84 2.84 0 0 1-5.62.58L2.4 14.8A10 10 0 1 0 12 2zM8.28 17.17l-1.23-.51a2.13 2.13 0 1 0 1.16-2.9l1.27.52a1.57 1.57 0 1 1-1.2 2.89zm9.3-7.7a2.52 2.52 0 1 0-2.52 2.52 2.52 2.52 0 0 0 2.52-2.52zm-4.4 0a1.89 1.89 0 1 1 1.89 1.89 1.89 1.89 0 0 1-1.9-1.89z"/></svg></a>`:""}</div>
   ${st||cl?`<div class="pf-tags">${st?`<span class="pf-role" style="--tc:${TCOL(st.t)}"><i></i>${st.t}</span>`:""}${cl?`<button class="pf-role" data-clan="${clans.indexOf(cl)}"><i style="background:${cl.c}"></i>[${esc(cl.t)}] ${esc(cl.n)}</button>`:""}</div>`:""}
   <span class="pf-on ${on?"on":""}">${on?"В сети":"Был в сети "+dts(lastIn(p),1)}</span></div>
   ${pfBadges(p)}
@@ -4205,7 +4254,8 @@ function pfAfter(){const t=$("pfTop");if(t)t.onclick=()=>toast("Пополнен
 document.addEventListener("click",e=>{const b=e.target.closest("[data-pft]");if(!b)return;const box=b.closest("#meBody,#plBody");if(!box)return;const own=box.id==="meBody",p=own?ME:P(PFN);if(!p)return;PF={p,own};const k=b.dataset.pft;if(own)pfTab=k;else pfTabO=k;
   rescueSet();box.querySelectorAll("[data-pft]").forEach(x=>x.setAttribute("aria-selected",x===b));box.querySelector(".pf-panel").innerHTML=pfPanel(p,own,k);if(own)pfBigSet();pfAfter()});
 function drawPlayer(){rescueSet();const p=P(PFN);if(!p)return;PF={p,own:false};
-  $("plBody").innerHTML=`<button class="pf-back" id="pfBack">${svgI(PI.back)}Назад</button>`+pfHTML(p,false);$("pfBack").onclick=()=>go(pfBack&&pfBack!=="player"?pfBack:"stats");pfAfter()}
+  // фон профиля другого игрока — на всю страницу, как в своём профиле
+  $("plBody").innerHTML=pfBigLayer(rowBg(p))+`<button class="pf-back" id="pfBack">${svgI(PI.back)}Назад</button>`+pfHTML(p,false);pfBigSet("plBody");$("pfBack").onclick=()=>go(pfBack&&pfBack!=="player"?pfBack:"stats");pfAfter()}
 function setLogin(v){if(SRV){if(v)location.href="/auth/steam?ret="+encodeURIComponent("/"+location.hash);else api("/auth/logout",{}).catch(()=>{}).then(()=>location.reload());return}logged=v;setTimeout(()=>{try{drawOwnLink();if(curView==="support")drawSupport();if(curView==="tickets"&&!v)go("play")}catch(e){}},0);try{localStorage.setItem("demoLogin",v?"1":"0")}catch(e){}drawMe();if(typeof drawSkins==="function")drawSkins();if(typeof drawHomeProgress==="function")drawHomeProgress();if(typeof drawTiers==="function")drawTiers();if(typeof drawStats==="function")drawStats();if(v){if(curView!=="skins")go("me");toast("Вход выполнен (демо)")}else toast("Ты вышел из аккаунта")}
 document.addEventListener("click",e=>{if(e.target.closest("[data-login]"))setLogin(true);if(e.target.closest('a[href="#me"]'))pfTab="info"});
 
@@ -4541,8 +4591,8 @@ function invCard(it){const w=invW(it),sk=invSk(it);if(!w||!sk)return"";const on=
   return`<article class="iv${on?" on":""}" style="--rc:${RC[it.r]}"><div class="iv-top">${wr?`<span class="iv-w" style="--wc:${["#3ddc97","#9be15d","#f5c451","#ff8a3d","#eb4b4b"][wIdx(it.wear)]}">${WSH[wIdx(it.wear)]} <i>•</i> ${it.wear.toFixed(it.wear<.01?4:3)}</span>`:`<span class="iv-w" style="--wc:var(--rc)">${RN[it.r]}</span>`}${itBadge(it,"st-badge")}</div>
   <span class="pic">${art(w,sk,it.wear,it.stk||null)}</span>
   <small class="iv-wn">${itPre(it)}${w.n}</small><b class="iv-sn">${sk[0]==="Vanilla"?"Обычный":sk[0]}</b><span class="val">${fmt(itDust(it))} ТК</span>
-  <div class="iv-acts">${sides.length?`<div class="iv-eq">${sides.map(sd=>{const o=onSide(it,sd),tn=sd==="ct"?"CT":"T";return`<button class="iv-sd ${sd}${o?" on":""}" data-ieq="${it.id}" data-side="${sd}" title="${o?"Снять":"Надеть"} за ${sd==="ct"?"спецназ":"террористов"}" aria-pressed="${o}">${o?`<svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></svg>Надето ${tn}`:`Надеть ${tn}`}</button>`}).join("")}</div>`:""}
-  ${STK_OK(w)||SRV?`<div class="iv-tools">${STK_OK(w)?`<button class="iv-tl" data-istk="${it.id}"><svg viewBox="0 0 24 24"><path d="M4 4h16v10l-6 6H4z"/><path d="M14 20v-6h6"/></svg>Наклейки</button>`:""}${SRV?`<button class="iv-tl" data-imk="${it.id}" title="Выставить на площадку другим игрокам"><svg viewBox="0 0 24 24"><path d="M3 9l1.5-5h15L21 9"/><path d="M3 9h18v2a3 3 0 0 1-18 0z"/><path d="M5 13v7h14v-7"/></svg>На площадку</button>`:""}</div>`:""}
+  <div class="iv-acts">${sides.length?`<div class="iv-eq">${sides.map(sd=>{const o=onSide(it,sd),tn=sd==="ct"?"CT":"T";return`<button class="iv-sd ${sd}${o?" on":""}" data-ieq="${it.id}" data-side="${sd}" title="${o?"Снять":"Надеть"} за ${sd==="ct"?"спецназ":"террористов"}" aria-pressed="${o}">${o?`<svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></svg>${tn}`:`Надеть ${tn}`}</button>`}).join("")}</div>`:""}
+  ${STK_OK(w)||SRV?`<div class="iv-tools">${STK_OK(w)?`<button class="iv-tl" data-istk="${it.id}"><svg viewBox="0 0 24 24"><path d="M4 4h16v10l-6 6H4z"/><path d="M14 20v-6h6"/></svg>Наклейки</button>`:""}${SRV?`<button class="iv-tl" data-imk="${it.id}" title="Выставить на площадку другим игрокам"><svg viewBox="0 0 24 24"><path d="M3 9l1.5-5h15L21 9"/><path d="M3 9h18v2a3 3 0 0 1-18 0z"/><path d="M5 13v7h14v-7"/></svg>Площадка</button>`:""}</div>`:""}
   <button class="iv-del" data-idel="${it.id}" title="Продать сайту за ТК">Продать за ${fmt(itSell(it))} ТК</button></div></article>`}
 function drawInv(){const list=INV.filter(it=>invF==="all"||isOnIt(it)).sort($("invSort").value==="r"?(a,b)=>b.r-a.r||b.t-a.t:(a,b)=>b.t-a.t);
   $("invGrid").innerHTML=list.map(invCard).join("")||`<div class="pf-empty cs-empty">${!logged?"Войди через Steam, чтобы собирать скины.":invF==="on"?"Ничего не надето. Нажми «Надеть» на любом скине.":"Инвентарь пуст. Открой бесплатный ежедневный кейс, чтобы получить первый скин."}${logged&&invF==="all"?'<button class="steam" data-gocases>К кейсам</button>':""}</div>`;
@@ -5339,7 +5389,7 @@ const placeOf=p=>board().indexOf(p)+1;
 const stAs=p=>Math.round(p.kills*(.14+((p.id*37)%10)/100)),stHs=p=>Math.round(p.kills*p.hs/100),stAcc=p=>14+((p.id*7)%13);
 const RI={kill:'<circle cx="12" cy="12" r="7"/><path d="M12 2v5M12 17v5M2 12h5M17 12h5"/>',skull:'<path d="M12 3a8 8 0 0 0-8 8c0 3 1.6 5 3.5 6v3h9v-3c1.9-1 3.5-3 3.5-6a8 8 0 0 0-8-8z"/><circle cx="9" cy="11.5" r="1.6"/><circle cx="15" cy="11.5" r="1.6"/>',as:'<path d="M7 11V6a2 2 0 0 1 4 0v4M11 9V5a2 2 0 0 1 4 0v5M15 9a2 2 0 0 1 4 0v5c0 4-3 7-7 7-3 0-5-1.5-6.5-4L3 12.5a1.8 1.8 0 0 1 3-2L7 12"/>',hs:'<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/>',kd:'<path d="M5 19L19 5M7 5v6M4 8h6M14 16h6"/>',acc:'<circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/>',users:'<circle cx="9" cy="8" r="3.5"/><path d="M2 21c0-4 3-7 7-7s7 3 7 7M16 4a3.5 3.5 0 0 1 0 7M18 14c2.4.7 4 3.2 4 7"/>',win:'<path d="M5 21V4M5 4h11l-2 4 2 4H5"/>'};
 const rc=(k,v)=>`<span class="rt-c">${svgI(RI[k])}${v}</span>`;
-const clanTag=p=>{const c=clanOf(p);return c?`<span class="ctag" data-tip="Клан ${esc(c.n)}">${esc(c.t)}</span>`:""};
+const clanTag=p=>{const c=clanOf(p);return c?`<span class="ctag" data-clan="${clans.indexOf(c)}" data-tip="Клан ${esc(c.n)}" role="link" tabindex="0">${esc(c.t)}</span>`:""};
 // призы месяца: 1 — KING, 2–3 — TITAN на 30 дней, 4–10 — 500 ₽ на баланс сайта
 const RPRIZE=i=>i===0?{c:"god",t:"KING",tip:"Статус KING на 30 дней"}:i<3?{c:"titan",t:"TITAN",tip:"Статус TITAN на 30 дней"}:i<10?{c:"cash",t:"500 ₽",tip:"500 ₽ на баланс сайта"}:null;
 const rPrizeChip=i=>{const z=RPRIZE(i);return z?`<span class="przc ${z.c}" data-tip="${z.tip}" title="${z.tip}" tabindex="0">${z.t}</span>`:""};
@@ -5581,8 +5631,8 @@ function cosNick(n){const k=isMe(n)&&cosEq("nick");return k?(k.grad?` data-nkg s
 function cosTagTxt(){return COS.eq.tag&&COS.tag?COS.tag:""}
 const PBGIMG={"dust2n": "img/pbg/dust2n.jpg?v=d817f712", "neoncity": "img/pbg/neoncity.jpg?v=dff7db84", "toxsmoke": "img/pbg/toxsmoke.jpg?v=9c92f111", "cosmos": "img/pbg/cosmos.jpg?v=0b273689", "dragon": "img/pbg/dragon.jpg?v=242e4cb0", "synth80": "img/pbg/synth80.jpg?v=08551e90", "hellfire": "img/pbg/hellfire.jpg?v=fc587fe0", "vault": "img/pbg/vault.jpg?v=96b3b3e2", "nygift": "img/pbg/nygift.jpg?v=c43d186d", "nyinferno": "img/pbg/nyinferno.jpg?v=45b06d0d", "nydust": "img/pbg/nydust.jpg?v=010ac323", "nymirage": "img/pbg/nymirage.jpg?v=ea85bae2", "nynuke": "img/pbg/nynuke.jpg?v=bf1b5292", "nyfire": "img/pbg/nyfire.jpg?v=b91b4a9a", "wops": "img/pbg/wops.jpg?v=7e596ea2", "nyknife": "img/pbg/nyknife.jpg?v=e10029b7"};
 function cosLayer(it){if(!it||!it.v.startsWith("img:"))return"";const k=it.v.slice(4);return`<i class="pbx pbx-${k}" aria-hidden="true"><i class="pbx-im" style="background-image:url(${PBGIMG[k]||""})"></i></i>`}
-function pfBigLayer(){const it=cosEq("bg");return it&&it.v.startsWith("img:")?`<div class="pf-big">${cosLayer(it)}</div>`:""}
-function pfBigSet(){const m=$("meBody");if(m)m.classList.toggle("pfbig",!!m.querySelector(".pf-big"))}
+function pfBigLayer(it=cosEq("bg")){return it&&it.v.startsWith("img:")?`<div class="pf-big">${cosLayer(it)}</div>`:""}
+function pfBigSet(id="meBody"){const m=$(id);if(m)m.classList.toggle("pfbig",!!m.querySelector(".pf-big"))}
 function cosBg(it){if(!it)return"";const v=it.v;if(v.startsWith("map:"))return`background-image:linear-gradient(90deg,rgba(10,10,10,.92) 20%,rgba(10,10,10,.55) 65%,rgba(10,10,10,.8)),url(${MAPIMG[v.slice(4)]||""});background-size:cover;background-position:center`;return""}
 // фон профиля игрока для строки рейтинга: свой — из надетого, чужой — с сервера
 function rowBg(p){try{if(logged&&p===ME)return cosEq("bg");return p&&p.bg?cosI(p.bg):null}catch(e){return null}}
