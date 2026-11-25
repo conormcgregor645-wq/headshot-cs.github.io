@@ -84,7 +84,31 @@ const DEFS = [
   ["Арсенал", "arsenal", 20, 9],
   ["Добро пожаловать", "welcome", 1, 99],
   ["Король месяца", "king", 1, 0.5],
+  ["В десятке", "top10", 1, 4],
+  // бонусы за игру (считаются с 25.11.2026: таблица fun_count)
+  ["Первая кровь", "fb", 50, 38],
+  ["Открывающий", "fb", 500, 11],
+  ["Эйс", "ace", 1, 6],
+  ["Эйс-машина", "ace", 25, 2],
+  // сайт: заработок, задания, пропуск, кланы, магазин
+  ["Исполнительный", "earn", 1000, 40],
+  ["Трудоголик", "earn", 10000, 8],
+  ["Деловой", "quests", 10, 45],
+  ["Человек слова", "quests", 100, 10],
+  ["Сезонный боец", "passlv", 10, 40],
+  ["Ветеран сезона", "passlv", 25, 15],
+  ["Покоритель сезона", "passlv", 50, 3],
+  ["Премиум-боец", "passprem", 1, 8],
+  ["Командный дух", "clan", 1, 35],
+  ["Основатель", "clanOwner", 1, 3],
+  ["Клан-чемпион", "clanChamp", 1, 0.3],
+  ["Поддержка проекта", "buyTier", 1, 6],
+  ["Модник", "cos", 5, 10],
+  ["Азарт", "cases", 100, 20],
 ].map(([n, m, t, pct]) => ({ n, m, t, pct, tk: tkFor(pct) }));
+// «Легенда сервера» — все остальные достижения (проверяется после них)
+const LEGEND = { n: "Легенда сервера", m: "all", t: DEFS.length, pct: 0.4, tk: tkFor(0.4) };
+DEFS.push(LEGEND);
 
 function value(m, s) {
   if (m.startsWith("w=")) return s.w[m.slice(2)] || 0;
@@ -95,6 +119,9 @@ function value(m, s) {
     case "arsenal": return Object.values(s.w).filter(v => v > 0).length;
     case "welcome": return (s.z.pt || 0) > 0 || (s.z.rp || 0) > 0 || (s.z.k || 0) > 0 ? 1 : 0;
     case "king": return s.king ? 1 : 0;
+    case "top10": case "fb": case "ace": case "earn": case "quests": case "passlv": case "passprem":
+    case "clan": case "clanOwner": case "clanChamp": case "buyTier": case "cos": case "cases": case "all":
+      return s.x[m] || 0;
     default: return s.z[m] || 0; // k, hs, a, rp, rw, pl, df
   }
 }
@@ -104,6 +131,30 @@ function makeAchievements({ db, tx, addMoney, PTS, now = Date.now, log = console
   const qW = db.prepare("SELECT w, k FROM gweapons WHERE sid=?");
   const qBm = db.prepare(`SELECT MAX(${PTS}) v FROM gstats WHERE sid=? AND period!='all'`);
   const qKing = db.prepare("SELECT 1 FROM awards WHERE sid=? AND place=1 LIMIT 1");
+  const one = (sql, ...a) => { try { return db.prepare(sql).get(...a) || {}; } catch (e) { return {}; } };
+  // показатели сайта (не игровая статистика): часть — по SteamID, часть — по аккаунту на сайте
+  function extra(sid) {
+    const u = one("SELECT id FROM users WHERE steamid=?", sid).id;
+    const fc = k => one("SELECT n FROM fun_count WHERE sid=? AND kind=?", sid, k).n || 0;
+    const pass = one("SELECT MAX(xp) xp, MAX(prem) prem FROM pass WHERE sid=?", sid);
+    const x = {
+      top10: one("SELECT 1 v FROM awards WHERE sid=? AND place<=10 LIMIT 1", sid).v ? 1 : 0,
+      fb: fc("fb"), ace: fc("ace"),
+      earn: one("SELECT SUM(base) v FROM earn_day WHERE sid=?", sid).v || 0,
+      quests: one("SELECT COUNT(*) v FROM quest_prog WHERE sid=? AND done=1", sid).v || 0,
+      passlv: Math.min(50, Math.floor((pass.xp || 0) / 2000)), passprem: pass.prem ? 1 : 0,
+      buyTier: one("SELECT 1 v FROM grants WHERE sid=? AND src='shop' LIMIT 1", sid).v ? 1 : 0,
+    };
+    if (u) {
+      const cm = one("SELECT clan_id FROM clan_members WHERE user_id=?", u).clan_id;
+      x.clan = cm ? 1 : 0;
+      x.clanOwner = one("SELECT 1 v FROM clans WHERE leader_id=? LIMIT 1", u).v ? 1 : 0;
+      x.clanChamp = cm && one("SELECT 1 v FROM clan_awards WHERE clan_id=? AND place=1 LIMIT 1", cm).v ? 1 : 0;
+      x.cos = one("SELECT COUNT(*) v FROM cos_own WHERE user_id=?", u).v || 0;
+      x.cases = one("SELECT SUM(n) v FROM case_opens WHERE user_id=?", u).v || 0;
+    }
+    return x;
+  }
   const qPaid = db.prepare("SELECT name FROM ach_paid WHERE sid=?");
   const ins = db.prepare("INSERT INTO ach_paid(sid,name,tk,created_at) VALUES(?,?,?,?) ON CONFLICT(sid,name) DO NOTHING");
   const userBySid = db.prepare("SELECT id FROM users WHERE steamid=?");
@@ -111,7 +162,7 @@ function makeAchievements({ db, tx, addMoney, PTS, now = Date.now, log = console
 
   function statsOf(sid) {
     const z = qAll.get(sid); if (!z) return null;
-    return { z, w: Object.fromEntries(qW.all(sid).map(r => [r.w, r.k])), bm: (qBm.get(sid) || {}).v || 0, king: !!qKing.get(sid) };
+    return { z, w: Object.fromEntries(qW.all(sid).map(r => [r.w, r.k])), bm: (qBm.get(sid) || {}).v || 0, king: !!qKing.get(sid), x: extra(sid) };
   }
 
   // проверить игрока и начислить награды за новые выполненные достижения; вернёт [{n, tk}]
@@ -119,7 +170,9 @@ function makeAchievements({ db, tx, addMoney, PTS, now = Date.now, log = console
     if (!/^\d{17}$/.test(String(sid || ""))) return [];
     const s = statsOf(sid); if (!s) return [];
     const paid = new Set(qPaid.all(sid).map(r => r.name));
-    const fresh = DEFS.filter(d => !paid.has(d.n) && value(d.m, s) >= d.t);
+    const fresh = DEFS.filter(d => d !== LEGEND && !paid.has(d.n) && value(d.m, s) >= d.t);
+    // «Легенда сервера»: все остальные уже есть (с учётом только что выполненных)
+    if (!paid.has(LEGEND.n) && paid.size + fresh.length >= DEFS.length - 1) fresh.push(LEGEND);
     if (!fresh.length) return [];
     const done = [];
     tx(() => {
@@ -144,7 +197,9 @@ function makeAchievements({ db, tx, addMoney, PTS, now = Date.now, log = console
   }
 
   const paid = sid => qPaid.all(String(sid || "")).map(r => r.name);
-  return { check, checkAll, paid };
+  // прогресс по показателям сайта — для страницы достижений (только свой профиль)
+  const progress = sid => { try { return extra(String(sid || "")); } catch (e) { return {}; } };
+  return { check, checkAll, paid, progress };
 }
 
 module.exports = { makeAchievements, DEFS, tkFor };

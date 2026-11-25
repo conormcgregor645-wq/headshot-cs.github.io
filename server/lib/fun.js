@@ -8,7 +8,7 @@ const FIRST_BLOOD = { human: 20, bot: 5 };
 // эйс: если среди убитых хотя бы ACE.minHumans живых игроков — полная награда, иначе (одни боты) — меньше
 const ACE = { kills: 5, tk: 100, tkBots: 30, xp: 100, minHumans: 2 };
 const SPECIAL = { tk: 50, xp: 30 };
-const DAY_CAP = 1500; // всех этих бонусов вместе — не больше стольких ТК в сутки (до множителя события)
+const DAY_CAP = 0; // лимита на бонусы в сутки нет (0 — без лимита; было 1500)
 const MODES = {
   knife: "Только ножи", deagle: "Дуэль на Deagle", awp: "Только AWP", scout: "Скауты в низкой гравитации",
   zeus: "Только Zeus", onehp: "1 HP: пистолеты", nades: "Война гранат", invis: "Невидимки",
@@ -34,7 +34,7 @@ function makeFun({ db, tx, addMoney, addXp = () => 0, eventMult = () => 1, inGam
     try {
       tx(() => {
         const day = mskDay(t), have = (dayQ.get(sid, day) || {}).tk || 0;
-        const b = Math.min(tk, DAY_CAP - have); if (b <= 0) return;
+        const b = DAY_CAP > 0 ? Math.min(tk, DAY_CAP - have) : tk; if (b <= 0) return;
         dayUp.run(sid, day, b);
         got = Math.round(b * eventMult(t));
         const u = userBySid.get(sid);
@@ -43,6 +43,9 @@ function makeFun({ db, tx, addMoney, addXp = () => 0, eventMult = () => 1, inGam
       });
     } catch (e) { log.error("[fun]", e.message); got = 0; }
     if (got) log.log(`[fun] ${sid} +${got} ТК: ${what}`);
+    // счётчик для достижений (первая кровь, эйс) — даже если ТК уже не начислились
+    const kind = String(ref).split(":")[0];
+    if (kind === "fb" || kind === "ace") { try { db.prepare("INSERT INTO fun_count(sid,kind,n) VALUES(?,?,1) ON CONFLICT(sid,kind) DO UPDATE SET n=n+1").run(sid, kind); } catch (e) { log.error("[fun] count", e.message); } }
     return got;
   }
   const xp = (sid, v, t) => { try { addXp(sid, v, t); } catch (e) { log.error("[fun] xp", e.message); } };

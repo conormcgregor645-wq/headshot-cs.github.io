@@ -21,8 +21,8 @@ const mskDay = t => new Date(t + MSK).toISOString().slice(0, 10);
 function rewards() {
   const C = k => ({ t: "case", k }), O = id => ({ t: "cos", id }), S = (tier, d) => ({ t: "status", tier, d }), B = (k, h) => ({ t: "boost", k, h });
   const FREE = {
-    3: O("tr_0"), 5: C("army"), 6: B("xp2", 24), 7: C("cblackandwhite"), 8: S("VIP", 1), 9: C("pistol"), 10: O("sm_0"),
-    11: O("tc_1"), 12: O("nk_0"), 13: C("cgreen"), 14: O("sd_drum"), 15: C("army"), 16: B("tk2", 24), 17: C("cblue"), 18: O("bg_i_nydust"), 19: O("tr_wops"), 20: O("tc_0"),
+    3: O("nk_2"), 5: C("army"), 6: B("xp2", 24), 7: C("cblackandwhite"), 8: S("VIP", 1), 9: C("pistol"), 10: O("sm_0"),
+    11: O("tc_1"), 12: O("nk_0"), 13: C("cgreen"), 14: O("sd_drum"), 15: C("army"), 16: B("tk2", 24), 17: C("cblue"), 18: O("bg_i_nydust"), 19: O("tr_wops"), 20: O("tc_4"),
     21: C("forb"), 22: O("nk_1"), 23: O("sd_ding"), 24: C("cgreen"), 25: S("VIP", 3), 26: O("sm_wops"), 27: C("cyellow"), 28: C("army"),
     29: B("xp2", 24), 30: O("kl_spark"), 31: C("cblue"), 32: O("kl_star"), 33: O("tr_1"), 34: C("secret"), 35: C("forb"), 36: S("PREMIUM", 2), 37: C("desert"),
     38: O("sd_coin"), 39: O("mv_csgo"), 40: O("fr_lime"), 41: C("cyellow"), 42: B("tk2", 24), 43: O("fr_ice"), 44: C("secret"), 45: C("desert"),

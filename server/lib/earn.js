@@ -5,7 +5,7 @@
 
 // сколько ТК за что (до множителя статуса)
 const RATES = { kill: 5, killBot: 1, hs: 1, assist: 2, plant: 3, defuse: 5, roundWin: 2, minute: 1 };
-const DAILY_CAP = 2000; // в сутки по Москве, до множителя
+const DAILY_CAP = 0; // лимита на ТК за игру в сутки нет (0 — без лимита; было 2000 до множителя)
 const MULT = { VIP: 1.1, PREMIUM: 1.2, ELITE: 1.3, LEGEND: 1.5, TITAN: 1.75, KING: 2 };
 const mskDay = t => new Date(t + 3 * 3600e3).toISOString().slice(0, 10);
 
@@ -18,7 +18,7 @@ function makeEarn({ db, tx, addMoney, statusOf, eventMult = () => 1, boostMult =
   function add(sid, base, t) {
     if (!sid || !(base > 0)) return 0;
     const day = mskDay(t), have = (dayQ.get(sid, day) || {}).base || 0;
-    const b = Math.min(base, DAILY_CAP - have); if (b <= 0) return 0;
+    const b = DAILY_CAP > 0 ? Math.min(base, DAILY_CAP - have) : base; if (b <= 0) return 0;
     const st = statusOf(sid), m = ((st && MULT[st]) || 1) * eventMult(t) * boostMult(sid, t); // статус, событие («Счастливый час» ×2) и буст из пропуска
     dayUp.run(sid, day, b);
     penUp.run(sid, b * m, now());

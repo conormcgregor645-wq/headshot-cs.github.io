@@ -29,7 +29,7 @@ const prevMonth = p => { const [y, m] = p.split("-").map(Number); return m === 1
 // текст для консоли сервера: без кавычек, точек с запятой и переводов строк (иначе можно дописать свою команду)
 const consoleText = (v, max) => String(v == null ? "" : v).replace(/[\u0000-\u001f\u007f\u2028\u2029"';\\]/g, " ").replace(/\s+/g, " ").trim().slice(0, max);
 
-function makeControl({ db, tx, stats, month, rcon, servers, maps, log = console, now = Date.now, onStatusChange = () => {}, onSanction = () => {} }) {
+function makeControl({ db, tx, stats, month, rcon, servers, maps, log = console, now = Date.now, onStatusChange = () => {}, onSanction = () => {}, payRub = null }) {
   const MAPS = (maps && maps.length ? maps : DEFAULT_MAPS).filter(m => /^[a-z0-9_]{3,40}$/.test(m));
   const srv0 = () => servers[0] || null;
 
@@ -189,7 +189,8 @@ function makeControl({ db, tx, stats, month, rcon, servers, maps, log = console,
   }
 
   // ---------- итоги месяца ----------
-  // после конца месяца (по Москве): места 1–3 получают KING, 4–10 — LEGEND на 30 дней, весь топ-10 — медали
+  // после конца месяца (по Москве): 1 место — KING, 2–3 — TITAN на 30 дней, 4–10 — 500 ₽ на баланс сайта; весь топ-10 — медали
+  const PRIZE = place => place === 1 ? { tier: "KING" } : place <= 3 ? { tier: "TITAN" } : { rub: 500 };
   function runAwards(t = now()) {
     const prev = prevMonth(month(t));
     if (db.prepare("SELECT 1 FROM awards WHERE period=? LIMIT 1").get(prev)) return null;
@@ -197,9 +198,12 @@ function makeControl({ db, tx, stats, month, rcon, servers, maps, log = console,
     if (!top.length) return null;
     tx(() => {
       top.forEach((p, i) => {
-        const place = i + 1, tier = place <= 3 ? "KING" : "LEGEND";
+        const place = i + 1, pz = PRIZE(place), note = `${place} место · ${monthRu(prev)}`;
         db.prepare("INSERT INTO awards(period,place,sid,name,pts,created_at) VALUES(?,?,?,?,?,?)").run(prev, place, p.sid, p.n, p.pts, t);
-        db.prepare("INSERT INTO grants(sid,tier,src,note,created_at,from_at,until,by_name) VALUES(?,?,?,?,?,?,?,?)").run(p.sid, tier, "award", `${place} место · ${monthRu(prev)}`, t, t, t + 30 * DAY, "Итоги месяца");
+        if (pz.tier) db.prepare("INSERT INTO grants(sid,tier,src,note,created_at,from_at,until,by_name) VALUES(?,?,?,?,?,?,?,?)").run(p.sid, pz.tier, "award", note, t, t, t + 30 * DAY, "Итоги месяца");
+        // рубли: на баланс сразу, а если аккаунта на сайте ещё нет — при первом входе
+        else if (!(payRub && payRub(p.sid, pz.rub, "Приз рейтинга: " + note)))
+          db.prepare("INSERT INTO cash_pending(sid,rub,note,updated_at) VALUES(?,?,?,?) ON CONFLICT(sid) DO UPDATE SET rub=rub+excluded.rub, note=excluded.note, updated_at=excluded.updated_at").run(p.sid, pz.rub, "Приз рейтинга: " + note, t);
       });
     });
     onStatusChange();
@@ -256,7 +260,7 @@ function makeControl({ db, tx, stats, month, rcon, servers, maps, log = console,
     return { error: "Неизвестное действие" };
   }
 
-  return { addGrant, resolve, activeBan, activeMute, activeGag, activeSanctions, listBans, ban, unban, enforce, statuses, grant, revoke, runAwards, listAwards, serverInfo, serverAct, MAPS };
+  return { PRIZE, addGrant, resolve, activeBan, activeMute, activeGag, activeSanctions, listBans, ban, unban, enforce, statuses, grant, revoke, runAwards, listAwards, serverInfo, serverAct, MAPS };
 }
 
 module.exports = { makeControl, toSid64, toSteam2, prevMonth, consoleText, TIERS, DEFAULT_MAPS };

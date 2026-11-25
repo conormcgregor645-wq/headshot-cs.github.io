@@ -16,12 +16,12 @@ const ti = html.indexOf("function targetOf"); const targetOf = eval("(" + html.s
 const mi = html.indexOf("const ACH_METRIC={}"), blk = html.slice(mi, html.indexOf("function achReal", mi));
 const siteTracked = new Set([...blk.matchAll(/"([^"]+)"/g)].map(m => m[1]).filter(n => site[n]));
 const override = Object.fromEntries([...blk.matchAll(/"([^"]+)":\{f:.*,t:(\d+)\}[,}]*\)?;?$/gm)].map(m => [m[1], +m[2]]));
-const srvNames = new Set(DEFS.map(d => d.n));
+const srvNames = new Set(DEFS.filter(d => d.m !== "all").map(d => d.n)); // «Легенда сервера» сайт считает сам: все остальные
 ok([...siteTracked].every(n => srvNames.has(n)) && [...srvNames].every(n => siteTracked.has(n)), "сервер и сайт считают одни и те же достижения",
   { onlySite: [...siteTracked].filter(n => !srvNames.has(n)), onlySrv: [...srvNames].filter(n => !siteTracked.has(n)) });
 const badTk = DEFS.filter(d => !site[d.n] || rarity(site[d.n][3])[4] !== d.tk);
 ok(!badTk.length, "награда ТК совпадает с сайтом", badTk.map(d => d.n));
-const badT = DEFS.filter(d => d.t !== (override[d.n] || targetOf(site[d.n])));
+const badT = DEFS.filter(d => d.m !== "all" && d.t !== (override[d.n] || targetOf(site[d.n])));
 ok(!badT.length, "цели совпадают с сайтом", badT.map(d => [d.n, d.t]));
 
 // ---------- 2. начисление ----------
@@ -58,6 +58,15 @@ ok(A.paid(S1).length === want.length + 1, "список выплаченных �
 const r2 = A.check(S2).map(d => d.n);
 ok(r2.includes("Новобранец") && (db.prepare("SELECT tk FROM earn_pending WHERE sid=?").get(S2) || {}).tk === r2.reduce((s, n) => s + DEFS.find(d => d.n === n).tk, 0), "без аккаунта на сайте — награда копится", r2);
 ok(A.checkAll().n === 0, "проверка всех игроков ничего не платит повторно");
+// показатели сайта: пропуск, задания, бонусы за игру, топ-10 месяца
+db.prepare("INSERT INTO pass(sid,season,xp,prem) VALUES(?,?,?,?)").run(S1, "s1", 26 * 2000, 1);
+db.prepare("INSERT INTO fun_count(sid,kind,n) VALUES(?,?,?),(?,?,?)").run(S1, "fb", 50, S1, "ace", 1);
+for (let i = 0; i < 10; i++) db.prepare("INSERT INTO quest_prog(sid,day,qid,n,done) VALUES(?,?,?,?,1)").run(S1, "2026-11-" + (10 + i), "q", 1);
+db.prepare("INSERT INTO awards(period,place,sid,name,pts,created_at) VALUES(?,?,?,?,?,?)").run("2026-10", 7, S1, "U1", 5000, NOW);
+const r3 = A.check(S1).map(d => d.n).sort();
+const want3 = ["В десятке", "Ветеран сезона", "Деловой", "Первая кровь", "Премиум-боец", "Сезонный боец", "Эйс"].sort();
+ok(JSON.stringify(r3) === JSON.stringify(want3), "достижения пропуска, заданий, бонусов и рейтинга", r3);
+ok(A.progress(S1).passlv === 26 && A.progress(S1).quests === 10, "прогресс для страницы достижений", A.progress(S1));
 
 fs.rmSync(dir, { recursive: true, force: true });
 console.log(fails ? `\n${fails} проверок не прошли` : "\nДостижения считаются и оплачиваются верно");
