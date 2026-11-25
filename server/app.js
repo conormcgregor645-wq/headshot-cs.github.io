@@ -651,7 +651,7 @@ retireItems("trail_cleanup_refund", { list: ["tr_3", "tr_7", "sm_9"] }, "ора�
 })();
 // 25.11.2026: у предметов Blue Gem / Fade 100% сид был случайным — в игре узор не совпадал. Ставим настоящий сид паттерна.
 (function fixPatternSeeds() {
-  if (db.prepare("SELECT 1 FROM meta WHERE k='sp_seed_fix'").get()) return;
+  if (db.prepare("SELECT 1 FROM meta WHERE k='sp_seed_fix2'").get()) return; // 2: сиды Blue Gem уточнены (сид №1, синий с обеих сторон)
   const touched = new Set();
   tx(db, () => {
     for (const r of db.prepare("SELECT id, user_id, w, sp, seed FROM items WHERE sp IN ('bg','f100')").all()) {
@@ -660,7 +660,7 @@ retireItems("trail_cleanup_refund", { list: ["tr_3", "tr_7", "sm_9"] }, "ора�
       db.prepare("UPDATE items SET seed=? WHERE id=?").run(l[0], r.id);
       touched.add(r.user_id);
     }
-    db.prepare("INSERT OR REPLACE INTO meta(k,v) VALUES('sp_seed_fix','1')").run();
+    db.prepare("INSERT OR REPLACE INTO meta(k,v) VALUES('sp_seed_fix2','1')").run();
   });
   setTimeout(() => { for (const uid of touched) { const u = db.prepare("SELECT * FROM users WHERE id=?").get(uid); if (u) try { syncGame(u); } catch (e) {} } }, 3000);
 })();
