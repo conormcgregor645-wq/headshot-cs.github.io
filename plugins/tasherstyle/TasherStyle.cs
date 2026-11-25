@@ -78,7 +78,7 @@ public class StyleConfig : BasePluginConfig
     [JsonPropertyName("WinScore")] public int WinScore { get; set; } = 100;
     // общий голосовой чат: обе команды слышат друг друга, живые не слышат мёртвых
     [JsonPropertyName("AllTalk")] public bool AllTalk { get; set; } = true;
-    // Серии убийств (DOUBLE / MULTI / ULTRA / MONSTER KILL): убийства подряд с паузой не больше StreakWindow секунд
+    // Серии убийств (DOUBLE / TRIPLE / MEGA KILL / RAMPAGE — надпись посреди экрана и голос, без строк в чате): убийства подряд с паузой не больше StreakWindow секунд
     [JsonPropertyName("StreaksEnabled")] public bool StreaksEnabled { get; set; } = true;
     [JsonPropertyName("StreakWindow")] public float StreakWindow { get; set; } = 4f;
     // звуки серий — встроенные звуки CS2: first — первая кровь раунда, 2…5 — серия

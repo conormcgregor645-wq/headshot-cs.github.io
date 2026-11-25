@@ -4466,8 +4466,9 @@ const WBR=[[0,.07],[.07,.15],[.15,.38],[.38,.45],[.45,1]];
 function wearOpts(sk,st){const lo=sk[7]||0,hi=sk[8]==null?1:(sk[8]||1),a=skArr(sk,st);const l=[];WBR.forEach(([a0,a1],i)=>{if(a1>lo&&a0<hi)l.push(i)});const p=l.filter(i=>a[i]);return p.length?p:l.length?l:[2]}
 function wearRange(sk,i){const lo=Math.max(sk[7]||0,WBR[i][0]),hi=Math.min(sk[8]==null?1:(sk[8]||1),WBR[i][1]);return hi>lo?[lo,hi]:WBR[i]}
 // особые версии: редкие паттерны и флоаты
-const SP={bg:{n:"Blue Gem",ok:(w,sk)=>sk[0]==="Case Hardened",m:w=>w.c==="knife"?10:(w.n==="AK-47"||w.n==="Five-SeveN")?8:4},
-  f100:{n:"Fade 100%",ok:(w,sk)=>sk[0]==="Fade",m:()=>1.6}};
+const SPW={"bg":["AK-47","Five-SeveN","MAC-10","Керамбит","Классический нож","Коготь","Медвежий нож","Наваха","Нож «Бродяга»","Нож Боуи","Нож выживания","Нож кукри","Нож с лезвием-крюком","Нож-бабочка","Охотничий нож","Паракорд-нож","Скелетный нож","Складной нож","Стилет","Тычковые ножи","Фальшион","Штык-нож","Штык-нож M9"],"f100":["AWP","Glock-18","M4A1-S","MAC-10","MP7","R8 Revolver","UMP-45","Керамбит","Классический нож","Коготь","Медвежий нож","Наваха","Нож «Бродяга»","Нож Боуи","Нож выживания","Нож кукри","Нож с лезвием-крюком","Нож-бабочка","Охотничий нож","Паракорд-нож","Скелетный нож","Складной нож","Стилет","Тычковые ножи","Фальшион","Штык-нож","Штык-нож M9"]};
+const SP={bg:{n:"Blue Gem",ok:(w,sk)=>sk[0]==="Case Hardened"&&SPW.bg.includes(w.n),m:w=>w.c==="knife"?10:(w.n==="AK-47"||w.n==="Five-SeveN")?8:4},
+  f100:{n:"Fade 100%",ok:(w,sk)=>sk[0]==="Fade"&&SPW.f100.includes(w.n),m:()=>1.6}};
 const spList=(w,sk,i)=>Object.keys(SP).filter(k=>SP[k].ok(w,sk,i));
 function spWear(sk,i,sp){const[lo,hi]=wearRange(sk,i);if(sp==="lf"){const a=lo,b=Math.min(hi,lo+.005);return Math.floor((a+Math.random()*(b-a))*10000)/10000}return Math.floor((lo+Math.random()*(hi-lo))*1000)/1000}
 const itPre=it=>it.sv?"Сувенирный ":it.st?"StatTrak™ ":"";
@@ -4664,7 +4665,7 @@ async function czOpen(ps){if(!needLogin()||czBusy)return;const D=czFast?1500:560
   if(SRV){czBusy=true;try{const r=await api("/api/cases/open",ps?{k:c.k,n,free:true}:{k:c.k,n});ME.tk=r.tk;if(r.freeCases)FREEC=r.freeCases;if(!c.p&&!ps)csDay=mskDay();drawChip();wins=r.items;czBusy=false}catch(e){czBusy=false;if(/уже открыт/.test(e.message)){csDay=mskDay();czRenderTop()}toast(e.message);return}}
   else{if(c.p){ME.tk-=c.p*n;walletSave();drawChip()}else csDay=mskDay();wins=Array.from({length:n},()=>rollCase(c))}
   INV.push(...wins);invSave();{const ci=CZ;setTimeout(()=>wins.forEach(it=>myDrop(it,ci)),D)}csCur={c,wins,i:CZ,n};czBusy=true;czState="spin";czN=n;czRenderTop();
-  $("czTop").scrollIntoView({behavior:"smooth",block:"start"});
+  {const zr=$("czTop").getBoundingClientRect();if(zr.top<0||zr.bottom>innerHeight)$("czTop").scrollIntoView({behavior:"smooth",block:"nearest"})}
   const tok=++czTok,N=matchMedia("(hover:none)").matches?28:34,rows=[...$("czTop").querySelectorAll(".st-row")];rows.forEach((row,k)=>{const items=Array.from({length:N+6},(_,q)=>q===N?wins[k]:rollCase(c));row.innerHTML=items.map(stSkin).join("")});
   sndStart();requestAnimationFrame(()=>{let left=rows.length;rows.forEach((row,k)=>{const W2=row.children[1].offsetLeft-row.children[0].offsetLeft,IW=row.children[0].offsetWidth,box=row.parentElement.clientWidth,target=N*W2+IW/2-box/2+(Math.random()-.5)*W2*.7;let lastI=-1;
     tween(D+k*(czFast?120:350),e=>{if(tok!==czTok)return;row.style.transform=`translate3d(${-target*e}px,0,0)`;if(k===0){const ci=Math.floor((target*e+box/2)/W2);if(ci!==lastI){lastI=ci;sndTick()}}},()=>{if(tok!==czTok)return;row.children[N].classList.add("win");if(--left===0){sndWin(Math.max(...wins.map(w=>w.r)));setTimeout(()=>{if(tok!==czTok)return;czBusy=false;czState="res";if(curView==="case")czRenderTop();drawSkins()},czFast?350:900)}})})})}
@@ -4819,7 +4820,7 @@ $("dropsTr").addEventListener("click",e=>{const a=e.target.closest("[data-cprev]
 
 // окно наклеек
 let stw=null,sts=null,ssel=0,sVar=-1,sTy=-1,sLim=120,stkIt=null;
-function openStkItem(it){if(!STKREADY){toast("Загружаем наклейки…");return stkNeed(()=>openStkItem(it))}stkIt=it;stw=invW(it);const s=SKST.sets[stw.n];const src=it.stk||(isOnIt(it)&&s&&s.stk)||null;sts=src?src.map(x=>x?{...x}:null):[null,null,null,null,null];ssel=Math.max(0,sts.findIndex(x=>!x));$("stkQ").value="";drawStk();$("stkModal").hidden=false}
+function openStkItem(it){if(it.sv){toast("На сувенирном предмете наклейки турнира — их нельзя менять");return}if(!STKREADY){toast("Загружаем наклейки…");return stkNeed(()=>openStkItem(it))}stkIt=it;stw=invW(it);const s=SKST.sets[stw.n];const src=it.stk||(isOnIt(it)&&s&&s.stk)||null;sts=src?src.map(x=>x?{...x}:null):[null,null,null,null,null];ssel=Math.max(0,sts.findIndex(x=>!x));$("stkQ").value="";drawStk();$("stkModal").hidden=false}
 function openStk(i){if(!STKREADY)return stkNeed(()=>openStk(i));stkIt=null;stw=W[i];const s=SKST.sets[stw.n];sts=s&&s.stk?s.stk.map(x=>x?{...x}:null):[null,null,null,null,null];ssel=Math.max(0,sts.findIndex(x=>!x));if(ssel<0)ssel=0;
   $("stkQ").value="";drawStk();$("stkModal").hidden=false}
 function drawStk(){const s=stkIt?{wear:stkIt.wear}:SKST.sets[stw.n];const skin=stkIt?invSk(stkIt):(s&&s.name?stw.skins.find(x=>x[0]===s.name):null);
