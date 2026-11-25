@@ -85,7 +85,7 @@ const SKILL = SKILLM.makeSkill({ db, onLeague: () => { if (styleT) return; style
 { const fix = db.prepare("UPDATE users SET name=? WHERE id=?"); for (const r of db.prepare("SELECT id, name FROM users").all()) { const c = cleanNick(r.name); if (c !== r.name) fix.run(c, r.id); } }
 // статусы -> VIP-плагин в игре (та же база, что и скины; после записи игроку на сервере статус применяется сразу)
 let vipSync = () => null, styleSync = () => null;
-const CTL = makeControl({ db, tx: fn => tx(db, fn), stats: STATS, month: GL.month, rcon: { pass: CFG.gameRcon, exec: A2S.rconExec, parseStatus: RCON.parseStatus }, servers: CFG.gameServers, maps: CFG.gameMaps, onStatusChange: () => { vipSync(); styleSync(); }, onSanction: () => infoSoon(true) });
+const CTL = makeControl({ db, tx: fn => tx(db, fn), stats: STATS, month: GL.month, rcon: { pass: CFG.gameRcon, exec: A2S.rconExec, parseStatus: RCON.parseStatus }, servers: CFG.gameServers, maps: CFG.gameMaps, onStatusChange: () => { vipSync(); styleSync(); }, payRub: (sid, rub, what) => { const u = db.prepare("SELECT id FROM users WHERE steamid=?").get(sid); if (!u) return false; addMoney(u.id, "rub", rub, "award", "rating", { what }); return true; }, onSanction: () => infoSoon(true) });
 vipSync = VIP.makeVipSync({ cnf: CFG.wpCnf, bin: CFG.mysqlBin, getStatuses: () => CTL.statuses(),
   reload: sid => CFG.gameServers.length && CFG.gameRcon ? A2S.rconExec(CFG.gameServers[0], CFG.gameRcon, "css_reload_vip_player " + sid, 3000) : null });
 if (CFG.wpCnf && require.main === module) { setTimeout(() => vipSync(), 3000).unref(); setInterval(() => vipSync(), 60e3).unref(); } // раз в минуту: истёкшие статусы и выдачи, сделанные пока сервер был недоступен
@@ -198,7 +198,7 @@ get("/api/health", () => ({ ok: true, t: now() }));
 
 get("/api/me", ctx => {
   if (!ctx.user) return { user: null };
-  return { user: pubUser(ctx.user), items: userItems(ctx.user.id), loadout: userLoadout(ctx.user.id), cos: userCos(ctx.user), purchases: userPurchases(ctx.user.id), freeCases: freeCases(ctx.user.id), wheel: WHEEL.state(ctx.user), earn: EARN.today(ctx.user.steamid), quests: QUESTS.state(ctx.user.steamid), achPaid: ACH.paid(ctx.user.steamid), pass: PASS.state(ctx.user.steamid) };
+  return { user: pubUser(ctx.user), items: userItems(ctx.user.id), loadout: userLoadout(ctx.user.id), cos: userCos(ctx.user), purchases: userPurchases(ctx.user.id), freeCases: freeCases(ctx.user.id), wheel: WHEEL.state(ctx.user), earn: EARN.today(ctx.user.steamid), quests: QUESTS.state(ctx.user.steamid), achPaid: (ACH.check(ctx.user.steamid), ACH.paid(ctx.user.steamid)), achProg: ACH.progress(ctx.user.steamid), pass: PASS.state(ctx.user.steamid) };
 });
 
 // надеть / снять предмет за сторону (ct или t)
@@ -584,16 +584,22 @@ if (CFG.wpCnf && require.main === module) { setTimeout(() => styleSync(), 4000).
 const TIER_P = { VIP: 99, PREMIUM: 199, ELITE: 349, LEGEND: 549, TITAN: 899, KING: 1499 };
 const PERIODS = { 30: 0, 90: 0.1, 180: 0.2 };
 const tierPrice = (tier, days) => Math.round(TIER_P[tier] * days / 30 * (1 - PERIODS[days]) / 10) * 10 - 1;
-// значки убраны с сайта (24.11.2026): один раз возвращаем деньги за купленные (₽ на баланс), за полученные из пропуска — 500 ТК
-if (!db.prepare("SELECT 1 FROM meta WHERE k='badge_refund'").get()) tx(db, () => {
-  for (const r of db.prepare("SELECT user_id, item_id FROM cos_own WHERE item_id LIKE 'bd\\_%' ESCAPE '\\'").all()) {
-    const paid = db.prepare("SELECT -delta p FROM ledger WHERE user_id=? AND kind='shop' AND cur='rub' AND ref=? ORDER BY id DESC LIMIT 1").get(r.user_id, "cos:" + r.item_id);
-    if (paid && paid.p > 0) addMoney(r.user_id, "rub", paid.p, "refund", "cos:" + r.item_id, { what: "Возврат: значки убраны с сайта" });
-    else addMoney(r.user_id, "tk", 500, "refund", "cos:" + r.item_id, { what: "Компенсация: значки убраны с сайта" });
-  }
-  db.prepare("DELETE FROM cos_own WHERE item_id LIKE 'bd\\_%' ESCAPE '\\'").run();
-  db.prepare("INSERT OR REPLACE INTO meta(k,v) VALUES('badge_refund','1')").run();
-});
+// предметы, убранные из магазина: один раз возвращаем деньги за купленные (₽ на баланс), за полученные из пропуска — 500 ТК
+function retireItems(key, ids, why) {
+  if (db.prepare("SELECT 1 FROM meta WHERE k=?").get(key)) return;
+  tx(db, () => {
+    const own = db.prepare(`SELECT user_id, item_id FROM cos_own WHERE ${ids.like ? "item_id LIKE ? ESCAPE '\\'" : `item_id IN (${ids.list.map(() => "?").join(",")})`}`).all(...(ids.like ? [ids.like] : ids.list));
+    for (const r of own) {
+      const paid = db.prepare("SELECT -delta p FROM ledger WHERE user_id=? AND kind='shop' AND cur='rub' AND ref=? ORDER BY id DESC LIMIT 1").get(r.user_id, "cos:" + r.item_id);
+      if (paid && paid.p > 0) addMoney(r.user_id, "rub", paid.p, "refund", "cos:" + r.item_id, { what: "Возврат: " + why });
+      else addMoney(r.user_id, "tk", 500, "refund", "cos:" + r.item_id, { what: "Компенсация: " + why });
+      db.prepare("DELETE FROM cos_own WHERE user_id=? AND item_id=?").run(r.user_id, r.item_id);
+    }
+    db.prepare("INSERT OR REPLACE INTO meta(k,v) VALUES(?, '1')").run(key);
+  });
+}
+retireItems("badge_refund", { like: "bd\\_%" }, "значки убраны с сайта"); // 24.11.2026
+retireItems("white_fx_refund", { list: ["tr_0", "tc_0"] }, "белые трассеры и след гранат теперь у всех бесплатно"); // 25.11.2026
 const COSM = new Map(JSON.parse(fs.readFileSync(path.join(__dirname, "data", "cosmetics.json"), "utf8")).map(x => [x.id, x]));
 const COS_EQ_CATS = ["frame", "bg", "nick", "smoke", "tag", "kill", "snd", "trail", "tracer", "mvp"]; // что надевается (свой тег покупается отдельно — /api/cos/tag)
 function userCos(u) { let eq = {}; try { eq = JSON.parse(u.cos_eq || "{}"); } catch (e) {} delete eq.badge; return { own: db.prepare("SELECT item_id FROM cos_own WHERE user_id=? ORDER BY created_at").all(u.id).map(r => r.item_id), eq, tag: u.cos_tag || "" }; }
@@ -823,6 +829,9 @@ async function loginUser(req, res, steamid, ret) {
       db.prepare("INSERT INTO users(steamid,name,avatar,role,created_at,last_login) VALUES(?,?,?,?,?,?)").run(steamid, prof ? prof.name : "", prof ? prof.avatar : "", CFG.owners.has(steamid) ? "owner" : "player", t, t);
       u = db.prepare("SELECT * FROM users WHERE steamid=?").get(steamid);
       if (CFG.startTk) addMoney(u.id, "tk", CFG.startTk, "welcome");
+      // приз рейтинга, выигранный до регистрации на сайте
+      const cp = db.prepare("SELECT rub, note FROM cash_pending WHERE sid=? AND rub>0").get(steamid);
+      if (cp) { addMoney(u.id, "rub", cp.rub, "award", "rating", { what: cp.note }); db.prepare("DELETE FROM cash_pending WHERE sid=?").run(steamid); }
     } else {
       db.prepare("UPDATE users SET last_login=?, name=COALESCE(?,name), avatar=COALESCE(?,avatar), role=CASE WHEN ? THEN 'owner' ELSE role END WHERE id=?")
         .run(t, prof ? prof.name : null, prof ? prof.avatar : null, CFG.owners.has(steamid) ? 1 : 0, u.id);
@@ -894,7 +903,7 @@ function serveIndex(req, res) {
     INDEX = { mtime: st.mtimeMs, a: html.slice(0, i), b: html.slice(i), tag: sha(html).slice(0, 16) };
   }
   const u = sessionUser(req);
-  const data = u ? { user: pubUser(u), items: userItems(u.id), loadout: userLoadout(u.id), cos: userCos(u), purchases: userPurchases(u.id), freeCases: freeCases(u.id), wheel: WHEEL.state(u), earn: EARN.today(u.steamid), quests: QUESTS.state(u.steamid), achPaid: ACH.paid(u.steamid), pass: PASS.state(u.steamid) } : { user: null, quests: QUESTS.state(null), pass: PASS.state(null) };
+  const data = u ? { user: pubUser(u), items: userItems(u.id), loadout: userLoadout(u.id), cos: userCos(u), purchases: userPurchases(u.id), freeCases: freeCases(u.id), wheel: WHEEL.state(u), earn: EARN.today(u.steamid), quests: QUESTS.state(u.steamid), achPaid: (ACH.check(u.steamid), ACH.paid(u.steamid)), achProg: ACH.progress(u.steamid), pass: PASS.state(u.steamid) } : { user: null, quests: QUESTS.state(null), pass: PASS.state(null) };
   // джекпот без отметки времени сервера — иначе страница никогда не отдавалась бы из кэша (время сверит первый опрос)
   data.clans = clansOut(u); { const ev = EVENTS.state(); delete ev.now; data.events = ev; } { const v = JP.view(u); delete v.now; data.jackpot = v; }
   if (GS) data.servers = GS; else if (CFG.gameServers.length) data.servers = []; // опрос ещё не прошёл — страница сама запросит список

@@ -23,9 +23,9 @@ public class StyleConfig : BasePluginConfig
     [JsonPropertyName("Password")] public string Password { get; set; } = "";
     [JsonPropertyName("Database")] public string Database { get; set; } = "weaponpaints";
     [JsonPropertyName("ReloadSeconds")] public float ReloadSeconds { get; set; } = 20f;
-    // Официальное поле Premier в Tab. По умолчанию выключено: CSS предупреждает о риске бана GSLT.
-    // Даже при включении не работает с включённой защитой FollowCS2ServerGuidelines.
-    [JsonPropertyName("PremierScoreboardEnabled")] public bool PremierScoreboardEnabled { get; set; } = false;
+    // Очки рейтинга месяца с сайта в поле Premier (CS Rating) в Tab, как в режиме «Премьер».
+    // Работает только при FollowCS2ServerGuidelines=false (как и WeaponPaints — на нашем сервере так и настроено).
+    [JsonPropertyName("PremierScoreboardEnabled")] public bool PremierScoreboardEnabled { get; set; } = true;
     // звуки убийства: код с сайта -> файл звука из игры (слышит только убивший)
     [JsonPropertyName("KillSounds")] public Dictionary<string, string> KillSounds { get; set; } = new()
     {
@@ -120,6 +120,8 @@ public partial class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
         LoadPunish();
         LoadFun();
         LoadTestBots();
+        // рейтинг в Tab сбрасывается игрой при смене карты/команды — обновляем в начале каждого раунда
+        RegisterEventHandler<EventRoundStart>((_, _) => { foreach (var pl in Utilities.GetPlayers()) ApplyPremierRanking(pl); return HookResult.Continue; });
         RegisterEventHandler<EventPlayerSpawn>((e, _) =>
         {
             if (e.Userid is { } p) Server.NextFrame(() => { ApplyScoreboard(p); ApplyPremierRanking(p); });
@@ -165,6 +167,8 @@ public partial class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
                 _fxColumns = ok;
                 await CreateInfoTablesAsync(c);
                 await CreatePunishTableAsync(c);
+                await CreatePrefsTableAsync(c);
+                await LoadPrefsAsync(c);
             }
             catch (Exception e) { Logger.LogError("[TASHER Style] база недоступна: {Error}", e.Message); }
             ReloadAsync();
@@ -381,9 +385,10 @@ public partial class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
         }
         var controller = new CCSPlayerController(bc.Handle);
         var style = controller.IsValid && !controller.IsBot ? StyleOf(controller) : null;
-        if (style == null) return;
-        if (isSmoke) ApplySmoke(new CSmokeGrenadeProjectile(g.Handle), style.Smoke);
-        if (style.Trail.Length > 0 && TryColor(style.Trail, out var col)) StartTrail(g, col, controller.SteamID);
+        if (!controller.IsValid || controller.IsBot) return;
+        if (isSmoke && style != null) ApplySmoke(new CSmokeGrenadeProjectile(g.Handle), style.Smoke);
+        // белый след гранаты есть у всех; цветной — купленный на сайте; в !menu можно выключить
+        if (PrefOn(controller.SteamID, OffTrail) && TryColor(style is { Trail.Length: > 0 } ? style.Trail : DefaultWhite, out var col)) StartTrail(g, col, controller.SteamID);
     }
 
     private static void ApplySmoke(CSmokeGrenadeProjectile g, string smoke)

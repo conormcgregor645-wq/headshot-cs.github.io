@@ -223,6 +223,10 @@ function open(file) {
     `CREATE TABLE case_free(user_id INTEGER NOT NULL, k TEXT NOT NULL, n INTEGER NOT NULL, PRIMARY KEY(user_id, k));`,
     // 17: наклейки на предмете: JSON [{n: название, wear: 0..1} | null] × 5 слотов — уходят в игру через WeaponPaints
     `ALTER TABLE items ADD COLUMN stk TEXT;`,
+    // 18: рубли за призы, если у игрока ещё нет аккаунта на сайте — зачисляются при первом входе
+    `CREATE TABLE cash_pending(sid TEXT PRIMARY KEY, rub INTEGER NOT NULL DEFAULT 0, note TEXT NOT NULL DEFAULT '', updated_at INTEGER NOT NULL);`,
+    // 19: счётчики бонусов за игру для достижений: fb — первая кровь, ace — эйс
+    `CREATE TABLE fun_count(sid TEXT NOT NULL, kind TEXT NOT NULL, n INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(sid, kind));`,
   ];
   for (let v = ver; v < MIG.length; v++) {
     db.exec("BEGIN");

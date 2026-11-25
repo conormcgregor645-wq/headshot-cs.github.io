@@ -112,7 +112,8 @@ public partial class TasherStyle
         var p = e.Userid;
         if (p is not { IsValid: true } || p.IsBot || p.IsHLTV) return HookResult.Continue;
         var s = StyleOf(p);
-        if (s == null || s.Tracer.Length == 0 || !TryColor(s.Tracer, out var c)) return HookResult.Continue;
+        // белый трассер есть у всех; цветной — купленный на сайте; в !menu можно выключить
+        if (!PrefOn(p.SteamID, OffTracer) || !TryColor(s is { Tracer.Length: > 0 } ? s.Tracer : DefaultWhite, out var c)) return HookResult.Continue;
         // Ограничиваем сетевые лучи: дробь и несколько impact одного выстрела не создают десятки сущностей.
         var now = DateTime.UtcNow;
         if (_lastTracer.TryGetValue(p.SteamID, out var last) && (now - last).TotalMilliseconds < 90) return HookResult.Continue;
@@ -137,9 +138,9 @@ public partial class TasherStyle
         if (a is not { IsValid: true } || a.IsBot || a.IsHLTV || v is not { IsValid: true } || a.Slot == v.Slot) return HookResult.Continue;
         var s = StyleOf(a);
         if (s == null) return HookResult.Continue;
-        if (s.KillSnd.Length > 0 && Config.KillSounds.TryGetValue(s.KillSnd, out var snd) && IsSafeSound(snd))
+        if (s.KillSnd.Length > 0 && PrefOn(a.SteamID, OffKillSnd) && Config.KillSounds.TryGetValue(s.KillSnd, out var snd) && IsSafeSound(snd))
             a.ExecuteClientCommand($"play {snd}");
-        if (s.KillFx.Length > 0)
+        if (s.KillFx.Length > 0 && PrefOn(a.SteamID, OffKillFx))
         {
             var vp = v.PlayerPawn.Value;
             if (vp is { IsValid: true } && vp.AbsOrigin is { } o)
@@ -158,7 +159,7 @@ public partial class TasherStyle
         var m = e.Userid;
         if (m is not { IsValid: true } || m.IsBot || m.IsHLTV) return HookResult.Continue;
         var s = StyleOf(m);
-        if (s == null || s.MvpSnd.Length == 0 || !Config.MvpSounds.TryGetValue(s.MvpSnd, out var snd) || !IsSafeSound(snd)) return HookResult.Continue;
+        if (s == null || s.MvpSnd.Length == 0 || !PrefOn(m.SteamID, OffMvp) || !Config.MvpSounds.TryGetValue(s.MvpSnd, out var snd) || !IsSafeSound(snd)) return HookResult.Continue;
         foreach (var p in Utilities.GetPlayers())
             if (p is { IsValid: true, IsBot: false, IsHLTV: false }) p.ExecuteClientCommand($"play {snd}");
         return HookResult.Continue;

@@ -203,7 +203,7 @@ public partial class TasherStyle
         var p = Utilities.GetPlayers().FirstOrDefault(x => x is { IsValid: true, IsBot: false } && x.SteamID == sid);
         if (p == null) return;
         ApplyPremierRanking(p);
-        p.PrintToChat($"{Prefix}Команды: {ChatColors.Lime}!rank !top !tk !quests !pass{ChatColors.Default} — рейтинг, баланс, задания и пропуск");
+        p.PrintToChat($"{Prefix}Команды: {ChatColors.Lime}!menu !rank !top !tk !quests !pass{ChatColors.Default} — настройки, рейтинг, баланс, задания и пропуск");
         var info = InfoOf(p);
         if (info == null || info.Tier.Length == 0) return;
         var now = DateTime.UtcNow;
@@ -274,7 +274,7 @@ public partial class TasherStyle
             return;
         }
         var mult = i.EarnMult is "1" or "" ? "" : $" (×{i.EarnMult} за статус)";
-        player.PrintToChat($"{Prefix}Баланс: {ChatColors.Gold}{Num(i.Tk + i.TkPending)} ТК{ChatColors.Default} · сегодня за игру {i.EarnToday}/{i.EarnCap}{mult}");
+        player.PrintToChat($"{Prefix}Баланс: {ChatColors.Gold}{Num(i.Tk + i.TkPending)} ТК{ChatColors.Default} · сегодня за игру {i.EarnToday}{(i.EarnCap > 0 ? $"/{i.EarnCap}" : "")}{mult}");
     }
 
     [ConsoleCommand("css_quests", "Задания дня")]

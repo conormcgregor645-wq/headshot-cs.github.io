@@ -54,14 +54,14 @@ const bal = u => db.prepare("SELECT tk, rub FROM users WHERE id=?").get(u.id);
   ok(E.today(a.steamid).base === 13, "ТК за игру: убийство с хедшотом, бот, бомба, победа в раунде, минута; разминка и свои не в счёт", E.today(a.steamid));
   E.minute([k.steamid], NOW); E.minute([k.steamid], NOW);
   ok(E.today(k.steamid).pending === 4, "множитель статуса KING ×2", E.today(k.steamid));
-  E.add(a.steamid, 5000, NOW); ok(E.today(a.steamid).base === DAILY_CAP, "дневной лимит", E.today(a.steamid));
-  NOW += 864e5; E.minute([a.steamid], NOW); ok(E.today(a.steamid).base === 1, "на следующий день лимит сбрасывается"); NOW -= 864e5;
+  E.add(a.steamid, 5000, NOW); ok(DAILY_CAP === 0 && E.today(a.steamid).base === 5013, "дневного лимита нет", E.today(a.steamid));
+  NOW += 864e5; E.minute([a.steamid], NOW); ok(E.today(a.steamid).base === 1, "новый день — новый счёт за день"); NOW -= 864e5;
   E.minute([sidN(99)], NOW); E.minute([sidN(99)], NOW);
   E.flush();
-  ok(bal(a).tk === DAILY_CAP + 1 && bal(k).tk === 4, "ТК зачислены на счёт", [bal(a), bal(k)]);
+  ok(bal(a).tk === 5014 && bal(k).tk === 4, "ТК зачислены на счёт", [bal(a), bal(k)]);
   ok(db.prepare("SELECT kind FROM ledger WHERE user_id=? ORDER BY id DESC").get(a.id).kind === "game", "запись в журнале операций — «за игру»");
   const late = user(99); E.flush(); ok(bal(late).tk === 2, "кто зашёл на сайт позже — получает накопленное", bal(late));
-  E.flush(); ok(bal(a).tk === DAILY_CAP + 1, "повторно не зачисляется");
+  E.flush(); ok(bal(a).tk === 5014, "повторно не зачисляется");
 }
 
 // ---------- Фортуна ----------
@@ -382,7 +382,7 @@ const bal = u => db.prepare("SELECT tk, rub FROM users WHERE id=?").get(u.id);
   const COS = new Map(JSON.parse(fs.readFileSync(path.join(__dirname, "..", "data", "cosmetics.json"), "utf8")).map(x => [x.id, x]));
   const gi = (uid, it, src, ref) => { db.prepare("INSERT INTO items(id,user_id,w,s,r,wear,st,sv,sp,fx,seed,src,src_ref,state,created_at) VALUES(?,?,?,?,?,?,0,0,NULL,0,?,?,?,'inv',?)").run(it.id, uid, it.w, it.s, it.r, it.wear, it.seed || 0, src, ref || null, T1); return it; };
   const P = PM.makePass({ db, tx: T, addMoney, giveItem: gi, rollCase: G.rollCase, caseByK: k => G.CASE_BY_K.get(k), cosById: id => COS.get(id), addGrant: (...a) => grants.push(a), onGrant: () => ong++, eventMult: () => xpm, now: () => T1, log: { log() {} } });
-  ok(PM.REWARDS.free[2][0].id === "tr_0" && PM.REWARDS.free[11][0].id === "nk_0" && PM.REWARDS.prem[27][0].id === "kl_conf", "UPD: в пропуске есть новые оформления между ключевыми уровнями");
+  ok(PM.REWARDS.free[2][0].id === "nk_2" && PM.REWARDS.free[11][0].id === "nk_0" && PM.REWARDS.prem[27][0].id === "kl_conf", "UPD: в пропуске есть новые оформления между ключевыми уровнями");
   ok(PM.REWARDS.free.length === 50 && PM.REWARDS.prem.length === 50 && [...PM.REWARDS.free, ...PM.REWARDS.prem].flat().every(r => r.t === "tk" ? r.v > 0 : r.t === "case" ? !!G.CASE_BY_K.get(r.k) : r.t === "cos" ? COS.has(r.id) : r.t === "status" ? ["VIP", "PREMIUM", "ELITE", "LEGEND", "TITAN", "KING"].includes(r.tier) && r.d > 0 : r.t === "boost" ? ["tk2", "xp2"].includes(r.k) && r.h > 0 : false), "50 уровней: все награды существуют (кейсы, оформление, статусы)");
   const u = user(801, 0, 1000), sid = u.steamid;
   ok(P.season().id === "s1" && P.state(sid).me.lv === 0, "идёт сезон 1");
@@ -472,9 +472,8 @@ const bal = u => db.prepare("SELECT tk, rub FROM users WHERE id=?").get(u.id);
   // «Счастливый час» ×2 и дневной лимит
   mult = 2; rs(); b0 = tk0(); kill(me, en);
   ok(tk0() === b0 + 40, "первая кровь в «Счастливый час» ×2", tk0() - b0);
-  db.prepare("UPDATE fun_day SET tk=? WHERE sid=?").run(FM.DAY_CAP - 10, hs);
-  rs(); b0 = tk0(); kill(me, en); ok(tk0() === b0 + 20, "упёрлись в лимит: начислено только до лимита (10 × 2)", tk0() - b0);
-  rs(); b0 = tk0(); kill(me, en); ok(tk0() === b0, "после лимита — ничего");
+  db.prepare("UPDATE fun_day SET tk=? WHERE sid=?").run(100000, hs);
+  rs(); b0 = tk0(); kill(me, en); ok(FM.DAY_CAP === 0 && tk0() === b0 + 40, "лимита на бонусы в сутки нет", tk0() - b0);
   const led = db.prepare("SELECT meta FROM ledger WHERE user_id=? AND kind='fun'").all(u.id).map(r => JSON.parse(r.meta).what);
   ok(led.includes("Первая кровь в раунде") && led.includes("Эйс: 5 убийств за раунд") && led.includes("Победа в особом раунде «Все с ВХ»"), "история счёта: понятные записи", led);
   ok(!("bounties" in F) && !("bounty" in F.info()), "награды за голову нет");

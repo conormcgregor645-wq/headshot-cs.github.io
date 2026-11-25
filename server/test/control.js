@@ -41,7 +41,10 @@ let fails = 0; const ok = (c, n, x) => { if (!c) fails++; console.log((c ? "  ok
   const aw = CT.listAwards(); ok(aw.length === 10 && aw[0].n === "P12" && aw[0].place === 1 && aw[9].n === "P3" && aw[0].period === "2026-10", "медали: топ-10 по очкам", aw.map(a => [a.place, a.n, a.pts]));
   let sts = CT.statuses();
   const kings = sts.filter(s => s.t === "KING").map(s => s.n).sort(), legends = sts.filter(s => s.t === "LEGEND").map(s => s.n).sort();
-  ok(kings.join() === "P10,P11,P12" && legends.length === 7 && !sts.some(s => s.n === "P1" || s.n === "P2"), "места 1–3 — KING, 4–10 — LEGEND, остальным ничего", { kings, legends });
+  const titans = sts.filter(s => s.t === "TITAN").map(s => s.n).sort();
+  ok(kings.join() === "P12" && titans.join() === "P10,P11" && legends.length === 0 && sts.length === 3, "1 место — KING, 2–3 — TITAN", { kings, titans });
+  const cash = db.prepare("SELECT sid, rub FROM cash_pending").all();
+  ok(cash.length === 7 && cash.every(c => c.rub === 500), "места 4–10 — по 500 ₽ (без аккаунта — ждут первого входа)", cash);
   ok(sts.every(s => s.u === T + 30 * 864e5), "статусы за итоги — на 30 дней");
   // через 31 день статусы истекают
   T += 31 * 864e5; ok(CT.statuses().length === 0, "через 30 дней статусы за итоги заканчиваются"); T -= 31 * 864e5;
