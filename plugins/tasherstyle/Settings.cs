@@ -16,8 +16,8 @@ namespace TasherStyle;
 
 public partial class TasherStyle
 {
-    // биты в tasher_prefs.off: 1 — трассеры, 2 — след гранат, 4 — эффект убийства, 8 — звук убийства, 16 — звук MVP
-    private const int OffTracer = 1, OffTrail = 2, OffKillFx = 4, OffKillSnd = 8, OffMvp = 16;
+    // биты в tasher_prefs.off: 1 — трассеры, 2 — след гранат, 4 — эффект убийства, 8 — звук убийства, 16 — звук MVP, 32 — урон у прицела
+    private const int OffTracer = 1, OffTrail = 2, OffKillFx = 4, OffKillSnd = 8, OffMvp = 16, OffDamage = 32;
     private readonly ConcurrentDictionary<ulong, int> _prefs = new();
     // белый по умолчанию — у всех, без покупки
     private const string DefaultWhite = "255 255 255";
@@ -28,6 +28,7 @@ public partial class TasherStyle
     {
         new(OffTracer, "Трассеры пуль", "", _ => true),
         new(OffTrail, "След гранат", "", _ => true),
+        new(OffDamage, "Урон у прицела", "", _ => true),
         new(OffKillFx, "Эффект убийства", "эффекты убийства", s => s is { KillFx.Length: > 0 }),
         new(OffKillSnd, "Звук убийства", "звуки убийства", s => s is { KillSnd.Length: > 0 }),
     };

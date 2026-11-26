@@ -79,6 +79,8 @@ public class StyleConfig : BasePluginConfig
     // общий голосовой чат: обе команды слышат друг друга, живые не слышат мёртвых
     [JsonPropertyName("AllTalk")] public bool AllTalk { get; set; } = true;
     // Серии убийств (DOUBLE / TRIPLE / MEGA KILL / RAMPAGE — надпись посреди экрана и голос, без строк в чате): убийства за раунд, пока игрок жив; StreakWindow больше не используется
+    // дамагер: цифра урона у прицела при попадании
+    [JsonPropertyName("DamageEnabled")] public bool DamageEnabled { get; set; } = true;
     [JsonPropertyName("StreaksEnabled")] public bool StreaksEnabled { get; set; } = true;
     [JsonPropertyName("StreakWindow")] public float StreakWindow { get; set; } = 4f;
     // звуки серий — встроенные звуки CS2: first — первая кровь раунда, 2…5 — серия
@@ -141,6 +143,7 @@ public partial class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
         LoadPunish();
         LoadFun();
         LoadMatch();
+        LoadDamage();
         LoadAdverts();
         LoadTestBots();
         // рейтинг в Tab игра сбрасывает постоянно — выставляем каждый тик, как плагины рангов
