@@ -421,23 +421,42 @@ public partial class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
         var controller = new CCSPlayerController(bc.Handle);
         var style = controller.IsValid && !controller.IsBot ? StyleOf(controller) : null;
         if (!controller.IsValid || controller.IsBot) return;
-        if (isSmoke && style != null) ApplySmoke(new CSmokeGrenadeProjectile(g.Handle), style.Smoke);
+        if (isSmoke && style != null && ApplySmoke(new CSmokeGrenadeProjectile(g.Handle), style.Smoke) is { } rgb) HoldSmokeColor(new CSmokeGrenadeProjectile(g.Handle), rgb);
         // белый след гранаты есть у всех; цветной — купленный на сайте; в !menu можно выключить
         var trailSpec = style is { Trail.Length: > 0 } ? style.Trail : DefaultWhite;
         if (PrefOn(controller.SteamID, OffTrail) && TryColor(trailSpec, out var col)) StartTrail(g, col, controller.SteamID, trailSpec.StartsWith("anim:") ? trailSpec[5..] : "");
     }
 
-    private static void ApplySmoke(CSmokeGrenadeProjectile g, string smoke)
+    private static (float R, float G, float B)? ApplySmoke(CSmokeGrenadeProjectile g, string smoke)
     {
-        if (smoke.Length == 0 || !g.IsValid) return;
+        if (smoke.Length == 0 || !g.IsValid) return null;
         float r, gr, b;
         if (smoke == "random")
         {
             r = Random.Shared.NextSingle() * 255f; gr = Random.Shared.NextSingle() * 255f; b = Random.Shared.NextSingle() * 255f;
         }
-        else if (!TryRgb(smoke, out r, out gr, out b)) return;
+        else if (!TryRgb(smoke, out r, out gr, out b)) return null;
+        SetSmokeColor(g, r, gr, b);
+        return (r, gr, b);
+    }
+
+    private static void SetSmokeColor(CSmokeGrenadeProjectile g, float r, float gr, float b)
+    {
         g.SmokeColor.X = r; g.SmokeColor.Y = gr; g.SmokeColor.Z = b;
         Utilities.SetStateChanged(g, "CSmokeGrenadeProjectile", "m_vSmokeColor");
+    }
+
+    // Дым под конец терял цвет: игра под конец жизни дыма возвращала цвет по умолчанию, и клиенты дорисовывали
+    // рассеивание серым. Поэтому весь срок жизни гранаты раз в 0,5 с заново ставим и отправляем игрокам её цвет.
+    private void HoldSmokeColor(CSmokeGrenadeProjectile g, (float R, float G, float B) c)
+    {
+        var handle = g.Handle; var left = 60; // 30 с с запасом: дым живёт ~22 с
+        CounterStrikeSharp.API.Modules.Timers.Timer? t = null;
+        t = AddTimer(0.5f, () =>
+        {
+            if (--left < 0 || !g.IsValid || g.Handle != handle) { t?.Kill(); return; }
+            SetSmokeColor(g, c.R, c.G, c.B);
+        }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.REPEAT | CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
     }
 
     // "r,g,b" -> числа 0..255
