@@ -33,7 +33,7 @@ public partial class TasherStyle
         try
         {
             var color = e.Health <= 0 ? "#ff3b3b" : e.Hitgroup == 1 ? "#ffd23f" : "#ffffff";
-            var ent = MakeText(e.DmgHealth.ToString(), color, 46);
+            var ent = MakeText(e.DmgHealth.ToString(), color, 36);
             if (ent is null) return HookResult.Continue;
             // случайная точка в кольце вокруг прицела: не ближе 0,35 и не дальше 1,1 юнита (на расстоянии 9 юнитов от глаз)
             var ang = Random.Shared.NextSingle() * MathF.PI * 2;

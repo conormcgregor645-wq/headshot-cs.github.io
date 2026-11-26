@@ -65,10 +65,10 @@ public partial class TasherStyle
     private static readonly (string Text, string Color, string Key)[] StreakNames =
     {
         ("", "", ""), ("", "", ""),
-        ("DOUBLE KILL", "#b5e853", "2"),
-        ("TRIPLE KILL", "#38d3ff", "3"),
-        ("MEGA KILL", "#d32ce6", "4"),
-        ("RAMPAGE", "#ff4d4d", "5"),
+        ("DOUBLE KILL", "#ff3b3b", "2"),
+        ("TRIPLE KILL", "#ff3b3b", "3"),
+        ("MEGA KILL", "#ff3b3b", "4"),
+        ("RAMPAGE", "#ff3b3b", "5"),
     };
 
     private HookResult StreakDeath(EventPlayerDeath e, GameEventInfo info)
@@ -86,7 +86,7 @@ public partial class TasherStyle
         _streak[key0] = (n, now);
         if (a.IsBot) return HookResult.Continue;
         // первое убийство игрока в раунде — его личная «первая кровь»; дальше серия. Звук и надпись — только самому игроку
-        if (n == 1) { Announce(a, "FIRST BLOOD", "#ff8a3d"); PlayTo(a, "first"); return HookResult.Continue; }
+        if (n == 1) { Announce(a, "FIRST BLOOD", "#ff3b3b"); PlayTo(a, "first"); return HookResult.Continue; }
         var (text, color, key) = StreakNames[Math.Min(n, StreakNames.Length - 1)];
         Announce(a, text, color);
         PlayTo(a, key);
