@@ -227,6 +227,10 @@ function open(file) {
     `CREATE TABLE cash_pending(sid TEXT PRIMARY KEY, rub INTEGER NOT NULL DEFAULT 0, note TEXT NOT NULL DEFAULT '', updated_at INTEGER NOT NULL);`,
     // 19: счётчики бонусов за игру для достижений: fb — первая кровь, ace — эйс
     `CREATE TABLE fun_count(sid TEXT NOT NULL, kind TEXT NOT NULL, n INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(sid, kind));`,
+    // 20: кейс «Армейский» убран — накопленные бесплатные армейские кейсы из пропуска становятся пистолетными
+    `INSERT INTO case_free(user_id, k, n) SELECT user_id, 'pistol', n FROM case_free WHERE k='army' AND n>0
+       ON CONFLICT(user_id, k) DO UPDATE SET n = n + excluded.n;
+     DELETE FROM case_free WHERE k='army';`,
   ];
   for (let v = ver; v < MIG.length; v++) {
     db.exec("BEGIN");
