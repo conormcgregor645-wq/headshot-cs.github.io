@@ -9,6 +9,9 @@ const DATA = path.join(__dirname, "..", "data");
 const W = JSON.parse(fs.readFileSync(path.join(DATA, "wdata.json"), "utf8"));
 const CASES = JSON.parse(fs.readFileSync(path.join(DATA, "cases.json"), "utf8"));
 const CASE_BY_K = new Map(CASES.map(c => [c.k, c]));
+// цены агентов для апгрейда — из кейса «Агенты» (фиксированная цена предмета в кейсе, как при выпадении); "Агент CT|имя" → ТК
+const AGENT_P = new Map();
+for (const c of CASES) if (c.k === "cagents") for (const it of c.items || []) if (/^Агент (CT|T)$/.test(it[0]) && it[6] > 0) AGENT_P.set(it[0] + "|" + it[1], Math.max(AGENT_P.get(it[0] + "|" + it[1]) || 0, it[6]));
 const W_BY_N = new Map(W.map(w => [w.n, w]));
 
 // равномерное число [0,1) из криптостойкого генератора
@@ -99,11 +102,15 @@ function rollCase(c) {
 const UP_EDGE = .9, UP_MAX = 75;
 function upTarget(key) {
   if (typeof key !== "string" || key.length > 200) return null;
-  const [wn, sn, iS, vS, sp] = key.split("|"); const i = +iS, v = +vS;
+  // в именах агентов есть « | » — поэтому качество, вариант и особый узор берём с конца строки
+  const m = /^([^|]+)\|(.+)\|(\d)\|(\d)(?:\|([a-z0-9]+))?$/.exec(key); if (!m) return null;
+  const [, wn, sn, iS, vS, sp] = m; const i = +iS, v = +vS;
   if (!(i >= 0 && i <= 4) || ![0, 1, 2].includes(v)) return null;
   const f = findSkin(wn, sn); if (!f) return null;
   const { w, sk } = f;
-  if (w.c === "item" || w.c === "agent") return null;
+  // агенты: без износа и StatTrak, цена — как в кейсе «Агенты» (агентов, которых нет в этом кейсе, в апгрейде нет)
+  if (w.c === "agent") { const p = AGENT_P.get(w.n + "|" + sk[0]); return p && !v && !sp ? { w, sk, i: 0, st: false, sv: false, sp: null, p, fx: p } : null; }
+  if (w.c === "item") return null;
   if (v && w.c === "gloves") return null;
   const st = v === 2 ? "sv" : v === 1;
   const a = st === "sv" ? (sk[12] || []) : (st ? sk[10] : sk[9]) || [];
@@ -115,6 +122,7 @@ function upTarget(key) {
 }
 function upChance(stake, price) { return Math.min(UP_MAX, stake / price * UP_EDGE * 100); }
 function upItem(t) {
+  if (t.fx) return { id: newId(), w: t.w.n, s: t.sk[0], r: t.sk[5], wear: 0, st: false, sv: false, sp: null, fx: t.fx, seed: crypto.randomInt(0, 1000) };
   return { id: newId(), w: t.w.n, s: t.sk[0], r: t.sk[5], wear: spWear(t.sk, t.i), st: t.st, sv: t.sv, sp: t.sp, fx: 0, seed: t.sp ? spSeed(t.w, t.sp) : crypto.randomInt(0, 1000) };
 }
 
