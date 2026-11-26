@@ -5628,7 +5628,7 @@ var CI=[
  {id:"sm_wops",cat:"smoke",n:"Полярный",p:129,v:"#5ef0c8",ex:"Winter Ops",lv:26,tr:"f"},{id:"tr_wops",cat:"trail",n:"Северное сияние",p:99,v:"#7dffb0",ex:"Winter Ops",lv:19,tr:"f"},{id:"tc_wops",cat:"tracer",n:"Иней",p:149,v:"#9fdcff",ex:"Winter Ops",lv:46,tr:"f"}];
 const CCAT={frame:["Рамки аватара","Обводка аватарки в профиле, рейтинге и джекпоте"],bg:["Фоны профиля","Фон твоего профиля — на всю страницу профиля"],rbg:["Фон в рейтинге","Картинка за твоей карточкой на подиуме, когда ты в топ-3 рейтинга месяца"],rrow:["Полоска в рейтинге","Картинка в твоей строке таблицы рейтинга — видна всем, кто смотрит рейтинг"],
  nick:["Цвет ника","Ник в чате сервера, рейтинге и на сайте"],tag:["Тег в чате","До 6 символов перед ником: [TAG] Ник"],kill:["Эффект убийства","Анимация на месте фрага: видишь ты и те, кто за тобой наблюдает"],snd:["Звук убийства","Слышишь только ты"],smoke:["Цвет дыма","Твои дымовые гранаты"],trail:["Трейл гранат","Белый след есть у всех бесплатно, здесь — цветной. Выключить: !menu в игре"],tracer:["Трассеры пуль","Белые трассеры есть у всех бесплатно, здесь — цветные. Выключить: !menu в игре"]};
-const CTABS={prof:["frame","bg"],rate:["rbg","rrow"],game:["nick","tag","kill","snd","tracer","smoke","trail"]};
+const CTABS={prof:["nick","frame","bg"],rate:["rbg","rrow"],game:["tag","kill","snd","tracer","smoke","trail"]};
 function cosI(id){return CI?CI.find(x=>x.id===id):null}function cosEq(cat){if(!CI||!COS)return null;const id=COS.eq[cat];return id?cosI(id):null}
 function isMe(n){try{return n===ME.n}catch(e){return false}}
 // аватар Steam: свой — из входа на сайт, чужой — из рейтинга / клана (сервер отдаёт только ссылки Steam)
