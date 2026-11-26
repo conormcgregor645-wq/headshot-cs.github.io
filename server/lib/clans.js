@@ -40,10 +40,12 @@ function makeClans({ db, tx, addMoney, month, prevMonth, now = Date.now, log = c
     for (const c of db.prepare("SELECT * FROM clans ORDER BY id").all()) {
       const ms = members(c.id), sids = ms.map(m => m.steamid);
       const sm = memberStats(sids, mon), sa = memberStats(sids, "all");
-      let month_ = 0, pts = 0, kills = 0, deaths = 0, wins = 0;
+      let month_ = 0, pts = 0, kills = 0, deaths = 0;
+      // «Побед» — сколько раз клан занимал 1 место в рейтинге кланов месяца (а не сумма выигранных раундов участников)
+      const wins = db.prepare("SELECT COUNT(*) n FROM clan_awards WHERE clan_id=? AND place=1").get(c.id).n;
       const mem = ms.map(m => {
         const a = sm.get(m.steamid) || {}, b = sa.get(m.steamid) || {};
-        month_ += a.pts || 0; pts += b.pts || 0; kills += a.k || 0; deaths += a.d || 0; wins += a.rw || 0;
+        month_ += a.pts || 0; pts += b.pts || 0; kills += a.k || 0; deaths += a.d || 0;
         return { id: m.id, n: m.name || ("Player" + m.id), av: m.avatar, sid: m.steamid, lead: m.id === c.leader_id, mpts: a.pts || 0, pts: b.pts || 0, k: a.k || 0, d: a.d || 0 };
       });
       // лидер первым, дальше по очкам за месяц

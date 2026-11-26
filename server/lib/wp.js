@@ -28,6 +28,11 @@ const GLOVES = {
 const TEAM = { t: 2, ct: 3 };
 const defOf = w => DEF[w] || (KNIFE[w] && KNIFE[w][0]) || GLOVES[w] || 0;
 
+// агенты: название с сайта -> модель для WeaponPaints («tm_professional/tm_professional_varf5», без agents/models/ и .vmdl)
+let AGENTS = {};
+try { AGENTS = JSON.parse(fs.readFileSync(require("node:path").join(__dirname, "..", "data", "agents.json"), "utf8")); } catch (e) { AGENTS = {}; }
+const AGENT_W = { "Агент CT": 3, "Агент T": 2 };
+
 // номера раскрасок: файл собирается при установке (deploy/build-paints.js), ключ "defindex|название скина"
 let PAINTS = {};
 function loadPaints(file) {
@@ -62,17 +67,18 @@ function stickerCols(stk) {
 
 // строки для базы WeaponPaints по списку надетых предметов: [{team:"ct"|"t", it:{w,s,wear,seed,st,stk}}]
 function rowsFor(loadout) {
-  const skins = [], knife = [], gloves = [], miss = [];
+  const skins = [], knife = [], gloves = [], miss = [], agents = {};
   for (const { team, it } of loadout) {
     const t = TEAM[team]; if (!t) continue;
-    const def = defOf(it.w); if (!def) continue; // агенты и прочее пока не передаются в игру
+    if (AGENT_W[it.w]) { if (AGENT_W[it.w] === t && AGENTS[it.s]) agents[t] = AGENTS[it.s]; continue; }
+    const def = defOf(it.w); if (!def) continue;
     const paint = paintOf(def, it.s, it.seed);
     if (KNIFE[it.w]) knife.push({ t, cls: KNIFE[it.w][1] });
     if (paint == null) { miss.push(it.w + " | " + it.s); continue; }
     if (GLOVES[it.w]) { if (!paint) continue; gloves.push({ t, def }); }
     if (paint || !KNIFE[it.w]) skins.push({ t, def, paint, wear: Math.min(1, Math.max(0.000001, +it.wear || 0)), seed: Math.max(0, Math.min(1000, it.seed | 0)), st: it.st ? 1 : 0, stk: stickerCols(it.stk) });
   }
-  return { skins, knife, gloves, miss };
+  return { skins, knife, gloves, miss, agents };
 }
 
 function sqlFor(steamid, rows) {
@@ -95,6 +101,10 @@ function sqlFor(steamid, rows) {
   if (rows.knife.length) q.push(`INSERT INTO wp_player_knife (steamid,weapon_team,knife) VALUES ${rows.knife.map(r => `(${S},${n(r.t)},${s(r.cls)})`).join(",")};`);
   q.push(`DELETE FROM wp_player_gloves WHERE steamid=${S};`);
   if (rows.gloves.length) q.push(`INSERT INTO wp_player_gloves (steamid,weapon_team,weapon_defindex) VALUES ${rows.gloves.map(r => `(${S},${n(r.t)},${n(r.def)})`).join(",")};`);
+  // агенты: строка в wp_player_agents (NULL — стандартная модель); если таблицы нет (старый WeaponPaints) — пропускаем
+  const ag = rows.agents || {}, am = v => v ? `'${String(v).replace(/[^a-z0-9_/]/g, "")}'` : "NULL";
+  q.push(`SET @q = IF(EXISTS(SELECT 1 FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'wp_player_agents'), "INSERT INTO wp_player_agents (steamid,agent_ct,agent_t) VALUES (${S},${am(ag[3]).replace(/'/g, "\\'")},${am(ag[2]).replace(/'/g, "\\'")}) ON DUPLICATE KEY UPDATE agent_ct=VALUES(agent_ct),agent_t=VALUES(agent_t)", 'DO 0');`);
+  q.push("PREPARE wp_ag_q FROM @q; EXECUTE wp_ag_q; DEALLOCATE PREPARE wp_ag_q;");
   q.push("COMMIT;");
   // просьба плагину применить скины сразу: WeaponPaints (форк mrc4tt) опрашивает таблицу wp_player_refresh,
   // обновляет скины игроку на сервере и удаляет строку. В исходной версии плагина таблицы нет — тогда ничего не делаем.
@@ -126,4 +136,4 @@ function makeSync({ cnf, bin = "mysql", db = "weaponpaints", log = console, onDo
   };
 }
 
-module.exports = { DEF, KNIFE, GLOVES, defOf, loadPaints, paintOf, loadStickers, stickerCols, rowsFor, sqlFor, makeSync };
+module.exports = { AGENTS, DEF, KNIFE, GLOVES, defOf, loadPaints, paintOf, loadStickers, stickerCols, rowsFor, sqlFor, makeSync };
