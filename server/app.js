@@ -785,7 +785,7 @@ post("/api/shop/cos", ctx => {
     const fresh = db.prepare("SELECT * FROM users WHERE id=?").get(u.id);
     let balance = fresh.rub;
     if (!db.prepare("SELECT 1 FROM cos_own WHERE user_id=? AND item_id=?").get(u.id, it.id)) {
-      balance = addMoney(u.id, "rub", -it.p, "shop", "cos:" + it.id, { what: `Оформление: ${it.n}` });
+      if (it.p > 0) balance = addMoney(u.id, "rub", -it.p, "shop", "cos:" + it.id, { what: `Оформление: ${it.n}` });
       db.prepare("INSERT INTO cos_own(user_id,item_id,created_at) VALUES(?,?,?)").run(u.id, it.id, now());
     }
     const eq = userCos(fresh).eq; eq[it.cat] = it.id;
