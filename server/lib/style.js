@@ -35,17 +35,18 @@ function compose(r) {
   const score = TIER_COL[r.tier] ? r.tier : "";
   const smoke = r.smokeHex ? fxColor(r.smokeHex) : r.tier === "KING" ? "random" : "";
   const killFx = KILL_FX.has(r.killFx) ? r.killFx : "", killSnd = KILL_SND.has(r.killSnd) ? r.killSnd : "";
-  return { chat: parts.join(" "), name, score: score.slice(0, 16), smoke, killFx, killSnd, trail: fxColor(r.trailHex), tracer: fxColor(r.tracerHex), mvpSnd: "" }; // звук MVP убран 25.11.2026
+  return { chat: parts.join(" "), name, score: score.slice(0, 16), smoke, killFx, killSnd, trail: fxColor(r.trailHex), tracer: fxColor(r.tracerHex), mvpSnd: "", // звук MVP убран 25.11.2026
+    model: /^[a-z0-9_]{1,16}$/.test(r.model || "") ? r.model : "" }; // своя модель игрока — ключ из конфига плагина (Models)
 }
 const q = s => "'" + String(s).replace(/[\\']/g, "") + "'";
-// fx — сколько колонок эффектов есть в таблице (их добавляет плагин): 0 — нет, 4 — kill_fx..tracer (1.1), 5 — ещё mvp_snd (1.3); true = 4
+// fx — сколько колонок эффектов есть в таблице (их добавляет плагин): 0 — нет, 4 — kill_fx..tracer (1.1), 5 — ещё mvp_snd (1.3), 6 — ещё model; true = 4
 function sqlFor(rows, fx = 0) {
   const n = fx === true ? 4 : Number(fx) || 0;
   const ok = rows.filter(r => /^\d{17}$/.test(r.sid) && BigInt(r.sid) > STEAM64);
   const out = ["START TRANSACTION;", "DELETE FROM tasher_style;"];
-  const cols = n >= 4 ? ",kill_fx,kill_snd,trail,tracer" + (n >= 5 ? ",mvp_snd" : "") : "";
+  const cols = n >= 4 ? ",kill_fx,kill_snd,trail,tracer" + (n >= 5 ? ",mvp_snd" : "") + (n >= 6 ? ",model" : "") : "";
   if (ok.length) out.push(`INSERT INTO tasher_style (steamid,chat_tag,name_color,score_tag,smoke${cols}) VALUES ` +
-    ok.map(r => { const c = compose(r); return `(${r.sid},${q(c.chat)},${q(c.name)},${q(c.score)},${q(c.smoke)}${n >= 4 ? `,${q(c.killFx)},${q(c.killSnd)},${q(c.trail)},${q(c.tracer)}` : ""}${n >= 5 ? `,${q(c.mvpSnd)}` : ""})`; }).join(",") + ";");
+    ok.map(r => { const c = compose(r); return `(${r.sid},${q(c.chat)},${q(c.name)},${q(c.score)},${q(c.smoke)}${n >= 4 ? `,${q(c.killFx)},${q(c.killSnd)},${q(c.trail)},${q(c.tracer)}` : ""}${n >= 5 ? `,${q(c.mvpSnd)}` : ""}${n >= 6 ? `,${q(c.model)}` : ""})`; }).join(",") + ";");
   out.push("COMMIT;");
   return out.join("\n");
 }
@@ -59,7 +60,7 @@ function makeStyleSync({ cnf, bin = "mysql", db = "weaponpaints", collect, reloa
     if (input == null) p.stdin.end(); else p.stdin.end(input);
   });
   async function once() {
-    const [has, cols] = (await run(["-e", "SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='tasher_style'; SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='tasher_style' AND COLUMN_NAME IN ('kill_fx','kill_snd','trail','tracer','mvp_snd')"])).trim().split(/\s+/);
+    const [has, cols] = (await run(["-e", "SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='tasher_style'; SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='tasher_style' AND COLUMN_NAME IN ('kill_fx','kill_snd','trail','tracer','mvp_snd','model')"])).trim().split(/\s+/);
     if (has !== "1") { if (!warned) { warned = true; log.log("[style] таблицы tasher_style ещё нет — плагин TASHER Style не установлен"); } return { skipped: true }; }
     warned = false;
     const sql = sqlFor(collect(), Number(cols) || 0);

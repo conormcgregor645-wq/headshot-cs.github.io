@@ -142,7 +142,7 @@ try: old = json.load(open(tsf, encoding="utf-8"))
 except Exception: old = {}
 ts = {"Host": "127.0.0.1", "Port": 3306, "User": "wp", "Password": os.environ["DB_PASS"], "Database": "weaponpaints", "ReloadSeconds": 20, "PremierScoreboardEnabled": True, "FunEnabled": False, "ConfigVersion": 1}
 # что владелец настроил сам (озвучка серий, реклама в чате) — не затираем при обновлении
-for k in ("VoiceEnabled", "VoiceSounds", "Adverts", "AdvertMinutes"):
+for k in ("VoiceEnabled", "VoiceSounds", "Adverts", "AdvertMinutes", "Models"):
     if k in old: ts[k] = old[k]
 json.dump(ts, open(tsf, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
 json.dump(groups, open(os.path.join(d, "vip.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=2)

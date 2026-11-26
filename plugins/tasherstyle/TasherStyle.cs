@@ -79,6 +79,9 @@ public class StyleConfig : BasePluginConfig
     // общий голосовой чат: обе команды слышат друг друга, живые не слышат мёртвых
     [JsonPropertyName("AllTalk")] public bool AllTalk { get; set; } = true;
     // Серии убийств (DOUBLE / TRIPLE / MEGA KILL / RAMPAGE — надпись посреди экрана и голос, без строк в чате): убийства за раунд, пока игрок жив; StreakWindow больше не используется
+    // свои модели игроков: ключ (тот же, что у предмета на сайте) → путь к модели в аддоне Мастерской для CT и T.
+    // Пример: "neo": { "Name": "Нео", "Ct": "characters/models/tasher/neo/neo.vmdl", "T": "characters/models/tasher/neo/neo.vmdl" }
+    [JsonPropertyName("Models")] public Dictionary<string, PlayerModelCfg> Models { get; set; } = new();
     // дамагер: цифра урона у прицела при попадании
     [JsonPropertyName("DamageEnabled")] public bool DamageEnabled { get; set; } = true;
     [JsonPropertyName("StreaksEnabled")] public bool StreaksEnabled { get; set; } = true;
@@ -106,7 +109,14 @@ public class StyleConfig : BasePluginConfig
     };
 }
 
-public record PlayerStyle(string ChatTag, string NameColor, string ScoreTag, string Smoke, string KillFx, string KillSnd, string Trail, string Tracer, string MvpSnd = "");
+public class PlayerModelCfg
+{
+    [JsonPropertyName("Name")] public string Name { get; set; } = "";
+    [JsonPropertyName("Ct")] public string Ct { get; set; } = "";
+    [JsonPropertyName("T")] public string T { get; set; } = "";
+}
+
+public record PlayerStyle(string ChatTag, string NameColor, string ScoreTag, string Smoke, string KillFx, string KillSnd, string Trail, string Tracer, string MvpSnd = "", string Model = "");
 
 public partial class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
 {
@@ -144,6 +154,7 @@ public partial class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
         LoadFun();
         LoadMatch();
         LoadDamage();
+        LoadModels();
         LoadAdverts();
         LoadTestBots();
         // рейтинг в Tab игра сбрасывает постоянно — выставляем каждый тик, как плагины рангов
@@ -171,7 +182,8 @@ public partial class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
                     kill_snd VARCHAR(16) NOT NULL DEFAULT '',
                     trail VARCHAR(16) NOT NULL DEFAULT '',
                     tracer VARCHAR(16) NOT NULL DEFAULT '',
-                    mvp_snd VARCHAR(16) NOT NULL DEFAULT ''
+                    mvp_snd VARCHAR(16) NOT NULL DEFAULT '',
+                    model VARCHAR(16) NOT NULL DEFAULT ''
                 ) DEFAULT CHARSET=utf8mb4";
                 await cmd.ExecuteNonQueryAsync();
                 // таблица от прошлой версии плагина — добавляем колонки эффектов
@@ -229,12 +241,12 @@ public partial class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
                         {
                             var fx = _fxColumns;
                             cmd.CommandText = fx
-                                ? "SELECT steamid, chat_tag, name_color, score_tag, smoke, kill_fx, kill_snd, trail, tracer, mvp_snd FROM tasher_style"
+                                ? "SELECT steamid, chat_tag, name_color, score_tag, smoke, kill_fx, kill_snd, trail, tracer, mvp_snd, model FROM tasher_style"
                                 : "SELECT steamid, chat_tag, name_color, score_tag, smoke FROM tasher_style";
                             await using var r = await cmd.ExecuteReaderAsync();
                             while (await r.ReadAsync())
                                 map[r.GetUInt64(0)] = new PlayerStyle(r.GetString(1), r.GetString(2), r.GetString(3), r.GetString(4),
-                                    fx ? r.GetString(5) : "", fx ? r.GetString(6) : "", fx ? r.GetString(7) : "", fx ? r.GetString(8) : "", fx ? r.GetString(9) : "");
+                                    fx ? r.GetString(5) : "", fx ? r.GetString(6) : "", fx ? r.GetString(7) : "", fx ? r.GetString(8) : "", fx ? r.GetString(9) : "", fx ? r.GetString(10) : "");
                         }
                         _styles = map;
                         Server.NextFrame(() =>
