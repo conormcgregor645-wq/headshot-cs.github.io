@@ -2985,6 +2985,28 @@ html:not(.ny) .ny-cap,html:not(.ny) .ny-garland,html:not(.ny) .ny-banner,html:no
 .cs-card .ch-full{mix-blend-mode:lighten;-webkit-mask-image:radial-gradient(closest-side,#000 72%,transparent 100%);mask-image:radial-gradient(closest-side,#000 72%,transparent 100%)}
 .cs-card .ny-cap,.cz-top .ny-cap{display:none}
 html.ny .cs-sec h2::after{content:none}
+/* свои картинки рейтинга */
+.co-cu{display:grid;place-items:center;gap:2px;color:var(--muted);overflow:hidden}
+.co-cu img{width:100%;height:100%;object-fit:cover}
+.co-cu small{font-size:10px;opacity:.8}
+.co-up{margin-top:6px;width:100%;font:700 12px/1 var(--f-body,inherit);padding:8px 10px;border-radius:9px;border:1px dashed rgba(181,232,83,.5);background:rgba(181,232,83,.08);color:#d4f58a;cursor:pointer}
+.co-up:hover,.co-up:focus-visible{background:rgba(181,232,83,.16)}
+.co-cus{display:block;margin-top:5px;font-size:11px;color:#f5c451}.co-cus.ok{color:#7dff8a}
+.cu-sheet{max-width:760px;width:calc(100vw - 32px);display:grid;gap:14px}
+.cu-pick{justify-self:start;cursor:pointer}
+.cu-stage{position:relative;background:#050608;border-radius:12px;overflow:hidden;touch-action:none;cursor:grab}
+.cu-stage:active{cursor:grabbing}
+.cu-stage canvas{display:block;width:100%;height:auto}
+.cu-ctl{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;align-items:center;font-size:13px;color:var(--muted)}
+.cu-ctl small{grid-column:1/-1}
+.cu-msg{margin:0;font-size:13px;color:var(--muted)}.cu-msg.err{color:#ff6b6b}
+.cu-rule{margin:0;font-size:12px;color:var(--muted)}
+.adm-img{display:grid;gap:12px;margin-top:12px}
+.adm-img .ai{display:grid;grid-template-columns:minmax(0,260px) 1fr auto;gap:14px;align-items:center;padding:10px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)}
+.adm-img img{width:100%;border-radius:8px;display:block}
+.adm-img .ai b{display:block}.adm-img .ai small{color:var(--muted)}
+.adm-img .row{display:flex;gap:8px}
+@media(max-width:640px){.adm-img .ai{grid-template-columns:1fr}}
 /* подвал прижат к низу экрана на коротких страницах */
 main{display:flex;flex-direction:column}
 main>footer{margin-top:auto}
@@ -3422,7 +3444,7 @@ html.on-server #v-jackpot,html.on-server #v-wheel{position:relative}
       <div class="note warn demo-only">Демо-версия. На настоящем сайте сюда попадут только администраторы: роль проверяется после входа через Steam. Изменения сейчас сразу видны на сайте, но пропадут после перезагрузки страницы.</div>
       <div class="adm-tiles" id="admTiles"></div>
       <div class="seg" id="admTabs" role="group" aria-label="Раздел">
-        <button data-t="srv" hidden>Сервер</button><button data-t="bans" aria-pressed="true">Баны</button><button data-t="vip">Статусы</button><button data-t="tk">Баланс</button><button data-t="ev" hidden>События</button><button data-t="rules">Правила</button>
+        <button data-t="srv" hidden>Сервер</button><button data-t="bans" aria-pressed="true">Баны</button><button data-t="vip">Статусы</button><button data-t="tk">Баланс</button><button data-t="ev" hidden>События</button><button data-t="rules">Правила</button><button data-t="img">Картинки</button>
       </div>
 
 
@@ -3484,6 +3506,9 @@ html.on-server #v-jackpot,html.on-server #v-wheel{position:relative}
           <div class="frow"><span class="fmsg" id="evMsg"></span><button class="steam" type="submit">Добавить</button></div>
         </form>
         <div class="box"><div class="hdr"><h2>Расписание событий</h2></div><div class="adm-list" id="aEvents"><div class="note">Загрузка…</div></div></div>
+      </section>
+      <section class="adm-pane" data-pane="img" hidden>
+        <div class="box"><h3>Свои картинки рейтинга на проверке</h3><p class="cu-msg">Игроки загружают свой фон для подиума и полоску для таблицы. Пока картинка не одобрена, её видит только владелец. «Отклонить» удаляет картинку — игрок сможет загрузить другую.</p><div id="admImg" class="adm-img"></div></div>
       </section>
       <section class="adm-pane" data-pane="tk" hidden>
         <form class="box adm-form" id="fTk" novalidate>
@@ -3711,6 +3736,18 @@ html.on-server #v-jackpot,html.on-server #v-wheel{position:relative}
     <div class="stk-tools"><input type="search" id="stkQ" placeholder="Поиск по названию"><div class="seg" id="stkType" role="group" aria-label="Категория"></div><div class="seg" id="stkVar" role="group" aria-label="Тип наклейки"></div></div>
     <div class="stk-list" id="stkList"></div>
     <div class="row"><button type="button" id="stkClear">Снять все</button><button type="button" class="primary" id="stkSave">Сохранить</button></div>
+  </div>
+</div>
+
+<div class="modal" id="cuModal" hidden>
+  <div class="sheet cu-sheet" role="dialog" aria-modal="true" aria-labelledby="cuT">
+    <div class="skm-top"><div><h4 id="cuT">Своя картинка</h4><small id="cuSub"></small></div><button class="x" id="cuClose" aria-label="Закрыть">✕</button></div>
+    <label class="steam cu-pick">Выбрать картинку<input type="file" id="cuFile" accept="image/png,image/jpeg,image/webp" hidden></label>
+    <div class="cu-stage" id="cuStage" hidden><canvas id="cuCv"></canvas></div>
+    <div class="cu-ctl" id="cuCtl" hidden><span>Масштаб</span><input type="range" id="cuZoom" min="1" max="4" step="0.01" value="1" aria-label="Масштаб"><small>Перетащи картинку, чтобы выбрать, какая часть попадёт в рамку.</small></div>
+    <p class="cu-msg" id="cuMsg"></p>
+    <div class="row"><button class="ghost" id="cuCancel" type="button">Отмена</button><button class="steam" id="cuSave" type="button" disabled>Обрезать и отправить</button></div>
+    <p class="cu-rule">Картинку проверит администратор — до одобрения её видишь только ты. Запрещены 18+, жестокость, реклама, чужие ники и оскорбления.</p>
   </div>
 </div>
 
@@ -4869,6 +4906,32 @@ $("stkType").onclick=e=>{const b=e.target.closest("[data-t]");if(!b)return;sTy=+
 $("stkQ").oninput=()=>{sLim=120;drawStk()};
 $("stkList").onclick=e=>{if(e.target.closest("[data-smore]")){sLim+=240;drawStk();return}const b=e.target.closest("[data-si]");if(!b)return;sts[ssel]={i:+b.dataset.si,wear:sts[ssel]?sts[ssel].wear:0};const nx=sts.findIndex((x,k)=>!x&&k>ssel);if(nx>=0)ssel=nx;drawStk()};
 const closeStk=()=>$("stkModal").hidden=true;
+// админка: проверка своих картинок рейтинга
+function admImgDraw(list){const box=$("admImg");if(!box)return;box.innerHTML=list.length?list.map(x=>`<div class="ai"><img src="/api/cos/img?sid=${esc(x.sid)}&cat=${esc(x.cat)}&v=${x.at}" alt="" loading="lazy"><div><b>${esc(x.name||x.sid)}</b><small>${x.cat==="rbg"?"Фон на подиуме":"Полоска в таблице"} · ${new Date(x.at).toLocaleString("ru-RU")}</small></div><div class="row"><button class="steam" data-aiok="1" data-sid="${esc(x.sid)}" data-cat="${esc(x.cat)}">Одобрить</button><button class="ghost" data-aiok="0" data-sid="${esc(x.sid)}" data-cat="${esc(x.cat)}">Отклонить</button></div></div>`).join(""):`<p class="cu-msg">Новых картинок нет.</p>`}
+async function admImgLoad(){if(!SRV)return admImgDraw([]);try{admImgDraw((await api("/api/admin/cosimg")).list||[])}catch(e){$("admImg").innerHTML=`<p class="cu-msg err">${esc(e.message)}</p>`}}
+document.querySelector('#admTabs [data-t="img"]').addEventListener("click",admImgLoad);
+$("admImg").addEventListener("click",async e=>{const b=e.target.closest("[data-aiok]");if(!b)return;b.disabled=true;try{admImgDraw((await api("/api/admin/cosimg",{sid:b.dataset.sid,cat:b.dataset.cat,ok:b.dataset.aiok==="1"})).list||[]);toast(b.dataset.aiok==="1"?"Картинка одобрена":"Картинка отклонена")}catch(err){toast(err.message);b.disabled=false}});
+// свой фон / полоска: выбрать файл, обрезать под точный размер и отправить на проверку
+const CUSZ={rbg:[1200,800,"Свой фон рейтинга"],rrow:[1400,240,"Своя полоска в рейтинге"]};var CU=null;
+function cuOpen(cat){const [w,h,n]=CUSZ[cat];CU={cat,w,h,img:null,z:1,x:0,y:0};$("cuT").textContent=n;$("cuSub").textContent=`Размер ${w}×${h}. Если картинка другого размера — обрежь её здесь.`;
+  $("cuStage").hidden=$("cuCtl").hidden=true;$("cuSave").disabled=true;$("cuMsg").textContent="";$("cuMsg").className="cu-msg";$("cuFile").value="";$("cuModal").hidden=false}
+function cuDraw(){if(!CU||!CU.img)return;const cv=$("cuCv"),g=cv.getContext("2d"),{w,h,img}=CU;cv.width=w;cv.height=h;
+  const base=Math.max(w/img.width,h/img.height),s=base*CU.z,dw=img.width*s,dh=img.height*s;
+  CU.x=Math.min(0,Math.max(w-dw,CU.x));CU.y=Math.min(0,Math.max(h-dh,CU.y));g.fillStyle="#000";g.fillRect(0,0,w,h);g.drawImage(img,CU.x,CU.y,dw,dh)}
+$("cuFile").onchange=e=>{const f=e.target.files&&e.target.files[0];if(!f||!CU)return;if(f.size>15*1024*1024){$("cuMsg").textContent="Файл больше 15 МБ";$("cuMsg").className="cu-msg err";return}
+  const url=URL.createObjectURL(f),img=new Image();img.onload=()=>{CU.img=img;CU.z=1;$("cuZoom").value=1;const base=Math.max(CU.w/img.width,CU.h/img.height);CU.x=(CU.w-img.width*base)/2;CU.y=(CU.h-img.height*base)/2;
+    const exact=img.width===CU.w&&img.height===CU.h;$("cuMsg").textContent=exact?"Размер подходит.":`Картинка ${img.width}×${img.height} — нужен ${CU.w}×${CU.h}. Выбери, какую часть оставить: остальное обрежется.`;$("cuMsg").className="cu-msg";
+    $("cuSave").textContent=exact?"Отправить":"Обрезать и отправить";$("cuStage").hidden=false;$("cuCtl").hidden=exact;$("cuSave").disabled=false;cuDraw()};
+  img.onerror=()=>{$("cuMsg").textContent="Не удалось открыть картинку";$("cuMsg").className="cu-msg err"};img.src=url};
+$("cuZoom").oninput=e=>{if(!CU||!CU.img)return;const nz=+e.target.value,cx=CU.w/2,cy=CU.h/2,k=nz/CU.z;CU.x=cx-(cx-CU.x)*k;CU.y=cy-(cy-CU.y)*k;CU.z=nz;cuDraw()};
+{let drag=null;const st=$("cuStage");st.addEventListener("pointerdown",e=>{if(!CU||!CU.img)return;st.setPointerCapture(e.pointerId);const r=st.getBoundingClientRect();drag={x:e.clientX,y:e.clientY,k:CU.w/r.width}});
+ st.addEventListener("pointermove",e=>{if(!drag)return;CU.x+=(e.clientX-drag.x)*drag.k;CU.y+=(e.clientY-drag.y)*drag.k;drag.x=e.clientX;drag.y=e.clientY;cuDraw()});
+ st.addEventListener("pointerup",()=>drag=null);st.addEventListener("pointercancel",()=>drag=null)}
+const cuClose=()=>{$("cuModal").hidden=true;CU=null};$("cuClose").onclick=$("cuCancel").onclick=cuClose;$("cuModal").onclick=e=>{if(e.target.id==="cuModal")cuClose()};
+$("cuSave").onclick=async()=>{if(!CU||!CU.img)return;cuDraw();let q=.9,data=$("cuCv").toDataURL("image/jpeg",q);while(data.length>1.9e6&&q>.5){q-=.1;data=$("cuCv").toDataURL("image/jpeg",q)}
+  $("cuSave").disabled=true;$("cuMsg").textContent="Отправляем…";$("cuMsg").className="cu-msg";let r;try{r=await api("/api/cos/img",{cat:CU.cat,data})}catch(err){$("cuMsg").textContent=err.message;$("cuMsg").className="cu-msg err";$("cuSave").disabled=false;return}
+  if(r.cos)srvCosSet(r.cos);cuClose();toast("Картинка отправлена на проверку — пока её видишь только ты");if(typeof drawCos==="function")drawCos()};
+document.addEventListener("click",e=>{const b=e.target.closest("[data-cup]");if(b){e.preventDefault();e.stopPropagation();if(!SRV||!logged){toast("Войди через Steam");return}cuOpen(b.dataset.cup)}},true);
 $("stkClose").onclick=closeStk;$("stkModal").onclick=e=>{if(e.target.id==="stkModal")closeStk()};
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closeStk()});
 $("stkClear").onclick=()=>{sts=[null,null,null,null,null];ssel=0;drawStk()};
@@ -5028,7 +5091,7 @@ function psRw(rw){if(rw.t==="tk")return{ic:"tk",c:"#f5c451",n:`${fmt(rw.v)} ТК
   if(rw.t==="boost")return{ic:"boost",c:"#5ef0c8",n:`${(PS_BK[rw.k]||["Буст"])[0]} на ${rw.h} ч`,k:"Буст"};return{ic:"tk",c:"#888",n:"",k:""}}
 // ===== пропуск: предметы наград в стиле инвентаря CS2 =====
 const PP_RAR=p=>p<1000?"#4b69ff":p<3000?"#8847ff":p<8000?"#d32ce6":p<20000?"#eb4b4b":"#e4ae39";
-const PP_COIN='<svg class="pp-coin" viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="ppg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe38a"/><stop offset="1" stop-color="#d99a1c"/></linearGradient></defs><ellipse cx="32" cy="46" rx="20" ry="7" fill="#a8720f"/><rect x="12" y="38" width="40" height="8" fill="#c88a17"/><ellipse cx="32" cy="38" rx="20" ry="7" fill="url(#ppg)"/><ellipse cx="32" cy="32" rx="20" ry="7" fill="#b37b12"/><rect x="12" y="24" width="40" height="8" fill="#d6981c"/><ellipse cx="32" cy="24" rx="20" ry="7" fill="url(#ppg)"/><text x="32" y="28" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-weight="900" font-size="9" fill="#6b4300">ТК</text></svg>';
+const PP_COIN='<svg class="pp-coin" viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="ppcF" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff2b0"/><stop offset=".45" stop-color="#ffcf4a"/><stop offset="1" stop-color="#d48a12"/></linearGradient><linearGradient id="ppcR" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e9a826"/><stop offset="1" stop-color="#8f5a08"/></linearGradient><radialGradient id="ppcG" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffd76a" stop-opacity=".55"/><stop offset="1" stop-color="#ffd76a" stop-opacity="0"/></radialGradient></defs><circle cx="34" cy="32" r="30" fill="url(#ppcG)"/><g transform="translate(-4 6)"><ellipse cx="22" cy="44" rx="13" ry="5" fill="#8f5a08"/><rect x="9" y="38" width="26" height="6" fill="url(#ppcR)"/><ellipse cx="22" cy="38" rx="13" ry="5" fill="#f3b934"/><ellipse cx="22" cy="38" rx="9.5" ry="3.4" fill="none" stroke="#b97810" stroke-width="1"/></g><circle cx="38" cy="30" r="19" fill="#9a620a"/><circle cx="37" cy="28.5" r="19" fill="url(#ppcF)"/><circle cx="37" cy="28.5" r="15.2" fill="none" stroke="#b9780f" stroke-width="1.6"/><circle cx="37" cy="28.5" r="13.4" fill="none" stroke="#fff1b5" stroke-opacity=".55" stroke-width=".8"/><text x="37" y="33.6" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-weight="900" font-size="13.5" fill="#8a5200" letter-spacing="-.5">ТК</text><text x="36.4" y="32.8" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-weight="900" font-size="13.5" fill="#ffe9a0" fill-opacity=".55" letter-spacing="-.5">ТК</text><path d="M24 20a16 16 0 0 1 12-7" fill="none" stroke="#fffbe6" stroke-width="2.4" stroke-linecap="round" stroke-opacity=".85"/><path d="M53 9l1.3 3.2L57.5 13.5l-3.2 1.3L53 18l-1.3-3.2L48.5 13.5l3.2-1.3z" fill="#fff6c8"/><path d="M14 13l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z" fill="#fff6c8" fill-opacity=".8"/></svg>';
 const PP_CROWN='<svg class="pp-crown" viewBox="0 0 64 64" aria-hidden="true"><path d="M10 46 6 20l15 12 11-20 11 20 15-12-4 26z" fill="currentColor"/><rect x="10" y="49" width="44" height="6" rx="2" fill="currentColor" opacity=".8"/><circle cx="32" cy="12" r="3.5" fill="currentColor"/></svg>';
 function ppInfo(rw){
   if(rw.t==="case"){const c=CASES.find(x=>x.k===rw.k),pr=c?c.p:0;return{rc:PP_RAR(pr),n:c?c.n:"Кейс",k:"Кейс",art:CASEIMG[rw.k]?`<img src="${CASEIMG[rw.k]}" alt="" loading="lazy" decoding="async">`:`<svg viewBox="0 0 24 24" class="pp-ic">${PS_IC.case}</svg>`,val:pr}}
@@ -5611,7 +5674,7 @@ var COS={own:{},eq:{},tag:""};{const o=lsGet("cos1","obj");if(o){if(isObj(o.own)
 const cosSave=()=>{if(SRV)return;try{localStorage.setItem("cos1",JSON.stringify(COS))}catch(e){}};
 // на сервере купленное и надетое хранится в аккаунте; эффекты в игре включает плагин TASHER Style
 const COS_SRV=["frame","bg","rbg","rrow","nick","smoke","tag","kill","snd","trail","tracer","model"];
-function srvCosSet(c){if(!SRV||!c)return;COS.own=Object.fromEntries((Array.isArray(c.own)?c.own:[]).map(id=>[String(id),1]));COS.eq={};COS.tag=typeof c.tag==="string"?c.tag:"";
+function srvCosSet(c){if(!SRV||!c)return;COS.img=c.img&&typeof c.img==="object"?c.img:{};COS.own=Object.fromEntries((Array.isArray(c.own)?c.own:[]).map(id=>[String(id),1]));COS.eq={};COS.tag=typeof c.tag==="string"?c.tag:"";
   if(c.eq&&typeof c.eq==="object")COS_SRV.forEach(k=>{if(typeof c.eq[k]==="string")COS.eq[k]=c.eq[k]})}
 if(SRV){COS={own:{},eq:{},tag:""};srvCosSet(SRV.cos)}
 async function srvCos(it){try{let r;
@@ -5635,12 +5698,12 @@ var CI=[
  ...[["#ffffff","Белый"],["#b5e853","Лайм"],["#38d3ff","Голубой"],["#ff8a3d","Оранжевый"],["#ff6b8b","Розовый"]].map(([v,n],i)=>({id:"tr_"+i,cat:"trail",n,p:69,v})).filter(x=>x.id!=="tr_0"&&x.id!=="tr_3"),
  ...[["#ffffff","Белый"],["#b5e853","Лайм"],["#38d3ff","Голубой"],["#f5c451","Золото"],["#ff6b8b","Розовый"],["#eb4b4b","Красный"]].map(([v,n],i)=>({id:"tc_"+i,cat:"tracer",n,p:119,v})).filter(x=>x.id!=="tc_0"),
  // комплекты для рейтинга: фон на подиуме и полоска в строке — 25.11.2026
- {id:"rbg_phoenix",cat:"rbg",n:"Феникс",p:249,v:"img:rbg_phoenix"},{id:"rbg_ice",cat:"rbg",n:"Ледяной дракон",p:249,v:"img:rbg_ice"},{id:"rbg_lion",cat:"rbg",n:"Золотой лев",p:249,v:"img:rbg_lion"},{id:"rbg_neon",cat:"rbg",n:"Неоновый город",p:199,v:"img:rbg_neon"},{id:"rbg_samurai",cat:"rbg",n:"Самурай",p:199,v:"img:rbg_samurai"},{id:"rbg_space",cat:"rbg",n:"Космос",p:199,v:"img:rbg_space"},{id:"rr_phoenix",cat:"rrow",n:"Феникс",p:179,v:"img:rr_phoenix"},{id:"rr_ice",cat:"rrow",n:"Ледяной дракон",p:179,v:"img:rr_ice"},{id:"rr_lion",cat:"rrow",n:"Золотой лев",p:179,v:"img:rr_lion"},{id:"rr_neon",cat:"rrow",n:"Неоновый город",p:149,v:"img:rr_neon"},{id:"rr_samurai",cat:"rrow",n:"Самурай",p:149,v:"img:rr_samurai"},{id:"rr_space",cat:"rrow",n:"Космос",p:149,v:"img:rr_space"},
+ {id:"rbg_custom",cat:"rbg",n:"Свой фон",p:349,v:"img:custom"},{id:"rr_custom",cat:"rrow",n:"Своя полоска",p:249,v:"img:custom"},{id:"rbg_phoenix",cat:"rbg",n:"Феникс",p:249,v:"img:rbg_phoenix"},{id:"rbg_ice",cat:"rbg",n:"Ледяной дракон",p:249,v:"img:rbg_ice"},{id:"rbg_lion",cat:"rbg",n:"Золотой лев",p:249,v:"img:rbg_lion"},{id:"rbg_neon",cat:"rbg",n:"Неоновый город",p:199,v:"img:rbg_neon"},{id:"rbg_samurai",cat:"rbg",n:"Самурай",p:199,v:"img:rbg_samurai"},{id:"rbg_space",cat:"rbg",n:"Космос",p:199,v:"img:rbg_space"},{id:"rr_phoenix",cat:"rrow",n:"Феникс",p:179,v:"img:rr_phoenix"},{id:"rr_ice",cat:"rrow",n:"Ледяной дракон",p:179,v:"img:rr_ice"},{id:"rr_lion",cat:"rrow",n:"Золотой лев",p:179,v:"img:rr_lion"},{id:"rr_neon",cat:"rrow",n:"Неоновый город",p:149,v:"img:rr_neon"},{id:"rr_samurai",cat:"rrow",n:"Самурай",p:149,v:"img:rr_samurai"},{id:"rr_space",cat:"rrow",n:"Космос",p:149,v:"img:rr_space"},
  // новые цвета и легендарные (переливаются по кругу) — 25.11.2026
  {id: "tr_5", cat: "trail", n: "Бирюзовый", p: 69, v: "#2de2c4"},{id: "tr_6", cat: "trail", n: "Фиолетовый", p: 69, v: "#a78bfa"},{id: "tr_8", cat: "trail", n: "Красный", p: 69, v: "#eb4b4b"},{id: "tr_9", cat: "trail", n: "Небесный", p: 69, v: "#6ea8ff"},{id: "tr_rainbow", cat: "trail", n: "Радуга", p: 299, v: "anim:rainbow", anim: 1},{id: "tr_neon", cat: "trail", n: "Неон", p: 249, v: "anim:neon", anim: 1},{id: "tr_flame", cat: "trail", n: "Пламя", p: 249, v: "anim:flame", anim: 1},{id: "tr_aurora", cat: "trail", n: "Сияние", p: 249, v: "anim:aurora", anim: 1},{id: "tr_gold", cat: "trail", n: "Золотой перелив", p: 199, v: "anim:gold", anim: 1},{id: "tc_6", cat: "tracer", n: "Оранжевый", p: 119, v: "#ff8a3d"},{id: "tc_7", cat: "tracer", n: "Фиолетовый", p: 119, v: "#a78bfa"},{id: "tc_8", cat: "tracer", n: "Бирюзовый", p: 119, v: "#2de2c4"},{id: "tc_9", cat: "tracer", n: "Небесный", p: 119, v: "#6ea8ff"},{id: "tc_rainbow", cat: "tracer", n: "Радуга", p: 349, v: "anim:rainbow", anim: 1},{id: "tc_neon", cat: "tracer", n: "Неон", p: 299, v: "anim:neon", anim: 1},{id: "tc_flame", cat: "tracer", n: "Пламя", p: 299, v: "anim:flame", anim: 1},{id: "tc_aurora", cat: "tracer", n: "Сияние", p: 299, v: "anim:aurora", anim: 1},{id: "tc_gold", cat: "tracer", n: "Золотой перелив", p: 249, v: "anim:gold", anim: 1},{id: "sm_6", cat: "smoke", n: "Оранжевый", p: 89, v: "#ff8a3d"},{id: "sm_7", cat: "smoke", n: "Бирюзовый", p: 89, v: "#2de2c4"},{id: "sm_8", cat: "smoke", n: "Небесный", p: 89, v: "#6ea8ff"},{id: "sm_rainbow", cat: "smoke", n: "Радуга", p: 249, v: "random", anim: 1},
  {id:"fr_wops",cat:"frame",n:"Winter Ops",p:549,v:"wops",anim:1,ex:"Winter Ops",lv:46,tr:"p"},{id:"bg_i_wops",cat:"bg",n:"Winter Ops",p:249,v:"img:wops",art:1,ex:"Winter Ops",lv:37,tr:"p"},
  {id:"nk_wops",cat:"nick",n:"Иней",p:249,v:"linear-gradient(90deg,#e8f7ff,#9fdcff,#5ef0c8)",grad:1,ex:"Winter Ops",lv:22,tr:"p"},{id:"kl_storm",cat:"kill",n:"Снежная буря",p:299,v:"storm",ex:"Winter Ops",lv:32,tr:"p"},
- {id:"sm_wops",cat:"smoke",n:"Полярный",p:129,v:"#5ef0c8",ex:"Winter Ops",lv:26,tr:"f"},{id:"tr_wops",cat:"trail",n:"Северное сияние",p:99,v:"#7dffb0",ex:"Winter Ops",lv:19,tr:"f"},{id:"tc_wops",cat:"tracer",n:"Иней",p:149,v:"#9fdcff",ex:"Winter Ops",lv:46,tr:"f"}];
+ {id:"sm_wops",cat:"smoke",n:"Полярный",p:129,v:"#5ef0c8",ex:"Winter Ops",lv:33,tr:"p"},{id:"tr_wops",cat:"trail",n:"Северное сияние",p:99,v:"#7dffb0",ex:"Winter Ops",lv:18,tr:"p"},{id:"tc_wops",cat:"tracer",n:"Иней",p:149,v:"#9fdcff",ex:"Winter Ops",lv:38,tr:"p"}];
 const CCAT={frame:["Рамки аватара","Обводка аватарки в профиле, рейтинге и джекпоте"],bg:["Фоны профиля","Фон твоего профиля — на всю страницу профиля"],rbg:["Фон в рейтинге","Картинка за твоей карточкой на подиуме, когда ты в топ-3 рейтинга месяца"],rrow:["Полоска в рейтинге","Картинка в твоей строке таблицы рейтинга — видна всем, кто смотрит рейтинг"],
  nick:["Цвет ника","Ник в чате сервера, рейтинге и на сайте"],tag:["Тег в чате","До 6 символов перед ником: [TAG] Ник"],kill:["Эффект убийства","Анимация на месте фрага: видишь ты и те, кто за тобой наблюдает"],snd:["Звук убийства","Слышишь только ты"],smoke:["Цвет дыма","Твои дымовые гранаты"],trail:["Трейл гранат","Белый след есть у всех бесплатно, здесь — цветной. Выключить: !menu в игре"],tracer:["Трассеры пуль","Белые трассеры есть у всех бесплатно, здесь — цветные. Выключить: !menu в игре"],model:["Модель игрока","Твой персонаж в игре вместо стандартного — видят все. Выключить: !menu в игре"]};
 const CTABS={prof:["nick","frame","bg"],rate:["rbg","rrow"],game:["model","tag","kill","snd","tracer","smoke","trail"]};
@@ -5660,10 +5723,13 @@ function pfBigSet(id="meBody"){const m=$(id);if(m)m.classList.toggle("pfbig",!!m
 function cosBg(it){if(!it)return"";const v=it.v;if(v.startsWith("map:"))return`background-image:linear-gradient(90deg,rgba(10,10,10,.92) 20%,rgba(10,10,10,.55) 65%,rgba(10,10,10,.8)),url(${MAPIMG[v.slice(4)]||""});background-size:cover;background-position:center`;return""}
 // фон профиля игрока для строки рейтинга: свой — из надетого, чужой — с сервера
 // фон профиля — только в профиле; в рейтинге свои: «Фон в рейтинге» (карточка на подиуме) и «Полоска в рейтинге» (строка таблицы)
-function cosOf(p,cat,key){try{if(logged&&p===ME)return cosEq(cat);return p&&p[key]?cosI(p[key]):null}catch(e){return null}}
+// свой фон / своя полоска: картинка игрока с сервера (чужие — только одобренные, свою видно сразу)
+function cosCu(it,sid,at,cat){if(!it||!it.id.endsWith("_custom"))return it;if(!at||!sid)return null;const k="cu_"+cat+"_"+sid;PBGIMG[k]=`/api/cos/img?sid=${sid}&cat=${cat}&v=${at}`;return{...it,v:"img:"+k}}
+function cosOf(p,cat,key){try{if(logged&&p===ME){const e=cosEq(cat);return e&&e.id.endsWith("_custom")?cosCu(e,ME.steamid,COS.img&&COS.img[cat]&&COS.img[cat].at,cat):e}const it=p&&p[key]?cosI(p[key]):null;return it&&it.id.endsWith("_custom")?cosCu(it,p.sid,p[key+"u"],cat):it}catch(e){return null}}
 function profBg(p){return cosOf(p,"bg","bg")}function rowBg(p){return cosOf(p,"rrow","rrow")}function podBg(p){return cosOf(p,"rbg","rbg")}
 function cosBgCls(it){return!it||it.v.startsWith("map:")?"":it.v.startsWith("img:")?" pbg-img":" pbg-"+it.v}
 function cosSwatch(it){const c=it.cat;
+  if(it.v==="img:custom"){const cat=it.cat,im=COS.img&&COS.img[cat],u=im&&SRV&&ME.steamid?`/api/cos/img?sid=${ME.steamid}&cat=${cat}&v=${im.at}`:"";return`<span class="co-sw co-cu${cat==="rrow"?" row":""}">${u?`<img src="${u}" alt="" loading="lazy">`:`<svg viewBox="0 0 24 24" class="co-spk"><path d="M12 16V4M7 9l5-5 5 5M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg><small>${cat==="rrow"?"1400×240":"1200×800"}</small>`}</span>`}
   if(c==="frame")return`<span class="co-sw"><i class="co-avp big fr fr-${it.v}">${jpAvSvg("Demo_7","#2b2f36")}</i></span>`;
   if(c==="bg")return`<span class="co-sw co-bgp${cosBgCls(it)}" style="${cosBg(it)}">${cosLayer(it)}<span class="co-bgm"><i></i><span><b></b><em></em></span></span></span>`;
   if(c==="rbg")return`<span class="co-sw co-bgp">${cosLayer(it)}<span class="co-rbg-m"><i></i><b></b><em></em></span></span>`;
@@ -5684,9 +5750,10 @@ function cosSwatch(it){const c=it.cat;
 var FXPAL={rainbow:["#ff4d4d","#ffb84d","#f5f54d","#5dff6b","#4dc3ff","#b06bff"],neon:["#ff2bd6","#2bf0ff"],flame:["#ffd23f","#ff7a1a","#ff2b2b"],aurora:["#7dffb0","#38d3ff","#a78bfa"],gold:["#f5c451","#fff1b8"]};
 // эксклюзив сезона: не продаётся, только награда пропуска — на карточке вместо цены пишем, где взять
 function cosExTxt(it){return`${it.tr==="p"?"Премиум-пропуск":"Пропуск"} ${it.ex} · ур. ${it.lv}`}
+function cosCuNote(it){if(it.v!=="img:custom"||!COS.own[it.id])return"";const im=COS.img&&COS.img[it.cat];return`<button type="button" class="co-up" data-cup="${it.cat}">${im?"Заменить картинку":"Загрузить картинку"}</button>${im?`<small class="co-cus ${im.status==="ok"?"ok":""}">${im.status==="ok"?"Одобрено — видят все":"На проверке — пока видишь только ты"}</small>`:""}`}
 function cosItem(it){const own=!!COS.own[it.id],eq=COS.eq[it.cat]===it.id,ex=it.ex&&!own;
   return`<div class="co-it${eq?" eq":""}${it.season?" season":""}${it.ex?" ex":""}" data-csp="${it.id}">${it.ex?`<span class="co-exb">Эксклюзив</span>`:""}${cosSwatch(it)}<div class="co-in"><b>${esc(it.n)}</b><small>${[it.anim?"Анимированная":"",it.season?"Сезонная":"",it.ex&&own?"Из пропуска":own?"Куплено":""].filter(Boolean).join(" · ")||"&nbsp;"}</small></div>
-   ${ex?`<a class="co-b co-ex" href="#pass" title="Не продаётся — только награда пропуска">${cosExTxt(it)}</a>`:`<button type="button" class="${eq?"ghost":own?"ghost on":"steam"} co-b" data-cs="${it.id}">${eq?"Снять":own?"Надеть":`${fmt(it.p)} ₽`}</button>`}</div>`}
+   ${ex?`<a class="co-b co-ex" href="#pass" title="Не продаётся — только награда пропуска">${cosExTxt(it)}</a>`:`<button type="button" class="${eq?"ghost":own?"ghost on":"steam"} co-b" data-cs="${it.id}">${eq?"Снять":own?"Надеть":`${fmt(it.p)} ₽`}</button>`}${cosCuNote(it)}</div>`}
 var COSX={};
 function cosSection(cat){const [t,d]=CCAT[cat],L=CI.filter(x=>x.cat===cat);
   if(!L.length&&cat!=="tag")return`<section class="co-sec"><div class="co-sh"><b>${t}</b><span>${d}</span></div><p class="co-soon">Скоро появятся — следи за обновлениями.</p></section>`;

@@ -413,7 +413,7 @@ const bal = u => db.prepare("SELECT tk, rub FROM users WHERE id=?").get(u.id);
   db.prepare("INSERT INTO cos_own(user_id,item_id,created_at) VALUES(?,?,?)").run(u.id, "fr_winter", T1);
   const t1 = bal(u).tk; ong = 0; grants.length = 0;
   r = P.claim(u, { track: "p", lv: 50 });
-  ok(grants.length === 1 && grants[0][1] === "KING" && grants[0][2] === 14 && ong === 1 && r.got.some(g => /2990 ТК вместо «Зима 2026»/.test(g.txt)) && bal(u).tk === t1 + 2990, "уровень 50: KING на 14 дней, уже купленная рамка — ТК", r.got);
+  ok(grants.length === 1 && grants[0][1] === "KING" && grants[0][2] === 7 && ong === 1 && r.got.some(g => /2990 ТК вместо «Зима 2026»/.test(g.txt)) && bal(u).tk === t1 + 2990, "уровень 50: KING на 7 дней, уже купленная рамка — ТК", r.got);
   r = P.claim(u, { track: "f", lv: 10 }); ok(db.prepare("SELECT 1 FROM cos_own WHERE user_id=? AND item_id='sm_0'").get(u.id) && r.got[0].txt === "«Лайм»", "оформление из пропуска — в «Моих вещах»");
   // бусты: ×2 опыт на 24 ч (ур. 6), повторный буст продлевает срок; ×2 ТК — множитель для заработка за игру
   ok(P.boostMult(sid, "xp2", T1) === 1, "до буста множитель 1");

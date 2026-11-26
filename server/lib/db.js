@@ -231,6 +231,8 @@ function open(file) {
     `INSERT INTO case_free(user_id, k, n) SELECT user_id, 'pistol', n FROM case_free WHERE k='army' AND n>0
        ON CONFLICT(user_id, k) DO UPDATE SET n = n + excluded.n;
      DELETE FROM case_free WHERE k='army';`,
+    // 21: свои картинки для рейтинга (фон на подиуме и полоска в таблице) — проходят проверку админом
+    `CREATE TABLE cos_img(sid TEXT NOT NULL, cat TEXT NOT NULL, data TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'wait', at INTEGER NOT NULL, PRIMARY KEY(sid, cat));`,
   ];
   for (let v = ver; v < MIG.length; v++) {
     db.exec("BEGIN");

@@ -377,6 +377,9 @@ function statsTop(period) {
   // надетое оформление для рейтинга: bg — фон профиля (виден в профиле), rbg — фон на подиуме, rrow — полоска в строке таблицы
   const look = new Map(); for (const r of db.prepare("SELECT steamid, cos_eq FROM users WHERE cos_eq LIKE '%\"bg\"%' OR cos_eq LIKE '%\"rbg\"%' OR cos_eq LIKE '%\"rrow\"%'").all()) {
     try { const e = JSON.parse(r.cos_eq), o = {}; for (const k of ["bg", "rbg", "rrow"]) if (typeof e[k] === "string") o[k] = e[k]; look.set(r.steamid, o); } catch (e) {} }
+  // свои картинки: видны другим только после проверки (rbgu / rrowu — время загрузки, для адреса картинки)
+  for (const r of db.prepare("SELECT sid, cat, at FROM cos_img WHERE status='ok'").all()) { const o = look.get(r.sid); if (o && o[r.cat] === COS_IMG[r.cat].item) o[r.cat + "u"] = r.at; }
+  for (const o of look.values()) for (const c of ["rbg", "rrow"]) if (o[c] === COS_IMG[c].item && !o[c + "u"]) delete o[c];
   const top = STATS.top(period, 200);
   const av = steamAvatars(top.map(p => p.sid));
   const v = top.map(p => withSkill({ ...p, on: online.has(p.n), ...(look.get(p.sid) || {}), ...(av.get(p.sid) ? { av: av.get(p.sid) } : {}) }));
@@ -696,7 +699,58 @@ retireItems("trail_cleanup_refund", { list: ["tr_3", "tr_7", "sm_9"] }, "ора�
 })();
 const COSM = new Map(JSON.parse(fs.readFileSync(path.join(__dirname, "data", "cosmetics.json"), "utf8")).map(x => [x.id, x]));
 const COS_EQ_CATS = ["frame", "bg", "rbg", "rrow", "nick", "smoke", "tag", "kill", "snd", "trail", "tracer", "model"]; // что надевается (свой тег покупается отдельно — /api/cos/tag)
-function userCos(u) { let eq = {}; try { eq = JSON.parse(u.cos_eq || "{}"); } catch (e) {} delete eq.badge; return { own: db.prepare("SELECT item_id FROM cos_own WHERE user_id=? ORDER BY created_at").all(u.id).map(r => r.item_id), eq, tag: u.cos_tag || "" }; }
+function userCos(u) { let eq = {}; try { eq = JSON.parse(u.cos_eq || "{}"); } catch (e) {} delete eq.badge; return { own: db.prepare("SELECT item_id FROM cos_own WHERE user_id=? ORDER BY created_at").all(u.id).map(r => r.item_id), eq, tag: u.cos_tag || "", img: cosImgState(u.steamid) }; }
+
+// ---- свои картинки для рейтинга: «Свой фон рейтинга» (подиум) и «Своя полоска» (строка таблицы) ----
+// Размер строго как у картинок магазина — сайт сам предлагает обрезать и сжимает в JPEG этого размера.
+// Новая картинка ждёт проверки админом: до одобрения её видит только владелец, остальные — без фона.
+const COS_IMG = { rbg: { w: 1200, h: 800, item: "rbg_custom" }, rrow: { w: 1400, h: 240, item: "rr_custom" } };
+function cosImgState(sid) {
+  const o = {}; if (!sid) return o;
+  for (const r of db.prepare("SELECT cat, status, at FROM cos_img WHERE sid=?").all(sid)) o[r.cat] = { status: r.status, at: r.at };
+  return o;
+}
+// размер JPEG по маркеру SOF
+function jpegSize(b) {
+  if (b.length < 4 || b[0] !== 0xff || b[1] !== 0xd8) return null;
+  let i = 2;
+  while (i + 9 < b.length) {
+    if (b[i] !== 0xff) { i++; continue; }
+    const m = b[i + 1], len = b.readUInt16BE(i + 2);
+    if (m >= 0xc0 && m <= 0xcf && m !== 0xc4 && m !== 0xc8 && m !== 0xcc) return { h: b.readUInt16BE(i + 5), w: b.readUInt16BE(i + 7) };
+    i += 2 + len;
+  }
+  return null;
+}
+post("/api/cos/img", ctx => {
+  const u = needUser(ctx); rateLimit("cosimg:" + u.id, 10, 3600e3);
+  const cat = String(ctx.body.cat || ""), spec = COS_IMG[cat]; if (!spec) bad("Неизвестная картинка");
+  if (!db.prepare("SELECT 1 FROM cos_own WHERE user_id=? AND item_id=?").get(u.id, spec.item)) bad("Сначала купи этот предмет в магазине", 409);
+  const m = /^data:image\/jpeg;base64,([A-Za-z0-9+/=]+)$/.exec(String(ctx.body.data || "")); if (!m) bad("Нужна картинка JPEG");
+  const buf = Buffer.from(m[1], "base64"); if (buf.length > 1.5 * 1024 * 1024) bad("Картинка больше 1,5 МБ");
+  const sz = jpegSize(buf); if (!sz || sz.w !== spec.w || sz.h !== spec.h) bad(`Нужен размер ${spec.w}×${spec.h}`);
+  db.prepare(`INSERT INTO cos_img(sid, cat, data, status, at) VALUES(?,?,?,'wait',?) ON CONFLICT(sid, cat) DO UPDATE SET data=excluded.data, status='wait', at=excluded.at`).run(u.steamid, cat, m[1], now());
+  TOP_CACHE.v = null;
+  return { cos: userCos(db.prepare("SELECT * FROM users WHERE id=?").get(u.id)) };
+});
+function cosImgServe(req, res, url) {
+  const sid = String(url.searchParams.get("sid") || ""), cat = String(url.searchParams.get("cat") || "");
+  const r = COS_IMG[cat] && /^\d{17}$/.test(sid) ? db.prepare("SELECT data, status FROM cos_img WHERE sid=? AND cat=?").get(sid, cat) : null;
+  const me = r && r.status !== "ok" ? sessionUser(req) : null;
+  if (!r || (r.status !== "ok" && !(me && (me.steamid === sid || me.role === "admin" || me.role === "owner")))) { res.writeHead(404); return res.end(); }
+  res.writeHead(200, { "content-type": "image/jpeg", "cache-control": r.status === "ok" ? "public, max-age=31536000, immutable" : "private, no-store", "x-content-type-options": "nosniff" });
+  return res.end(Buffer.from(r.data, "base64"));
+}
+get("/api/admin/cosimg", ctx => { needAdmin(ctx); return { list: db.prepare("SELECT c.sid, c.cat, c.at, u.name FROM cos_img c LEFT JOIN users u ON u.steamid=c.sid WHERE c.status='wait' ORDER BY c.at").all() }; });
+post("/api/admin/cosimg", ctx => {
+  needAdmin(ctx);
+  const sid = String(ctx.body.sid || ""), cat = String(ctx.body.cat || "");
+  if (!COS_IMG[cat] || !/^\d{17}$/.test(sid)) bad("Нет такой картинки");
+  if (ctx.body.ok) db.prepare("UPDATE cos_img SET status='ok' WHERE sid=? AND cat=?").run(sid, cat);
+  else db.prepare("DELETE FROM cos_img WHERE sid=? AND cat=?").run(sid, cat);
+  TOP_CACHE.v = null;
+  return { list: db.prepare("SELECT c.sid, c.cat, c.at, u.name FROM cos_img c LEFT JOIN users u ON u.steamid=c.sid WHERE c.status='wait' ORDER BY c.at").all() };
+});
 function userPurchases(uid) {
   return db.prepare("SELECT delta, meta, created_at FROM ledger WHERE user_id=? AND kind='shop' ORDER BY id DESC LIMIT 50").all(uid)
     .map(r => { let m = {}; try { m = JSON.parse(r.meta || "{}"); } catch (e) {} return { t: r.created_at, what: String(m.what || "Покупка"), p: -r.delta }; });
@@ -1016,7 +1070,7 @@ function serveIndex(req, res) {
 }
 
 // ---------- сервер ----------
-const BIG_BODY = new Set(["/api/clans/create", "/api/clans/edit"]); // картинки клана
+const BIG_BODY = new Set(["/api/clans/create", "/api/clans/edit", "/api/cos/img"]); // картинки клана и свои картинки рейтинга
 const SEC_HEADERS = { "x-content-type-options": "nosniff", "referrer-policy": "strict-origin-when-cross-origin", "x-frame-options": "SAMEORIGIN" };
 const server = http.createServer(async (req, res) => {
   for (const [k, v] of Object.entries(SEC_HEADERS)) res.setHeader(k, v);
@@ -1024,6 +1078,7 @@ const server = http.createServer(async (req, res) => {
   try {
     if (url.pathname.startsWith("/auth/")) { if (await authRoutes(req, res, url)) return; return send(res, 404, "Not found"); }
     if (url.pathname === "/api/clans/img" && req.method === "GET") return clanImg(req, res, url);
+    if (url.pathname === "/api/cos/img" && req.method === "GET") return cosImgServe(req, res, url);
     if (url.pathname.startsWith("/api/")) {
       const h = (R[req.method] || new Map()).get(url.pathname);
       if (!h) return fail(res, 404, "Нет такого метода");
