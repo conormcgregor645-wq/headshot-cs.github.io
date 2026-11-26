@@ -82,6 +82,8 @@ public class StyleConfig : BasePluginConfig
     // свои модели игроков: ключ (тот же, что у предмета на сайте) → путь к модели в аддоне Мастерской для CT и T.
     // Пример: "neo": { "Name": "Нео", "Ct": "characters/models/tasher/neo/neo.vmdl", "T": "characters/models/tasher/neo/neo.vmdl" }
     [JsonPropertyName("Models")] public Dictionary<string, PlayerModelCfg> Models { get; set; } = new();
+    // свои модели оружия: ключ (как у предмета на сайте) → оружие-основа, своя запись в weapons.vdata аддона и модель
+    [JsonPropertyName("WeaponModels")] public Dictionary<string, WeaponModelCfg> WeaponModels { get; set; } = new();
     // автобаланс: перевод игрока, если в одной команде на BalanceDiff людей больше
     [JsonPropertyName("AutoBalance")] public bool AutoBalance { get; set; } = true;
     [JsonPropertyName("BalanceDiff")] public int BalanceDiff { get; set; } = 2;
@@ -112,6 +114,15 @@ public class StyleConfig : BasePluginConfig
     };
 }
 
+public class WeaponModelCfg
+{
+    [JsonPropertyName("Name")] public string Name { get; set; } = "";
+    [JsonPropertyName("Base")] public string Base { get; set; } = "weapon_knife";   // какое оружие выдать, потом сменить ему запись vdata
+    [JsonPropertyName("Vdata")] public string Vdata { get; set; } = "";              // имя своей записи в scripts/weapons.vdata аддона
+    [JsonPropertyName("Model")] public string Model { get; set; } = "";              // путь .vmdl — загружаем заранее
+    [JsonPropertyName("Slot")] public int Slot { get; set; } = 2;                     // 0 — основное, 1 — пистолет, 2 — нож
+}
+
 public class PlayerModelCfg
 {
     [JsonPropertyName("Name")] public string Name { get; set; } = "";
@@ -119,7 +130,7 @@ public class PlayerModelCfg
     [JsonPropertyName("T")] public string T { get; set; } = "";
 }
 
-public record PlayerStyle(string ChatTag, string NameColor, string ScoreTag, string Smoke, string KillFx, string KillSnd, string Trail, string Tracer, string MvpSnd = "", string Model = "");
+public record PlayerStyle(string ChatTag, string NameColor, string ScoreTag, string Smoke, string KillFx, string KillSnd, string Trail, string Tracer, string MvpSnd = "", string Model = "", string WModel = "");
 
 public partial class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
 {
@@ -159,6 +170,7 @@ public partial class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
         LoadDamage();
         LoadModels();
         LoadBalance();
+        LoadWeaponModels();
         LoadAdverts();
         LoadTestBots();
         // рейтинг в Tab игра сбрасывает постоянно — выставляем каждый тик, как плагины рангов
@@ -187,7 +199,8 @@ public partial class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
                     trail VARCHAR(16) NOT NULL DEFAULT '',
                     tracer VARCHAR(16) NOT NULL DEFAULT '',
                     mvp_snd VARCHAR(16) NOT NULL DEFAULT '',
-                    model VARCHAR(16) NOT NULL DEFAULT ''
+                    model VARCHAR(16) NOT NULL DEFAULT '',
+                    wmodel VARCHAR(16) NOT NULL DEFAULT ''
                 ) DEFAULT CHARSET=utf8mb4";
                 await cmd.ExecuteNonQueryAsync();
                 // таблица от прошлой версии плагина — добавляем колонки эффектов
@@ -245,12 +258,12 @@ public partial class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
                         {
                             var fx = _fxColumns;
                             cmd.CommandText = fx
-                                ? "SELECT steamid, chat_tag, name_color, score_tag, smoke, kill_fx, kill_snd, trail, tracer, mvp_snd, model FROM tasher_style"
+                                ? "SELECT steamid, chat_tag, name_color, score_tag, smoke, kill_fx, kill_snd, trail, tracer, mvp_snd, model, wmodel FROM tasher_style"
                                 : "SELECT steamid, chat_tag, name_color, score_tag, smoke FROM tasher_style";
                             await using var r = await cmd.ExecuteReaderAsync();
                             while (await r.ReadAsync())
                                 map[r.GetUInt64(0)] = new PlayerStyle(r.GetString(1), r.GetString(2), r.GetString(3), r.GetString(4),
-                                    fx ? r.GetString(5) : "", fx ? r.GetString(6) : "", fx ? r.GetString(7) : "", fx ? r.GetString(8) : "", fx ? r.GetString(9) : "", fx ? r.GetString(10) : "");
+                                    fx ? r.GetString(5) : "", fx ? r.GetString(6) : "", fx ? r.GetString(7) : "", fx ? r.GetString(8) : "", fx ? r.GetString(9) : "", fx ? r.GetString(10) : "", fx ? r.GetString(11) : "");
                         }
                         _styles = map;
                         Server.NextFrame(() =>

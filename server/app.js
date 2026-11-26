@@ -628,18 +628,18 @@ post("/api/clans/upgrade", clanAct((u, b) => CLANS.upgrade(u, b)));
 // ---------- стиль в игре (плагин TASHER Style) ----------
 function styleRows() {
   const st = new Map(CTL.statuses().map(s => [s.sid, s.t])), rows = new Map();
-  const row = sid => { let r = rows.get(sid); if (!r) rows.set(sid, r = { sid, tier: st.get(sid) || null, clanTag: "", clanColor: "", nick: "", tag: "", smokeHex: "", killFx: "", killSnd: "", trailHex: "", tracerHex: "", mvpSnd: "", model: "" }); return r; };
+  const row = sid => { let r = rows.get(sid); if (!r) rows.set(sid, r = { sid, tier: st.get(sid) || null, clanTag: "", clanColor: "", nick: "", tag: "", smokeHex: "", killFx: "", killSnd: "", trailHex: "", tracerHex: "", mvpSnd: "", model: "", wmodel: "" }); return r; };
   for (const sid of st.keys()) row(sid);
   // UPD: в Tab только название привилегии (лиг и чисел нет); очки месяца идут отдельно через tasher_player.pts (lib/gameinfo.js).
   for (const c of db.prepare("SELECT u.steamid sid, c.tag, c.color FROM clan_members m JOIN clans c ON c.id=m.clan_id JOIN users u ON u.id=m.user_id").all()) { const r = row(c.sid); r.clanTag = c.tag; r.clanColor = c.color; }
   for (const u of db.prepare("SELECT steamid, cos_eq, cos_tag FROM users WHERE cos_eq<>'{}' OR cos_tag<>''").all()) {
     let eq = {}; try { eq = JSON.parse(u.cos_eq || "{}"); } catch (e) {}
     const it = cat => { const x = COSM.get(eq[cat]); return x && x.cat === cat ? x : null; };
-    const nick = it("nick"), smoke = it("smoke"), kill = it("kill"), snd = it("snd"), trail = it("trail"), tracer = it("tracer"), mvp = it("mvp"), model = it("model"), tag = eq.tag && u.cos_tag ? u.cos_tag : "";
-    if (!nick && !smoke && !kill && !snd && !trail && !tracer && !mvp && !model && !tag) continue;
+    const nick = it("nick"), smoke = it("smoke"), kill = it("kill"), snd = it("snd"), trail = it("trail"), tracer = it("tracer"), mvp = it("mvp"), model = it("model"), wmodel = it("wmodel"), tag = eq.tag && u.cos_tag ? u.cos_tag : "";
+    if (!nick && !smoke && !kill && !snd && !trail && !tracer && !mvp && !model && !wmodel && !tag) continue;
     const r = row(u.steamid);
     if (nick) r.nick = nick.id; if (smoke) r.smokeHex = smoke.v; if (tag) r.tag = tag;
-    if (kill) r.killFx = kill.v; if (snd) r.killSnd = snd.id.slice(3); if (trail) r.trailHex = trail.v; if (tracer) r.tracerHex = tracer.v; if (mvp) r.mvpSnd = mvp.id.slice(3); if (model) r.model = model.v;
+    if (kill) r.killFx = kill.v; if (snd) r.killSnd = snd.id.slice(3); if (trail) r.trailHex = trail.v; if (tracer) r.tracerHex = tracer.v; if (mvp) r.mvpSnd = mvp.id.slice(3); if (model) r.model = model.v; if (wmodel) r.wmodel = wmodel.v;
   }
   return [...rows.values()];
 }
@@ -698,7 +698,7 @@ retireItems("trail_cleanup_refund", { list: ["tr_3", "tr_7", "sm_9"] }, "ора�
   setTimeout(() => { for (const uid of touched) { const u = db.prepare("SELECT * FROM users WHERE id=?").get(uid); if (u) try { syncGame(u); } catch (e) {} } }, 3000);
 })();
 const COSM = new Map(JSON.parse(fs.readFileSync(path.join(__dirname, "data", "cosmetics.json"), "utf8")).map(x => [x.id, x]));
-const COS_EQ_CATS = ["frame", "bg", "rbg", "rrow", "nick", "smoke", "tag", "kill", "snd", "trail", "tracer", "model"]; // что надевается (свой тег покупается отдельно — /api/cos/tag)
+const COS_EQ_CATS = ["frame", "bg", "rbg", "rrow", "nick", "smoke", "tag", "kill", "snd", "trail", "tracer", "model", "wmodel"]; // что надевается (свой тег покупается отдельно — /api/cos/tag)
 function userCos(u) { let eq = {}; try { eq = JSON.parse(u.cos_eq || "{}"); } catch (e) {} delete eq.badge; return { own: db.prepare("SELECT item_id FROM cos_own WHERE user_id=? ORDER BY created_at").all(u.id).map(r => r.item_id), eq, tag: u.cos_tag || "", img: cosImgState(u.steamid) }; }
 
 // ---- свои картинки для рейтинга: «Свой фон рейтинга» (подиум) и «Своя полоска» (строка таблицы) ----

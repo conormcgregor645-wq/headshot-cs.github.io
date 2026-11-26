@@ -10,7 +10,7 @@ namespace TasherStyle;
 
 public partial class TasherStyle
 {
-    private static readonly string[] FxColumns = { "kill_fx", "kill_snd", "trail", "tracer", "mvp_snd", "model" };
+    private static readonly string[] FxColumns = { "kill_fx", "kill_snd", "trail", "tracer", "mvp_snd", "model", "wmodel" };
     private int _beams;
     private int _tick;
     private readonly List<GrenadeTrail> _trails = new();
