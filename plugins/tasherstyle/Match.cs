@@ -2,7 +2,7 @@
 //  • Карта не заканчивается на 13 победах: играем без смены сторон, пока одна из команд не наберёт WinScore (100) побед.
 //    Тогда объявляем победителя и перезапускаем счёт с нуля на той же карте (mp_restartgame).
 //  • Серии убийств: убийства за раунд, пока игрок жив (пауза между ними не важна) —
-//    DOUBLE KILL, TRIPLE KILL, MEGA KILL, RAMPAGE (как в паке озвучки). Надпись — красный текст со стекающей кровью посреди экрана убившего
+//    DOUBLE KILL, TRIPLE KILL, MEGA KILL, RAMPAGE (как в паке озвучки). Надпись — цветной текст посреди экрана убившего
 //    без серой плашки (point_worldtext перед глазами, видят только он и те, кто за ним наблюдает), и голос серии.
 //    В чат ничего не пишется. Первое убийство игрока в раунде — его личная «первая кровь». Звуки слышит только сам игрок.
 using CounterStrikeSharp.API;
@@ -93,23 +93,20 @@ public partial class TasherStyle
         return HookResult.Continue;
     }
 
-    // --- надпись серии посреди экрана: красный point_worldtext перед глазами, прикреплён к игроку ---
-    // Под буквами — несколько тёмно-красных капель, которые медленно стекают вниз, как кровь.
+    // --- надпись серии посреди экрана: цветной point_worldtext перед глазами, прикреплён к игроку ---
     private sealed class StreakFx
     {
         public CPointWorldText Main = null!;
-        public readonly List<(CPointWorldText E, float X, float Speed, float Delay)> Drips = new();
         public float Born;
-        public IEnumerable<CPointWorldText> All() { yield return Main; foreach (var d in Drips) yield return d.E; }
+        public IEnumerable<CPointWorldText> All() { yield return Main; }
     }
     private readonly Dictionary<int, StreakFx> _streakText = new(); // слот игрока → его надпись
-    private const string StreakRed = "#e3121b", BloodRed = "#7a0006";
     private const float TextDist = 9f, TextLift = 2.7f, TextLife = 2f;
     private const int TextFont = 64; private const float TextUnits = 0.0075f;
 
     private void Announce(CCSPlayerController p, string text, string color)
     {
-        try { ShowScreenText(p, text); }
+        try { ShowScreenText(p, text, color); }
         catch (Exception ex) { Logger.LogWarning("[TASHER Style] надпись серии: {Error}", ex.Message); }
     }
 
@@ -134,27 +131,13 @@ public partial class TasherStyle
         return ent;
     }
 
-    private void ShowScreenText(CCSPlayerController p, string text)
+    private void ShowScreenText(CCSPlayerController p, string text, string color)
     {
         if (p.PlayerPawn.Value is not { IsValid: true } pawn || !p.PawnIsAlive || pawn.AbsOrigin is null) return;
         RemoveStreakText(p.Slot);
-        var main = MakeText(text, StreakRed, TextFont);
+        var main = MakeText(text, color, TextFont);
         if (main is null) return;
         var fx = new StreakFx { Main = main, Born = Server.CurrentTime };
-
-        // капли: 4–5 штук под буквами (ширина надписи — примерно 0.78 высоты шрифта на букву), каждая со своей скоростью
-        var half = text.Length * TextFont * 0.78f * TextUnits / 2f;
-        var n = Math.Clamp(text.Length / 2, 3, 5);
-        for (var i = 0; i < n; i++)
-        {
-            var slotX = -half + (i + 0.5f) * (2 * half / n) + (Random.Shared.NextSingle() - 0.5f) * (half / n);
-            // не ставим каплю в пробел между словами
-            var ci = (int)((slotX + half) / (2 * half) * text.Length);
-            if (ci >= 0 && ci < text.Length && text[ci] == ' ') slotX += half / n * 0.6f;
-            var d = MakeText("|", BloodRed, 34 + Random.Shared.Next(14));
-            if (d is null) continue;
-            fx.Drips.Add((d, slotX, 0.25f + Random.Shared.NextSingle() * 0.35f, Random.Shared.NextSingle() * 0.5f));
-        }
 
         // ставим перед глазами и прикрепляем к игроку: движение сглаживает сама игра, а поворот взгляда догоняем каждый тик
         PlaceFx(fx, pawn, 0f);
@@ -184,15 +167,6 @@ public partial class TasherStyle
     private static void PlaceFx(StreakFx fx, CCSPlayerPawn pawn, float age)
     {
         if (fx.Main.IsValid) PlaceAt(fx.Main, pawn, 0, TextLift);
-        var textH = TextFont * TextUnits;
-        foreach (var (e, x, speed, delay) in fx.Drips)
-        {
-            if (!e.IsValid) continue;
-            var t = Math.Max(0f, age - delay);
-            // капля начинается у нижнего края букв и стекает вниз, постепенно замедляясь
-            var drop = speed * t / (1f + t * 0.6f);
-            PlaceAt(e, pawn, x, TextLift - textH * 0.72f - drop);
-        }
     }
 
     private void StreakTextTick()
