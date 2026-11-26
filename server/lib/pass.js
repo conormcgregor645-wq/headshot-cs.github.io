@@ -3,7 +3,7 @@
 // Две ветки наград: бесплатная и премиум (покупается за рубли с баланса, открывает премиум-награды всех уровней, в том числе уже пройденных).
 // Награды забираются кнопкой на сайте до конца сезона.
 
-const LEVELS = 50, XP_LEVEL = 2000, DAY_CAP = 1500, PREMIUM_PRICE = 349;
+const LEVELS = 50, XP_LEVEL = 2000, DAY_CAP = 1500, PREMIUM_PRICE = 599;
 // опыт за игру (до множителя события «Выходные опыта»), в сутки по Москве не больше DAY_CAP
 const XP = { kill: 10, killBot: 2, hs: 3, assist: 5, plant: 10, defuse: 15, roundWin: 10, minute: 5 };
 // за задания дня — без суточного лимита
@@ -15,32 +15,33 @@ const SEASONS = [
 const mskDay = t => new Date(t + MSK).toISOString().slice(0, 10);
 
 // награды по уровням: t — tk | case | cos | status | boost (k: tk2 — ×2 ТК за игру, xp2 — ×2 опыт пропуска; h — часов)
-// Бесплатная ветка — кейсы подешевле, оформление и VIP/PREMIUM на вехах; премиум — дорогие кейсы
-// (ножи, перчатки, Prime/«цветные» люксы), статусы ELITE/LEGEND/KING. Все кейсы — из server/data/cases.json,
+// Бесплатная ветка — кейсы подешевле, обычное оформление из магазина и VIP на 3 дня в конце; премиум — дорогие кейсы,
+// все эксклюзивы сезона (Winter Ops)
+// (ножи, перчатки, Prime/«цветные» люксы) и немного статусов (ELITE/LEGEND на 3 дня, KING на 7). Все кейсы — из server/data/cases.json,
 // оформление — из cosmetics.json; уже купленное оформление конвертируется в ТК через give().
 function rewards() {
   const C = k => ({ t: "case", k }), O = id => ({ t: "cos", id }), S = (tier, d) => ({ t: "status", tier, d }), B = (k, h) => ({ t: "boost", k, h });
   const FREE = {
-    3: O("nk_2"), 5: C("pistol"), 6: B("xp2", 24), 7: C("cblackandwhite"), 8: S("VIP", 1), 9: C("pistol"), 10: O("sm_0"),
-    11: O("tc_1"), 12: O("nk_0"), 13: C("cgreen"), 14: O("sd_drum"), 15: C("pistol"), 16: B("tk2", 24), 17: C("cblue"), 18: O("bg_i_nydust"), 19: O("tr_wops"), 20: O("tc_4"),
-    21: C("forb"), 22: O("nk_1"), 23: O("sd_ding"), 24: C("cgreen"), 25: S("VIP", 3), 26: O("sm_wops"), 27: C("cyellow"), 28: C("cgreen"),
-    29: B("xp2", 24), 30: O("kl_spark"), 31: C("cblue"), 32: O("kl_star"), 33: O("tr_1"), 34: C("secret"), 35: C("forb"), 36: S("PREMIUM", 2), 37: C("desert"),
+    3: O("nk_2"), 5: C("pistol"), 6: B("xp2", 24), 7: C("cblackandwhite"), 8: C("pistol"), 9: C("pistol"), 10: O("sm_0"),
+    11: O("tc_1"), 12: O("nk_0"), 13: C("cgreen"), 14: O("sd_drum"), 15: C("pistol"), 16: B("tk2", 24), 17: C("cblue"), 18: O("bg_i_nydust"), 19: O("tr_4"), 20: O("tc_4"),
+    21: C("forb"), 22: O("nk_1"), 23: O("sd_ding"), 24: C("cgreen"), 25: B("tk2", 48), 26: O("sm_2"), 27: C("cyellow"), 28: C("cgreen"),
+    29: B("xp2", 24), 30: O("kl_spark"), 31: C("cblue"), 32: O("kl_star"), 33: O("tr_1"), 34: C("secret"), 35: C("forb"), 36: C("cyellow"), 37: C("desert"),
     38: O("sd_coin"), 39: O("tr_gold"), 40: O("fr_lime"), 41: C("cyellow"), 42: B("tk2", 24), 43: O("fr_ice"), 44: C("secret"), 45: C("desert"),
-    46: O("tc_wops"), 47: C("cred"), 48: C("fire"), 50: S("PREMIUM", 7),
+    46: O("tc_2"), 47: C("cred"), 48: C("fire"), 50: S("VIP", 3),
   };
   const PREM = {
     2: C("fire"), 3: O("sd_bell"), 4: C("tasher"), 5: C("cpremium1"), 6: B("xp2", 48), 7: C("sniper"), 8: O("fr_emer"),
-    9: C("cpremium2"), 10: O("nk_grad1"), 11: C("tasher"), 12: O("sd_8bit"), 13: C("cvanilla"), 14: O("tc_neon"), 15: S("ELITE", 7),
-    16: C("cdamascussteel"), 17: C("sniper"), 18: O("tr_4"), 19: C("cultraviolet"), 20: O("kl_bolt"), 21: C("cpremium3"), 22: O("nk_wops"),
-    23: C("ctigertooth"), 24: O("kl_tornado"), 25: C("knife"), 26: C("ccasehardened"), 27: S("TITAN", 3), 28: O("kl_conf"), 29: C("ccrimsonweb"),
-    30: O("tc_3"), 31: C("cpremium4"), 32: O("kl_storm"), 33: O("sm_2"), 34: C("cfade"), 35: S("LEGEND", 7), 36: C("cdoppler"), 37: O("bg_i_wops"),
-    38: O("tc_2"), 39: C("clore"), 40: O("sm_4"), 41: C("cpremium5"), 42: O("kl_nova"), 43: O("bg_i_nyfire"),
+    9: C("cpremium2"), 10: O("nk_grad1"), 11: C("tasher"), 12: O("sd_8bit"), 13: C("cvanilla"), 14: O("tc_neon"), 15: S("ELITE", 3),
+    16: C("cdamascussteel"), 17: C("sniper"), 18: O("tr_wops"), 19: C("cultraviolet"), 20: O("kl_bolt"), 21: C("cpremium3"), 22: O("nk_wops"),
+    23: C("ctigertooth"), 24: O("kl_tornado"), 25: C("knife"), 26: C("ccasehardened"), 27: C("cagents"), 28: O("kl_conf"), 29: C("ccrimsonweb"),
+    30: O("tc_3"), 31: C("cpremium4"), 32: O("kl_storm"), 33: O("sm_wops"), 34: C("cfade"), 35: S("LEGEND", 3), 36: C("cdoppler"), 37: O("bg_i_wops"),
+    38: O("tc_wops"), 39: C("clore"), 40: O("sm_4"), 41: C("cpremium5"), 42: O("kl_nova"), 43: O("bg_i_nyfire"),
     44: C("cluxurygloves"), 45: C("knife"), 46: O("fr_wops"), 47: C("gloves"), 48: O("fr_plasma"), 49: C("cluxurygloves"),
   };
   const free = [], prem = [];
   for (let lv = 1; lv <= LEVELS; lv++) {
     free.push([FREE[lv] || { t: "tk", v: 100 + 10 * lv }]);
-    prem.push(lv === 50 ? [S("KING", 14), O("fr_winter"), C("king")] : [PREM[lv] || { t: "tk", v: 200 + 20 * lv }]);
+    prem.push(lv === 50 ? [S("KING", 7), O("fr_winter"), C("king")] : [PREM[lv] || { t: "tk", v: 200 + 20 * lv }]);
   }
   return { free, prem };
 }

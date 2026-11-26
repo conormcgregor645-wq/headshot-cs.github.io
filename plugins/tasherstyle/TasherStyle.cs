@@ -82,6 +82,9 @@ public class StyleConfig : BasePluginConfig
     // свои модели игроков: ключ (тот же, что у предмета на сайте) → путь к модели в аддоне Мастерской для CT и T.
     // Пример: "neo": { "Name": "Нео", "Ct": "characters/models/tasher/neo/neo.vmdl", "T": "characters/models/tasher/neo/neo.vmdl" }
     [JsonPropertyName("Models")] public Dictionary<string, PlayerModelCfg> Models { get; set; } = new();
+    // автобаланс: перевод игрока, если в одной команде на BalanceDiff людей больше
+    [JsonPropertyName("AutoBalance")] public bool AutoBalance { get; set; } = true;
+    [JsonPropertyName("BalanceDiff")] public int BalanceDiff { get; set; } = 2;
     // дамагер: цифра урона у прицела при попадании
     [JsonPropertyName("DamageEnabled")] public bool DamageEnabled { get; set; } = true;
     [JsonPropertyName("StreaksEnabled")] public bool StreaksEnabled { get; set; } = true;
@@ -155,6 +158,7 @@ public partial class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
         LoadMatch();
         LoadDamage();
         LoadModels();
+        LoadBalance();
         LoadAdverts();
         LoadTestBots();
         // рейтинг в Tab игра сбрасывает постоянно — выставляем каждый тик, как плагины рангов
