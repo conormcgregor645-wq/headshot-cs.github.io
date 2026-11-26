@@ -2988,7 +2988,7 @@ body *:not(.modal):not(.sheet):not(.ntf){-webkit-backdrop-filter:none!important;
 html.on-server .demo-only{display:none!important}
 html.on-server #admTiles{display:none}
 .steam-acc .av.hasav{overflow:hidden;padding:0}
-.me-chip .av img,.pf-av img,.rt-who .av img,.steam-acc .av img{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block}
+.me-chip .av img,.pf-av img,.rt-who .av img,.steam-acc .av img,.pd-av>img{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block}
 html.on-server #v-jackpot,html.on-server #v-wheel{position:relative}
 .srv-soon{position:sticky;top:90px;z-index:5;margin:0 auto 18px;max-width:560px;padding:18px 20px;border-radius:18px;text-align:center;background:rgba(14,16,12,.96);border:1px solid rgba(181,232,83,.35);box-shadow:0 20px 60px rgba(0,0,0,.6)}
 .srv-soon b{display:block;font-family:var(--f-display);font-size:20px;font-weight:900;font-style:italic;text-transform:uppercase;margin-bottom:6px}
@@ -4183,11 +4183,11 @@ function drawLeagues(){const box=$("lgBox");if(!box)return;const b=LGB||(SRV&&SR
 function statP(x,i){const k=x.k|0,d=x.d|0,pt=x.pt|0,w=Array.isArray(x.w)?x.w:[],tot=w.reduce((s,y)=>s+(y[1]|0),0);
   return{id:1000+i,n:String(x.n||"Игрок").slice(0,32),sid:String(x.sid||""),real:1,kills:k,deaths:d,kd:+(d?k/d:k).toFixed(2),hs:k?Math.round((x.hs|0)/k*100):0,hsN:x.hs|0,as:x.a|0,
     hrs:Math.floor(pt/3600),pt,pts:x.pts|0,m:x.pts|0,mk:x.mk|0,md:x.md|0,mhs:x.mhs|0,ma:x.ma|0,mpt:x.mpt|0,rw:x.rw|0,rp:x.rp|0,mvp:0,c:AVC[i%AVC.length],r:rankIdx(x.pts|0),
-    w:tot?w.map(([n,v])=>[String(n),Math.round((v|0)/tot*100)]):[],pl:x.pl|0,df:x.df|0,bm:x.bm|0,bg:typeof x.bg==="string"?x.bg:null,rbg:typeof x.rbg==="string"?x.rbg:null,rrow:typeof x.rrow==="string"?x.rrow:null,wa:Array.isArray(x.wa)?Object.fromEntries(x.wa.map(([n,v])=>[String(n),v|0])):null,last:+x.last||0,online:!!x.on,sr:x.sr|0,lg:Number.isInteger(x.lg)&&LG[x.lg]?x.lg:null,cl:x.cl|0,nx:x.nx&&typeof x.nx.n==="string"?{n:x.nx.n,need:x.nx.need|0}:null}}
+    w:tot?w.map(([n,v])=>[String(n),Math.round((v|0)/tot*100)]):[],pl:x.pl|0,df:x.df|0,bm:x.bm|0,bg:typeof x.bg==="string"?x.bg:null,av:typeof x.av==="string"&&/^https:\/\//.test(x.av)?x.av:"",rbg:typeof x.rbg==="string"?x.rbg:null,rrow:typeof x.rrow==="string"?x.rrow:null,wa:Array.isArray(x.wa)?Object.fromEntries(x.wa.map(([n,v])=>[String(n),v|0])):null,last:+x.last||0,online:!!x.on,sr:x.sr|0,lg:Number.isInteger(x.lg)&&LG[x.lg]?x.lg:null,cl:x.cl|0,nx:x.nx&&typeof x.nx.n==="string"?{n:x.nx.n,need:x.nx.need|0}:null}}
 function srvStatsApply(st,my){if(!st||!Array.isArray(st.players))return;
   players.length=0;guests.length=0;
-  st.players.forEach((x,i)=>{const p=statP(x,i);if(SRV.user&&p.sid===ME.steamid){Object.assign(ME,p,{id:ME.id,n:ME.n,c:ME.c});players.push(ME)}else players.push(p)});
-  if(SRV.user&&my&&!players.includes(ME))Object.assign(ME,statP(my,999),{id:ME.id,n:ME.n,c:ME.c,m:0})}
+  st.players.forEach((x,i)=>{const p=statP(x,i);if(SRV.user&&p.sid===ME.steamid){Object.assign(ME,p,{id:ME.id,n:ME.n,c:ME.c,av:ME.av||p.av});players.push(ME)}else players.push(p)});
+  if(SRV.user&&my&&!players.includes(ME))Object.assign(ME,statP(my,999),{id:ME.id,n:ME.n,c:ME.c,m:0,av:ME.av})}
 if(REAL_STATS){srvStatsApply(SRV.stats,SRV.myStats);
   setInterval(()=>{if(document.hidden||curView!=="stats")return;fetch("/api/stats",{credentials:"same-origin"}).then(r=>r.json()).then(d=>{if(!Array.isArray(d.players))return;srvStatsApply(d,null);try{srvMedals()}catch(e){}try{if(CLS)srvClansApply(CLS)}catch(e){}drawStats()}).catch(()=>{})},30e3)}
 const ptStr=s=>{s=s|0;const h=Math.floor(s/3600),m=Math.floor(s%3600/60);return h?`${h} ч ${m} мин`:`${m} мин`};
@@ -4224,7 +4224,18 @@ function pfHTML(p,own){const st=statusOf(p),cl=clanOf(p)||(own?myClan:null),on=i
   <div class="pf-tabs" role="tablist">${tabs.map(([k,n,ic])=>`<button role="tab" data-pft="${k}" aria-selected="${k===cur}">${svgI(PI[ic])}<span>${n}</span></button>`).join("")}</div>
   <section class="pf-panel">${pfPanel(p,own,cur)}</section>`}
 function pfRows(rows){return`<div class="pf-rows">${rows.map(([a,b])=>`<div><span>${a}</span><b>${b}</b></div>`).join("")}</div>`}
-function pfLoadout(p,own){if(p.real&&!own)return[];if(own)return Object.entries(SKST.sets).map(([n,s])=>{const w=W.find(x=>x.n===n);return w?{w,skin:w.skins.find(x=>x[0]===s.name),wear:s.wear,st:s.st,tag:s.tag,stk:s.stk}:null}).filter(Boolean);
+// надетые скины другого игрока — с сервера (/api/loadout), кэш на минуту; пока грузится — пусто, потом вкладка перерисуется
+const PLD=new Map();
+function pfLoadoutSrv(p){const c=PLD.get(p.sid);if(c&&Date.now()-c.t<60e3)return c.l;
+  if(!c||!c.busy){PLD.set(p.sid,{t:c?c.t:0,l:c?c.l:[],busy:1});
+    fetch("/api/loadout?sid="+encodeURIComponent(p.sid),{credentials:"same-origin"}).then(r=>r.json()).then(d=>{const seen=new Set(),l=[];
+      for(const x of Array.isArray(d.loadout)?d.loadout:[]){const w=W.find(y=>y.n===x.w),skin=w&&w.skins.find(y=>y[0]===x.s);if(!skin||seen.has(x.w+"|"+x.s))continue;seen.add(x.w+"|"+x.s);
+        if(Array.isArray(x.stk)&&!STKREADY)stkLoad();l.push({w,skin,wear:+x.wear||0,st:!!x.st,tag:"",stkN:Array.isArray(x.stk)?x.stk:null})}
+      PLD.set(p.sid,{t:Date.now(),l});
+      const box=$("plBody"),on=box&&box.querySelector('[data-pft="skins"][aria-selected="true"]');
+      if(curView==="player"&&on&&P(PFN)===p)box.querySelector(".pf-panel").innerHTML=pfPanel(p,false,"skins")}).catch(()=>PLD.set(p.sid,{t:Date.now(),l:c?c.l:[]}))}
+  return c?c.l:[]}
+function pfLoadout(p,own){if(p.real&&!own)return SRV&&/^\d{17}$/.test(p.sid||"")?pfLoadoutSrv(p).map(x=>({...x,stk:x.stkN&&STKREADY?stkFromSrv(x.stkN):null})):[];if(own)return Object.entries(SKST.sets).map(([n,s])=>{const w=W.find(x=>x.n===n);return w?{w,skin:w.skins.find(x=>x[0]===s.name),wear:s.wear,st:s.st,tag:s.tag,stk:s.stk}:null}).filter(Boolean);
   const r=rng(p.id*31+7);const pick=c=>{const l=W.filter(w=>w.c===c);return l[Math.floor(r()*l.length)]};
   return["knife","gloves","rifle","rifle","sniper","pistol","pistol","smg"].map(pick).filter((w,i,a)=>a.indexOf(w)===i).map(w=>{const skin=w.skins[Math.floor(r()*w.skins.length)];const hasStk=STK_OK(w)&&r()<.6;return{w,skin,wear:+(r()*.4).toFixed(3),st:r()<.3,tag:"",stk:hasStk?[0,1,2,3,4].map(()=>r()<.45?{i:Math.floor(r()*STK.length),wear:0}:null):null}})}
 function pfPanel(p,own,tab){
@@ -5391,7 +5402,7 @@ const rPrizeChip=i=>{const z=RPRIZE(i);return z?`<span class="przc ${z.c}" data-
 function rtHead(cols){return`<div class="rt-row rt-h">${cols.map(c=>`<span>${c}</span>`).join("")}</div>`}
 function drawStats(){const all=board(),q=$("q-stats").value.trim().toLowerCase();
   const pod=all.slice(0,3),col=["#d4f58a","#d5dde8","#e0915f"];
-  $("podM").innerHTML=[1,0,2].filter(k=>pod[k]).map(k=>{const p=pod[k],cl=clanOf(p);return`<button class="pd p${k+1}" data-p="${esc(p.n)}" style="--mc:${col[k]}"><span class="pd-num">${k+1}</span><span class="pd-av" style="--ac:${p.c}">${ini(p.n)}<i>${k+1}</i></span><b class="pd-nm">${esc(p.n)}${kingBadge(p)}</b><small class="pd-cl">${cl?`[${esc(cl.t)}] ${esc(cl.n)}`:"без клана"}</small>${rtPts(monthPts(p),1)}<span class="pd-prize" data-tip="${RPRIZE(k).tip}">Приз: ${RPRIZE(k).t}</span>${(()=>{const bg=podBg(p);return bg?cosLayer(bg)+'<i class="pd-sh" aria-hidden="true"></i>':""})()}</button>`}).join("");
+  $("podM").innerHTML=[1,0,2].filter(k=>pod[k]).map(k=>{const p=pod[k],cl=clanOf(p);return`<button class="pd p${k+1}" data-p="${esc(p.n)}" style="--mc:${col[k]}"><span class="pd-num">${k+1}</span><span class="pd-av" style="--ac:${p.c}">${cosAvInner(p.n)||ini(p.n)}<i>${k+1}</i></span><b class="pd-nm">${esc(p.n)}${kingBadge(p)}</b><small class="pd-cl">${cl?`[${esc(cl.t)}] ${esc(cl.n)}`:"без клана"}</small>${rtPts(monthPts(p),1)}<span class="pd-prize" data-tip="${RPRIZE(k).tip}">Приз: ${RPRIZE(k).t}</span>${(()=>{const bg=podBg(p);return bg?cosLayer(bg)+'<i class="pd-sh" aria-hidden="true"></i>':""})()}</button>`}).join("");
   const rows=all.map((p,i)=>({p,i})).filter(({p})=>!q||p.n.toLowerCase().includes(q));
   if(REAL_STATS&&!all.length){$("rtList").innerHTML=`<div class="rt-empty">Рейтинг месяца пока пуст. Зайди на сервер — очки начисляются за убийства, хедшоты, помощь, бомбу и выигранные раунды.</div>`;return}
   const mk=p=>p.real?p.mk:p.kills,md=p=>p.real?p.md:p.deaths;
@@ -5620,7 +5631,8 @@ const CCAT={frame:["Рамки аватара","Обводка аватарки 
 const CTABS={prof:["frame","bg"],rate:["rbg","rrow"],game:["nick","tag","kill","snd","tracer","smoke","trail"]};
 function cosI(id){return CI?CI.find(x=>x.id===id):null}function cosEq(cat){if(!CI||!COS)return null;const id=COS.eq[cat];return id?cosI(id):null}
 function isMe(n){try{return n===ME.n}catch(e){return false}}
-function cosAvInner(n,c){return SRV&&ME.av&&isMe(n)?`<img src="${esc(ME.av)}" alt="" referrerpolicy="no-referrer">`:""}
+// аватар Steam: свой — из входа на сайт, чужой — из рейтинга / клана (сервер отдаёт только ссылки Steam)
+function cosAvInner(n,c){if(!SRV)return"";let a="";try{a=isMe(n)?ME.av:((P(n)||{}).av||"")}catch(e){}return a&&/^https:\/\//.test(a)?`<img src="${esc(a)}" alt="" referrerpolicy="no-referrer" loading="lazy">`:""}
 function cosFrame(n){const f=isMe(n)&&cosEq("frame");return f?" fr fr-"+f.v:""}
 function cosBadge(n){return""}
 function nkGrad(v){const c=v.match(/#[0-9a-fA-F]{3,8}/g)||[];return`background:linear-gradient(90deg,${c.join(",")},${c[0]}) 0 0/200% 100% repeat-x;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent`}
@@ -5687,7 +5699,7 @@ var EMBS={star:BADGES.star,skull:BADGES.skull,bolt:BADGES.bolt,crown:BADGES.crow
 // ---- кланы на сервере ----
 var CLS=null;
 function srvClanMember(m,i){if(logged&&String(ME.steamid)===String(m.sid))return ME;
-  return players.find(x=>x.sid===m.sid)||(typeof XPL!=="undefined"&&XPL.find(x=>x.sid===m.sid))||CLX.find(x=>x.sid===m.sid)||(p=>(CLX.push(p),p))(statP({sid:m.sid,n:m.n,pts:m.mpts},800+i))}
+  return players.find(x=>x.sid===m.sid)||(typeof XPL!=="undefined"&&XPL.find(x=>x.sid===m.sid))||CLX.find(x=>x.sid===m.sid)||(p=>(CLX.push(p),p))(statP({sid:m.sid,n:m.n,pts:m.mpts,av:m.av},800+i))}
 function srvClansApply(L){if(!L||!Array.isArray(L.clans))return;CLS=L;let i=0;clans.length=0;
   for(const c of L.clans)clans.push({id:c.id,n:String(c.n),t:String(c.t),c:c.c,d:String(c.d||""),emb:c.emb||null,ava:c.ava||null,cover:c.cover||null,slots:c.slots|0||30,
     members:c.members.map(m=>srvClanMember(m,i++)),mem:c.members,pts:c.pts|0,month:c.month|0,wins:c.wins|0,kd:+c.kd||0});

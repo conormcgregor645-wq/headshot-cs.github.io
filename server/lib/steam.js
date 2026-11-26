@@ -51,4 +51,22 @@ async function profile(apiKey, steamid, fetchImpl = fetch) {
   } catch (e) { return null; }
 }
 
-module.exports = { loginUrl, verify, profile };
+// аватары нескольких игроков одним запросом (Steam отдаёт до 100 SteamID за раз): Map steamid → url ("" — нет аватара)
+const AV_RE = /^https:\/\/[a-z0-9.-]+\.(steamstatic\.com|akamaihd\.net)\/[\w\-./]+$/i;
+async function avatars(apiKey, steamids, fetchImpl = fetch) {
+  const out = new Map(); if (!apiKey) return out;
+  const ids = [...new Set(steamids)].filter(s => /^\d{17}$/.test(s));
+  for (let i = 0; i < ids.length; i += 100) {
+    try {
+      const r = await fetchImpl(`https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=${encodeURIComponent(apiKey)}&steamids=${ids.slice(i, i + 100).join(",")}`, { signal: AbortSignal.timeout(8000) });
+      const j = await r.json();
+      for (const p of (j && j.response && j.response.players) || []) {
+        const av = String(p.avatarmedium || p.avatarfull || "");
+        out.set(String(p.steamid), AV_RE.test(av) ? av : "");
+      }
+    } catch (e) {}
+  }
+  return out;
+}
+
+module.exports = { loginUrl, verify, profile, avatars };

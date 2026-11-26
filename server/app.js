@@ -377,8 +377,31 @@ function statsTop(period) {
   // надетое оформление для рейтинга: bg — фон профиля (виден в профиле), rbg — фон на подиуме, rrow — полоска в строке таблицы
   const look = new Map(); for (const r of db.prepare("SELECT steamid, cos_eq FROM users WHERE cos_eq LIKE '%\"bg\"%' OR cos_eq LIKE '%\"rbg\"%' OR cos_eq LIKE '%\"rrow\"%'").all()) {
     try { const e = JSON.parse(r.cos_eq), o = {}; for (const k of ["bg", "rbg", "rrow"]) if (typeof e[k] === "string") o[k] = e[k]; look.set(r.steamid, o); } catch (e) {} }
-  const v = STATS.top(period, 200).map(p => withSkill({ ...p, on: online.has(p.n), ...(look.get(p.sid) || {}) }));
+  const top = STATS.top(period, 200);
+  const av = steamAvatars(top.map(p => p.sid));
+  const v = top.map(p => withSkill({ ...p, on: online.has(p.n), ...(look.get(p.sid) || {}), ...(av.get(p.sid) ? { av: av.get(p.sid) } : {}) }));
   TOP_CACHE = { t: now(), period, v }; return v;
+}
+// Steam-аватары игроков рейтинга: с сайта (кто входил через Steam) — из базы, остальные — из Steam API раз в 6 часов (в фоне, не задерживая ответ)
+const AV_CACHE = new Map(); let AV_BUSY = false;
+function steamAvatars(sids) {
+  const out = new Map(), stale = [], t = now();
+  const rows = sids.length ? db.prepare(`SELECT steamid, avatar FROM users WHERE avatar<>'' AND steamid IN (${sids.map(() => "?").join(",")})`).all(...sids) : [];
+  for (const r of rows) out.set(r.steamid, r.avatar);
+  for (const s of sids) {
+    if (out.has(s)) continue;
+    const c = AV_CACHE.get(s);
+    if (c) { if (c.av) out.set(s, c.av); if (t - c.t < 6 * 3600e3) continue; }
+    stale.push(s);
+  }
+  if (stale.length && CFG.steamKey && !AV_BUSY && require.main === module) {
+    AV_BUSY = true;
+    steam.avatars(CFG.steamKey, stale).then(m => {
+      for (const s of stale) AV_CACHE.set(s, { av: m.get(s) || (AV_CACHE.get(s) || {}).av || "", t: now() });
+      if (m.size) TOP_CACHE.v = null;
+    }).catch(() => {}).finally(() => { AV_BUSY = false; });
+  }
+  return out;
 }
 get("/api/stats", ctx => {
   const q = String(ctx.query.get("period") || ""); const period = /^\d{4}-\d{2}$/.test(q) || q === "all" ? q : GL.month(now());
@@ -388,6 +411,13 @@ get("/api/stats/player", ctx => {
   const sid = String(ctx.query.get("sid") || ""); if (!/^\d{17}$/.test(sid)) bad("Неверный SteamID");
   const p = STATS.player(sid); if (!p) bad("Игрок ещё не играл на сервере", 404);
   return { player: withSkill(p) };
+});
+// надетые скины другого игрока (вкладка «Скины» в его профиле): только то, что он сам надел на сайте
+get("/api/loadout", ctx => {
+  const sid = String(ctx.query.get("sid") || ""); if (!/^\d{17}$/.test(sid)) bad("Неверный SteamID");
+  const u = db.prepare("SELECT id FROM users WHERE steamid=?").get(sid); if (!u) return { loadout: [] };
+  return { loadout: db.prepare("SELECT l.team, i.w, i.s, i.wear, i.seed, i.st, i.stk FROM loadout l JOIN items i ON i.id=l.item_id WHERE l.user_id=? AND i.state='inv' ORDER BY l.team, l.slot").all(u.id)
+    .map(r => ({ team: r.team, w: r.w, s: r.s, wear: r.wear, seed: r.seed, st: !!r.st, stk: stkOf(r) })) };
 });
 if (CFG.gameLogUnit && require.main === module) {
   const curRow = db.prepare("SELECT v FROM meta WHERE k='jcursor'").get();
