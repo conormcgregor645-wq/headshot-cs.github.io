@@ -4183,7 +4183,7 @@ function drawLeagues(){const box=$("lgBox");if(!box)return;const b=LGB||(SRV&&SR
 function statP(x,i){const k=x.k|0,d=x.d|0,pt=x.pt|0,w=Array.isArray(x.w)?x.w:[],tot=w.reduce((s,y)=>s+(y[1]|0),0);
   return{id:1000+i,n:String(x.n||"Игрок").slice(0,32),sid:String(x.sid||""),real:1,kills:k,deaths:d,kd:+(d?k/d:k).toFixed(2),hs:k?Math.round((x.hs|0)/k*100):0,hsN:x.hs|0,as:x.a|0,
     hrs:Math.floor(pt/3600),pt,pts:x.pts|0,m:x.pts|0,mk:x.mk|0,md:x.md|0,mhs:x.mhs|0,ma:x.ma|0,mpt:x.mpt|0,rw:x.rw|0,rp:x.rp|0,mvp:0,c:AVC[i%AVC.length],r:rankIdx(x.pts|0),
-    w:tot?w.map(([n,v])=>[String(n),Math.round((v|0)/tot*100)]):[],pl:x.pl|0,df:x.df|0,bm:x.bm|0,bg:typeof x.bg==="string"?x.bg:null,wa:Array.isArray(x.wa)?Object.fromEntries(x.wa.map(([n,v])=>[String(n),v|0])):null,last:+x.last||0,online:!!x.on,sr:x.sr|0,lg:Number.isInteger(x.lg)&&LG[x.lg]?x.lg:null,cl:x.cl|0,nx:x.nx&&typeof x.nx.n==="string"?{n:x.nx.n,need:x.nx.need|0}:null}}
+    w:tot?w.map(([n,v])=>[String(n),Math.round((v|0)/tot*100)]):[],pl:x.pl|0,df:x.df|0,bm:x.bm|0,bg:typeof x.bg==="string"?x.bg:null,rbg:typeof x.rbg==="string"?x.rbg:null,rrow:typeof x.rrow==="string"?x.rrow:null,wa:Array.isArray(x.wa)?Object.fromEntries(x.wa.map(([n,v])=>[String(n),v|0])):null,last:+x.last||0,online:!!x.on,sr:x.sr|0,lg:Number.isInteger(x.lg)&&LG[x.lg]?x.lg:null,cl:x.cl|0,nx:x.nx&&typeof x.nx.n==="string"?{n:x.nx.n,need:x.nx.need|0}:null}}
 function srvStatsApply(st,my){if(!st||!Array.isArray(st.players))return;
   players.length=0;guests.length=0;
   st.players.forEach((x,i)=>{const p=statP(x,i);if(SRV.user&&p.sid===ME.steamid){Object.assign(ME,p,{id:ME.id,n:ME.n,c:ME.c});players.push(ME)}else players.push(p)});
@@ -5802,6 +5802,7 @@ function route(forced){try{closeProfile()}catch(e){}["modal","srvModal","cmdModa
   if(!STKREADY&&["inventory","me","player"].includes(v))try{stkLoad()}catch(e){}
   if(v==="shop")try{setShopTab(shopTab)}catch(e){console.error(e)}
   if(v==="stats")try{drawStats()}catch(e){console.error(e)}
+  if(v==="clans")try{drawClans()}catch(e){console.error(e)}
   if(v==="jackpot")try{jpTick();drawJp()}catch(e){console.error(e)}
   try{drawDrops()}catch(e){}
   if(v==="ach")try{if(!ACHFLAG)ACHFOR=null;ACHFLAG=0;drawAch()}catch(e){console.error(e)}
