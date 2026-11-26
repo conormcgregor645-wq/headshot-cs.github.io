@@ -3007,6 +3007,10 @@ html.ny .cs-sec h2::after{content:none}
 .adm-img .ai b{display:block}.adm-img .ai small{color:var(--muted)}
 .adm-img .row{display:flex;gap:8px}
 @media(max-width:640px){.adm-img .ai{grid-template-columns:1fr}}
+.co-sub{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.co-sub button{font-family:inherit;font-weight:700;font-size:13px;line-height:1;padding:10px 16px;border-radius:10px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--muted);cursor:pointer}
+.co-sub button[aria-selected="true"]{background:rgba(181,232,83,.14);border-color:rgba(181,232,83,.5);color:#d4f58a}
+.co-sub button:hover,.co-sub button:focus-visible{color:#fff}
 /* подвал прижат к низу экрана на коротких страницах */
 main{display:flex;flex-direction:column}
 main>footer{margin-top:auto}
@@ -5705,8 +5709,8 @@ var CI=[
  {id:"nk_wops",cat:"nick",n:"Иней",p:249,v:"linear-gradient(90deg,#e8f7ff,#9fdcff,#5ef0c8)",grad:1,ex:"Winter Ops",lv:22,tr:"p"},{id:"kl_storm",cat:"kill",n:"Снежная буря",p:299,v:"storm",ex:"Winter Ops",lv:32,tr:"p"},
  {id:"sm_wops",cat:"smoke",n:"Полярный",p:129,v:"#5ef0c8",ex:"Winter Ops",lv:33,tr:"p"},{id:"tr_wops",cat:"trail",n:"Северное сияние",p:99,v:"#7dffb0",ex:"Winter Ops",lv:18,tr:"p"},{id:"tc_wops",cat:"tracer",n:"Иней",p:149,v:"#9fdcff",ex:"Winter Ops",lv:38,tr:"p"}];
 const CCAT={frame:["Рамки аватара","Обводка аватарки в профиле, рейтинге и джекпоте"],bg:["Фоны профиля","Фон твоего профиля — на всю страницу профиля"],rbg:["Фон в рейтинге","Картинка за твоей карточкой на подиуме, когда ты в топ-3 рейтинга месяца"],rrow:["Полоска в рейтинге","Картинка в твоей строке таблицы рейтинга — видна всем, кто смотрит рейтинг"],
- nick:["Цвет ника","Ник в чате сервера, рейтинге и на сайте"],tag:["Тег в чате","До 6 символов перед ником: [TAG] Ник"],kill:["Эффект убийства","Анимация на месте фрага: видишь ты и те, кто за тобой наблюдает"],snd:["Звук убийства","Слышишь только ты"],smoke:["Цвет дыма","Твои дымовые гранаты"],trail:["Трейл гранат","Белый след есть у всех бесплатно, здесь — цветной. Выключить: !menu в игре"],tracer:["Трассеры пуль","Белые трассеры есть у всех бесплатно, здесь — цветные. Выключить: !menu в игре"],model:["Модель игрока","Твой персонаж в игре вместо стандартного — видят все. Выключить: !menu в игре"]};
-const CTABS={prof:["nick","frame","bg"],rate:["rbg","rrow"],game:["model","tag","kill","snd","tracer","smoke","trail"]};
+ nick:["Цвет ника","Ник в чате сервера, рейтинге и на сайте"],tag:["Тег в чате","До 6 символов перед ником: [TAG] Ник"],kill:["Эффект убийства","Анимация на месте фрага: видишь ты и те, кто за тобой наблюдает"],snd:["Звук убийства","Слышишь только ты"],smoke:["Цвет дыма","Твои дымовые гранаты"],trail:["Трейл гранат","Белый след есть у всех бесплатно, здесь — цветной. Выключить: !menu в игре"],tracer:["Трассеры пуль","Белые трассеры есть у всех бесплатно, здесь — цветные. Выключить: !menu в игре"],model:["Модели игроков","Твой персонаж в игре вместо стандартного агента — видят все. Выключить: !menu в игре"],wmodel:["Модели оружия","Своя модель оружия в игре вместо стандартной"]};
+const CTABS={prof:["nick","frame","bg"],rate:["rbg","rrow"],game:["tag","kill","snd","tracer","smoke","trail"],models:["model","wmodel"]};var cosSub="model";
 function cosI(id){return CI?CI.find(x=>x.id===id):null}function cosEq(cat){if(!CI||!COS)return null;const id=COS.eq[cat];return id?cosI(id):null}
 function isMe(n){try{return n===ME.n}catch(e){return false}}
 // аватар Steam: свой — из входа на сайт, чужой — из рейтинга / клана (сервер отдаёт только ссылки Steam)
@@ -5831,12 +5835,13 @@ function cosClan(){if(!myClan)return`<div class="co-empty"><b>У тебя пок
    ${CB.log.length?`<section class="co-sec"><div class="co-sh"><b>История казны</b></div><div class="co-log">${CB.log.slice(0,10).map(l=>`<div><span>${esc(l.t)}</span><b class="${l.v>0?"pl":"mn"}">${l.v>0?"+":"−"}${fmt(Math.abs(l.v))} ₽</b></div>`).join("")}</div></section>`:""}</div>`}
 function cbSpend(v,what){if(CB.bank<v){toast(`В казне не хватает ${fmt(v-CB.bank)} ₽`);return false}CB.bank-=v;CB.log.unshift({t:what,v:-v,d:Date.now()});CB.log=CB.log.slice(0,40);cbSave();return true}
 function drawCos(){const box=$("cosBox");if(!box)return;
-  box.innerHTML=`<div class="co-tabs" role="tablist">${[["prof","Профиль"],["rate","Рейтинг"],["game","В игре"]].map(([k,t])=>`<button type="button" role="tab" data-cst="${k}" aria-selected="${cosTab===k}">${t}</button>`).join("")}<span class="co-bal">Баланс <b>${fmt(ME.balance)} ₽</b></span></div>
-   ${`<div class="co-wrap"><aside class="co-side">${cosPreview()}</aside><div class="co-main">${CTABS[cosTab].map(cosSection).join("")}</div></div>`}`;cosClamp()}
+  box.innerHTML=`<div class="co-tabs" role="tablist">${[["prof","Профиль"],["rate","Рейтинг"],["game","В игре"],["models","Модели"]].map(([k,t])=>`<button type="button" role="tab" data-cst="${k}" aria-selected="${cosTab===k}">${t}</button>`).join("")}<span class="co-bal">Баланс <b>${fmt(ME.balance)} ₽</b></span></div>
+   ${`<div class="co-wrap"><aside class="co-side">${cosPreview()}</aside><div class="co-main">${cosTab==="models"?`<div class="co-sub" role="tablist">${[["model","Модели игроков"],["wmodel","Модели оружия"]].map(([k,n])=>`<button type="button" role="tab" data-csub="${k}" aria-selected="${cosSub===k}">${n}</button>`).join("")}</div>${cosSection(cosSub)}`:CTABS[cosTab].map(cosSection).join("")}</div></div>`}`;cosClamp()}
 function cosRefresh(){try{drawChip()}catch(e){}if(curView==="clan")keepScroll(drawClanPage);else if(curView==="me")keepScroll(drawMe);else keepScroll(drawCos)}
 document.addEventListener("click",e=>{if(!e.target.closest("#cosBox,#clanBankBox,#meBody .pf-cos"))return;let b;
   if(b=e.target.closest("[data-cmore]")){const c=b.dataset.cmore;COSX[c]=!COSX[c];cosClamp();return}
   if(b=e.target.closest("[data-cst]")){cosTab=b.dataset.cst;drawCos();return}
+  if(b=e.target.closest("[data-csub]")){cosSub=b.dataset.csub;drawCos();return}
   if(e.target.closest("[data-tagt]")){if(!COS.tag)return;if(COS.eq.tag)delete COS.eq.tag;else COS.eq.tag="tag";cosSave();cosRefresh();toast(COS.eq.tag?"Тег надет":"Тег снят");return}
   if(SRV&&e.target.closest("[data-tagbuy]")){if(!needLogin())return;const btn=e.target.closest("[data-tagbuy]"),v=(($("cosTagIn")||{}).value||"").toUpperCase(),p=CI.find(x=>x.id==="tag").p;
     if(!/^[A-Z0-9]{1,6}$/.test(v)){toast("Впиши тег: латиница и цифры, до 6 символов");return}if(v===COS.tag){toast("Такой тег уже стоит");return}if(ME.balance<p){toast(`Не хватает ${fmt(p-ME.balance)} ₽`);return}
