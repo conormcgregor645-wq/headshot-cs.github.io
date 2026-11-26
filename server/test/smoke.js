@@ -59,10 +59,10 @@ const call = async (cookie, p, body, h = {}) => { const r = await fetch(B + p, b
   const A = await login("76561190000000001"), P = await login("76561190000000002");
   let r = await call(A, "/api/me"); ok(r.j.user.role === "owner" && r.j.user.tk === 50000, "владелец создан, стартовые ТК", r.j);
   r = await call("", "/api/me"); ok(r.j.user === null, "гость без данных");
-  r = await call("", "/api/cases/open", { k: "army", n: 1 }); ok(r.s === 401, "гость не может открыть кейс", r);
-  r = await fetch(B + "/api/cases/open", { method: "POST", headers: { cookie: P, "content-type": "application/json" }, body: "{\"k\":\"army\"}" }); ok(r.status === 403, "запрос без служебного заголовка отклонён");
-  r = await call(P, "/api/cases/open", { k: "army", n: 1 }, { origin: "https://evil.example" }); ok(r.s === 403, "запрос с чужого сайта отклонён", r);
-  for (const n of [0, -3, 6, 1.5, "x", 1e9]) { r = await call(P, "/api/cases/open", { k: "army", n }); ok(r.s === 400 || (n === 1.5 && r.s === 200), "плохое количество " + n, r); }
+  r = await call("", "/api/cases/open", { k: "pistol", n: 1 }); ok(r.s === 401, "гость не может открыть кейс", r);
+  r = await fetch(B + "/api/cases/open", { method: "POST", headers: { cookie: P, "content-type": "application/json" }, body: "{\"k\":\"pistol\"}" }); ok(r.status === 403, "запрос без служебного заголовка отклонён");
+  r = await call(P, "/api/cases/open", { k: "pistol", n: 1 }, { origin: "https://evil.example" }); ok(r.s === 403, "запрос с чужого сайта отклонён", r);
+  for (const n of [0, -3, 6, 1.5, "x", 1e9]) { r = await call(P, "/api/cases/open", { k: "pistol", n }); ok(r.s === 400 || (n === 1.5 && r.s === 200), "плохое количество " + n, r); }
   r = await call(P, "/api/cases/open", { k: "nope" }); ok(r.s === 404, "несуществующий кейс");
   // параллельные открытия: баланс не уходит в минус, списано ровно за успешные
   const price = (await call(P, "/api/cases")).j.cases.king; const before = (await call(P, "/api/me")).j.user.tk;
@@ -338,7 +338,7 @@ const call = async (cookie, p, body, h = {}) => { const r = await fetch(B + p, b
   // владельцы берутся из настроек: после перезапуска с другим списком роли меняются
   await new Promise(z => { srv.once("exit", z); srv.kill(); }); srv = start("76561190000000002"); await up();
   const A2 = await login("76561190000000001"), P2 = await login("76561190000000002");
-  r = await call(P2, "/api/cases/open", { k: "army", n: 1, free: true }); ok(r.s === 409, "без кейсов из пропуска бесплатно не открыть", r);
+  r = await call(P2, "/api/cases/open", { k: "pistol", n: 1, free: true }); ok(r.s === 409, "без кейсов из пропуска бесплатно не открыть", r);
   r = await call(A2, "/api/me"); ok(r.j.user && r.j.user.role === "player", "убранный из настроек владелец теряет права", r.j.user && r.j.user.role);
   r = await call(P2, "/api/me"); ok(r.j.user && r.j.user.role === "owner", "новый владелец из настроек получает права", r.j.user && r.j.user.role);
   r = await call(A2, "/api/admin/users"); ok(r.s === 403, "бывший владелец не видит админку", r.s);

@@ -402,7 +402,7 @@ const bal = u => db.prepare("SELECT tk, rub FROM users WHERE id=?").get(u.id);
   const tk0 = bal(u).tk;
   let r = P.claim(u, { track: "f", lv: 1 }); ok(r.got[0].txt === "110 ТК" && bal(u).tk === tk0 + 110, "забрал уровень 1: 110 ТК", r);
   ok(thr(() => P.claim(u, { track: "f", lv: 1 }), /Уже получено/), "дважды не забрать");
-  r = P.claim(u, { all: true }); ok(r.got.length === 4 && r.got.some(g => g.lv === 5 && /Кейс «Армейский»/.test(g.txt)) && db.prepare("SELECT n FROM case_free WHERE user_id=? AND k='army'").get(u.id).n === 1 && db.prepare("SELECT COUNT(*) n FROM items WHERE user_id=? AND src='pass'").get(u.id).n === 0, "«Забрать всё»: ТК и кейс копится для бесплатного открытия", r.got);
+  r = P.claim(u, { all: true }); ok(r.got.length === 4 && r.got.some(g => g.lv === 5 && /Кейс «Пистолетный»/.test(g.txt)) && db.prepare("SELECT n FROM case_free WHERE user_id=? AND k='pistol'").get(u.id).n === 1 && db.prepare("SELECT COUNT(*) n FROM items WHERE user_id=? AND src='pass'").get(u.id).n === 0, "«Забрать всё»: ТК и кейс копится для бесплатного открытия", r.got);
   ok(P.state(sid).me.unclaimed === 0, "всё получено");
   r = P.buyPremium(u); ok(r.balance === 1000 - PM.PREMIUM_PRICE && P.state(sid).me.prem && P.state(sid).me.unclaimed === 5, "премиум куплен — открылись премиум-награды пройденных уровней", P.state(sid).me);
   ok(thr(() => P.buyPremium(u), /уже куплен/), "дважды не купить");
