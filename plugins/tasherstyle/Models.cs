@@ -1,0 +1,45 @@
+// Свои модели игроков. Модели лежат в аддоне Мастерской (его скачивают игроки через MultiAddonManager, как озвучку),
+// список моделей — в конфиге (Models: ключ → путь .vmdl для CT и T). Игрок покупает и надевает модель на сайте,
+// сайт пишет её ключ в tasher_style.model. При возрождении ставим модель на персонажа; в !menu её можно выключить —
+// тогда остаётся стандартный агент (или агент из инвентаря).
+using CounterStrikeSharp.API;
+using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Timers;
+using Microsoft.Extensions.Logging;
+
+namespace TasherStyle;
+
+public partial class TasherStyle
+{
+    private void LoadModels()
+    {
+        // модели нужно загрузить заранее (precache), иначе SetModel покажет «ошибку» вместо персонажа
+        RegisterListener<Listeners.OnServerPrecacheResources>(manifest =>
+        {
+            foreach (var m in Config.Models.Values)
+                foreach (var path in new[] { m.Ct, m.T })
+                    if (IsSafeModel(path)) manifest.AddResource(path);
+        });
+        RegisterEventHandler<EventPlayerSpawn>((e, _) =>
+        {
+            var p = e.Userid;
+            if (p is { IsValid: true, IsBot: false }) AddTimer(0.5f, () => ApplyModel(p), TimerFlags.STOP_ON_MAPCHANGE);
+            return HookResult.Continue;
+        });
+    }
+
+    private static bool IsSafeModel(string path) =>
+        path.Length is > 6 and < 160 && path.EndsWith(".vmdl", StringComparison.Ordinal) && !path.Contains("..") && !path.Contains(';');
+
+    private void ApplyModel(CCSPlayerController p)
+    {
+        if (!p.IsValid || !p.PawnIsAlive || p.PlayerPawn.Value is not { IsValid: true } pawn) return;
+        var s = StyleOf(p);
+        if (s is not { Model.Length: > 0 } || !PrefOn(p.SteamID, OffModel)) return;
+        if (!Config.Models.TryGetValue(s.Model, out var m)) return;
+        var path = p.TeamNum == 2 ? (m.T.Length > 0 ? m.T : m.Ct) : (m.Ct.Length > 0 ? m.Ct : m.T);
+        if (!IsSafeModel(path)) return;
+        try { pawn.SetModel(path); }
+        catch (Exception ex) { Logger.LogWarning("[TASHER Style] модель {Key}: {Error}", s.Model, ex.Message); }
+    }
+}
