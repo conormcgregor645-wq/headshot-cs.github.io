@@ -31,6 +31,13 @@ public partial class TasherStyle
                 if (IsSafeModel(w.Model)) manifest.AddResource(w.Model);
         });
         RegisterListener<Listeners.OnMapStart>(_ => _customWeapons.Clear());
+        // удалённое оружие забываем сразу: его номер игра отдаёт следующему предмету (например, автомату бота),
+        // и без этого плагин считал бы чужой предмет своим ножом
+        RegisterListener<Listeners.OnEntityDeleted>(ent =>
+        {
+            if (ent is not null && _customWeapons.Count > 0 && _customWeapons.Remove(ent.Index))
+                Logger.LogInformation("[TASHER Style] оружие: ent {Index} удалён игрой", ent.Index);
+        });
         // диагностика падений «GetEntServerClass failed for ent N»: при заходе и выходе игрока печатаем,
         // какие предметы сейчас переключены на наши записи vdata (номер ent из ошибки сверяется с этим списком)
         RegisterEventHandler<EventPlayerConnectFull>((e, _) => { LogCustomWeapons("заход " + (e.Userid?.PlayerName ?? "?")); return HookResult.Continue; });
