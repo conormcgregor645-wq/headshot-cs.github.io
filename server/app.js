@@ -647,7 +647,7 @@ function styleRows() {
     if (!nick && !smoke && !kill && !snd && !trail && !tracer && !mvp && !model && !wmodel && !tag) continue;
     const r = row(u.steamid);
     if (nick) r.nick = nick.id; if (smoke) r.smokeHex = smoke.v; if (tag) r.tag = tag;
-    if (kill) r.killFx = kill.v; if (snd) r.killSnd = snd.id.slice(3); if (trail) r.trailHex = trail.v; if (tracer) r.tracerHex = tracer.v; if (mvp) r.mvpSnd = mvp.id.slice(3); if (model) r.model = model.v; if (wmodel) r.wmodel = wmodel;
+    if (kill) r.killFx = kill.v; if (snd) r.killSnd = snd.id.slice(3); if (trail) r.trailHex = trail.v; if (tracer) r.tracerHex = tracer.v; if (mvp) r.mvpSnd = mvp.id.slice(3); if (model && (!model.vip || TIER_ORD.indexOf(r.tier) >= TIER_ORD.indexOf(model.vip))) r.model = model.v; if (wmodel) r.wmodel = wmodel;
   }
   return [...rows.values()];
 }
@@ -657,17 +657,20 @@ if (CFG.wpCnf && require.main === module) { setTimeout(() => styleSync(), 4000).
 
 // ---------- магазин: статусы и оформление профиля за рубли с баланса ----------
 const TIER_P = { VIP: 99, PREMIUM: 199, ELITE: 349, LEGEND: 549, TITAN: 899, KING: 1499 };
+// модели привилегий (it.vip): надеть может игрок с этим статусом или старше, не продаются отдельно
+const TIER_ORD = Object.keys(TIER_P);
+const tierOk = (sid, need) => { const s = CTL.statuses().find(x => x.sid === sid); return !!s && TIER_ORD.indexOf(s.t) >= TIER_ORD.indexOf(need); };
 const PERIODS = { 30: 0, 90: 0.1, 180: 0.2 };
 const tierPrice = (tier, days) => Math.round(TIER_P[tier] * days / 30 * (1 - PERIODS[days]) / 10) * 10 - 1;
 // предметы, убранные из магазина: один раз возвращаем деньги за купленные (₽ на баланс), за полученные из пропуска — 500 ТК
-function retireItems(key, ids, why) {
+function retireItems(key, ids, why, { freeTk = 500 } = {}) {
   if (db.prepare("SELECT 1 FROM meta WHERE k=?").get(key)) return;
   tx(db, () => {
     const own = db.prepare(`SELECT user_id, item_id FROM cos_own WHERE ${ids.like ? "item_id LIKE ? ESCAPE '\\'" : `item_id IN (${ids.list.map(() => "?").join(",")})`}`).all(...(ids.like ? [ids.like] : ids.list));
     for (const r of own) {
       const paid = db.prepare("SELECT -delta p FROM ledger WHERE user_id=? AND kind='shop' AND cur='rub' AND ref=? ORDER BY id DESC LIMIT 1").get(r.user_id, "cos:" + r.item_id);
       if (paid && paid.p > 0) addMoney(r.user_id, "rub", paid.p, "refund", "cos:" + r.item_id, { what: "Возврат: " + why });
-      else addMoney(r.user_id, "tk", 500, "refund", "cos:" + r.item_id, { what: "Компенсация: " + why });
+      else if (freeTk > 0) addMoney(r.user_id, "tk", freeTk, "refund", "cos:" + r.item_id, { what: "Компенсация: " + why });
       db.prepare("DELETE FROM cos_own WHERE user_id=? AND item_id=?").run(r.user_id, r.item_id);
     }
     db.prepare("INSERT OR REPLACE INTO meta(k,v) VALUES(?, '1')").run(key);
@@ -676,6 +679,7 @@ function retireItems(key, ids, why) {
 retireItems("badge_refund", { like: "bd\\_%" }, "значки убраны с сайта"); // 24.11.2026
 retireItems("white_fx_refund", { list: ["tr_0", "tc_0"] }, "белые трассеры и след гранат теперь у всех бесплатно"); // 25.11.2026
 retireItems("mvp_refund", { like: "mv\\_%" }, "звуки MVP убраны с сервера"); // 25.11.2026
+retireItems("hero_models_vip", { list: ["md_spiderman", "md_flash", "md_batman"] }, "Человек-паук, Флэш и Бэтмен стали моделями привилегий TITAN, LEGEND и KING", { freeTk: 0 }); // 27.11.2026
 retireItems("trail_cleanup_refund", { list: ["tr_3", "tr_7", "sm_9"] }, "оранжевый и золотой трейлы и графитовый дым убраны из магазина"); // 25.11.2026
 // 25.11.2026: сувенирные предметы без наклеек турнира получают их (и сразу обновляются в игре, если надеты)
 (function fixSouvenirStickers() {
@@ -814,6 +818,7 @@ post("/api/shop/cos", ctx => {
   const u = needUser(ctx); rateLimit("cos:" + u.id, 30, 60e3);
   const out = (() => {
   const it = COSM.get(String(ctx.body.id || "")); if (!it || !COS_EQ_CATS.includes(it.cat) || it.cat === "tag") bad("Такого предмета нет");
+  if (it.vip) bad(`«${it.n}» не продаётся — это модель привилегии ${it.vip}`, 403);
   if (it.ex && !db.prepare("SELECT 1 FROM cos_own WHERE user_id=? AND item_id=?").get(u.id, it.id)) bad(`«${it.n}» не продаётся — это награда пропуска «${it.ex}», уровень ${it.lv}`);
   return tx(db, () => {
     const fresh = db.prepare("SELECT * FROM users WHERE id=?").get(u.id);
@@ -857,7 +862,8 @@ post("/api/cos/eq", ctx => {
   if (ctx.body.id == null) delete eq[cat];
   else {
     const it = COSM.get(String(ctx.body.id)); if (!it || it.cat !== cat) bad("Такого предмета нет");
-    if (!db.prepare("SELECT 1 FROM cos_own WHERE user_id=? AND item_id=?").get(u.id, it.id)) bad("Сначала купи этот предмет", 409);
+    if (it.vip) { if (!tierOk(u.steamid, it.vip)) bad(`«${it.n}» — модель привилегии ${it.vip} и старше`, 403); }
+    else if (!db.prepare("SELECT 1 FROM cos_own WHERE user_id=? AND item_id=?").get(u.id, it.id)) bad("Сначала купи этот предмет", 409);
     eq[cat] = it.id;
   }
   db.prepare("UPDATE users SET cos_eq=? WHERE id=?").run(JSON.stringify(eq), u.id);
