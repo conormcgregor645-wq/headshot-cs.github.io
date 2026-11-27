@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Донастройка игрового сервера: фриз-тайм 3 с, без урона по союзникам, без автокика за тимкиллы, карта до 100 побед без смены сторон и серверная команда обновления скинов для сайта.
+# Донастройка игрового сервера: фриз-тайм 3 с, без урона по союзникам, без автокика за тимкиллы, карта до 100 побед без смены сторон,
+# 6 ботов (3 на 3, уступают места людям, играют и на пустом сервере) и серверная команда обновления скинов для сайта.
 # Запуск от root:  bash tune.sh
 set -euo pipefail
 CSGO=/home/cs2/server/game/csgo; WPJ=$CSGO/addons/counterstrikesharp/configs/plugins/WeaponPaints/WeaponPaints.json
@@ -26,6 +27,23 @@ for k in "mp_maxrounds 201" "mp_halftime 0" "mp_match_can_clinch 0" "mp_overtime
   n=${k%% *}; if grep -q "^$n" "$F"; then sed -i "s/^$n.*/$k/" "$F"; else echo "$k" >>"$F"; fi
 done
 echo "карта до 100 побед без смены сторон (mp_maxrounds 201, mp_halftime 0)"
+# боты: всего 6 мест — 3 за T и 3 за CT. Заходит человек — один бот уходит, при 6 людях ботов нет (bot_quota_mode fill).
+# Боты играют и на пустом сервере (bot_join_after_player 0, сервер не засыпает — sv_hibernate_when_empty 0),
+# поэтому матч идёт непрерывно и при заходе не начинается заново с разминки.
+# Блок пишется в конец файла, чтобы перекрыть прежние bot_quota; test-bots.sh on своим блоком ниже его перекрывает.
+sed -i '/^\/\/ TASHER-BOTS-BEGIN/,/^\/\/ TASHER-BOTS-END/d' "$F"
+cat >>"$F" <<'C'
+// TASHER-BOTS-BEGIN (tune.sh)
+bot_quota 6
+bot_quota_mode fill
+bot_join_team any
+bot_join_after_player 0
+mp_humanteam any
+// TASHER-BOTS-END
+C
+C2=$CSGO/cfg/server.cfg
+if grep -q '^sv_hibernate_when_empty' "$C2"; then sed -i 's/^sv_hibernate_when_empty.*/sv_hibernate_when_empty 0/' "$C2"; else echo 'sv_hibernate_when_empty 0' >>"$C2"; fi
+echo "боты: 6 мест (3 за T и 3 за CT), уходят по одному при заходе людей; играют и без людей, сервер не засыпает"
 
 log "2/3 Команда обновления скинов для сайта"
 systemctl stop cs2
