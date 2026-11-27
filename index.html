@@ -40,23 +40,31 @@
 /* ===== магазин: модели персонажей ===== */
 .md-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 14px;color:var(--muted);font-size:13px}
 .md-head .co-bal{display:inline;margin:0;padding:0}
-.md-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(188px,1fr));gap:12px}
-.md-card{--mc:#9aa3ad;display:flex;flex-direction:column;border-radius:16px;overflow:hidden;background:rgba(18,19,17,.85);border:1px solid var(--line);transition:border-color .15s ease,transform .2s var(--ease-out,ease-out)}
+.md-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
+.md-card{--mc:#9aa3ad;position:relative;display:flex;flex-direction:column;aspect-ratio:3/4.35;border-radius:18px;overflow:hidden;isolation:isolate;background:#0a0b09;
+  border:1px solid color-mix(in srgb,var(--mc) 30%,rgba(255,255,255,.06));box-shadow:0 1px 0 rgba(255,255,255,.04) inset,0 18px 40px -24px rgba(0,0,0,.8);
+  transition:transform .22s var(--ease-out,ease-out),border-color .2s ease,box-shadow .25s ease}
 .md-card.t2{--mc:#4dc3ff}.md-card.t3{--mc:#b06bff}.md-card.t4{--mc:#f5c451}
-.md-card:hover{border-color:color-mix(in srgb,var(--mc) 55%,var(--line));transform:translateY(-2px)}
-.md-card.eq{border-color:var(--accent)}
-.md-ph{position:relative;aspect-ratio:3/4;display:grid;place-items:center;background:radial-gradient(110% 70% at 50% 18%,color-mix(in srgb,var(--mc) 30%,transparent),transparent 65%),linear-gradient(180deg,#151613,#0c0d0b);border-bottom:2px solid color-mix(in srgb,var(--mc) 70%,transparent)}
-.md-ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.1);transform-origin:50% 60%;transition:opacity .25s ease,transform .35s var(--ease-out,ease-out)}
-.md-card:hover .md-ph img{transform:scale(1.14)}
+.md-card::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:var(--mc);box-shadow:0 0 18px 2px color-mix(in srgb,var(--mc) 60%,transparent);z-index:3}
+.md-card:hover{transform:translateY(-4px);border-color:color-mix(in srgb,var(--mc) 70%,transparent);box-shadow:0 1px 0 rgba(255,255,255,.05) inset,0 22px 44px -20px color-mix(in srgb,var(--mc) 45%,rgba(0,0,0,.8))}
+.md-card.eq{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent),0 18px 40px -20px rgba(181,232,83,.35)}
+.md-ph{position:absolute;inset:0;z-index:0;display:grid;place-items:center}
+.md-card.noph .md-ph{background:radial-gradient(90% 60% at 50% 30%,color-mix(in srgb,var(--mc) 26%,transparent),transparent 70%),linear-gradient(180deg,#141512,#0a0b09)}
+.md-ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 0;transform-origin:50% 25%;transition:opacity .3s ease,transform .45s var(--ease-out,ease-out)}
+.md-card:hover .md-ph img{transform:scale(1.05)}
 .md-ph .md-alt{opacity:0}.md-card:hover .md-ph .md-alt{opacity:1}
-.md-ph svg{width:44%;fill:none;stroke:color-mix(in srgb,var(--mc) 55%,#fff);stroke-width:1.1;stroke-linecap:round;stroke-linejoin:round;opacity:.5}
-.md-tag{position:absolute;top:10px;left:10px;padding:4px 9px;border-radius:999px;font-size:11px;font-weight:800;background:var(--accent);color:var(--on-accent)}
-.md-tag.own{background:rgba(10,11,9,.75);color:var(--fg);border:1px solid var(--line)}
-.md-in{display:flex;flex-direction:column;gap:10px;padding:12px}
-.md-nm{display:flex;flex-direction:column;gap:3px;min-height:3.4em}.md-in b{font-size:15px;line-height:1.25}.md-rar{font-size:12px;font-weight:700;color:var(--mc)}
+.md-ph svg{width:40%;margin-bottom:28%;fill:none;stroke:color-mix(in srgb,var(--mc) 60%,#fff);stroke-width:1.1;stroke-linecap:round;stroke-linejoin:round;opacity:.45}
+.md-tag{position:absolute;top:12px;left:12px;z-index:2;padding:4px 10px;border-radius:999px;font-size:11px;font-weight:800;background:var(--accent);color:var(--on-accent)}
+.md-tag.own{background:rgba(10,11,9,.72);color:var(--fg);border:1px solid rgba(255,255,255,.14);backdrop-filter:blur(6px)}
+.md-sw{position:absolute;top:12px;right:12px;z-index:2;padding:4px 9px;border-radius:999px;font-size:11px;font-weight:800;color:var(--fg);background:rgba(10,11,9,.6);border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(6px)}
+.md-in{position:relative;z-index:2;margin-top:auto;display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;padding:46px 14px 16px;
+  background:linear-gradient(180deg,transparent,rgba(9,10,8,.82) 38%,#090a08 72%)}
+.md-rar{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--mc)}
+.md-rar::before{content:"";width:7px;height:7px;transform:rotate(45deg);background:var(--mc);box-shadow:0 0 8px var(--mc)}
+.md-n{font-size:17px;font-weight:900;font-style:italic;line-height:1.15;letter-spacing:.01em;text-wrap:balance;margin-bottom:6px}
 .md-in .co-b{width:100%}
-@media (max-width:640px){.md-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.md-in{padding:10px}.md-in b{font-size:14px}.md-head{flex-wrap:wrap}}
-@media (prefers-reduced-motion:reduce){.md-card{transition:none}.md-card:hover{transform:none}}
+@media (max-width:640px){.md-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.md-in{padding:40px 10px 12px}.md-n{font-size:15px}.md-head{flex-wrap:wrap}}
+@media (prefers-reduced-motion:reduce){.md-card,.md-ph img{transition:none}.md-card:hover,.md-card:hover .md-ph img{transform:none}}
 </style>
 <style>
 /* Layout: left rail + content; home = live hero (server card + live scoreboard), then daily tasks + map vote, then weekly top */
@@ -5612,7 +5620,7 @@ function drawStats(){const all=board(),q=$("q-stats").value.trim().toLowerCase()
   const pod=all.slice(0,3),col=["#d4f58a","#d5dde8","#e0915f"];
   $("podM").innerHTML=[1,0,2].filter(k=>pod[k]).map(k=>{const p=pod[k],cl=clanOf(p);return`<button class="pd p${k+1}" data-p="${esc(p.n)}" style="--mc:${col[k]}"><span class="pd-num">${k+1}</span><span class="pd-av" style="--ac:${p.c}">${cosAvInner(p.n)||ini(p.n)}<i>${k+1}</i></span><b class="pd-nm">${esc(p.n)}${kingBadge(p)}</b><small class="pd-cl">${cl?`[${esc(cl.t)}] ${esc(cl.n)}`:"без клана"}</small>${rtPts(monthPts(p),1)}<span class="pd-prize" data-tip="${RPRIZE(k).tip}">Приз: ${RPRIZE(k).t}</span>${(()=>{const bg=podBg(p);return bg?cosLayer(bg)+'<i class="pd-sh" aria-hidden="true"></i>':""})()}</button>`}).join("");
   const rows=all.map((p,i)=>({p,i})).filter(({p})=>!q||p.n.toLowerCase().includes(q));
-  if(REAL_STATS&&!all.length){$("rtList").innerHTML=`<div class="rt-empty">Рейтинг месяца пока пуст. Зайди на сервер — очки начисляются за убийства, хедшоты, помощь, бомбу и выигранные раунды.</div>`;return}
+  if(REAL_STATS&&!all.length){$("rtList").innerHTML=`<div class="rt-empty">Рейтинг месяца пока пуст. Зайди на сервер — очки начисляются за убийства, хедшоты, помощь, бомбу и выигранные раунды, а за смерть отнимаются.</div>`;return}
   const mk=p=>p.real?p.mk:p.kills,md=p=>p.real?p.md:p.deaths;
   $("rtList").innerHTML=rtHead(["Место","Игрок","Рейтинг","Убийств","Смертей","Помощи","Хедшотов","K/D",REAL_STATS?"В игре":"Точность","Приз"])+(rows.length?rows.map(({p,i})=>{const bg=rowBg(p);return`<div class="rt-row ${i<3?"top t"+(i+1):""} ${logged&&p===ME?"me":""}${bg?" has-bg"+cosBgCls(bg):""}" data-p="${esc(p.n)}" tabindex="0" role="button"${bg&&cosBg(bg)?` style="${cosBg(bg)}"`:""}><span class="rt-pl">${i+1}</span><span class="rt-who"><i class="av${cosFrame(p.n)}${cosAvInner(p.n)?" hasav":""}" style="background:${p.c}">${cosAvInner(p.n)||ini(p.n)}</i><span class="nm"${cosNick(p.n)}>${esc(p.n)}</span>${cosBadge(p.n)}${kingBadge(p)}${clanTag(p)}</span><span>${rtPts(monthPts(p))}</span>${rc("kill",fmt(mk(p)))}${rc("skull",fmt(md(p)))}${rc("as",fmt(p.real?p.ma:stAs(p)))}${rc("hs",fmt(p.real?p.mhs:stHs(p)))}${rc("kd",(p.real?(md(p)?mk(p)/md(p):mk(p)):p.kd).toFixed(2))}${rc("acc",p.real?ptStr(p.mpt):stAcc(p)+"%")}<span>${rPrizeChip(i)}</span>${bg?cosLayer(bg)+'<i class="rt-sh" aria-hidden="true"></i>':""}</div>`}).join(""):`<div class="rt-empty">Игрок «${esc(q)}» не найден</div>`)}
 document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.matches(".rt-row[data-p]"))openProfile(e.target.dataset.p)});
@@ -5870,7 +5878,7 @@ function cosSwatch(it){const c=it.cat;
   if(c==="kill")return`<span class="co-sw co-kl" data-kl="${it.v}"><i class="kfx kfx-${it.v}"></i><svg viewBox="0 0 24 24" class="co-skull">${BADGES.skull}</svg></span>`;
   if(c==="mvp")return`<span class="co-sw"><svg viewBox="0 0 24 24" class="co-spk"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4v1a3 3 0 0 0 3 3M17 6h3v1a3 3 0 0 1-3 3"/></svg></span>`;
   if(c==="snd")return`<span class="co-sw"><svg viewBox="0 0 24 24" class="co-spk"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/></svg></span>`;
-  if(c==="model"||c==="wknife"||c==="wpistol"||c==="wgun")return`<span class="co-sw co-mdl">${c==="model"&&MDL_IMG.has(it.v)?`<img src="img/models/${esc(it.v)}.webp?v=2" alt="" loading="lazy">`:c==="model"?`<svg viewBox="0 0 24 24" class="co-spk"><circle cx="12" cy="6" r="3"/><path d="M7 21v-6l-2-4 4-2h6l4 2-2 4v6M10 21v-5h4v5"/></svg>`:c==="wknife"?`<svg viewBox="0 0 24 24" class="co-spk"><path d="M4 20l7-7M11 13l8-9c1 3 0 6-3 9l-3 2zM6 16l2 2"/></svg>`:`<svg viewBox="0 0 24 24" class="co-spk"><path d="M3 9h15l3-2v4h-4l-1 2h-4l-1 5H7l1-5H3z"/></svg>`}</span>`;
+  if(c==="model"||c==="wknife"||c==="wpistol"||c==="wgun")return`<span class="co-sw co-mdl">${c==="model"&&MDL_IMG.has(it.v)?`<img src="img/models/${esc(it.v)}.webp?v=3" alt="" loading="lazy">`:c==="model"?`<svg viewBox="0 0 24 24" class="co-spk"><circle cx="12" cy="6" r="3"/><path d="M7 21v-6l-2-4 4-2h6l4 2-2 4v6M10 21v-5h4v5"/></svg>`:c==="wknife"?`<svg viewBox="0 0 24 24" class="co-spk"><path d="M4 20l7-7M11 13l8-9c1 3 0 6-3 9l-3 2zM6 16l2 2"/></svg>`:`<svg viewBox="0 0 24 24" class="co-spk"><path d="M3 9h15l3-2v4h-4l-1 2h-4l-1 5H7l1-5H3z"/></svg>`}</span>`;
   if(c==="smoke")return`<span class="co-sw"><i class="co-smk${it.v==="random"?" fx-hue":""}" style="--sc:${it.v==="random"?"#ff4d4d":it.v}"></i></span>`;
   // легендарные: бегущий градиент из цветов эффекта (как переливается в игре)
   const fp=String(it.v).startsWith("anim:")?FXPAL[it.v.slice(5)]:null,fs=fp?`--tc:${fp[0]};--tg:linear-gradient(90deg,${[...fp,fp[0]].join(",")})`:`--tc:${it.v}`;
@@ -5966,11 +5974,11 @@ function drawCos(){const box=$("cosBox");if(!box)return;
 // вкладка магазина «Модели»: подвкладки «Модели игроков» и «Модели оружия»
 // модели персонажей: крупные карточки с фото (img/models/<v>.jpg, когда у предмета img:1), без фото — силуэт
 // фото моделей: img/models/<v>.webp — персонаж без фона (фон общий, у карточки)
-var MDL_IMG=new Set(["arthurshelby","gandrayda","ishowspeed","logoking","nagiev","omon1","omon2","santa","thomasshelby","vercetti","wriothesley"]); // фото img/models/<ключ>.webp, 600×800
-var MDL_ALT={omon2:"omon2_ct"}; // вторая версия модели (за спецназ) — показывается при наведении
-function mdlCard(it){const own=!!COS.own[it.id],eq=COS.eq.model===it.id,tier=it.p>=449?"t4":it.p>=349?"t3":it.p>=249?"t2":"t1",rar={t4:"Легендарная",t3:"Эпическая",t2:"Редкая",t1:"Обычная"}[tier];
-  return`<article class="md-card ${tier}${eq?" eq":""}"><div class="md-ph">${MDL_IMG.has(it.v)?`<img src="img/models/${esc(it.v)}.webp?v=2" alt="${esc(it.n)}" loading="lazy" decoding="async">${MDL_ALT[it.v]?`<img class="md-alt" src="img/models/${MDL_ALT[it.v]}.webp?v=2" alt="" loading="lazy" decoding="async">`:""}`:`<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5.2" r="2.7"/><path d="M8.4 21v-6.3L6.3 10l3.4-1.7h4.6l3.4 1.7-2.1 4.7V21M10.6 21v-4.8h2.8V21"/></svg>`}${eq?`<span class="md-tag">Надето</span>`:own?`<span class="md-tag own">Куплено</span>`:""}</div>
-   <div class="md-in"><div class="md-nm"><b>${esc(it.n)}</b><small class="md-rar">${rar}</small></div><button type="button" class="${eq?"ghost":own?"ghost on":"steam"} co-b" data-cs="${it.id}">${eq?"Снять":own?"Надеть":it.p>0?`${fmt(it.p)} ₽`:"Бесплатно"}</button></div></article>`}
+var MDL_IMG=new Set(["arthurshelby","bluetiger","gandrayda","ishowspeed","logoking","mikuxmas","nagiev","omon1","omon2","santa","thomasshelby","vercetti","wriothesley","xxxtentacion","zerorem"]); // фото img/models/<ключ>.webp, 600×800
+var MDL_ALT={omon2:"omon2_ct",santa:"santa_ct"}; // вторая версия модели (за спецназ) — показывается при наведении
+function mdlCard(it){const own=!!COS.own[it.id],eq=COS.eq.model===it.id,tier=it.p>=449?"t4":it.p>=349?"t3":it.p>=249?"t2":"t1",rar={t4:"Легендарная",t3:"Эпическая",t2:"Редкая",t1:"Обычная"}[tier],ph=MDL_IMG.has(it.v);
+  return`<article class="md-card ${tier}${eq?" eq":""}${ph?"":" noph"}"><div class="md-ph">${ph?`<img src="img/models/${esc(it.v)}.webp?v=3" alt="${esc(it.n)}" loading="lazy" decoding="async">${MDL_ALT[it.v]?`<img class="md-alt" src="img/models/${MDL_ALT[it.v]}.webp?v=3" alt="" loading="lazy" decoding="async">`:""}`:`<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5.2" r="2.7"/><path d="M8.4 21v-6.3L6.3 10l3.4-1.7h4.6l3.4 1.7-2.1 4.7V21M10.6 21v-4.8h2.8V21"/></svg>`}${eq?`<span class="md-tag">Надето</span>`:own?`<span class="md-tag own">Куплено</span>`:""}${MDL_ALT[it.v]?`<span class="md-sw" title="Наведи — вторая версия">T / CT</span>`:""}</div>
+   <div class="md-in"><span class="md-rar">${rar}</span><b class="md-n">${esc(it.n)}</b><button type="button" class="${eq?"ghost":own?"ghost on":"steam"} co-b" data-cs="${it.id}">${eq?"Снять":own?"Надеть":it.p>0?`${fmt(it.p)} ₽`:"Бесплатно"}</button></div></article>`}
 function drawModels(){const box=$("mdlBox");if(!box)return;const L=CI.filter(x=>x.cat==="model").sort((a,b)=>b.p-a.p||a.n.localeCompare(b.n,"ru"));
   box.innerHTML=`<div class="md-head"><span>Модель меняется со следующего возрождения</span><span class="co-bal">Баланс <b>${fmt(ME.balance)} ₽</b></span></div><div class="md-grid">${L.map(mdlCard).join("")}</div>`}
 function cosRefresh(){try{drawChip()}catch(e){}if(curView==="shop"&&shopTab==="models"){keepScroll(drawModels);return}if(curView==="clan")keepScroll(drawClanPage);else if(curView==="me")keepScroll(drawMe);else keepScroll(drawCos)}

@@ -40,7 +40,7 @@ const uid = db.prepare("INSERT INTO users(steamid,name,created_at,last_login,tk,
 for (const sid of [S1, S2]) db.prepare("INSERT INTO gplayers(sid,name,first_seen,last_seen) VALUES(?,?,?,?)").run(sid, "P", NOW, NOW);
 // S1: 120 убийств, 100 хедшотов, 130 из АК, 12 закладок, 101 раунд; за прошлый месяц 5 200 очков
 db.prepare("INSERT INTO gstats(sid,period,k,hs,rp,rw,pl,pt) VALUES(?,?,?,?,?,?,?,?)").run(S1, "all", 120, 100, 101, 50, 12, 3600 * 11);
-db.prepare("INSERT INTO gstats(sid,period,k,hs,rw) VALUES(?,?,?,?,?)").run(S1, "2026-10", 2000, 1000, 200);
+db.prepare("INSERT INTO gstats(sid,period,k,hs,rw,rpt) VALUES(?,?,?,?,?,?)").run(S1, "2026-10", 2000, 1000, 200, 2000 * 2 + 1000 + 200); // очки рейтинга копятся в rpt
 db.prepare("INSERT INTO gweapons(sid,w,k) VALUES(?,?,?)").run(S1, "AK-47", 130);
 db.prepare("INSERT INTO gstats(sid,period,k) VALUES(?,?,?)").run(S2, "all", 100);
 

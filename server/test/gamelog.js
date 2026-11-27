@@ -107,4 +107,18 @@ ok(GL.parseLine("garbage") === null && GL.parseLine("L 11/18/2026 - 23:55:12: so
   L('"A<2><[U:1:11]><CT>" disconnected (reason "x")'); ok(M.teamOf("A") === "", "вышел — сторона забыта");
   L('Started map "de_inferno"'); ok(M.match().ct === 0 && M.match().t === 0, "новая карта — счёт с нуля");
 }
+// очки рейтинга: смерть −3, ниже нуля не уходят, после нуля убийства считаются сразу
+{
+  const db2 = new DatabaseSync(":memory:"), M = GL.makeStats(db2), T = "L 11/20/2026 - 20:00:00: ";
+  const L = x => M.apply(GL.parseLine(T + x));
+  const pts = sid => db2.prepare("SELECT rpt FROM gstats WHERE sid=? AND period='all'").get(sid).rpt;
+  L('World triggered "Match_Start" on "de_dust2"');
+  const A = String(76561197960265728n + 21n), B = String(76561197960265728n + 22n);
+  const kill = (a, b) => L(`"${a}<2><[U:1:${a === "A" ? 21 : 22}]><CT>" [0 0 0] killed "${b}<3><[U:1:${b === "A" ? 21 : 22}]><TERRORIST>" [1 1 1] with "ak47"`);
+  kill("A", "B"); kill("A", "B");
+  ok(pts(A) === 4 && pts(B) === 0, "убийство +2, смерть −3, но не ниже нуля", [pts(A), pts(B)]);
+  kill("B", "A"); ok(pts(A) === 1, "смерть отнимает 3 очка", pts(A));
+  kill("B", "A"); ok(pts(A) === 0, "очки не уходят в минус", pts(A));
+  kill("A", "B"); ok(pts(A) === 2, "после нуля убийство сразу даёт очки", pts(A));
+}
 console.log(fails ? `\nОШИБОК: ${fails}` : "\nСтатистика считается верно"); process.exit(fails ? 1 : 0);
