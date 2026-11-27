@@ -242,6 +242,8 @@ function open(file) {
     // 24: модели оружия убраны совсем — в магазине только модели персонажей
     `DELETE FROM cos_own WHERE item_id LIKE 'wm\\_%' ESCAPE '\\';
      UPDATE users SET cos_eq = json_remove(cos_eq, '$.wknife', '$.wpistol', '$.wgun') WHERE cos_eq LIKE '%"w%';`,
+    // 25: модели привилегий не надеваются вручную — в игре они ставятся по статусу
+    `UPDATE users SET cos_eq = json_remove(cos_eq, '$.model') WHERE json_extract(cos_eq, '$.model') IN ('md_spiderman','md_flash','md_batman');`,
   ];
   for (let v = ver; v < MIG.length; v++) {
     db.exec("BEGIN");

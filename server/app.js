@@ -647,8 +647,11 @@ function styleRows() {
     if (!nick && !smoke && !kill && !snd && !trail && !tracer && !mvp && !model && !wmodel && !tag) continue;
     const r = row(u.steamid);
     if (nick) r.nick = nick.id; if (smoke) r.smokeHex = smoke.v; if (tag) r.tag = tag;
-    if (kill) r.killFx = kill.v; if (snd) r.killSnd = snd.id.slice(3); if (trail) r.trailHex = trail.v; if (tracer) r.tracerHex = tracer.v; if (mvp) r.mvpSnd = mvp.id.slice(3); if (model && (!model.vip || TIER_ORD.indexOf(r.tier) >= TIER_ORD.indexOf(model.vip))) r.model = model.v; if (wmodel) r.wmodel = wmodel;
+    if (kill) r.killFx = kill.v; if (snd) r.killSnd = snd.id.slice(3); if (trail) r.trailHex = trail.v; if (tracer) r.tracerHex = tracer.v; if (mvp) r.mvpSnd = mvp.id.slice(3); if (model && !model.vip) r.model = model.v; if (wmodel) r.wmodel = wmodel;
   }
+  // модель привилегии: у LEGEND, TITAN и KING своя модель, если игрок не надел другую из магазина
+  const vipModel = {}; for (const x of COSM.values()) if (x.cat === "model" && x.vip) vipModel[x.vip] = x.v;
+  for (const r of rows.values()) if (!r.model && r.tier && vipModel[r.tier]) r.model = vipModel[r.tier];
   return [...rows.values()];
 }
 styleSync = STYLE.makeStyleSync({ cnf: CFG.wpCnf, bin: CFG.mysqlBin, collect: styleRows,
@@ -657,7 +660,7 @@ if (CFG.wpCnf && require.main === module) { setTimeout(() => styleSync(), 4000).
 
 // ---------- магазин: статусы и оформление профиля за рубли с баланса ----------
 const TIER_P = { VIP: 99, PREMIUM: 199, ELITE: 349, LEGEND: 549, TITAN: 899, KING: 1499 };
-// модели привилегий (it.vip): надеть может игрок с этим статусом или старше, не продаются отдельно
+// модели привилегий (it.vip): в магазине их нет, в игре у игрока со статусом it.vip она стоит сама (styleRows)
 const TIER_ORD = Object.keys(TIER_P);
 const tierOk = (sid, need) => { const s = CTL.statuses().find(x => x.sid === sid); return !!s && TIER_ORD.indexOf(s.t) >= TIER_ORD.indexOf(need); };
 const PERIODS = { 30: 0, 90: 0.1, 180: 0.2 };

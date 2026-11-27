@@ -5493,9 +5493,9 @@ const T6=[
  {k:"VIP",n:"VIP",c:"#b8c0cc",p:99,f:["105 HP, броня и шлем","+$300 каждый раунд","Флешка при возрождении","Тег [VIP] в чате и в таблице счёта"]},
  {k:"PREMIUM",n:"PREMIUM",c:"#5aa9ff",p:199,f:["110 HP, броня и шлем","+$500 каждый раунд","Флешка и дым","Набор сапёра за CT","Тег [PREMIUM]"]},
  {k:"ELITE",n:"ELITE",c:"#3ddc97",p:349,hot:1,f:["115 HP, броня и шлем","+$800 каждый раунд","Все 4 гранаты","Шприц-аптечка","Тег [ELITE]"]},
- {k:"LEGEND",n:"LEGEND",c:"#a78bfa",p:549,f:["120 HP, броня и шлем","+$1 000 каждый раунд","Бесплатный набор оружия","Все 4 гранаты и шприц","Тег [LEGEND]","Модель Флэша"]},
- {k:"TITAN",n:"TITAN",c:"#ff6b2c",p:899,f:["125 HP, броня и шлем","+$1 500 каждый раунд","Регенерация здоровья","Вампиризм: 10% урона в HP","2 шприца-аптечки","Модели Человека-паука и Флэша"]},
- {k:"GOD",n:"KING",c:"#ffcf40",p:1499,god:1,f:["130 HP, броня и шлем","+$2 000 каждый раунд","Вампиризм: 15% урона в HP","Цветной дым","Отметка KING рядом с ником","Модели Бэтмена, Человека-паука и Флэша"]}
+ {k:"LEGEND",n:"LEGEND",c:"#a78bfa",p:549,f:["120 HP, броня и шлем","+$1 000 каждый раунд","Бесплатный набор оружия","Все 4 гранаты и шприц","Тег [LEGEND]","Модель персонажа: Флэш"]},
+ {k:"TITAN",n:"TITAN",c:"#ff6b2c",p:899,f:["125 HP, броня и шлем","+$1 500 каждый раунд","Регенерация здоровья","Вампиризм: 10% урона в HP","2 шприца-аптечки","Модель персонажа: Человек-паук"]},
+ {k:"GOD",n:"KING",c:"#ffcf40",p:1499,god:1,f:["130 HP, броня и шлем","+$2 000 каждый раунд","Вампиризм: 15% урона в HP","Цветной дым","Отметка KING рядом с ником","Модель персонажа: Бэтмен"]}
 ];
 const PER=[[30,"30 дней",0],[90,"90 дней",.1],[180,"180 дней",.2]];
 let per=0;
@@ -5984,7 +5984,7 @@ var MDL_ALT={omon2:"omon2_ct",santa:"santa_ct"}; // вторая версия м
 function mdlCard(it){const vip=it.vip,own=vip?hasTier(vip):!!COS.own[it.id],eq=COS.eq.model===it.id,tier=vip?"t5":it.p>=449?"t4":it.p>=349?"t3":it.p>=249?"t2":"t1",rar=vip?`Привилегия ${vip}`:{t4:"Легендарная",t3:"Эпическая",t2:"Редкая",t1:"Обычная"}[tier],ph=MDL_IMG.has(it.v);
   return`<article class="md-card ${tier}${eq?" eq":""}${ph?"":" noph"}"><div class="md-ph">${ph?`<img src="img/models/${esc(it.v)}.webp?v=3" alt="${esc(it.n)}" loading="lazy" decoding="async">${MDL_ALT[it.v]?`<img class="md-alt" src="img/models/${MDL_ALT[it.v]}.webp?v=3" alt="" loading="lazy" decoding="async">`:""}`:`<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5.2" r="2.7"/><path d="M8.4 21v-6.3L6.3 10l3.4-1.7h4.6l3.4 1.7-2.1 4.7V21M10.6 21v-4.8h2.8V21"/></svg>`}${eq?`<span class="md-tag">Надето</span>`:own&&!vip?`<span class="md-tag own">Куплено</span>`:""}${MDL_ALT[it.v]?`<span class="md-sw" title="Наведи — вторая версия">T / CT</span>`:""}</div>
    <div class="md-in"><span class="md-rar">${rar}</span><b class="md-n">${esc(it.n)}</b><button type="button" class="${eq?"ghost":own?"ghost on":"steam"} co-b" data-cs="${it.id}">${eq?"Снять":own?"Надеть":vip?`Купить ${vip}`:it.p>0?`${fmt(it.p)} ₽`:"Бесплатно"}</button></div></article>`}
-function drawModels(){const box=$("mdlBox");if(!box)return;const L=CI.filter(x=>x.cat==="model").sort((a,b)=>(b.vip?100+TIER_ORD.indexOf(b.vip):0)-(a.vip?100+TIER_ORD.indexOf(a.vip):0)||b.p-a.p||a.n.localeCompare(b.n,"ru"));
+function drawModels(){const box=$("mdlBox");if(!box)return;const L=CI.filter(x=>x.cat==="model"&&!x.vip).sort((a,b)=>(b.vip?100+TIER_ORD.indexOf(b.vip):0)-(a.vip?100+TIER_ORD.indexOf(a.vip):0)||b.p-a.p||a.n.localeCompare(b.n,"ru"));
   box.innerHTML=`<div class="md-head"><span>Модель меняется со следующего возрождения</span><span class="co-bal">Баланс <b>${fmt(ME.balance)} ₽</b></span></div><div class="md-grid">${L.map(mdlCard).join("")}</div>`}
 function cosRefresh(){try{drawChip()}catch(e){}if(curView==="shop"&&shopTab==="models"){keepScroll(drawModels);return}if(curView==="clan")keepScroll(drawClanPage);else if(curView==="me")keepScroll(drawMe);else keepScroll(drawCos)}
 document.addEventListener("click",e=>{if(!e.target.closest("#cosBox,#mdlBox,#clanBankBox,#meBody .pf-cos"))return;let b;
