@@ -23,10 +23,24 @@ public partial class TasherStyle
         RegisterEventHandler<EventPlayerSpawn>((e, _) =>
         {
             var p = e.Userid;
-            if (p is { IsValid: true, IsBot: false }) AddTimer(0.5f, () => ApplyModel(p), TimerFlags.STOP_ON_MAPCHANGE);
+            if (p is { IsValid: true, IsBot: false })
+            {
+                _modelOn.Remove(p.SteamID);
+                AddTimer(0.5f, () => ApplyModel(p), TimerFlags.STOP_ON_MAPCHANGE);
+            }
             return HookResult.Continue;
         });
+        // Жёсткое правило: пока на игроке кастомная модель, перчатки не держатся (даже если надел их командой).
+        AddTimer(1f, () =>
+        {
+            if (_modelOn.Count == 0) return;
+            foreach (var p in Utilities.GetPlayers())
+                if (p is { IsValid: true, IsBot: false, PawnIsAlive: true } && _modelOn.Contains(p.SteamID) && p.PlayerPawn.Value is { IsValid: true } pw)
+                    StripGloves(pw);
+        }, TimerFlags.REPEAT);
     }
+
+    private readonly HashSet<ulong> _modelOn = new();
 
     private static bool IsSafeModel(string path) =>
         path.Length is > 6 and < 160 && path.EndsWith(".vmdl", StringComparison.Ordinal) && !path.Contains("..") && !path.Contains(';');
@@ -41,6 +55,7 @@ public partial class TasherStyle
         if (!IsSafeModel(path)) return;
         try { pawn.SetModel(path); }
         catch (Exception ex) { Logger.LogWarning("[TASHER Style] модель {Key}: {Error}", s.Model, ex.Message); return; }
+        _modelOn.Add(p.SteamID);
         // Перчатки (WeaponPaints или инвентарь) сделаны под руки стандартных агентов: на чужой модели они
         // ложатся криво — чёрные пятна и дыры. С кастомной моделью перчатки снимаем, остаются руки самой модели.
         // WeaponPaints надевает перчатки сразу после возрождения, поэтому повторяем ещё пару раз.
