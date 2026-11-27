@@ -51,7 +51,7 @@ function Repair-WeaponMaterials {
     $ok = 0; $bad = @()
     foreach ($v in (Get-ChildItem $root -Recurse -Filter *.vmat -ErrorAction SilentlyContinue)) {
         $t = [IO.File]::ReadAllText($v.FullName); $o = $t
-        $t = [regex]::Replace($t, '(?m)^(\s*g_v\w+\s+")([^"]*)"', { param($m) $m.Groups[1].Value + ($m.Groups[2].Value -replace '(\d),(\d)', '$1.$2') + '"' })
+        $t = [regex]::Replace($t, '(?m)^(\s*\w+\s+")(\[[^"]*)"', { param($m) $m.Groups[1].Value + ($m.Groups[2].Value -replace '(\d),(\d)', '$1.$2') + '"' })
         $t = [regex]::Replace($t, '(?m)^(\s*g_fl\w+\s+)(-?\d+),(\d+)\s*$', '$1$2.$3')
         if ($t -notmatch '(?m)^\s*TextureColor\s') {
             $comp = Get-ChildItem $v.DirectoryName -Filter "$($v.BaseName)_vmat_g_tcolor_*.png" -ErrorAction SilentlyContinue | Select-Object -First 1
