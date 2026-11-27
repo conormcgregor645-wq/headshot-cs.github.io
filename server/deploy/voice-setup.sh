@@ -45,8 +45,14 @@ if [[ ",$CUR," == *",$ID,"* ]]; then NEW=$CUR; else NEW=${CUR:+$CUR,}$ID; fi
 if grep -qE '^mm_extra_addons[[:space:]]+"' "$MAMCFG"; then
   sed -i -E "s/^(mm_extra_addons[[:space:]]+)\"[^\"]*\"/\1\"$NEW\"/" "$MAMCFG"
 else echo "mm_extra_addons \"$NEW\"" >>"$MAMCFG"; fi
+# помнить 10 минут, что игрок уже скачал аддоны (не выкидывать повторно при перезаходе и смене карты),
+# и дать 3 минуты на скачивание карты из Мастерской (по умолчанию 30 с — на медленном интернете не успевали)
+for kv in "mm_cache_clients_with_addons 1" "mm_cache_clients_duration 600" "mm_addon_connection_timeout 180"; do
+  k=${kv% *}; v=${kv#* }
+  if grep -qE "^$k[[:space:]]" "$MAMCFG"; then sed -i -E "s/^($k[[:space:]]+)[0-9]+/\1$v/" "$MAMCFG"; else echo "$k $v" >>"$MAMCFG"; fi
+done
 chown cs2:cs2 "$MAMCFG" 2>/dev/null || true
-echo "mm_extra_addons \"$NEW\""
+echo "mm_extra_addons \"$NEW\"; кэш аддонов игроков 600 с, скачивание карты до 180 с"
 
 log "3/3 Включаю голос серий в TASHER Style"
 set_voice 1

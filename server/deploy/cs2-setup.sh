@@ -117,7 +117,9 @@ hostname "TASHER | Public 5x5 | tashercs.ru"
 sv_lan 0
 sv_password ""
 rcon_password "$RCON_PASS"
-sv_hibernate_when_empty 1
+// без сна при пустом сервере: MultiAddonManager отключает игрока, чтобы тот скачал аддон, сервер в эту паузу
+// засыпал, и повторное подключение срывалось («заходит через раз»)
+sv_hibernate_when_empty 0
 // список игроков для сайта (запрос Steam A2S_PLAYER)
 host_players_show 2
 // журнал матча в консоль: из него сайт считает статистику игроков
