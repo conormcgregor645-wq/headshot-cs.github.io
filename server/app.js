@@ -659,7 +659,7 @@ styleSync = STYLE.makeStyleSync({ cnf: CFG.wpCnf, bin: CFG.mysqlBin, collect: st
 if (CFG.wpCnf && require.main === module) { setTimeout(() => styleSync(), 4000).unref(); setInterval(() => styleSync(), 60e3).unref(); }
 
 // ---------- магазин: статусы и оформление профиля за рубли с баланса ----------
-const TIER_P = { VIP: 99, PREMIUM: 199, ELITE: 349, LEGEND: 549, TITAN: 899, KING: 1499 };
+const TIER_P = { VIP: 99, PREMIUM: 199, ELITE: 349, LEGEND: 549, TITAN: 699, KING: 999 };
 // модели привилегий (it.vip): в магазине их нет, в игре у игрока со статусом it.vip она стоит сама (styleRows)
 const TIER_ORD = Object.keys(TIER_P);
 const tierOk = (sid, need) => { const s = CTL.statuses().find(x => x.sid === sid); return !!s && TIER_ORD.indexOf(s.t) >= TIER_ORD.indexOf(need); };
