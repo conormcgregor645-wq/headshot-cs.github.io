@@ -2,7 +2,8 @@
 //  • в аддоне Мастерской лежат модели и СВОЙ scripts/weapons.vdata — копия игрового файла с добавленными записями
 //    (например weapon_tasher_rose), где указаны наши модели. Игроки скачивают аддон — игра знает эти записи,
 //    поэтому модель видно и от первого лица, и со стороны;
-//  • плагин переключает оружие игрока на нашу запись: AcceptInput("ChangeSubclass", Vdata).
+//  • плагин выдаёт оружие заново и сразу переключает его на нашу запись: AcceptInput("ChangeSubclass", Vdata).
+//    Переключать уже выданное нельзя — от первого лица останется обычная модель без анимаций.
 //    Нож — через 1,5 с после возрождения (позже, чем WeaponPaints выдаёт нож из инвентаря): старый нож убираем, выдаём новый.
 //    Пистолет/автомат — когда у игрока появляется оружие класса Base (купил, поднял, выдали на старте).
 //    Если оружие со своей моделью поднял игрок без неё — возвращаем обычную запись (Base).
@@ -67,6 +68,7 @@ public partial class TasherStyle
         {
             var mine = MyWeaponModels(p);
             var weapons = ws.MyWeapons.Select(h => h.Value).Where(w => w is { IsValid: true }).Cast<CBasePlayerWeapon>().ToList();
+            var active = pawn.WeaponServices.ActiveWeapon.Value;
 
             // нож: при возрождении меняем на свой
             var knifeCfg = mine.FirstOrDefault(w => w.Slot == 2);
@@ -75,11 +77,11 @@ public partial class TasherStyle
                 foreach (var w in weapons.Where(w => IsKnife(w.DesignerName) || (_customWeapons.TryGetValue(w.Index, out var c) && c.Slot == 2)))
                 { _customWeapons.Remove(w.Index); w.Remove(); }
                 var knife = p.GiveNamedItem<CBasePlayerWeapon>("weapon_knife");
-                if (knife is { IsValid: true }) SetSubclass(knife, knifeCfg);
+                if (knife is { IsValid: true }) Fresh(knife, knifeCfg);
                 weapons = weapons.Where(w => w.IsValid).ToList();
             }
 
-            // пистолеты и основное оружие
+            // пистолеты и основное оружие: заменяем новым экземпляром (с теми же патронами)
             foreach (var w in weapons)
             {
                 if (!w.IsValid) continue;
@@ -88,41 +90,46 @@ public partial class TasherStyle
                 if (!isCustom && IsKnife(w.DesignerName)) continue;
                 var baseName = isCustom ? cur!.Base : w.DesignerName;
                 var cfg = mine.FirstOrDefault(c => c.Slot != 2 && c.Base == baseName);
-                if (cfg != null && (!isCustom || cur!.Vdata != cfg.Vdata)) SetSubclass(w, cfg);
-                else if (cfg == null && isCustom)
-                {
-                    // оружие со своей моделью подобрал игрок без неё — возвращаем обычное
-                    _customWeapons.Remove(w.Index);
-                    w.AcceptInput("ChangeSubclass", value: cur!.Base);
-                }
+                if (cfg != null && (!isCustom || cur!.Vdata != cfg.Vdata)) Replace(p, w, baseName, cfg, active == w);
+                else if (cfg == null && isCustom) Replace(p, w, baseName, null, active == w); // чужая модель — обычное оружие
             }
         }
         catch (Exception ex) { Logger.LogWarning("[TASHER Style] модели оружия: {Error}", ex.Message); }
     }
 
-    // WeaponPaints сразу после выдачи оружия ставит свой нож (ChangeSubclass) и раскраску — на следующем кадре.
-    // Поэтому свою запись ставим сразу и повторяем через 0,2 и 0,8 с, пока оружие у того же владельца.
-    private void SetSubclass(CBasePlayerWeapon w, WeaponModelCfg cfg)
+    // Модель от первого лица берётся из записи vdata, с которой оружие пришло игроку. Если сменить запись у оружия,
+    // которое игрок уже держит, сменится только вид со стороны. Поэтому оружие не перекрашиваем, а выдаём заново.
+    private void Replace(CCSPlayerController p, CBasePlayerWeapon old, string baseName, WeaponModelCfg? cfg, bool wasActive)
+    {
+        int clip = old.Clip1, reserve = old.ReserveAmmo[0];
+        _customWeapons.Remove(old.Index);
+        old.Remove();
+        var w = p.GiveNamedItem<CBasePlayerWeapon>(baseName);
+        if (w is not { IsValid: true }) return;
+        if (cfg != null) Fresh(w, cfg);
+        Server.NextFrame(() =>
+        {
+            if (!w.IsValid) return;
+            w.Clip1 = clip; Utilities.SetStateChanged(w, "CBasePlayerWeapon", "m_iClip1");
+            w.ReserveAmmo[0] = reserve; Utilities.SetStateChanged(w, "CBasePlayerWeapon", "m_pReserveAmmo");
+            if (wasActive && p.IsValid) p.ExecuteClientCommand(cfg?.Slot == 1 || baseName is "weapon_deagle" or "weapon_glock" or "weapon_hkp2000" or "weapon_usp_silencer" or "weapon_p250" or "weapon_fiveseven" or "weapon_tec9" or "weapon_cz75a" or "weapon_elite" or "weapon_revolver" ? "slot2" : "slot1");
+        });
+    }
+
+    // Новое оружие: запись ставим сразу (до отправки игроку) и ещё раз в следующем обновлении мира —
+    // после WeaponPaints, который в это же время ставит свой нож и раскраску.
+    private void Fresh(CBasePlayerWeapon w, WeaponModelCfg cfg)
     {
         _customWeapons[w.Index] = cfg;
-        Apply(true);
-        var idx = w.Index;
-        foreach (var d in new[] { 0.2f, 0.8f })
-            AddTimer(d, () =>
-            {
-                if (!w.IsValid || !_customWeapons.TryGetValue(idx, out var c) || c != cfg) return;
-                Apply(false);
-            }, TimerFlags.STOP_ON_MAPCHANGE);
+        Apply();
+        Server.NextWorldUpdate(() => { if (w.IsValid && _customWeapons.TryGetValue(w.Index, out var c) && c == cfg) Apply(); });
 
-        void Apply(bool first)
+        void Apply()
         {
             try
             {
+                w.AcceptInput("ChangeSubclass", value: cfg.Vdata);
                 var it = w.AttributeManager.Item;
-                // повторно — только если запись сбили (WeaponPaints меняет номер ножа); у пистолетов и автоматов
-                // повторная смена сбросила бы патроны
-                if (first || (cfg.Def > 0 && it.ItemDefinitionIndex != cfg.Def))
-                    w.AcceptInput("ChangeSubclass", value: cfg.Vdata);
                 if (cfg.Def > 0) it.ItemDefinitionIndex = (ushort)cfg.Def;
                 // раскраска из инвентаря рассчитана на обычную модель — на своей модели она не нужна
                 it.NetworkedDynamicAttributes.Attributes.RemoveAll();
