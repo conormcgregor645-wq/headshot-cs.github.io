@@ -61,7 +61,11 @@ const CFG = {
   statsBots: ENV.GAME_STATS_BOTS !== "0",
   // карты для смены из админки (пусто — стандартный список)
   gameMaps: (ENV.GAME_MAPS || "").split(/[,\s]+/).filter(Boolean),
+  // владелец сайта и оператор персональных данных — для подвала, оферты и политики (заполняется в .env после регистрации ИП/самозанятости)
+  owner: { kind: ENV.OWNER_KIND || "", name: ENV.OWNER_NAME || "", inn: ENV.OWNER_INN || "", ogrn: ENV.OWNER_OGRN || "", email: ENV.OWNER_EMAIL || "", addr: ENV.OWNER_ADDR || "" },
 };
+// редакция согласия на обработку ПДн: при изменении текста согласия на сайте поменять и здесь — игроков попросят согласиться заново
+const PD_VER = "2026-11-27";
 const SECURE = CFG.site.startsWith("https://");
 if (CFG.devLogin && SECURE) { console.error("DEV_LOGIN нельзя включать на боевом сайте (SITE_URL https)."); process.exit(1); }
 
@@ -93,9 +97,13 @@ const mskDay = (t = now()) => new Date(t + 3 * 3600e3).toISOString().slice(0, 10
 const sha = s => crypto.createHash("sha256").update(s).digest("hex");
 
 // ---------- HTTP-помощники ----------
+// Аватары Steam отдаём со своего сервера: браузер посетителя не обращается к серверам Valve (США),
+// его IP не уходит за границу (152-ФЗ, трансграничная передача). В JSON адрес Steam заменяется на /api/av/<файл>.
+const AV_STEAM = /https:\/\/[a-z0-9.-]+\.(?:steamstatic\.com|akamaihd\.net)\/(?:steamcommunity\/public\/images\/avatars\/[0-9a-f]{2}\/)?([0-9a-f]{40}(?:_medium|_full)?\.jpg)/g;
+const localAv = js => js.replace(AV_STEAM, CFG.site + "/api/av/$1");
 function send(res, code, body, headers = {}) {
   const isJson = typeof body !== "string" && !Buffer.isBuffer(body);
-  const data = isJson ? JSON.stringify(body) : body;
+  const data = isJson ? localAv(JSON.stringify(body)) : body;
   res.writeHead(code, { "content-type": isJson ? "application/json; charset=utf-8" : "text/plain; charset=utf-8", "cache-control": "no-store", ...headers });
   res.end(data);
 }
@@ -733,6 +741,32 @@ post("/api/cos/img", ctx => {
   TOP_CACHE.v = null;
   return { cos: userCos(db.prepare("SELECT * FROM users WHERE id=?").get(u.id)) };
 });
+// /api/av/<хеш>_full.jpg — копия аватара Steam в кэше на диске (качаем один раз, потом отдаём сами)
+const AV_DIR = path.join(path.dirname(CFG.db), "avcache");
+const AV_WAIT = new Map();
+async function avServe(req, res, url) {
+  const f = url.pathname.slice(8);
+  if (!/^[0-9a-f]{40}(?:_medium|_full)?\.jpg$/.test(f)) { res.writeHead(404); return res.end(); }
+  const file = path.join(AV_DIR, f);
+  const out = buf => { res.writeHead(200, { "content-type": "image/jpeg", "cache-control": "public, max-age=604800", "content-length": buf.length, "x-content-type-options": "nosniff" }); res.end(req.method === "HEAD" ? undefined : buf); };
+  try { return out(fs.readFileSync(file)); } catch (e) {}
+  let p = AV_WAIT.get(f);
+  if (!p) {
+    p = (async () => {
+      const r = await fetch("https://avatars.steamstatic.com/" + f, { signal: AbortSignal.timeout(8000) });
+      if (!r.ok || !/^image\//.test(r.headers.get("content-type") || "")) return null;
+      const buf = Buffer.from(await r.arrayBuffer());
+      if (!buf.length || buf.length > 1024 * 1024) return null;
+      try { fs.mkdirSync(AV_DIR, { recursive: true }); fs.writeFileSync(file, buf); } catch (e) {}
+      return buf;
+    })().catch(() => null).finally(() => AV_WAIT.delete(f));
+    AV_WAIT.set(f, p);
+  }
+  const buf = await p;
+  if (!buf) { res.writeHead(404, { "cache-control": "no-store" }); return res.end(); }
+  return out(buf);
+}
+
 function cosImgServe(req, res, url) {
   const sid = String(url.searchParams.get("sid") || ""), cat = String(url.searchParams.get("cat") || "");
   const r = COS_IMG[cat] && /^\d{17}$/.test(sid) ? db.prepare("SELECT data, status FROM cos_img WHERE sid=? AND cat=?").get(sid, cat) : null;
@@ -986,12 +1020,31 @@ async function loginUser(req, res, steamid, ret) {
     }
   });
   if (banned) return send(res, 403, "Аккаунт заблокирован");
+  if (cookies(req).tpd === PD_VER) addConsent(req, steamid);
   syncGame(u); // при входе обновляем скины в игре (на случай, если база скинов была очищена)
-  res.writeHead(302, { location: safeRet(ret), "set-cookie": startSession(res, req, u.id), "cache-control": "no-store" }); res.end();
+  res.writeHead(302, { location: safeRet(ret), "set-cookie": [startSession(res, req, u.id), `tpd=; Path=/auth; HttpOnly; SameSite=Lax; Max-Age=0${SECURE ? "; Secure" : ""}`], "cache-control": "no-store" }); res.end();
 }
+// согласие на обработку ПДн (152-ФЗ, ст. 9): храним редакцию, время, IP и браузер — чтобы подтвердить, что согласие было
+const hasConsent = sid => !!db.prepare("SELECT 1 FROM pd_consent WHERE sid=? AND ver=? AND revoked_at IS NULL").get(sid, PD_VER);
+function addConsent(req, sid) {
+  if (hasConsent(sid)) return;
+  db.prepare("INSERT INTO pd_consent(sid,ver,at,ip,ua) VALUES(?,?,?,?,?)").run(sid, PD_VER, now(), clientIp(req), String(req.headers["user-agent"] || "").slice(0, 300));
+}
+post("/api/consent", ctx => {
+  const u = needUser(ctx);
+  if (ctx.body.ver !== PD_VER) bad("Обнови страницу: текст согласия изменился");
+  if (ctx.body.agree === true) { addConsent(ctx.req, u.steamid); return { ok: true }; }
+  // отзыв согласия: отмечаем и выходим из аккаунта; данные удаляются по заявлению в поддержку (срок — 30 дней по ст. 21 152-ФЗ)
+  db.prepare("UPDATE pd_consent SET revoked_at=? WHERE sid=? AND revoked_at IS NULL").run(now(), u.steamid);
+  db.prepare("DELETE FROM sessions WHERE user_id=?").run(u.id);
+  return { ok: true, revoked: true };
+});
 async function authRoutes(req, res, url) {
   if (url.pathname === "/auth/steam") {
-    res.writeHead(302, { location: steam.loginUrl(CFG.site, safeRet(url.searchParams.get("ret") || "/")), "cache-control": "no-store" }); return res.end(), true;
+    // галочка согласия на обработку ПДн отмечена на сайте — запоминаем на время входа через Steam
+    const h = { location: steam.loginUrl(CFG.site, safeRet(url.searchParams.get("ret") || "/")), "cache-control": "no-store" };
+    if (url.searchParams.get("pd") === PD_VER) h["set-cookie"] = `tpd=${PD_VER}; Path=/auth; HttpOnly; SameSite=Lax; Max-Age=900${SECURE ? "; Secure" : ""}`;
+    res.writeHead(302, h); return res.end(), true;
   }
   if (url.pathname === "/auth/steam/return") {
     rateLimit("login:" + clientIp(req), 20, 60e3);
@@ -1011,7 +1064,7 @@ async function authRoutes(req, res, url) {
 }
 
 // ---------- статика сайта ----------
-const MIME = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8", ".json": "application/json", ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp", ".avif": "image/avif", ".svg": "image/svg+xml", ".ico": "image/x-icon", ".txt": "text/plain; charset=utf-8", ".woff2": "font/woff2" };
+const MIME = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8", ".json": "application/json", ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp", ".avif": "image/avif", ".svg": "image/svg+xml", ".ico": "image/x-icon", ".txt": "text/plain; charset=utf-8", ".woff2": "font/woff2", ".woff": "font/woff" };
 const DENY = /^\/(server|tools|\.git|\.github|node_modules)(\/|$)|\/\.[^/]/;
 // несуществующий адрес: людям показываем страницу 404 (она же перенаправляет /shop на /#shop), программам — короткий текст
 function notFound(req, res) {
@@ -1053,13 +1106,14 @@ function serveIndex(req, res) {
   const u = sessionUser(req);
   const data = u ? { user: pubUser(u), items: userItems(u.id), loadout: userLoadout(u.id), cos: userCos(u), purchases: userPurchases(u.id), freeCases: freeCases(u.id), wheel: WHEEL.state(u), earn: EARN.today(u.steamid), quests: QUESTS.state(u.steamid), achPaid: (ACH.check(u.steamid), ACH.paid(u.steamid)), achProg: ACH.progress(u.steamid), pass: PASS.state(u.steamid) } : { user: null, quests: QUESTS.state(null), pass: PASS.state(null) };
   // джекпот без отметки времени сервера — иначе страница никогда не отдавалась бы из кэша (время сверит первый опрос)
+  data.owner = CFG.owner; data.pdVer = PD_VER; if (u) data.pdOk = hasConsent(u.steamid);
   data.clans = clansOut(u); { const ev = EVENTS.state(); delete ev.now; data.events = ev; } { const v = JP.view(u); delete v.now; data.jackpot = v; }
   if (GS) data.servers = GS; else if (CFG.gameServers.length) data.servers = []; // опрос ещё не прошёл — страница сама запросит список
   data.bans = CTL.listBans(); data.statuses = CTL.statuses(); data.awards = CTL.listAwards();
   // статистика призёров прошлых месяцев (для их профилей и медалей), даже если в этом месяце они не играли
   if (CFG.gameLogUnit) data.awardsP = [...new Set(data.awards.map(a => a.sid))].slice(0, 60).map(sid => withSkill(STATS.player(sid))).filter(Boolean);
   if (CFG.gameLogUnit) { data.stats = { period: GL.month(now()), players: statsTop(GL.month(now())).slice(0, 100) }; if (u) data.myStats = withSkill(STATS.player(u.steamid)) || null; if (LEAGUES_ENABLED) { data.leagues = SKILL.board(10); if (u) data.mySkill = SKILL.info(u.steamid); } } // UPD: лиги выключены — их данные на страницу не отдаём
-  const js = JSON.stringify(data).replace(/</g, "\\u003c").replace(/\u2028|\u2029/g, "");
+  const js = localAv(JSON.stringify(data)).replace(/</g, "\\u003c").replace(/\u2028|\u2029/g, "");
   // страница личная: браузер каждый раз сверяется с сервером и не качает её заново, если ничего не изменилось
   const etag = '"' + INDEX.tag + "-" + sha(js).slice(0, 16) + '"';
   const head = { "content-type": "text/html; charset=utf-8", "cache-control": "private, no-cache", vary: "Cookie", etag };
@@ -1079,6 +1133,7 @@ const server = http.createServer(async (req, res) => {
     if (url.pathname.startsWith("/auth/")) { if (await authRoutes(req, res, url)) return; return send(res, 404, "Not found"); }
     if (url.pathname === "/api/clans/img" && req.method === "GET") return clanImg(req, res, url);
     if (url.pathname === "/api/cos/img" && req.method === "GET") return cosImgServe(req, res, url);
+    if (url.pathname.startsWith("/api/av/") && (req.method === "GET" || req.method === "HEAD")) return avServe(req, res, url);
     if (url.pathname.startsWith("/api/")) {
       const h = (R[req.method] || new Map()).get(url.pathname);
       if (!h) return fail(res, 404, "Нет такого метода");
