@@ -19,8 +19,25 @@
 <link rel="apple-touch-icon" href="img/favicon.png?v=19a3cfed">
 <meta name="theme-color" content="#0d090b">
 <link rel="icon" type="image/png" href="img/favicon.png?v=19a3cfed">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,700;1,800;1,900&family=Russo+One&display=swap">
+<link rel="preload" href="assets/fonts/montserrat.woff?v=1" as="font" type="font/woff" crossorigin>
+<style>/* шрифты лежат на нашем сервере: без запросов к Google (152-ФЗ, трансграничная передача IP) */
+@font-face{font-family:"Montserrat";font-style:normal;font-weight:100 900;font-display:swap;src:url(assets/fonts/montserrat.woff?v=1) format("woff")}
+@font-face{font-family:"Montserrat";font-style:italic;font-weight:100 900;font-display:swap;src:url(assets/fonts/montserrat-italic.woff?v=1) format("woff")}/* ===== документы, согласие, cookies ===== */
+.pd-chk{display:flex;gap:10px;align-items:flex-start;margin:4px 0 2px;font-size:14px;line-height:1.5;color:var(--fg);cursor:pointer}
+.pd-chk input{width:18px;height:18px;margin:2px 0 0;flex:none;accent-color:var(--accent)}
+.pd-chk a,.ck-bar a,.legal a{color:var(--accent);text-decoration:underline;text-underline-offset:3px}
+.sheet .row button.primary:disabled{opacity:.45;cursor:not-allowed;transform:none!important;box-shadow:none!important}
+.ck-bar{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:60;width:min(640px,calc(100% - 32px));display:flex;align-items:center;gap:16px;padding:14px 16px 14px 20px;border:1px solid var(--line);border-radius:14px;background:rgba(14,12,13,.96);box-shadow:0 12px 32px rgba(0,0,0,.5);animation:ckIn .26s var(--ease-out,ease-out)}
+.ck-bar p{margin:0;font-size:13px;line-height:1.5;color:var(--muted)}
+.ck-bar button{flex:none;border:0;border-radius:999px;padding:10px 18px;font-weight:800;background:var(--accent);color:var(--on-accent);cursor:pointer}
+.ck-bar button:active{transform:scale(.97)}
+@keyframes ckIn{from{opacity:0;transform:translate(-50%,8px)}to{opacity:1;transform:translate(-50%,0)}}
+@media (max-width:520px){.ck-bar{flex-direction:column;align-items:stretch;gap:10px}.ck-bar button{width:100%}}
+.age-mark{display:inline-flex;align-items:center;padding:2px 7px;border:1px solid var(--line);border-radius:6px;font-size:11px;font-weight:800;color:var(--muted);align-self:center}
+.foot-own{flex-basis:100%;font-size:12px;color:var(--muted)}
+#pdRow small a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){.ck-bar{animation:none}}
+</style>
 <style>
 /* Layout: left rail + content; home = live hero (server card + live scoreboard), then daily tasks + map vote, then weekly top */
 :root{
@@ -3598,11 +3615,12 @@ footer nav a:hover,footer nav a:focus-visible{color:var(--fg);text-decoration-co
     <div class="view" id="v-offer" hidden>
       <article class="legal">
         <h1>Публичная оферта</h1>
-        <p class="lmeta">Редакция от 2 ноября 2026 г. Шаблон: перед запуском заполни реквизиты и покажи юристу.</p>
+        <p class="lmeta">Редакция от 27 ноября 2026 г.</p>
         <h2>1. Общие положения</h2>
-        <p>1.1. Индивидуальный предприниматель [ФИО полностью], ОГРНИП [номер], ИНН [номер] (далее — Исполнитель), предлагает любому дееспособному лицу (далее — Пользователь) заключить договор на условиях настоящей оферты.</p>
+        <p>1.1. <span data-own="who" data-cap></span> (далее — Исполнитель) предлагает любому дееспособному лицу (далее — Пользователь) заключить договор на условиях настоящей оферты. Несовершеннолетние в возрасте от 14 до 18 лет совершают покупки с согласия родителей или иных законных представителей.</p>
         <p>1.2. Акцептом оферты считается оплата любой услуги на сайте tashercs.ru (далее — Сайт). С момента оплаты договор считается заключённым.</p>
         <p>1.3. Сайт и игровые серверы «Tasher» не связаны с Valve Corporation. Counter-Strike 2 является товарным знаком Valve Corporation.</p>
+        <p>1.4. Обработка персональных данных Пользователя регулируется <a href="#privacy">Политикой конфиденциальности</a>. Согласие на обработку персональных данных даётся отдельно от акцепта оферты — <a href="#consent">текст согласия</a>.</p>
         <h2>2. Предмет договора</h2>
         <p>2.1. Исполнитель предоставляет Пользователю доступ к дополнительным игровым возможностям на серверах проекта (далее — Привилегия): VIP, PREMIUM, ELITE, LEGEND, TITAN, KING. Состав каждой Привилегии указан на странице «Магазин».</p>
         <p>2.2. Привилегии могут включать игровые бонусы (дополнительное здоровье, снаряжение, игровую валюту) в объёме, указанном на странице «Магазин». Исполнитель вправе изменять баланс бонусов, уведомив Пользователей на Сайте.</p>
@@ -3627,7 +3645,7 @@ footer nav a:hover,footer nav a:focus-visible{color:var(--fg);text-decoration-co
         <p>6.5. Скины из раздела «Кейсы» — внутриигровое оформление, которое работает только на серверах проекта. Скины не являются предметами Steam, их нельзя вывести за пределы проекта, продать или обменять на деньги. Скин можно продать Сайту за ТК или использовать в разделах «Апгрейд» и «Джекпот». Содержимое кейса, результат апгрейда и победитель джекпота определяются случайно с шансами, указанными на Сайте.</p>
         <p>6.6. Призы раздела «Фортуна» и клановые призы выдаются бесплатно. Исполнитель вправе менять их состав и шансы, публикуя актуальные условия на Сайте.</p>
         <h2>7. Реквизиты Исполнителя</h2>
-        <p>ИП [ФИО]<br>ИНН [номер], ОГРНИП [номер]<br>Адрес электронной почты: [почта поддержки]</p>
+        <p data-own="card"></p>
       </article>
     </div>
 
@@ -3635,26 +3653,75 @@ footer nav a:hover,footer nav a:focus-visible{color:var(--fg);text-decoration-co
     <div class="view" id="v-privacy" hidden>
       <article class="legal">
         <h1>Политика конфиденциальности</h1>
-        <p class="lmeta">Редакция от 2 ноября 2026 г. Шаблон: перед запуском заполни реквизиты и покажи юристу.</p>
-        <h2>1. Кто обрабатывает данные</h2>
-        <p>Оператор персональных данных — ИП [ФИО], ИНН [номер] (далее — Оператор). Политика составлена в соответствии с Федеральным законом № 152-ФЗ «О персональных данных».</p>
-        <h2>2. Какие данные мы собираем</h2>
+        <p class="lmeta">Политика обработки персональных данных. Редакция от 27 ноября 2026 г.</p>
+        <h2>1. Общие положения</h2>
+        <p>1.1. Политика составлена по Федеральному закону от 27.07.2006 № 152-ФЗ «О персональных данных» и описывает, какие данные пользователей обрабатываются на сайте tashercs.ru (далее — Сайт) и игровых серверах проекта «Tasher» (далее — Серверы), зачем, как долго и как пользователь может управлять своими данными.</p>
+        <p>1.2. Политика опубликована в свободном доступе и действует в отношении всех данных, которые Оператор получает от пользователей Сайта и Серверов.</p>
+        <h2>2. Оператор</h2>
+        <p data-own="card"></p>
+        <p>Вопросы по персональным данным принимаются в разделе <a href="#support">«Поддержка»</a> (тема «Другое»), а также по электронной почте Оператора, если она указана.</p>
+        <h2>3. Какие данные обрабатываются</h2>
         <ul>
-          <li>Steam ID, имя профиля и аватар Steam — при входе через Steam;</li>
-          <li>игровая статистика на серверах проекта: убийства, раунды, время в игре, достижения;</li>
-          <li>IP-адрес при подключении к игровым серверам — для защиты от читеров и обхода блокировок;</li>
-          <li>адрес электронной почты — только если Пользователь указал его при оплате;</li>
-          <li>загруженные Пользователем изображения (аватар и обложка клана);</li><li>текст обращений в поддержку и указанные в них контакты.</li>
+          <li><b>Аккаунт:</b> Steam ID, имя и аватар профиля Steam, дата регистрации и последнего входа.</li>
+          <li><b>Игра на Серверах:</b> игровой ник, IP-адрес при подключении, игровая статистика (убийства, раунды, время в игре, достижения), сообщения игрового чата — для модерации.</li>
+          <li><b>Сессии на Сайте:</b> IP-адрес, тип браузера и время входа.</li>
+          <li><b>Покупки:</b> история покупок и операций с внутренним балансом; адрес электронной почты, если пользователь указал его для чеков.</li>
+          <li><b>Обращения:</b> текст обращений в поддержку и указанные в них контакты; изображения, загруженные пользователем (аватар и обложка клана, свои картинки для рейтинга).</li>
         </ul>
-        <p>Данные банковских карт Оператор не получает и не хранит: оплату обрабатывает платёжный сервис.</p>
-        <h2>3. Зачем</h2>
-        <p>Для входа на Сайт, ведения рейтинга и статистики, выдачи оплаченных Привилегий, ответов на обращения в поддержку и блокировки нарушителей.</p>
-        <h2>4. Как долго хранятся</h2>
-        <p>Пока аккаунт используется, и 3 года после последнего входа. Сведения о блокировках хранятся бессрочно, чтобы предотвращать обход банов [уточнить у юриста].</p>
-        <h2>5. Права Пользователя</h2>
-        <p>Пользователь может запросить сведения о своих данных, их исправление или удаление, написав на [почта поддержки]. Ответ — в течение 10 рабочих дней.</p>
-        <h2>6. Cookies</h2>
-        <p>Сайт использует cookies, чтобы помнить вход и настройки. Их можно отключить в браузере, но тогда вход через Steam работать не будет.</p>
+        <p>Специальные категории данных (о здоровье, убеждениях и т. п.) и биометрические данные не обрабатываются. Данные банковских карт Оператор не получает: оплату обрабатывает платёжный сервис.</p>
+        <h2>4. Цели и правовые основания</h2>
+        <ul>
+          <li>Вход на Сайт, профиль, рейтинг, кланы, инвентарь — на основании согласия пользователя (п. 1 ч. 1 ст. 6 152-ФЗ).</li>
+          <li>Выдача оплаченных привилегий и оформления, чеки об оплате — для исполнения договора-оферты (п. 5 ч. 1 ст. 6) и по требованиям налогового законодательства (п. 2 ч. 1 ст. 6).</li>
+          <li>Защита от читеров, блокировка нарушителей правил и обхода блокировок — законный интерес Оператора и других игроков (п. 7 ч. 1 ст. 6).</li>
+          <li>Ответы на обращения в поддержку — на основании согласия и для исполнения договора.</li>
+        </ul>
+        <h2>5. Действия с данными</h2>
+        <p>Сбор, запись, систематизация, накопление, хранение, уточнение, извлечение, использование, передача (предоставление, доступ), обезличивание, блокирование, удаление и уничтожение. Обработка автоматизированная. Решения, порождающие юридические последствия, только на основании автоматизированной обработки не принимаются; блокировки за читы проверяет администрация.</p>
+        <h2>6. Где хранятся данные и кому передаются</h2>
+        <p>6.1. Базы данных с персональными данными находятся на серверах в Российской Федерации (ч. 5 ст. 18 152-ФЗ).</p>
+        <p>6.2. Данные передаются только в объёме, необходимом для целей выше: хостинг-провайдеру в РФ, где размещены Сайт и Серверы; платёжному сервису — для проведения оплаты; государственным органам — по законному запросу. Данные не продаются и не передаются для рекламы.</p>
+        <p>6.3. Вход на Сайт выполняется через Steam (Valve Corporation, США): пользователь вводит логин и пароль только на сайте Steam, Сайт получает от Steam лишь Steam ID. Чтобы показать публичные ник и аватар, Сервер запрашивает их у Steam по Steam ID — это трансграничная передача идентификатора, которая осуществляется по правилам ст. 12 152-ФЗ. Шрифты и аватары Сайт загружает со своего сервера, поэтому браузер посетителя не обращается к сторонним сервисам.</p>
+        <h2>7. Сроки обработки</h2>
+        <ul>
+          <li>данные аккаунта — пока аккаунт используется и 3 года после последнего входа, либо до отзыва согласия;</li>
+          <li>сессии на Сайте — 30 дней;</li>
+          <li>сведения о блокировках — на время блокировки и 1 год после её окончания;</li>
+          <li>сведения о покупках и чеках — 5 лет (налоговое и бухгалтерское законодательство);</li>
+          <li>обращения в поддержку — 3 года после закрытия;</li>
+          <li>сведения о выданных согласиях и их отзыве — 3 года после отзыва, как доказательство.</li>
+        </ul>
+        <p>По окончании срока или после достижения цели данные уничтожаются или обезличиваются в течение 30 дней.</p>
+        <h2>8. Права пользователя</h2>
+        <p>Пользователь вправе: получить сведения об обработке своих данных; потребовать уточнения, блокирования или уничтожения неполных, устаревших или незаконно полученных данных; отозвать согласие; обжаловать действия Оператора в Роскомнадзоре или в суде. Запрос направляется через раздел «Поддержка» или по электронной почте Оператора. Ответ — в течение 10 рабочих дней, срок может быть продлён ещё на 5 рабочих дней с уведомлением о причинах (ст. 14, 20 152-ФЗ).</p>
+        <h2>9. Отзыв согласия</h2>
+        <p>Согласие можно отозвать в любой момент: в настройках профиля (кнопка «Отозвать согласие») или запросом в поддержку. После отзыва Оператор прекращает обработку и уничтожает данные в течение 30 дней, кроме данных, которые нужно хранить по закону или для исполнения уже оплаченного договора (ч. 2 ст. 9, ч. 5 ст. 21 152-ФЗ). Без согласия вход на Сайт невозможен; играть на Серверах можно без входа на Сайт.</p>
+        <h2>10. Cookies и локальное хранилище</h2>
+        <p>Сайт использует только необходимые cookies: <b>tsid</b> — вход в аккаунт (30 дней) и <b>tpd</b> — отметка о согласии на время входа через Steam (15 минут). Настройки интерфейса хранятся в браузере (localStorage) и не передаются на сервер. Счётчиков аналитики, рекламных и сторонних трекеров на Сайте нет. Cookies можно удалить в настройках браузера, но тогда вход на Сайт работать не будет.</p>
+        <h2>11. Защита данных</h2>
+        <p>Соединение с Сайтом защищено (HTTPS). Токены сессий хранятся в базе только в виде хеша. Доступ к базе есть только у администрации проекта. Резервные копии хранятся на серверах в РФ. Об утечке данных Оператор уведомляет Роскомнадзор в сроки, установленные ст. 21 152-ФЗ.</p>
+        <h2>12. Дети</h2>
+        <p>Если пользователю меньше 14 лет, согласие на обработку данных дают родители или законные представители.</p>
+        <h2>13. Изменения</h2>
+        <p>Оператор может изменять Политику. Новая редакция действует с момента публикации на этой странице; если меняются состав данных или цели обработки, у пользователя будет запрошено новое согласие.</p>
+      </article>
+    </div>
+
+    <!-- CONSENT -->
+    <div class="view" id="v-consent" hidden>
+      <article class="legal">
+        <h1>Согласие на обработку персональных данных</h1>
+        <p class="lmeta">Редакция от 27 ноября 2026 г.</p>
+        <p>Отмечая галочку «Я даю согласие на обработку персональных данных» на сайте tashercs.ru, я, пользователь, которого идентифицирует Steam ID, свободно, своей волей и в своём интересе даю согласие оператору — <span data-own="who"></span> (далее — Оператор) — на обработку моих персональных данных на следующих условиях.</p>
+        <h2>1. Данные</h2>
+        <p>Steam ID, имя и аватар профиля Steam; игровой ник, IP-адрес, игровая статистика и сообщения игрового чата на серверах проекта; IP-адрес и тип браузера при входе на сайт; история покупок и операций с внутренним балансом; адрес электронной почты (если я его укажу); текст моих обращений в поддержку и загруженные мной изображения.</p>
+        <h2>2. Цели</h2>
+        <p>Вход на сайт и работа личного кабинета; ведение рейтинга, статистики, кланов и инвентаря; выдача привилегий и игрового оформления; модерация серверов и защита от читеров; ответы на мои обращения.</p>
+        <h2>3. Действия и способы</h2>
+        <p>Сбор, запись, систематизация, накопление, хранение, уточнение, извлечение, использование, передача (предоставление, доступ) хостинг-провайдеру и платёжному сервису в РФ, обезличивание, блокирование, удаление, уничтожение. Обработка автоматизированная. Для показа ника и аватара Оператор запрашивает мои публичные данные профиля у Valve Corporation (США) по Steam ID.</p>
+        <h2>4. Срок и отзыв</h2>
+        <p>Согласие действует до его отзыва. Я могу отозвать его в настройках профиля на сайте или запросом в поддержку; после отзыва Оператор прекращает обработку и уничтожает данные в течение 30 дней, кроме данных, которые нужно хранить по закону.</p>
+        <p>С <a href="#privacy">Политикой конфиденциальности</a> я ознакомлен.</p>
       </article>
     </div>
 
@@ -3680,6 +3747,7 @@ footer nav a:hover,footer nav a:focus-visible{color:var(--fg);text-decoration-co
           <h2>Приватность</h2>
           <div class="set-row"><div><b>Открытый профиль</b><small>Другие видят твою статистику</small></div><label class="switch"><input type="checkbox" data-set="publicProfile"><span></span></label></div>
           <div class="set-row"><div><b>Тег клана перед ником</b><small>На сайте и на сервере</small></div><label class="switch"><input type="checkbox" data-set="clanTag"><span></span></label></div>
+          <div class="set-row" id="pdRow" hidden><div><b>Персональные данные</b><small>Отзыв согласия: выйдешь из аккаунта, данные удалим в течение 30 дней. <a href="#privacy">Политика</a></small></div><button class="ghost" id="pdRevoke" type="button">Отозвать согласие</button></div>
         </section>
         <section class="box set-sec">
           <h2>Уведомления</h2>
@@ -3715,7 +3783,8 @@ footer nav a:hover,footer nav a:focus-visible{color:var(--fg);text-decoration-co
 
     <footer>
       <span>© 2026 Tasher · tashercs.ru. Проект не связан с Valve Corporation. Озвучка серий убийств: Antti Saari, TripleSnail — <a href="https://opengameart.org/content/announcer-kill-sounds" target="_blank" rel="noopener noreferrer">«Announcer kill sounds»</a>, CC-BY 3.0.</span><span class="ny-foot">С Новым годом, бойцы! ❄</span>
-      <nav><a href="#rules">Правила</a><a href="#offer">Договор оферты</a><a href="#privacy">Конфиденциальность</a></nav>
+      <span class="foot-own" data-own="line" hidden></span>
+      <nav><span class="age-mark" title="Для лиц старше 18 лет">18+</span><a href="#rules">Правила</a><a href="#offer">Договор оферты</a><a href="#privacy">Конфиденциальность</a><a href="#consent">Согласие на обработку ПДн</a></nav>
     </footer>
   </main>
 </div>
@@ -3813,6 +3882,20 @@ footer nav a:hover,footer nav a:focus-visible{color:var(--fg);text-decoration-co
 
 <div class="scrim" id="scrim" hidden></div>
 <aside class="drawer" id="drawer" hidden aria-label="Профиль игрока"></aside>
+
+<div class="modal" id="pdModal" hidden>
+  <div class="sheet pd-sheet" role="dialog" aria-modal="true" aria-labelledby="pdT">
+    <h4 id="pdT">Вход через Steam</h4>
+    <p id="pdTxt">Для входа нужно твоё согласие на обработку персональных данных: Steam ID, ник и аватар Steam, игровая статистика.</p>
+    <label class="pd-chk"><input type="checkbox" id="pdAgree"><span>Я даю <a href="/#consent" target="_blank" rel="noopener">согласие на обработку персональных данных</a> и ознакомлен с <a href="/#privacy" target="_blank" rel="noopener">политикой конфиденциальности</a></span></label>
+    <div class="row"><button id="pdNo">Отмена</button><button class="primary" id="pdGo" disabled>Войти через Steam</button></div>
+  </div>
+</div>
+
+<div class="ck-bar" id="ckBar" role="region" aria-label="Cookies" hidden>
+  <p>Сайт использует только необходимые cookies — для входа в аккаунт. Аналитики и рекламы нет. <a href="#privacy">Подробнее</a></p>
+  <button class="primary" id="ckOk">Понятно</button>
+</div>
 
 <div class="modal" id="modal" hidden>
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="mt">
@@ -4338,7 +4421,7 @@ document.addEventListener("click",e=>{const b=e.target.closest("[data-pft]");if(
 function drawPlayer(){rescueSet();const p=P(PFN);if(!p)return;PF={p,own:false};
   // фон профиля другого игрока — на всю страницу, как в своём профиле
   $("plBody").innerHTML=pfBigLayer(profBg(p))+`<button class="pf-back" id="pfBack">${svgI(PI.back)}Назад</button>`+pfHTML(p,false);pfBigSet("plBody");$("pfBack").onclick=()=>go(pfBack&&pfBack!=="player"?pfBack:"stats");pfAfter()}
-function setLogin(v){if(SRV){if(v)location.href="/auth/steam?ret="+encodeURIComponent("/"+location.hash);else api("/auth/logout",{}).catch(()=>{}).then(()=>location.reload());return}logged=v;setTimeout(()=>{try{drawOwnLink();if(curView==="support")drawSupport();if(curView==="tickets"&&!v)go("play")}catch(e){}},0);try{localStorage.setItem("demoLogin",v?"1":"0")}catch(e){}drawMe();if(typeof drawSkins==="function")drawSkins();if(typeof drawHomeProgress==="function")drawHomeProgress();if(typeof drawTiers==="function")drawTiers();if(typeof drawStats==="function")drawStats();if(v){if(curView!=="skins")go("me");toast("Вход выполнен (демо)")}else toast("Ты вышел из аккаунта")}
+function setLogin(v){if(SRV){if(v){if(window.pdLogin)pdLogin();else location.href="/auth/steam?ret="+encodeURIComponent("/"+location.hash)}else api("/auth/logout",{}).catch(()=>{}).then(()=>location.reload());return}logged=v;setTimeout(()=>{try{drawOwnLink();if(curView==="support")drawSupport();if(curView==="tickets"&&!v)go("play")}catch(e){}},0);try{localStorage.setItem("demoLogin",v?"1":"0")}catch(e){}drawMe();if(typeof drawSkins==="function")drawSkins();if(typeof drawHomeProgress==="function")drawHomeProgress();if(typeof drawTiers==="function")drawTiers();if(typeof drawStats==="function")drawStats();if(v){if(curView!=="skins")go("me");toast("Вход выполнен (демо)")}else toast("Ты вышел из аккаунта")}
 document.addEventListener("click",e=>{if(e.target.closest("[data-login]"))setLogin(true);if(e.target.closest('a[href="#me"]'))pfTab="info"});
 
 // ---------- админ-панель ----------
@@ -5901,7 +5984,7 @@ let shopTab="tiers";
 function setShopTab(t){shopTab=t;document.querySelectorAll("[data-shopt]").forEach(b=>b.setAttribute("aria-selected",b.dataset.shopt===t));document.querySelectorAll('#v-shop .shop-pane').forEach(p=>p.hidden=p.dataset.pane!==t);if(t==="style")drawCos();if(t==="models")drawModels()}
 document.addEventListener("click",e=>{const b=e.target.closest("[data-shopt]");if(b)setShopTab(b.dataset.shopt)});
 
-const VIEWS=["play","public","me","player","clan","case","wheel","quests","pass","market","upgrade","inventory","jackpot","support","tickets","shop","skins","stats","clans","ach","bans","rules","admin","offer","privacy","404"];
+const VIEWS=["play","public","me","player","clan","case","wheel","quests","pass","market","upgrade","inventory","jackpot","support","tickets","shop","skins","stats","clans","ach","bans","rules","admin","offer","privacy","consent","404"];
 let curView="play";
 function viewFrom(h){return !h?"play":VIEWS.includes(h)&&h!=="404"?h:"404"}
 function route(forced){try{closeProfile()}catch(e){}["modal","srvModal","cmdModal","clanModal","stkModal","tkModal","buyModal","tierModal"].forEach(id=>{const m=$(id);if(m)m.hidden=true});
@@ -5937,7 +6020,7 @@ function route(forced){try{closeProfile()}catch(e){}["modal","srvModal","cmdModa
   if(SRV&&(v==="support"||v==="tickets"))srvTickets();
   if(SRV&&v==="admin"){try{drawTkAdm()}catch(e){}try{drawAdmin();if(!document.querySelector('.adm-pane[data-pane="srv"]').hidden)srvAdmServer()}catch(e){}}
   document.querySelector(".rail").classList.remove("open");$("burger").setAttribute("aria-expanded","false");
-  {const T={play:"",public:"Public",me:"Мой профиль",player:"Профиль игрока",clan:"Клан",case:"Кейс",wheel:"Фортуна",upgrade:"Апгрейд",inventory:"Инвентарь",jackpot:"Джекпот",support:"Поддержка",tickets:"Тикеты",shop:"Магазин",skins:"Кейсы",stats:"Рейтинг",clans:"Кланы",quests:"Задания",pass:"Боевой пропуск",market:"Торговая площадка",ach:"Достижения",bans:"Банлист",rules:"Правила",admin:"Админ-панель",offer:"Публичная оферта",privacy:"Конфиденциальность","404":"Страница не найдена"};document.title=(T[v]?T[v]+" — ":"")+"Tasher CS2"}
+  {const T={play:"",public:"Public",me:"Мой профиль",player:"Профиль игрока",clan:"Клан",case:"Кейс",wheel:"Фортуна",upgrade:"Апгрейд",inventory:"Инвентарь",jackpot:"Джекпот",support:"Поддержка",tickets:"Тикеты",shop:"Магазин",skins:"Кейсы",stats:"Рейтинг",clans:"Кланы",quests:"Задания",pass:"Боевой пропуск",market:"Торговая площадка",ach:"Достижения",bans:"Банлист",rules:"Правила",admin:"Админ-панель",offer:"Публичная оферта",privacy:"Конфиденциальность",consent:"Согласие на обработку персональных данных","404":"Страница не найдена"};document.title=(T[v]?T[v]+" — ":"")+"Tasher CS2"}
   window.scrollTo(0,0);setTimeout(()=>{try{if(!document.documentElement.classList.contains("no-anim"))countIn(document.getElementById("v-"+v))}catch(e){}},30)}
 // переход по странице: работает и там, где ссылки с # не меняют адрес
 function go(v){route(v);try{if(location.hash!=="#"+v)history.pushState(null,"","#"+v)}catch(e){try{history.replaceState(null,"","#"+v)}catch(_){}}}
@@ -5976,6 +6059,37 @@ applySet();
 document.addEventListener("pointerdown",e=>{const b=e.target.closest(".steam,.tm-buy .primary,.ghost,.sheet .row button,.t6 .more2,.icon-btn");if(!b)return;const r=b.getBoundingClientRect(),d=Math.max(r.width,r.height),sp=document.createElement("span");sp.className="ripple";sp.style.cssText=`width:${d}px;height:${d}px;left:${e.clientX-r.left-d/2}px;top:${e.clientY-r.top-d/2}px`;b.appendChild(sp);setTimeout(()=>sp.remove(),650)});
 
 
+// ===== владелец сайта, согласие на обработку ПДн (152-ФЗ), cookies =====
+(function(){
+  const O=(typeof SRV==="object"&&SRV&&SRV.owner)||{},has=!!O.name;
+  const who=!has?"владелец проекта «Tasher» (сведения о нём будут опубликованы здесь после регистрации)":O.kind==="self"?`${O.name}, плательщик налога на профессиональный доход (самозанятый), ИНН ${O.inn||"—"}`:O.kind==="org"?`${O.name}, ИНН ${O.inn||"—"}, ОГРН ${O.ogrn||"—"}`:`индивидуальный предприниматель ${O.name}, ИНН ${O.inn||"—"}, ОГРНИП ${O.ogrn||"—"}`;
+  const card=has?[O.kind==="self"?`${O.name} (самозанятый)`:O.kind==="org"?O.name:`ИП ${O.name}`,`ИНН ${O.inn||"—"}`+(O.ogrn?`, ${O.kind==="org"?"ОГРН":"ОГРНИП"} ${O.ogrn}`:""),O.addr?`Адрес: ${O.addr}`:"",O.email?`Электронная почта: <a href="mailto:${esc(O.email)}">${esc(O.email)}</a>`:""].filter(Boolean).map(x=>x.startsWith("Электронная")?x:esc(x)).join("<br>"):"Сведения о владельце будут опубликованы здесь после регистрации. До этого обращения принимаются в разделе «Поддержка».";
+  document.querySelectorAll('[data-own="who"]').forEach(e=>e.textContent=e.hasAttribute("data-cap")?who[0].toUpperCase()+who.slice(1):who);
+  document.querySelectorAll('[data-own="card"]').forEach(e=>e.innerHTML=card);
+  document.querySelectorAll('[data-own="line"]').forEach(e=>{if(has){e.textContent=(O.kind==="self"?`${O.name} (самозанятый)`:O.kind==="org"?O.name:`ИП ${O.name}`)+` · ИНН ${O.inn||"—"}`+(O.ogrn?` · ${O.kind==="org"?"ОГРН":"ОГРНИП"} ${O.ogrn}`:"")+(O.email?` · ${O.email}`:"");e.hidden=false}});
+  // согласие
+  const VER=(typeof SRV==="object"&&SRV&&SRV.pdVer)||"",M=$("pdModal"),chk=$("pdAgree"),go=$("pdGo");let mode="login";
+  function openPd(m){mode=m;chk.checked=false;go.disabled=true;
+    $("pdT").textContent=m==="login"?"Вход через Steam":"Нужно твоё согласие";
+    $("pdTxt").textContent=m==="login"?"Для входа нужно твоё согласие на обработку персональных данных: Steam ID, ник и аватар Steam, игровая статистика.":"Мы обновили правила обработки персональных данных. Чтобы и дальше пользоваться аккаунтом, подтверди согласие.";
+    go.textContent=m==="login"?"Войти через Steam":"Продолжить";$("pdNo").textContent=m==="login"?"Отмена":"Выйти из аккаунта";
+    M.hidden=false;chk.focus()}
+  chk.onchange=()=>{go.disabled=!chk.checked};
+  go.onclick=()=>{if(!chk.checked)return;
+    if(mode==="login"){location.href="/auth/steam?pd="+encodeURIComponent(VER)+"&ret="+encodeURIComponent("/"+location.hash);return}
+    go.disabled=true;api("/api/consent",{ver:VER,agree:true}).then(()=>{M.hidden=true}).catch(e=>{go.disabled=false;try{toast(e.message)}catch(_){}})};
+  $("pdNo").onclick=()=>{if(mode==="login"){M.hidden=true;return}api("/auth/logout",{}).catch(()=>{}).then(()=>location.reload())};
+  document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!M.hidden&&mode==="login")M.hidden=true});
+  window.pdLogin=()=>openPd("login");
+  if(typeof SRV==="object"&&SRV&&SRV.user&&SRV.pdOk===false)openPd("existing");
+  // отзыв согласия
+  const rv=$("pdRevoke");if(rv&&typeof SRV==="object"&&SRV&&SRV.user){$("pdRow").hidden=false;let armed=false;
+    rv.onclick=()=>{if(!armed){armed=true;rv.textContent="Точно? Нажми ещё раз";setTimeout(()=>{armed=false;rv.textContent="Отозвать согласие"},5000);return}
+      rv.disabled=true;api("/api/consent",{ver:VER,agree:false}).then(()=>location.reload()).catch(e=>{rv.disabled=false;try{toast(e.message)}catch(_){}})}}
+  // cookies: только необходимые — просто сообщаем
+  let seen=false;try{seen=localStorage.getItem("ck1")==="1"}catch(e){}
+  if(!seen){const b=$("ckBar");b.hidden=false;$("ckOk").onclick=()=>{b.hidden=true;try{localStorage.setItem("ck1","1")}catch(e){}}}
+})();
 // ===== Новый год: гирлянда, отсчёт =====
 (function(){
   document.documentElement.classList.add("ny");

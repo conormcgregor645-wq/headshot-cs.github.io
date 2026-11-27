@@ -233,6 +233,9 @@ function open(file) {
      DELETE FROM case_free WHERE k='army';`,
     // 21: свои картинки для рейтинга (фон на подиуме и полоска в таблице) — проходят проверку админом
     `CREATE TABLE cos_img(sid TEXT NOT NULL, cat TEXT NOT NULL, data TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'wait', at INTEGER NOT NULL, PRIMARY KEY(sid, cat));`,
+    // 22: согласия на обработку персональных данных (152-ФЗ): кто, какую редакцию, когда, с какого IP — доказательство согласия
+    `CREATE TABLE pd_consent(id INTEGER PRIMARY KEY, sid TEXT NOT NULL, ver TEXT NOT NULL, at INTEGER NOT NULL, ip TEXT, ua TEXT, revoked_at INTEGER);
+     CREATE INDEX pd_consent_sid ON pd_consent(sid);`,
   ];
   for (let v = ver; v < MIG.length; v++) {
     db.exec("BEGIN");
