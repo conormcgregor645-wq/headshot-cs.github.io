@@ -4,12 +4,13 @@
 #   ключ — латиница/цифры/_, до 16 символов, такой же, как у предмета модели на сайте
 #   пример: bash model-add.sh neo "Нео" characters/models/tasher/neo/neo.vmdl
 # Убрать модель:  bash model-add.sh <ключ> --remove
+# Поменять местами модели CT и T (если перепутаны):  bash model-add.sh <ключ> --swap
 set -euo pipefail
 TS=/home/cs2/server/game/csgo/addons/counterstrikesharp/configs/plugins/TasherStyle/TasherStyle.json
 [ "$(id -u)" = 0 ] || { echo "запусти от root"; exit 1; }
 KEY=${1:-}; NAME=${2:-}; CT=${3:-}; T=${4:-$CT}
 [[ "$KEY" =~ ^[a-z0-9_]{1,16}$ ]] || { echo "ключ: латиница в нижнем регистре, цифры, _ (до 16 символов)"; exit 1; }
-if [ "$NAME" != "--remove" ]; then
+if [ "$NAME" != "--remove" ] && [ "$NAME" != "--swap" ]; then
   [[ "$CT" == *.vmdl && "$T" == *.vmdl ]] || { echo "укажи путь к модели .vmdl, например characters/models/tasher/neo/neo.vmdl"; exit 1; }
 fi
 TS="$TS" KEY="$KEY" NAME="$NAME" CT="$CT" T="$T" python3 - <<'PY'
@@ -20,6 +21,10 @@ except Exception: j = {}
 m = j.setdefault("Models", {})
 k = os.environ["KEY"]
 if os.environ["NAME"] == "--remove": m.pop(k, None); print("модель", k, "убрана")
+elif os.environ["NAME"] == "--swap":
+    if k not in m: raise SystemExit("модели " + k + " нет в конфиге")
+    m[k]["Ct"], m[k]["T"] = m[k].get("T", ""), m[k].get("Ct", "")
+    print("модель", k, "→ CT:", m[k]["Ct"], "| T:", m[k]["T"])
 else:
     m[k] = {"Name": os.environ["NAME"], "Ct": os.environ["CT"], "T": os.environ["T"]}
     print("модель", k, "→", m[k])
