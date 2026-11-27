@@ -55,8 +55,12 @@ const WEAPON = {
 };
 const weaponName = w => WEAPON[w] || (/^knife|bayonet/.test(w) ? "Нож" : w);
 
-// очки рейтинга из строки gstats
-const PTS = "MAX(0, k*2 + hs + a + pl*2 + df*3 + rw - tk*5)";
+// очки рейтинга: копятся по событиям в gstats.rpt и не уходят ниже нуля (см. ptsAdd)
+// убийство +2, хедшот +1, помощь +1, бомба +2, разминирование +3, победа в раунде +1, смерть −3, тимкилл −5
+const PTS = "rpt";
+const PT = { k: 2, hs: 1, a: 1, pl: 2, df: 3, rw: 1, d: -3, tk: -5 };
+// старая формула — чтобы перенести очки, набранные до появления штрафа за смерть
+const PTS_OLD = "MAX(0, k*2 + hs + a + pl*2 + df*3 + rw - tk*5)";
 
 const month = t => new Date(t + 3 * 3600e3).toISOString().slice(0, 7); // месяц по Москве: "2026-11"
 // сессия не длиннее 12 ч; тишина в журнале дольше 30 мин — считаем, что сервер был выключен
@@ -77,7 +81,15 @@ function makeStats(db, { bots = true } = {}) {
   const ups = Object.fromEntries(COLS.map(c => [c, db.prepare(`INSERT INTO gstats(sid,period,${c}) VALUES(?,?,?) ON CONFLICT(sid,period) DO UPDATE SET ${c}=${c}+excluded.${c}`)]));
   const upPlayer = db.prepare("INSERT INTO gplayers(sid,name,first_seen,last_seen) VALUES(?,?,?,?) ON CONFLICT(sid) DO UPDATE SET name=excluded.name, last_seen=MAX(last_seen,excluded.last_seen)");
   const upWeapon = db.prepare("INSERT INTO gweapons(sid,w,k) VALUES(?,?,1) ON CONFLICT(sid,w) DO UPDATE SET k=k+1");
-  const add = (sid, col, v, t) => { if (!sid || !v) return; ups[col].run(sid, "all", v); ups[col].run(sid, month(t), v); };
+  // очки рейтинга: по каждому событию, не ниже нуля
+  if (!db.prepare("PRAGMA table_info(gstats)").all().some(c => c.name === "rpt")) {
+    db.exec(`ALTER TABLE gstats ADD COLUMN rpt INTEGER NOT NULL DEFAULT 0; UPDATE gstats SET rpt=${PTS_OLD};`);
+  }
+  const upPts = db.prepare("INSERT INTO gstats(sid,period,rpt) VALUES(?,?,MAX(0,?)) ON CONFLICT(sid,period) DO UPDATE SET rpt=MAX(0, rpt + ?)");
+  const add = (sid, col, v, t) => {
+    if (!sid || !v) return; ups[col].run(sid, "all", v); ups[col].run(sid, month(t), v);
+    const d = (PT[col] || 0) * v; if (d) { upPts.run(sid, "all", d, d); upPts.run(sid, month(t), d, d); }
+  };
   const seen = (p, t) => { if (p && p.sid) upPlayer.run(p.sid, String(p.n).slice(0, 64), t, t); };
 
   // состояние текущей карты (в памяти): разминка, команды, сессии, счёт на карте для списка игроков
@@ -125,10 +137,10 @@ function makeStats(db, { bots = true } = {}) {
 
   // время текущей (ещё не закрытой) сессии — чтобы «время в игре» шло, пока игрок на сервере
   const openSec = sid => { const st = S.sess.get(sid); return st == null ? 0 : Math.round(Math.min(Math.max(0, Date.now() - st), MAX_SESSION) / 1000); };
-  // очки рейтинга: убийство 2, хедшот +1, помощь 1, бомба 2, разминирование 3, победа в раунде 1, тимкилл −5
+  // очки рейтинга: убийство +2, хедшот +1, помощь +1, бомба +2, разминирование +3, победа в раунде +1, смерть −3, тимкилл −5
   function top(period, limit = 200) {
-    const rows = db.prepare(`SELECT m.sid, p.name, p.last_seen, m.k mk, m.d md, m.hs mhs, m.a ma, m.pt mpt, ${PTS.replace(/\b(k|hs|a|pl|df|rw|tk)\b/g, "m.$1")} pts,
-        (SELECT MAX(${PTS.replace(/\b(k|hs|a|pl|df|rw|tk)\b/g, "b.$1")}) FROM gstats b WHERE b.sid=m.sid AND b.period!='all') bm,
+    const rows = db.prepare(`SELECT m.sid, p.name, p.last_seen, m.k mk, m.d md, m.hs mhs, m.a ma, m.pt mpt, ${PTS.replace(/\b(rpt|k|hs|a|pl|df|rw|tk)\b/g, "m.$1")} pts,
+        (SELECT MAX(${PTS.replace(/\b(rpt|k|hs|a|pl|df|rw|tk)\b/g, "b.$1")}) FROM gstats b WHERE b.sid=m.sid AND b.period!='all') bm,
         z.k, z.d, z.hs, z.a, z.pt, z.rw, z.rp, z.tk, z.pl, z.df
       FROM gstats m JOIN gplayers p ON p.sid=m.sid JOIN gstats z ON z.sid=m.sid AND z.period='all'
       WHERE m.period=? ORDER BY pts DESC, m.k DESC, p.last_seen DESC LIMIT ?`).all(period, limit);

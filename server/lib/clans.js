@@ -10,7 +10,7 @@ const PRIZES = [120000, 80000, 50000, 30000, 20000];
 const COLORS = ["#b5e853", "#ff8a3d", "#f5c451", "#3ddc97", "#5aa9ff", "#a78bfa", "#38d3ff", "#ff6b8b", "#eb4b4b"];
 const EMBS = ["star", "skull", "bolt", "crown", "wolf", "aim"];
 const MAX_SLOTS = 50, AVA_MAX = 200e3, COVER_MAX = 700e3;
-const PTS = "MAX(0, k*2 + hs + a + pl*2 + df*3 + rw - tk*5)";
+const PTS = "rpt"; // очки рейтинга (lib/gamelog.js: копятся по событиям, не ниже нуля)
 
 const err = (msg, code = 400) => { const e = new Error(msg); e.code = code; throw e; };
 const txt = (v, max) => String(v == null ? "" : v).replace(/[\u0000-\u001f\u007f\u2028\u2029]/g, " ").replace(/\s+/g, " ").trim().slice(0, max);
