@@ -239,6 +239,9 @@ function open(file) {
     // 23: убраны модели ножей «Роза» (старая модель без AnimGraph2) и «Синий тигр» (модель повёрнута) — снимаем с игроков
     `DELETE FROM cos_own WHERE item_id IN ('wm_rose','wm_tiger');
      UPDATE users SET cos_eq = json_remove(cos_eq, '$.wknife') WHERE json_extract(cos_eq, '$.wknife') IN ('wm_rose','wm_tiger');`,
+    // 24: модели оружия убраны совсем — в магазине только модели персонажей
+    `DELETE FROM cos_own WHERE item_id LIKE 'wm\\_%' ESCAPE '\\';
+     UPDATE users SET cos_eq = json_remove(cos_eq, '$.wknife', '$.wpistol', '$.wgun') WHERE cos_eq LIKE '%"w%';`,
   ];
   for (let v = ver; v < MIG.length; v++) {
     db.exec("BEGIN");
