@@ -110,6 +110,16 @@ if (-not $VdataOnly) {
     $pm = $pm.Substring(0, $i1) + '        if ($intern -notlike "weapons/*") { $skipped += "$name (не оружие)"; continue }' + $pm.Substring($j1 + $b1.Length)
     $i2 = $pm.IndexOf($a2); $j2 = $pm.IndexOf($b2)
     $pm = $pm.Substring(0, $i2) + "        # оружие уже в AnimGraph2 — переделка не нужна`r`n" + $pm.Substring($j2)
+    # Fix-Materials выкидывает ссылки на текстуры *_vmat_g_* (у моделей игроков это лишнее), а у оружия так
+    # называется основной цвет — без него модель красная. Оставляем такие ссылки, если картинка есть рядом.
+    $fm = [IO.File]::ReadAllText("$Porter\Fix-Materials.ps1")
+    $d1 = "if (`$line -match '_vmat_g_')"
+    $di = $fm.IndexOf($d1); $dj = $(if ($di -ge 0) { $fm.IndexOf("continue }", $di) } else { -1 })
+    if ($di -lt 0 -or $dj -lt 0 -or $pm.IndexOf('Join-Path $here "Fix-Materials.ps1"') -lt 0) { Say $false "эта версия CS2-AG2-Port не подходит (Fix-Materials.ps1). Напиши мне."; exit 1 }
+    $keep = 'if ($line -match ''_vmat_g_'') { $ref = [regex]::Match($line, ''"([^"]*_vmat_g_[^"]*)"''); if (-not ($ref.Success -and (Test-Path (Join-Path $MaterialsDir (Split-Path $ref.Groups[1].Value -Leaf))))) { $dropped++; continue } }'
+    $fm = $fm.Substring(0, $di) + $keep + $fm.Substring($dj + "continue }".Length)
+    [IO.File]::WriteAllText("$Porter\Fix-Materials.weapon.gen.ps1", $fm, (New-Object System.Text.UTF8Encoding($true)))
+    $pm = $pm.Replace('Join-Path $here "Fix-Materials.ps1"', 'Join-Path $here "Fix-Materials.weapon.gen.ps1"')
     $gen = "$Porter\Port-Weapon.gen.ps1"
     [IO.File]::WriteAllText($gen, $pm, (New-Object System.Text.UTF8Encoding($true)))
 
