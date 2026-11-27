@@ -17,10 +17,10 @@ F=$CSGO/cfg/gamemode_competitive_server.cfg
 if grep -q '^mp_friendlyfire' "$F"; then sed -i 's/^mp_friendlyfire.*/mp_friendlyfire 0/' "$F"; else echo 'mp_friendlyfire 0' >>"$F"; fi
 echo "mp_friendlyfire 0 записан в gamemode_competitive_server.cfg — урона по союзникам нет"
 # без автокика за тимкиллы и урон по своим и без бана на перезаход после кика (по умолчанию 15 минут)
-for k in "mp_autokick 0" "sv_kick_ban_duration 0"; do
+for k in "mp_autokick 0" "sv_kick_ban_duration 0" "mp_suicide_penalty 0" "mp_suicide_time 0"; do
   n=${k%% *}; if grep -q "^$n" "$F"; then sed -i "s/^$n.*/$k/" "$F"; else echo "$k" >>"$F"; fi
 done
-echo "mp_autokick 0 и sv_kick_ban_duration 0 — за тимкиллы больше не кикает и не банит"
+echo "mp_autokick 0, sv_kick_ban_duration 0, mp_suicide_penalty 0, mp_suicide_time 0 — за тимкиллы и самоубийства не кикает, не банит и не штрафует"
 # длинная карта: без смены сторон, до 100 побед одной из команд (дальше счёт обнуляет плагин TASHER Style)
 for k in "mp_maxrounds 201" "mp_halftime 0" "mp_match_can_clinch 0" "mp_overtime_enable 0"; do
   n=${k%% *}; if grep -q "^$n" "$F"; then sed -i "s/^$n.*/$k/" "$F"; else echo "$k" >>"$F"; fi
