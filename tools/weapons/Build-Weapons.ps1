@@ -231,11 +231,12 @@ $vdSrc = "$CONTENT\scripts\weapons.vdata"
 [IO.File]::WriteAllText($vdSrc, $final, $utf8)
 # исходник в game\ мешает: игра берёт его вместо собранного
 Remove-Item "$GAME\scripts\weapons.vdata" -Force -ErrorAction SilentlyContinue
-$before = $(if (Test-Path "$GAME\scripts\weapons.vdata_c") { (Get-Item "$GAME\scripts\weapons.vdata_c").LastWriteTime } else { [datetime]::MinValue })
-$log = Invoke-Native $RC @("-i", $vdSrc)
-Set-Content (Join-Path $env:TEMP "tasher_vdata_compile.log") -Value $log
 $outC = "$GAME\scripts\weapons.vdata_c"
-if (-not (Test-Path $outC) -or (Get-Item $outC).LastWriteTime -le $before -or $log -match 'ERROR: 0 compiled') {
+# старый собранный файл убираем: компилятор может посчитать его актуальным и ничего не собрать
+Remove-Item $outC -Force -ErrorAction SilentlyContinue
+$log = Invoke-Native $RC @("-i", $vdSrc, "-f")
+Set-Content (Join-Path $env:TEMP "tasher_vdata_compile.log") -Value $log
+if (-not (Test-Path $outC)) {
     ($log -split "`n" | Select-String 'ERROR|Error' | Select-Object -First 8) | Out-Host
     Say $false "weapons.vdata не скомпилировался — лог: $env:TEMP\tasher_vdata_compile.log"; exit 1
 }
