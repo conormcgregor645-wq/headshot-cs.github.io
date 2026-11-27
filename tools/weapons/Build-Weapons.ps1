@@ -14,6 +14,7 @@
 #     -Addon   — имя аддона из csgo_addons (тот же, где модели игроков)
 #     -Porter  — папка CS2-AG2-Port (если не нашлась сама)
 #     -VdataOnly — только пересобрать weapons.vdata (после обновления CS2), модели не трогать
+#     -FixMaterials — только починить и пересобрать материалы уже перенесённых моделей
 #
 # ВАЖНО: weapons.vdata в аддоне заменяет игровой целиком. После крупного обновления CS2 (новые оружия, баланс)
 # запусти с -VdataOnly и перезалей аддон — иначе в игре останутся старые параметры оружия.
@@ -24,9 +25,12 @@ param(
     [string]$Porter = "",
     [string]$S2V = "$env:USERPROFILE\s2v\Source2Viewer-CLI.exe",
     [string]$CS2Path = "C:\Program Files (x86)\Steam\steamapps\common\Counter-Strike Global Offensive",
-    [switch]$VdataOnly
+    [switch]$VdataOnly,
+    [switch]$FixMaterials
 )
 $ErrorActionPreference = "Stop"
+# числа в материалах — с точкой, при русской раскладке Windows иначе пишет "1,000000" и цвет ломается
+[Threading.Thread]::CurrentThread.CurrentCulture = [Globalization.CultureInfo]::InvariantCulture
 $utf8 = New-Object System.Text.UTF8Encoding($false)
 
 function Say($ok, $msg) { if ($ok) { Write-Host "  OK  $msg" -ForegroundColor Green } else { Write-Host "  !!  $msg" -ForegroundColor Red } }
@@ -39,6 +43,33 @@ function Invoke-Native([string]$Exe, [string[]]$Arguments) {
     } finally { Remove-Item $o, $e -Force -ErrorAction SilentlyContinue }
 }
 
+# Материалы, пересобранные из .vmat_c: числа с запятой (русская Windows) ломают цвет — модель становится красной;
+# у обводки (outliner) пропадает ссылка на её цветную текстуру. Чиним и компилируем каждый материал заново.
+function Repair-WeaponMaterials {
+    $root = "$CONTENT\weapons"
+    if (-not (Test-Path $root)) { Say $false "в аддоне нет папки weapons — сначала перенеси модели"; return $false }
+    $ok = 0; $bad = @()
+    foreach ($v in (Get-ChildItem $root -Recurse -Filter *.vmat -ErrorAction SilentlyContinue)) {
+        $t = [IO.File]::ReadAllText($v.FullName); $o = $t
+        $t = [regex]::Replace($t, '(?m)^(\s*g_v\w+\s+")([^"]*)"', { param($m) $m.Groups[1].Value + ($m.Groups[2].Value -replace '(\d),(\d)', '$1.$2') + '"' })
+        $t = [regex]::Replace($t, '(?m)^(\s*g_fl\w+\s+)(-?\d+),(\d+)\s*$', '$1$2.$3')
+        if ($t -notmatch '(?m)^\s*TextureColor\s') {
+            $comp = Get-ChildItem $v.DirectoryName -Filter "$($v.BaseName)_vmat_g_tcolor_*.png" -ErrorAction SilentlyContinue | Select-Object -First 1
+            if ($comp) {
+                $rel = $comp.FullName.Substring($CONTENT.Length + 1) -replace '\\', '/'
+                $i = $t.LastIndexOf('}')
+                if ($i -gt 0) { $t = $t.Substring(0, $i) + "`tTextureColor `"$rel`"`r`n" + $t.Substring($i) }
+            }
+        }
+        if ($t -ne $o) { [IO.File]::WriteAllText($v.FullName, $t, $utf8) }
+        $log = Invoke-Native $RC @("-i", $v.FullName, "-f")
+        if ($log -match 'ERROR: 0 compiled' -or $log -match 'RESOURCE COMPILE ERROR') { $bad += $v.Name } else { $ok++ }
+    }
+    if ($bad.Count) { Say $false ("материалы не собрались: " + ($bad -join ", ")) }
+    Say ($ok -gt 0) "материалов пересобрано: $ok"
+    return ($bad.Count -eq 0)
+}
+
 # ---------------------------------------------------------------- проверки
 $RC = "$CS2Path\game\bin\win64\resourcecompiler.exe"
 $PAK = "$CS2Path\game\csgo\pak01_dir.vpk"
@@ -47,6 +78,12 @@ $GAME = "$CS2Path\game\csgo_addons\$Addon"
 Write-Host "`nTASHER: модели оружия -> аддон '$Addon'`n" -ForegroundColor Cyan
 foreach ($p in @(@{p = $RC; n = "resourcecompiler (CS2 Workshop Tools)" }, @{p = $S2V; n = "Source2Viewer-CLI" }, @{p = $PAK; n = "pak01_dir.vpk" }, @{p = $CONTENT; n = "аддон в content\csgo_addons" })) {
     if (-not (Test-Path $p.p)) { Say $false "не найден $($p.n): $($p.p)"; exit 1 }
+}
+if ($FixMaterials) {
+    Write-Host "Чиню материалы моделей оружия..." -ForegroundColor Cyan
+    $null = Repair-WeaponMaterials
+    Write-Host "Готово. Перезапусти CS2 через Workshop Tools и проверь цвета." -ForegroundColor Cyan
+    exit 0
 }
 if (-not $VdataOnly) {
     if (-not $Source -or -not (Test-Path $Source)) { Say $false "укажи -Source — папку с распакованными архивами оружия"; exit 1 }
@@ -120,6 +157,7 @@ if (-not $VdataOnly) {
     $fm = $fm.Substring(0, $di) + $keep + $fm.Substring($dj + "continue }".Length)
     [IO.File]::WriteAllText("$Porter\Fix-Materials.weapon.gen.ps1", $fm, (New-Object System.Text.UTF8Encoding($true)))
     $pm = $pm.Replace('Join-Path $here "Fix-Materials.ps1"', 'Join-Path $here "Fix-Materials.weapon.gen.ps1"')
+    $pm = $pm.Replace('$ErrorActionPreference = "Stop"', '$ErrorActionPreference = "Stop"; [Threading.Thread]::CurrentThread.CurrentCulture = [Globalization.CultureInfo]::InvariantCulture')
     $gen = "$Porter\Port-Weapon.gen.ps1"
     [IO.File]::WriteAllText($gen, $pm, (New-Object System.Text.UTF8Encoding($true)))
 
@@ -132,6 +170,7 @@ if (-not $VdataOnly) {
     }
     $models = @($models | Where-Object { $fail -notcontains $_.Name })
     if (-not $models.Count) { exit 1 }
+    $null = Repair-WeaponMaterials
 }
 
 # ---------------------------------------------------------------- 2. weapons.vdata
