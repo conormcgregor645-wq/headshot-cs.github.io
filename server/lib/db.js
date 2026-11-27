@@ -236,6 +236,9 @@ function open(file) {
     // 22: согласия на обработку персональных данных (152-ФЗ): кто, какую редакцию, когда, с какого IP — доказательство согласия
     `CREATE TABLE pd_consent(id INTEGER PRIMARY KEY, sid TEXT NOT NULL, ver TEXT NOT NULL, at INTEGER NOT NULL, ip TEXT, ua TEXT, revoked_at INTEGER);
      CREATE INDEX pd_consent_sid ON pd_consent(sid);`,
+    // 23: убраны модели ножей «Роза» (старая модель без AnimGraph2) и «Синий тигр» (модель повёрнута) — снимаем с игроков
+    `DELETE FROM cos_own WHERE item_id IN ('wm_rose','wm_tiger');
+     UPDATE users SET cos_eq = json_remove(cos_eq, '$.wknife') WHERE json_extract(cos_eq, '$.wknife') IN ('wm_rose','wm_tiger');`,
   ];
   for (let v = ver; v < MIG.length; v++) {
     db.exec("BEGIN");
