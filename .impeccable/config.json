@@ -1,0 +1,39 @@
+{
+  "hook": {
+    "enabled": true,
+    "limits": {
+      "maxFindings": 5,
+      "maxChars": 8000
+    }
+  },
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "dark-glow",
+        "value": "*",
+        "files": [
+          "index.html"
+        ],
+        "createdAt": "2026-11-27T01:46:49.721Z",
+        "reason": "owner: neon gaming style of tashercs.ru, kept on purpose in the 2026-11 polish"
+      },
+      {
+        "rule": "pulsing-dot",
+        "value": "*",
+        "files": [
+          "index.html"
+        ],
+        "createdAt": "2026-11-27T01:46:49.729Z",
+        "reason": "owner: neon gaming style of tashercs.ru, kept on purpose in the 2026-11 polish (live indicators)"
+      },
+      {
+        "rule": "overused-font",
+        "value": "montserrat",
+        "createdAt": "2026-11-27T01:46:49.737Z",
+        "reason": "owner: neon gaming style of tashercs.ru, kept on purpose in the 2026-11 polish (brand font)"
+      }
+    ]
+  }
+}
