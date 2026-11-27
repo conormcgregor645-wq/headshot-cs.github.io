@@ -217,7 +217,7 @@ footer nav{flex-direction:row;gap:16px;flex-wrap:wrap}
 .mc-head>span{display:flex;align-items:center;gap:8px;margin-top:8px;font-family:var(--f-mono);font-size:18px;color:#fff}
 .dot{width:10px;height:10px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent);font-style:normal}
 .mc-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;color:#ddd}
-.mc-foot .go{background:linear-gradient(135deg,var(--accent),var(--accent-2));color:var(--on-accent);border-radius:10px;padding:8px 12px;font-weight:800;font-size:13px;opacity:0;transform:translateY(6px);transition:.2s}
+.mc-foot .go{background:linear-gradient(135deg,var(--accent),var(--accent-2));color:var(--on-accent);border-radius:10px;padding:8px 12px;font-weight:800;font-size:13px;opacity:0;transform:translateY(6px);transition:opacity .2s var(--ease),transform .2s var(--ease)}
 .mode-card:hover .go,.mode-card:focus-visible .go{opacity:1;transform:none}
 @media (hover:none){.mc-foot .go{opacity:1;transform:none}}
 .site-stats{display:flex;justify-content:center;gap:clamp(24px,6vw,90px);flex-wrap:wrap;padding-block:18px;border-top:1px solid var(--line)}
@@ -244,8 +244,8 @@ footer nav{flex-direction:row;gap:16px;flex-wrap:wrap}
 .filters{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:8px}
 .switch{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:700;padding:0 8px;cursor:pointer}
 .switch input{position:absolute;opacity:0;width:1px;height:1px}
-.switch span{width:38px;height:22px;border-radius:22px;background:var(--line);position:relative;transition:.2s;flex:none}
-.switch span::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:var(--fg);transition:.2s}
+.switch span{width:38px;height:22px;border-radius:22px;background:var(--line);position:relative;transition:background-color .18s var(--ease);flex:none}
+.switch span::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:var(--fg);transition:transform .18s var(--ease)}
 .switch input:checked+span{background:var(--accent)}
 .switch input:checked+span::after{left:19px}
 .switch input:focus-visible+span{outline:2px solid var(--accent);outline-offset:2px}
@@ -823,7 +823,7 @@ footer nav{flex-direction:row;gap:16px;flex-wrap:wrap}
 .tm-price s{font-family:var(--f-mono);font-size:13px;color:var(--muted);margin-left:8px}
 .tm-price small{font-size:13px;color:var(--muted);margin-left:6px}
 .tm-buy{display:flex;gap:8px}
-.tm-buy .primary{flex:1;background:var(--accent);color:#fff;border:0;border-radius:12px;padding:13px;font-weight:800;font-size:15px}
+.tm-buy .primary{flex:1;background:var(--accent);color:var(--on-accent);border:0;border-radius:12px;padding:13px;font-weight:800;font-size:15px}
 .tm-buy .primary:hover{background:#9fd43f}
 .tm-gift{width:50px;border:1px solid var(--line);background:var(--panel-2);border-radius:12px;display:grid;place-items:center;padding:0}
 .tm-gift svg{width:20px;height:20px;fill:none;stroke:var(--fg);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
@@ -1000,7 +1000,7 @@ nav a.on{box-shadow:inset 3px 0 0 var(--accent)}
 @keyframes livep{70%{box-shadow:0 0 0 8px rgba(61,220,151,0)}100%{box-shadow:0 0 0 0 rgba(61,220,151,0)}}
 .av{border-radius:10px;transition:transform .25s var(--ease)}
 .who:hover .av,.prow:hover .av,.mrow:hover .av{transform:scale(1.12) rotate(-4deg)}
-.switch span,.switch span::after{transition:all .3s var(--ease)}
+.switch span{transition:background-color .2s var(--ease),box-shadow .2s var(--ease)}.switch span::after{transition:transform .2s var(--ease),background-color .2s var(--ease)}
 .faq summary,.nav-more summary .chev{transition:transform .25s var(--ease)}
 .badge,.tag,.przc,.st,.vip-pill,.ntag,.lim,.pill{border-radius:999px!important}
 .prize-card.god{transition:transform .3s var(--ease)}
@@ -1776,9 +1776,6 @@ html.no-anim #fx{display:none}
 .wf-pin{animation:fxNod 2.6s ease-in-out infinite}
 @keyframes fxNod{50%{transform:translateX(-50%) translateY(3px)}}
 /* появление при прокрутке */
-.rv{opacity:0;transform:translateY(18px)}
-.rv.in{opacity:1;transform:none;transition:opacity .6s var(--ease),transform .6s var(--ease);transition-delay:var(--rd,0ms)}
-html.no-anim .rv{opacity:1;transform:none}
 /* активный пункт меню */
 nav a.on{box-shadow:inset 2px 0 0 var(--accent),0 0 22px rgba(181,232,83,0.120)}
 nav a.on svg{filter:drop-shadow(0 0 6px rgba(181,232,83,0.800))}
@@ -2557,8 +2554,8 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;ba
 .cs-card.fromps{border-color:rgba(245,196,81,.55)!important}
 .cs-fps{position:absolute;top:10px;left:10px;z-index:3;padding:3px 8px;border-radius:7px;background:#f5c451;color:#1a1205;font-size:11px;font-weight:900}
 .cs-sec.ps h2{color:#f5c451}
-.cz-fast{display:flex;align-items:center;gap:7px;height:54px;padding:0 16px;border-radius:14px;border:1px solid var(--line);background:rgba(9,9,11,.55);color:var(--muted);font:inherit;font-weight:800;font-size:14px;cursor:pointer;transition:all .2s}
-.cz-fast svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linejoin:round;transition:all .2s}
+.cz-fast{display:flex;align-items:center;gap:7px;height:54px;padding:0 16px;border-radius:14px;border:1px solid var(--line);background:rgba(9,9,11,.55);color:var(--muted);font:inherit;font-weight:800;font-size:14px;cursor:pointer;transition:color .15s,border-color .15s,background-color .15s,transform .1s ease-out}
+.cz-fast svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linejoin:round;transition:transform .2s var(--ease),fill .15s,stroke .15s}
 .cz-fast:hover{color:var(--fg);border-color:rgba(181,232,83,0.450)}
 .cz-fast[aria-checked="true"]{color:#d4f58a;border-color:rgba(181,232,83,0.600);background:rgba(181,232,83,0.120);box-shadow:0 0 16px rgba(181,232,83,0.180)}
 .cz-fast[aria-checked="true"] svg{fill:currentColor;filter:drop-shadow(0 0 6px rgba(255,200,80,.7))}
@@ -2631,7 +2628,7 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;ba
 @media (max-width:640px){.jpc-av{width:44px;height:44px}}
 
 .jp-stage{position:relative}
-.jp-hbtn{position:absolute;top:8px;right:8px;z-index:4;display:inline-flex;align-items:center;gap:7px;padding:8px 14px;border-radius:999px;border:1px solid rgba(181,232,83,0.300);background:rgba(11,11,13,.75);color:var(--fg);font:inherit;font-size:13px;font-weight:800;cursor:pointer;transition:all .2s}
+.jp-hbtn{position:absolute;top:8px;right:8px;z-index:4;display:inline-flex;align-items:center;gap:7px;padding:8px 14px;border-radius:999px;border:1px solid rgba(181,232,83,0.300);background:rgba(11,11,13,.75);color:var(--fg);font:inherit;font-size:13px;font-weight:800;cursor:pointer;transition:color .15s,border-color .15s,background-color .15s,transform .1s ease-out}
 .jp-hbtn svg{width:16px;height:16px;fill:none;stroke:var(--accent);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .jp-hbtn:hover{border-color:var(--accent);background:rgba(181,232,83,0.120)}
 .jp-hs{width:min(720px,100%)!important;max-height:min(86vh,820px);padding:0!important;gap:0!important;overflow:hidden}
@@ -2743,7 +2740,7 @@ nav a.on,nav a.on svg{color:#b5e853!important}
 #mainnav a.on .nv-ic{background:linear-gradient(140deg,#c4f064,#8fc433);border-color:transparent;color:#0b1203;box-shadow:0 4px 14px rgba(181,232,83,.25)}
 #mainnav a.on svg{stroke:#0b1203!important}
 #mainnav a[data-v="shop"]:not(.on){color:#a9aca4!important}#mainnav a[data-v="shop"]:not(.on):hover{color:#fff!important}
-.nv-tag{font-style:normal;font-size:9.5px;font-weight:900;letter-spacing:.06em;padding:2px 6px;border-radius:6px;color:#0b1203;background:#b5e853}
+.nv-tag{font-style:normal;font-size:11px;font-weight:900;letter-spacing:.06em;padding:2px 6px;border-radius:6px;color:#0b1203;background:#b5e853}
 .nv-dot{width:7px;height:7px;border-radius:50%;background:#3ddc97;box-shadow:0 0 0 3px rgba(61,220,151,.18);margin-right:4px}
 
 /* KING — всегда золото */
@@ -2950,8 +2947,6 @@ nav a.on,nav a.on svg{color:#b5e853!important}
 @keyframes nkFlow{from{background-position:0% 0}to{background-position:200% 0}}
 
 /* ===== Новогоднее оформление ===== */
-#snow{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:45}
-html.no-snow #snow{display:none}
 html.ny body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(900px 500px at 15% -5%,rgba(125,211,252,.10),transparent 65%),radial-gradient(800px 520px at 100% 105%,rgba(232,57,77,.08),transparent 65%),radial-gradient(700px 400px at 60% 0%,rgba(255,211,107,.05),transparent 70%)}
 /* гирлянда */
 main{position:relative}
@@ -3215,13 +3210,40 @@ html.on-server #v-jackpot,html.on-server #v-wheel{position:relative}
 .co-rrow-m{position:relative;z-index:1;display:flex;align-items:center;gap:10px;width:100%;margin:auto 0;padding:10px 12px;background:linear-gradient(90deg,rgba(9,10,8,.85),rgba(9,10,8,.35) 60%,rgba(9,10,8,.6))}
 .co-rrow-m b{font:900 16px/1 var(--f-display);color:#b5e853;font-style:italic}.co-rrow-m i{width:22px;height:22px;border-radius:50%;background:#e8833a}.co-rrow-m em{width:70px;height:8px;border-radius:4px;background:rgba(255,255,255,.85)}
 .co-mdl img{width:100%;height:100%;object-fit:cover;border-radius:inherit}
+/* ===== полировка: impeccable · taste · animate ===== */
+:root{--ease-out:cubic-bezier(.23,1,.32,1);--ease-io:cubic-bezier(.645,.045,.355,1)}
+::selection{background:rgba(181,232,83,.32);color:#fff}
+input,textarea{caret-color:var(--accent)}
+/* боковое меню: прокрутка вместо обрезки на невысоких экранах */
+@media (min-width:821px){.rail{overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none}.rail::-webkit-scrollbar{display:none}}
+/* переключатель: ползунок едет transform'ом */
+.switch input:checked+span::after{left:3px;transform:translateX(16px)}
+/* подвал: ссылки по одной линии с текстом */
+footer nav{gap:22px}
+footer nav a{padding:4px 0;border-radius:0;background:none!important;box-shadow:none!important;color:var(--muted);text-decoration:underline;text-decoration-color:transparent;text-underline-offset:4px;transition:color .15s ease,text-decoration-color .15s ease}
+footer nav a:hover,footer nav a:focus-visible{color:var(--fg);text-decoration-color:currentColor}
+/* отклик на нажатие */
+.tier .buy:active,.cz-fast:active,.jp-hbtn:active,.tm-gift:active,.x:active{transform:scale(.97)}
+.mode-card:active{transform:scale(.985);transition-duration:.1s}
+/* окна: быстрее и мягче */
+.modal:not([hidden]){animation:fadeBg .2s ease-out}
+.modal:not([hidden])>.sheet,.modal:not([hidden])>.srv-sheet,.modal:not([hidden])>form{animation:popIn .26s var(--ease-out)}
+@keyframes popIn{from{opacity:0;transform:translateY(8px) scale(.97)}to{opacity:1;transform:none}}
+.view.enter{animation:viewIn .3s var(--ease-out)}
+@keyframes viewIn{from{opacity:.5;transform:translateY(6px)}to{opacity:1;transform:none}}
+/* цифры не прыгают при отсчёте */
+.pf-stats b,.rt-pts,.wf-row b,.site-stats b,.top-online b{font-variant-numeric:tabular-nums}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .view.enter,.view.enter *,.modal:not([hidden]),.modal:not([hidden])>*{animation:none!important}
+  .pulse,.eyebrow .dot,.sp-live .dot,.drops-h i,.bar span::after,.pp-btn::after,.urc-wave,.wf-pin{animation:none!important}
+}
 </style>
 </head>
 <body>
 
 
 <canvas id="fx" aria-hidden="true"></canvas>
-<canvas id="snow" aria-hidden="true"></canvas>
 <div class="app">
   <aside class="rail">
     <div class="rail-top">
@@ -3272,7 +3294,7 @@ html.on-server #v-jackpot,html.on-server #v-wheel{position:relative}
     <!-- PLAY -->
     <div class="view" id="v-play">
       <div class="home-hero">
-      <div class="page-head home-head"><span class="eyebrow"><i class="dot"></i> Сервер онлайн</span><h1>Заходи играть</h1><p>Нажми на карточку, чтобы выбрать сервер и подключиться.</p></div>
+      <div class="page-head home-head"><h1>Заходи играть</h1><p>Нажми на карточку, чтобы выбрать сервер и подключиться.</p></div>
       <div class="modes-grid">
         <a class="mode-card" href="#public"><i class="ny-cap" aria-hidden="true"></i>
           <div class="mc-head"><b>PUBLIC</b><span><i class="dot"></i><span id="pubOnline">0</span></span></div>
@@ -3667,7 +3689,6 @@ html.on-server #v-jackpot,html.on-server #v-wheel{position:relative}
         <section class="box set-sec">
           <h2>Интерфейс</h2>
           <div class="set-row"><div><b>Анимации</b><small>Плавные переходы и эффекты</small></div><label class="switch"><input type="checkbox" data-set="anim"><span></span></label></div>
-          <div class="set-row"><div><b>Снегопад</b><small>Новогодний снег поверх сайта</small></div><label class="switch"><input type="checkbox" data-set="snow"><span></span></label></div>
           <div class="set-row"><div><b>Фоновая картинка</b><small>Арт карты вверху страницы</small></div><label class="switch"><input type="checkbox" data-set="bg"><span></span></label></div>
           <div class="set-row"><div><b>Звук открытия кейсов</b><small>Тихие щелчки прокрутки и мелодия выигрыша</small></div><label class="switch"><input type="checkbox" data-set="caseSound"><span></span></label></div>
         </section>
@@ -5924,10 +5945,10 @@ document.addEventListener("click",e=>{const a=e.target.closest('a[href^="#"]');i
 // ---------- меню профиля и настройки ----------
 const UI={u:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/>',set:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M2 12h3M19 12h3M4.9 19.1L7 17M17 7l2.1-2.1"/>',task:'<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 9l2 2 4-4M8 15h8"/>',ach:'<circle cx="12" cy="9" r="6"/><path d="M8.5 14L7 22l5-3 5 3-1.5-8"/>',news:'<path d="M4 5h13v14a2 2 0 0 0 2 2H6a2 2 0 0 1-2-2z"/><path d="M17 9h3v10a2 2 0 0 1-2 2M8 9h5M8 13h5M8 17h3"/>',shop:'<path d="M12 3l3 6 6 .9-4.5 4.3 1 6.3L12 17.6 6.5 20.5l1-6.3L3 9.9 9 9z"/>',out:'<path d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10"/>',steam:'<circle cx="16" cy="8" r="4"/><circle cx="8" cy="16" r="3"/><path d="M10.5 14.2 13 11"/>'};
 const ico=k=>`<svg viewBox="0 0 24 24">${UI[k]}</svg>`;
-let SET={publicProfile:true,showRating:true,clanTag:true,newsNotify:true,vipNotify:true,monthNotify:true,anim:true,bg:true,caseSound:true,snow:true,mail:""};
+let SET={publicProfile:true,showRating:true,clanTag:true,newsNotify:true,vipNotify:true,monthNotify:true,anim:true,bg:true,caseSound:true,mail:""};
 Object.assign(SET,lsGet("settings","obj")||{});if(typeof SET.mail!=="string")SET.mail="";
 const saveSet=()=>{try{localStorage.setItem("settings",JSON.stringify(SET))}catch(e){}};
-function applySet(){document.documentElement.classList.toggle("no-anim",!SET.anim);document.documentElement.classList.toggle("no-snow",SET.snow===false);document.body.style.backgroundImage=SET.bg?"":"none"}
+function applySet(){document.documentElement.classList.toggle("no-anim",!SET.anim);document.body.style.backgroundImage=SET.bg?"":"none"}
 let newsSeen=0;try{newsSeen=+localStorage.getItem("newsSeen")||0}catch(e){}
 function drawChip(){
   const chev='<svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>';
@@ -5955,21 +5976,9 @@ applySet();
 document.addEventListener("pointerdown",e=>{const b=e.target.closest(".steam,.tm-buy .primary,.ghost,.sheet .row button,.t6 .more2,.icon-btn");if(!b)return;const r=b.getBoundingClientRect(),d=Math.max(r.width,r.height),sp=document.createElement("span");sp.className="ripple";sp.style.cssText=`width:${d}px;height:${d}px;left:${e.clientX-r.left-d/2}px;top:${e.clientY-r.top-d/2}px`;b.appendChild(sp);setTimeout(()=>sp.remove(),650)});
 
 
-// ===== Новый год: снег, гирлянда, отсчёт =====
+// ===== Новый год: гирлянда, отсчёт =====
 (function(){
   document.documentElement.classList.add("ny");
-  // снег
-  const cv=document.getElementById("snow");if(cv){const cx=cv.getContext("2d");let W=0,H=0,F=[],last=0;
-    const N=()=>Math.round(Math.min(70,Math.max(30,innerWidth*innerHeight/20000)));
-    const mk=t=>({x:Math.random()*W,y:t?Math.random()*H:-8,r:Math.random()*2.3+.7,v:Math.random()*.6+.35,s:Math.random()*.8+.2,p:Math.random()*6.28,a:Math.random()*.45+.35});
-    const size=()=>{const d=1;if(W===innerWidth&&Math.abs(H-innerHeight)<160&&F.length)return;W=innerWidth;H=innerHeight;cv.width=W*d;cv.height=H*d;cx.setTransform(d,0,0,d,0,0);const n=N();while(F.length<n)F.push(mk(1));F.length=n};
-    const off=()=>document.documentElement.classList.contains("no-snow")||document.hidden;
-    function loop(t){requestAnimationFrame(loop);if(off()){if(last){cx.clearRect(0,0,W,H);last=0}return}
-      if(last&&t-last<30)return;const dt=last?Math.min(4,(t-last)/16.7):1;last=t;cx.clearRect(0,0,W,H);cx.fillStyle="#fff";
-      for(const f of F){f.p+=.012*dt;f.y+=f.v*dt*(.6+f.r*.25);f.x+=Math.sin(f.p)*f.s*.5*dt;if(f.y>H+8||f.x<-10||f.x>W+10)Object.assign(f,mk(0));
-        cx.globalAlpha=f.a;cx.beginPath();cx.arc(f.x,f.y,f.r,0,6.283);cx.fill()}cx.globalAlpha=1}
-    const start=()=>{size();addEventListener("resize",size);requestAnimationFrame(loop)};
-    if(document.readyState==="complete")setTimeout(start,600);else addEventListener("load",()=>setTimeout(start,600))}
   // гирлянда
   const g=document.getElementById("nyGarland");
   function garland(){if(!g)return;const w=g.clientWidth||innerWidth,n=Math.max(8,Math.round(w/52)),seg=w/n;let d=`M0 4`,b="";
@@ -5990,12 +5999,6 @@ document.addEventListener("pointerdown",e=>{const b=e.target.closest(".steam,.tm
     cx.clearRect(0,0,W,H);for(const p of P){p.y-=p.v;p.t+=.02;p.x+=p.dx+Math.sin(p.t)*.25;if(p.y<-10)Object.assign(p,mk());
       const al=p.a*(0.6+0.4*Math.sin(p.t*2));cx.beginPath();cx.fillStyle=`rgba(${p.c},${al})`;cx.shadowColor=`rgba(${p.c},.9)`;cx.shadowBlur=8;cx.arc(p.x,p.y,p.r,0,6.283);cx.fill()}
     requestAnimationFrame(loop)}
-  // появление при прокрутке
-  const RV=".rt-row:not(.rt-h),.srv,.box,.pf-panel,.wf-card,.ccard,.t6,.a3,.wcard,.cl-row,.pf-sk,.rule-sec";
-  const io="IntersectionObserver" in window?new IntersectionObserver(es=>es.forEach(en=>{if(en.isIntersecting){en.target.classList.add("in");io.unobserve(en.target)}}),{rootMargin:"0px 0px -6% 0px"}):null;
-  function scan(root){if(!io)return;let k=0;(root||document).querySelectorAll(RV).forEach(el=>{if(el.dataset.rv)return;el.dataset.rv=1;const r=el.getBoundingClientRect();if(r.top<innerHeight&&r.bottom>0)return;el.classList.add("rv");el.style.setProperty("--rd",(k++%6)*60+"ms");io.observe(el)})}
-  new MutationObserver(()=>{clearTimeout(scan.t);scan.t=setTimeout(()=>scan(),60)}).observe(document.querySelector("main")||document.body,{childList:true,subtree:true});
-  setTimeout(scan,300);
   // счётчики цифр
   window.countIn=function(root){(root||document).querySelectorAll(".pf-stats b,.pd .rt-pts>span,.wf-row b").forEach(el=>{const tn=[...el.childNodes].reverse().find(n=>n.nodeType===3&&/\d/.test(n.textContent));if(!tn||el.dataset.cnt)return;el.dataset.cnt=1;const raw=tn.textContent,m=raw.replace(/[\s ]/g,"").match(/^(\d+)(\.\d+)?(.*)$/);if(!m)return;const to=+(m[1]+(m[2]||"")),dec=m[2]?m[2].length-1:0,suf=m[3],t0=performance.now(),D=900;
     const f=t=>{const k=Math.min(1,(t-t0)/D),e=1-Math.pow(1-k,3),v=to*e;tn.textContent=(dec?v.toFixed(dec):fmt(Math.round(v)))+suf;if(k<1)requestAnimationFrame(f);else tn.textContent=raw};requestAnimationFrame(f)})};
