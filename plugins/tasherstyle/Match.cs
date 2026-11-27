@@ -85,7 +85,7 @@ public partial class TasherStyle
         var n = (_streak.TryGetValue(key0, out var s) ? s.n : 0) + 1;
         _streak[key0] = (n, now);
         if (a.IsBot) return HookResult.Continue;
-        // первое убийство игрока в раунде — его личная «первая кровь»; дальше серия. Звук и надпись — только самому игроку
+        // первое убийство игрока в раунде — его личная «первая кровь»; дальше серия. Звук (и надпись, если StreakText) — только самому игроку
         if (n == 1) { Announce(a, "FIRST BLOOD", "#ff3b3b"); PlayTo(a, "first"); return HookResult.Continue; }
         var (text, color, key) = StreakNames[Math.Min(n, StreakNames.Length - 1)];
         Announce(a, text, color);
@@ -106,6 +106,7 @@ public partial class TasherStyle
 
     private void Announce(CCSPlayerController p, string text, string color)
     {
+        if (!Config.StreakText) return; // по умолчанию только звук
         try { ShowScreenText(p, text, color); }
         catch (Exception ex) { Logger.LogWarning("[TASHER Style] надпись серии: {Error}", ex.Message); }
     }

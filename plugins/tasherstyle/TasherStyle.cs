@@ -89,6 +89,8 @@ public class StyleConfig : BasePluginConfig
     [JsonPropertyName("BalanceDiff")] public int BalanceDiff { get; set; } = 2;
     // дамагер: цифра урона у прицела при попадании
     [JsonPropertyName("DamageEnabled")] public bool DamageEnabled { get; set; } = true;
+    // надписи серий убийств (FIRST BLOOD, DOUBLE KILL…) посреди экрана; звук играет всегда
+    [JsonPropertyName("StreakText")] public bool StreakText { get; set; } = false;
     [JsonPropertyName("StreaksEnabled")] public bool StreaksEnabled { get; set; } = true;
     [JsonPropertyName("StreakWindow")] public float StreakWindow { get; set; } = 4f;
     // звуки серий — встроенные звуки CS2: first — первая кровь раунда, 2…5 — серия
