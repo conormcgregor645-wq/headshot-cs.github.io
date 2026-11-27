@@ -31,6 +31,10 @@ public partial class TasherStyle
                 if (IsSafeModel(w.Model)) manifest.AddResource(w.Model);
         });
         RegisterListener<Listeners.OnMapStart>(_ => _customWeapons.Clear());
+        // диагностика падений «GetEntServerClass failed for ent N»: при заходе и выходе игрока печатаем,
+        // какие предметы сейчас переключены на наши записи vdata (номер ent из ошибки сверяется с этим списком)
+        RegisterEventHandler<EventPlayerConnectFull>((e, _) => { LogCustomWeapons("заход " + (e.Userid?.PlayerName ?? "?")); return HookResult.Continue; });
+        RegisterEventHandler<EventPlayerDisconnect>((e, _) => { LogCustomWeapons("выход " + (e.Userid?.PlayerName ?? "?")); return HookResult.Continue; });
         RegisterEventHandler<EventPlayerSpawn>((e, _) =>
         {
             var p = e.Userid;
@@ -45,6 +49,22 @@ public partial class TasherStyle
                 Server.NextFrame(() => ApplyWeaponModels(p, false));
             return HookResult.Continue;
         });
+    }
+
+    private void LogCustomWeapons(string why)
+    {
+        if (Config.WeaponModels.Count == 0) return;
+        try
+        {
+            var list = _customWeapons.Select(kv =>
+            {
+                var e = Utilities.GetEntityFromIndex<CBasePlayerWeapon>((int)kv.Key);
+                var state = e is { IsValid: true } ? $"{e.DesignerName}, владелец {e.OwnerEntity.Index}" : "нет сущности";
+                return $"ent {kv.Key} → {kv.Value.Vdata} ({state})";
+            }).ToList();
+            Logger.LogInformation("[TASHER Style] оружие ({Why}): {Count} шт. {List}", why, list.Count, string.Join("; ", list));
+        }
+        catch (Exception ex) { Logger.LogWarning("[TASHER Style] оружие ({Why}): {Error}", why, ex.Message); }
     }
 
     private static bool IsSafeName(string s) => s.Length is > 3 and < 64 && s.All(c => char.IsAsciiLetterLower(c) || char.IsAsciiDigit(c) || c == '_');
@@ -75,7 +95,7 @@ public partial class TasherStyle
             if (spawn && knifeCfg != null)
             {
                 foreach (var w in weapons.Where(w => IsKnife(w.DesignerName) || (_customWeapons.TryGetValue(w.Index, out var c) && c.Slot == 2)))
-                { _customWeapons.Remove(w.Index); w.Remove(); }
+                { Logger.LogInformation("[TASHER Style] оружие: убран нож ent {Index} ({Name})", w.Index, w.DesignerName); _customWeapons.Remove(w.Index); w.Remove(); }
                 var knife = p.GiveNamedItem<CBasePlayerWeapon>("weapon_knife");
                 if (knife is { IsValid: true }) Fresh(knife, knifeCfg);
                 weapons = weapons.Where(w => w.IsValid).ToList();
@@ -102,6 +122,7 @@ public partial class TasherStyle
     private void Replace(CCSPlayerController p, CBasePlayerWeapon old, string baseName, WeaponModelCfg? cfg, bool wasActive)
     {
         int clip = old.Clip1, reserve = old.ReserveAmmo[0];
+        Logger.LogInformation("[TASHER Style] оружие: замена ent {Index} ({Name}) → {Vdata}, игрок {Player}", old.Index, old.DesignerName, cfg?.Vdata ?? baseName, p.PlayerName);
         _customWeapons.Remove(old.Index);
         old.Remove();
         var w = p.GiveNamedItem<CBasePlayerWeapon>(baseName);
@@ -121,6 +142,7 @@ public partial class TasherStyle
     private void Fresh(CBasePlayerWeapon w, WeaponModelCfg cfg)
     {
         _customWeapons[w.Index] = cfg;
+        Logger.LogInformation("[TASHER Style] оружие: ent {Index} ({Name}) → {Vdata}, владелец {Owner}", w.Index, w.DesignerName, cfg.Vdata, w.OwnerEntity.Index);
         Apply();
         Server.NextWorldUpdate(() => { if (w.IsValid && _customWeapons.TryGetValue(w.Index, out var c) && c == cfg) Apply(); });
 
