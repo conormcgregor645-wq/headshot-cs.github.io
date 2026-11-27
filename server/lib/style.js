@@ -37,7 +37,7 @@ function compose(r) {
   const killFx = KILL_FX.has(r.killFx) ? r.killFx : "", killSnd = KILL_SND.has(r.killSnd) ? r.killSnd : "";
   return { chat: parts.join(" "), name, score: score.slice(0, 16), smoke, killFx, killSnd, trail: fxColor(r.trailHex), tracer: fxColor(r.tracerHex), mvpSnd: "", // звук MVP убран 25.11.2026
     model: /^[a-z0-9_]{1,16}$/.test(r.model || "") ? r.model : "", // своя модель игрока — ключ из конфига плагина (Models)
-    wmodel: /^[a-z0-9_]{1,16}$/.test(r.wmodel || "") ? r.wmodel : "" }; // своя модель оружия — ключ из WeaponModels
+    wmodel: /^[a-z0-9_]{1,16}(,[a-z0-9_]{1,16}){0,3}$/.test(r.wmodel || "") ? r.wmodel : "" }; // свои модели оружия — ключи из WeaponModels через запятую (нож, пистолет, основное)
 }
 const q = s => "'" + String(s).replace(/[\\']/g, "") + "'";
 // fx — сколько колонок эффектов есть в таблице (их добавляет плагин): 0 — нет, 4 — kill_fx..tracer (1.1), 5 — ещё mvp_snd (1.3), 6 — ещё model, 7 — ещё wmodel; true = 4

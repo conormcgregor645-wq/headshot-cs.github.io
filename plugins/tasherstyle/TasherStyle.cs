@@ -117,10 +117,11 @@ public class StyleConfig : BasePluginConfig
 public class WeaponModelCfg
 {
     [JsonPropertyName("Name")] public string Name { get; set; } = "";
-    [JsonPropertyName("Base")] public string Base { get; set; } = "weapon_knife";   // какое оружие выдать, потом сменить ему запись vdata
+    [JsonPropertyName("Base")] public string Base { get; set; } = "weapon_knife";   // нож — weapon_knife; иначе класс оружия, которое переключаем (weapon_deagle)
     [JsonPropertyName("Vdata")] public string Vdata { get; set; } = "";              // имя своей записи в scripts/weapons.vdata аддона
     [JsonPropertyName("Model")] public string Model { get; set; } = "";              // путь .vmdl — загружаем заранее
     [JsonPropertyName("Slot")] public int Slot { get; set; } = 2;                     // 0 — основное, 1 — пистолет, 2 — нож
+    [JsonPropertyName("Def")] public int Def { get; set; }                            // номер предмета (для ножа — тип ножа, 526 — кукри); 0 — не менять
 }
 
 public class PlayerModelCfg
@@ -200,7 +201,7 @@ public partial class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
                     tracer VARCHAR(16) NOT NULL DEFAULT '',
                     mvp_snd VARCHAR(16) NOT NULL DEFAULT '',
                     model VARCHAR(16) NOT NULL DEFAULT '',
-                    wmodel VARCHAR(16) NOT NULL DEFAULT ''
+                    wmodel VARCHAR(80) NOT NULL DEFAULT ''
                 ) DEFAULT CHARSET=utf8mb4";
                 await cmd.ExecuteNonQueryAsync();
                 // таблица от прошлой версии плагина — добавляем колонки эффектов
@@ -214,11 +215,14 @@ public partial class TasherStyle : BasePlugin, IPluginConfig<StyleConfig>
                     try
                     {
                         await using var alter = c.CreateCommand();
-                        alter.CommandText = $"ALTER TABLE tasher_style ADD COLUMN `{col}` VARCHAR(16) NOT NULL DEFAULT ''";
+                        alter.CommandText = $"ALTER TABLE tasher_style ADD COLUMN `{col}` VARCHAR({(col == "wmodel" ? 80 : 16)}) NOT NULL DEFAULT ''";
                         await alter.ExecuteNonQueryAsync();
                     }
                     catch (Exception e) { ok = false; Logger.LogError("[TASHER Style] не удалось добавить колонку {Col}: {Error}", col, e.Message); }
                 }
+                // wmodel теперь — до трёх ключей через запятую (нож, пистолет, основное): расширяем старую колонку
+                try { await using var mod = c.CreateCommand(); mod.CommandText = "ALTER TABLE tasher_style MODIFY wmodel VARCHAR(80) NOT NULL DEFAULT ''"; await mod.ExecuteNonQueryAsync(); }
+                catch (Exception e) { Logger.LogWarning("[TASHER Style] колонка wmodel: {Error}", e.Message); }
                 _fxColumns = ok;
                 await CreateInfoTablesAsync(c);
                 await CreatePunishTableAsync(c);
