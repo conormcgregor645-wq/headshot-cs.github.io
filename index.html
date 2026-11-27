@@ -5517,7 +5517,6 @@ const CMP=[["Бой (с первого раунда)"],
  ["Деньги в начале раунда (кроме пистолетных)",["+$300","+$500","+$800","+$1 000","+$1 500","+$2 000"]],
  ["Внешний вид"],
  ["Тег в чате и в таблице счёта",["[VIP]","[PREMIUM]","[ELITE]","[LEGEND]","[TITAN]","[KING]"]],
- ["Приветствие с мелодией для всех при заходе на сервер",[1,1,1,1,1,1]],
  ["Цветной дым",[0,0,0,0,0,1]],
  ["Своя модель персонажа в игре",[0,0,0,"Флэш","Человек-паук","Бэтмен"]],
  ["Сайт"],
@@ -5529,7 +5528,7 @@ let tmI=0,tmPer=0;
 function tierPerks(i){const out=[];let cur=null;CMP.forEach(r=>{if(r.length===1){cur={h:r[0].replace(/ \(.*\)/,""),l:[]};out.push(cur);return}const v=r[1][i];if(v===0||["обычный","x1","$800"].includes(v))return;cur.l.push(v===1?r[0]:`${r[0]}: <b>${v}</b>`)});return out.filter(g=>g.l.length)}
 function drawTm(){const t=T6[tmI];$("tierModal").style.setProperty("--tc",t.c);$("tmT").textContent=t.n;
   $("tmPer").innerHTML=PER.map((p,k)=>`<button data-p="${k}" aria-pressed="${k===tmPer}">${p[1]}${p[2]?`<small>−${p[2]*100}%</small>`:""}</button>`).join("");
-  const g=tierPerks(tmI);$("tmList").innerHTML=`<h5>Возможности привилегии ${t.n}:</h5>`+g.map((x,k)=>`${k?`<h5>${x.h}:</h5>`:""}<ul>${x.l.map(l=>`<li>${l}</li>`).join("")}</ul>`).join("")+`<h5>Важно:</h5><ul><li>Бонусы работают с первого раунда, деньги — кроме пистолетных раундов</li><li>Статус начинает действовать в игре сразу после покупки</li><li>Меню привилегии в игре: !vip (W/S, E, Tab)</li></ul>`;
+  const g=tierPerks(tmI);$("tmList").innerHTML=`<h5>Возможности привилегии ${t.n}:</h5>`+g.map((x,k)=>`${k?`<h5>${x.h}:</h5>`:""}<ul>${x.l.map(l=>`<li>${l}</li>`).join("")}</ul>`).join("")+`<h5>Важно:</h5><ul><li>Меню привилегии в игре: !vip (W/S, E, Tab)</li></ul>`;
   $("tmPrice").textContent=fmt(priceOf(t.p,tmPer))+" ₽";$("tmOld").textContent=tmPer?fmt(fullOf(t.p,tmPer))+" ₽":"";$("tmFor").textContent="/ "+PER[tmPer][1]}
 function openTier(i){tmI=i;tmPer=0;drawTm();$("tierModal").hidden=false;$("tmList").scrollTop=0;$("tmBuy").focus()}
 $("tmPer").onclick=e=>{const b=e.target.closest("button");if(!b)return;tmPer=+b.dataset.p;drawTm()};
