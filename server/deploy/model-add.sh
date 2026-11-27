@@ -25,5 +25,6 @@ else:
     print("модель", k, "→", m[k])
 json.dump(j, open(p, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
 PY
+[ -n "${NORESTART:-}" ] && { echo "Записано (без перезапуска — перезапусти cs2 в конце: systemctl restart cs2)"; exit 0; }
 systemctl restart cs2
 echo "Готово. Сервер перезапущен — модель загрузится при следующем возрождении игрока, у которого она надета на сайте."
